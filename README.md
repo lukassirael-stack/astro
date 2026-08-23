@@ -1,4 +1,4 @@
-# Kairos · osobní nebeský kalendář
+# Nebeský kalendář
 
 PWA pro `kairos.oaza-adamanthea.cz`. Jeden `index.html` s veškerou logikou, výpočty běží v prohlížeči (knihovna astronomy-engine, MIT), data zůstávají v zařízení (localStorage).
 
@@ -19,7 +19,12 @@ PWA pro `kairos.oaza-adamanthea.cz`. Jeden `index.html` s veškerou logikou, vý
 
 **Při každé změně `index.html` zvedni `const CACHE = 'kairos-v1'` v `sw.js`** (stejné pravidlo jako u Tatev a admin panelu).
 
-## Co aplikace umí (v1)
+## Verze 1.1 — co se změnilo
+Povrch je teď praktický, technika je schovaná. Detail dne začíná jednou větou o dni, pak **Co dnes jde** a **Co bude stát víc sil** v běžné češtině, pak **Okna dne** s konkrétními časy. Všechny glyfy, orbisy a skóre jsou pod rozklikávacím **„Podrobnosti — pro astrologa"**. Nahoře v kalendáři je pás **Nejbližší dny** (14 dní dopředu se slovním hodnocením). Paleta je světlejší, barvy dnů kontrastnější, na pozadí je hvězdné nebe.
+
+Texty se skládají ze šablon v `createKairosTexts` — vrstva 1 (`dayLede`, `generalItems`) nezávisí na nativu a je stejná pro všechny, vrstva 2 (`personalItems`) pracuje s tranzity. To rozdělení je záměrné: až přijde placená verze, vrstva 1 zůstane volně a vrstva 2 se zamkne. AI napojení pak nahradí jen skládání vět, ne výpočty.
+
+## Co aplikace umí
 - **Kalendář** – barva dne (harmonický / neutrální / napjatý) podle tranzitů k nativu, Luny, Luny bez kurzu, Merkuru retro a Kp indexu. Ikony: ✦ tvá hvězda, ◉ zatmění, ⚡ Kp ≥ 5, ℞ Merkur zpět, ● ○ novoluní/úplněk, fáze Luny v rohu.
 - **Detail dne** – pás dne (světlo, planetární hodiny, Luna bez kurzu, přesné aspekty Luny, značka „teď“), seznam „tohle je ve hře“ s příspěvky ke skóre, pozadí období (Jupiter–Pluto), Luna (lunární den, východ/západ, fáze), Slunce a 24 planetárních hodin, polohy planet v poledne, úkazy dne.
 - **Úkazy** – rok dopředu: fáze (super/mikro úplněk), zatmění s viditelností z Halenkovic, rovnodennosti a slunovraty, opozice, elongace, stanice retrogradity, ingresy, těsné konjunkce planet a Luny s planetami, meteorické roje s rušením Lunou, Slunce/Venuše/Merkur/Mars na tvých hvězdách, heliakické východy tvých hvězd, vlastní komety.
@@ -45,5 +50,17 @@ Nativ pro 3. 9. 1980 16:04 Kroměříž srovnán se Swiss Ephemeris (pyswisseph 
 - Kp z 27denního výhledu je orientační. Erupce a sluneční vítr zatím nejsou.
 - Pomalé tranzity (Jupiter–Pluto) barvu dne záměrně neurčují – jsou „pozadí období“.
 
+## Obloha podle denni doby (v1.2)
+Ctyri palety - **rozednivani, den, stmivani, noc**. Na automatiku se prepinaji podle skutecneho vychodu a zapadu Slunce v nastavenem miste: rozednivani od 70 min pred vychodem do 50 min po nem, den do 60 min pred zapadem, stmivani do 70 min po zapadu, jinak noc. Prepina se pri otevreni, pri navratu na kartu a kazde 4 minuty. Rucne lze zvolit pevnou paletu v **Nastaveni -> Obloha**.
+
+Technicky: kazda paleta je sada CSS promennych na `[data-theme="..."]`. Barvy dnu jsou ulozene jako RGB triplety (`--harm-rgb`), aby sly michat s pruhlednosti. Ve svetlych paletach se skryva hvezdne pole a nabehne vrstva mraku (`drawClouds`), v tmavych naopak. Maly skript v `<head>` nastavi paletu jeste pred nactenim aplikace, aby to neproblesklo.
+
+Pridat patou paletu = blok promennych v CSS + polozka v `THEMES` + barva v `THEME_META`.
+
+## Kde upravit texty
+Všechno je v jednom bloku `createKairosTexts`: `SUN_TONE` (tón období), `MOON_EL` (živel dne), `MOON_SIGN` (Luna ve znamení), `phaseText` (fáze), `GO` / `COST` / `CONJ` (co která planeta přináší nebo stojí), `DOMAIN` (oblast života podle nativního bodu), `HOUR_USE` (na co je která planetární hodina), `dayWord` (slovo v mřížce).
+
 ## v2 (plán)
-Skener výjimečných dnů (stellia, velké trigony, T-kvadratury, stacionární planety, ingresy pomalých planet, okna „všechny planety direktní“, sluneční/lunární návraty, zatmění na osobních bodech) a elekce s katalogem úkonů (5 nejlepších dnů + proč). Pak login + Supabase pro klientskou verzi bez přepisu výpočtů.
+**Elekce — „chci investovat, kdy je vhodný čas"**: uživatel zvolí úkon (začít podnikání, podepsat smlouvu, cestovat, operace, svatba, stěhování, ceremonie, pohovor, těžký rozhovor…), systém proskenuje 90 dní dopředu podle pravidel pro ten úkon a vrátí pět nejlepších oken s odůvodněním. Pravidla: vládce úkonu silný, Luna nepoškozená, ne bez kurzu. U zdraví a peněz musí jazyk zůstat u „na tohle je vítr v zádech", nikdy u pokynu.
+
+Dál skener výjimečných dnů (stellia, velké trigony, T-kvadratury, stacionární planety, ingresy pomalých planet, okna „všechny planety direktní“, sluneční/lunární návraty, zatmění na osobních bodech) a elekce s katalogem úkonů (5 nejlepších dnů + proč). Pak login + Supabase pro klientskou verzi bez přepisu výpočtů.

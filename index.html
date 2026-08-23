@@ -3,13 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Kairos · osobní nebeský kalendář</title>
-<meta name="description" content="Kairos – osobní kalendář složený z postavení planet, Luny, stálic a kosmického počasí. Tohle je dnes ve hře.">
-<meta name="theme-color" content="#0C0F1C">
+<title>Nebeský kalendář</title>
+<meta name="description" content="Nebeský kalendář – osobní kalendář složený z postavení planet, Luny, stálic a kosmického počasí. Tohle je dnes ve hře.">
+<meta name="theme-color" content="#111832">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Kairos">
+<meta name="apple-mobile-web-app-title" content="Nebeský kalendář">
 <meta name="robots" content="noindex">
+<script>(function(){try{var st=JSON.parse(localStorage.getItem('kairos_settings')||'{}'),t=st.theme||'auto';
+if(t==='auto'){var h=new Date().getHours();t=h>=5&&h<8?'dawn':h>=8&&h<19?'day':h>=19&&h<22?'dusk':'night';}
+document.documentElement.dataset.theme=t;
+var c={dawn:'#EFDDD5',day:'#DFE8EE',dusk:'#2E2438',night:'#16263C'}[t];
+var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('content',c);}catch(e){}})();</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -18,27 +23,79 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
-  --bg:#0C0F1C; --bg2:#10142A; --surface:#151B2E; --surface2:#1C2439; --line:rgba(237,230,214,.10); --line2:rgba(237,230,214,.18);
-  --text:#EDE6D6; --muted:#9A9DB0; --gold:#D9B865; --gold2:#8F7A3F; --gold-soft:rgba(217,184,101,.14);
-  --harm:#7DB59A; --harm-soft:rgba(125,181,154,.16); --tense:#C8705D; --tense-soft:rgba(200,112,93,.16);
-  --moon:#D8D5CC; --sun:#E8C06A; --merc:#7FB3C9; --ven:#D79BB0; --mar:#C8705D; --jup:#D9A35B; --sat:#8A90A8;
+  /* NOC – podle nočního panelu vizuálu (modrošedá, ne fialová) */
+  --bg:#16263C; --bg2:#1E3149; --surface:#24344E; --surface2:#2D405C;
+  --line:rgba(238,232,219,.14); --line2:rgba(238,232,219,.25);
+  --text:#EFE8DB; --muted:#A6B3C6; --gold:#E4C579; --gold2:#9C8449; --gold-soft:rgba(228,197,121,.16);
+  --on-gold:#161204;
+  --harm-rgb:118,204,168; --tense-rgb:236,142,114; --sun-rgb:232,192,106;
+  --harm:rgb(var(--harm-rgb)); --tense:rgb(var(--tense-rgb));
+  --harm-soft:rgba(var(--harm-rgb),.18); --tense-soft:rgba(var(--tense-rgb),.18);
+  --moon:#D8D5CC; --moon-dark:#2B3E59; --sun:#E8C06A; --merc:#7FB3C9; --ven:#D79BB0; --mar:#C8705D; --jup:#D9A35B; --sat:#8A93A8;
+  --strip-bg:#0F1B2C; --strip-line:rgba(15,27,44,.9); --wheel-bg:#1B2C43;
+  --sky:linear-gradient(180deg,#13233A 0%,#1D3049 35%,#25405F 68%,#182A40 100%);
+  --glow:radial-gradient(ellipse at center,rgba(228,197,121,.11),transparent 62%);
+  --stars:.9; --tabs-bg:rgba(22,38,60,.93); --cell-a:1;
   --display:'Cormorant Garamond',Georgia,'Times New Roman',serif; --body:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+/* ---------- ROZEDNÍVÁNÍ – popelavá růž a broskev ---------- */
+[data-theme="dawn"]{
+  --bg:#EFDDD5; --bg2:#F7E7DA; --surface:#FFFAF3; --surface2:#F9EDE2;
+  --line:rgba(63,44,49,.14); --line2:rgba(63,44,49,.25);
+  --text:#39272E; --muted:#7C6567; --gold:#9E6A22; --gold2:#C9A251; --gold-soft:rgba(158,106,34,.12);
+  --on-gold:#FFF8EC;
+  --harm-rgb:26,116,90; --tense-rgb:180,70,44; --sun-rgb:206,132,54;
+  --moon:#8A7A78; --moon-dark:#E8D8CE; --sun:#CE8436; --merc:#3B7791; --ven:#AC5C7C; --mar:#AF4E32; --jup:#B07826; --sat:#6E6C7E;
+  --strip-bg:#EADCD3; --strip-line:rgba(255,252,247,.85); --wheel-bg:#F9EDE2;
+  --sky:linear-gradient(180deg,#9A94A6 0%,#B7A3A6 24%,#C9AFA6 45%,#DEB49C 72%,#FBD8AE 100%);
+  --glow:radial-gradient(ellipse at center,rgba(251,216,174,.5),transparent 66%);
+  --stars:.14; --tabs-bg:rgba(247,231,218,.95); --cell-a:1.3;
+}
+/* ---------- DEN – modř průhledu a teplé krémové mraky ---------- */
+[data-theme="day"]{
+  --bg:#DFE8EE; --bg2:#EDEFEA; --surface:#FDFBF5; --surface2:#F2F2EA;
+  --line:rgba(24,44,68,.14); --line2:rgba(24,44,68,.25);
+  --text:#1B2C42; --muted:#566780; --gold:#8F6A18; --gold2:#C9A251; --gold-soft:rgba(143,106,24,.12);
+  --on-gold:#FFFBF2;
+  --harm-rgb:20,112,86; --tense-rgb:172,64,40; --sun-rgb:194,132,40;
+  --moon:#76829A; --moon-dark:#D5E0EA; --sun:#C28428; --merc:#2C7290; --ven:#A4577A; --mar:#A9452D; --jup:#A07421; --sat:#616F88;
+  --strip-bg:#DDE6EC; --strip-line:rgba(253,251,245,.9); --wheel-bg:#F2F2EA;
+  --sky:linear-gradient(180deg,#2F6BA4 0%,#6E9CC6 20%,#A9C4D9 42%,#CFD9D6 68%,#F0E3BD 100%);
+  --glow:radial-gradient(ellipse at center,rgba(255,252,240,.6),transparent 64%);
+  --stars:0; --tabs-bg:rgba(237,239,234,.95); --cell-a:1.3;
+}
+/* ---------- STMÍVÁNÍ – rozžhavené mraky nad tmavnoucí modří ---------- */
+[data-theme="dusk"]{
+  --bg:#2E2438; --bg2:#3E2F41; --surface:#413245; --surface2:#4E3C50;
+  --line:rgba(247,234,222,.16); --line2:rgba(247,234,222,.27);
+  --text:#F7EADE; --muted:#C6ACAA; --gold:#F5CE85; --gold2:#A98A50; --gold-soft:rgba(245,206,133,.18);
+  --on-gold:#241705;
+  --harm-rgb:124,208,170; --tense-rgb:244,148,118; --sun-rgb:246,170,98;
+  --moon:#EEDFD0; --moon-dark:#4C3A50; --sun:#F6AA62; --merc:#8FBED4; --ven:#E2A0B4; --mar:#E27B5C; --jup:#E5B06A; --sat:#9B92A6;
+  --strip-bg:#231A2C; --strip-line:rgba(35,26,44,.9); --wheel-bg:#3E2F41;
+  --sky:linear-gradient(180deg,#3B3049 0%,#5C4459 22%,#8E5C58 46%,#C0745E 72%,#3A2C3E 100%);
+  --glow:radial-gradient(ellipse at center,rgba(251,195,117,.28),transparent 62%);
+  --stars:.42; --tabs-bg:rgba(46,36,56,.94); --cell-a:1;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.45;min-height:100vh;
-  background-image:radial-gradient(ellipse at 20% -10%,rgba(217,184,101,.07),transparent 55%),radial-gradient(ellipse at 90% 110%,rgba(125,181,154,.06),transparent 50%)}
+  background-image:var(--sky);background-attachment:fixed;transition:background-color .4s ease,color .4s ease}
+#stars{position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:var(--stars);transition:opacity .6s ease}
+#clouds{position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:calc(1 - var(--stars));transition:opacity .6s ease}
+#glow{position:fixed;left:50%;top:-30vh;width:120vw;height:80vh;transform:translateX(-50%);z-index:-1;pointer-events:none;
+  background:var(--glow)}
 a{color:var(--gold)}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .app{max-width:760px;margin:0 auto;padding:0 14px 96px}
 /* hlavička */
 .top{display:flex;align-items:baseline;justify-content:space-between;padding:18px 0 6px;border-bottom:1px solid var(--line)}
-.brand{font-family:var(--display);font-size:30px;font-weight:500;letter-spacing:.08em;color:var(--gold);margin:0;line-height:1}
+.brand{font-family:var(--display);font-size:29px;font-weight:600;letter-spacing:.01em;color:var(--gold);margin:0;line-height:1}
 .brand small{display:block;font-family:var(--body);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:6px}
 .profile-pill{font-size:12px;color:var(--muted);letter-spacing:.04em;padding:6px 10px;border:1px solid var(--line2);border-radius:999px;white-space:nowrap}
 /* navigace */
-.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:2px;padding:8px max(10px,env(safe-area-inset-left)) max(10px,env(safe-area-inset-bottom));background:rgba(12,15,28,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);z-index:20}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:2px;padding:8px max(10px,env(safe-area-inset-left)) max(10px,env(safe-area-inset-bottom));background:var(--tabs-bg);backdrop-filter:blur(10px);border-top:1px solid var(--line);z-index:20}
 .tab{flex:1;max-width:150px;padding:8px 4px;border-radius:10px;font-size:12px;letter-spacing:.03em;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
 .tab .g{font-size:17px;line-height:1}
 .tab.on{color:var(--gold);background:var(--gold-soft)}
@@ -50,14 +107,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .muted{color:var(--muted)}.small{font-size:12.5px}.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .btn{padding:9px 14px;border-radius:10px;border:1px solid var(--line2);font-size:13.5px;letter-spacing:.02em;background:var(--surface2)}
-.btn.primary{background:var(--gold);color:#161204;border-color:var(--gold);font-weight:500}
+.btn.primary{background:var(--gold);color:var(--on-gold);border-color:var(--gold);font-weight:500}
 .btn.ghost{background:transparent}
 .btn:disabled{opacity:.5;cursor:default}
 .chip{padding:5px 10px;border-radius:999px;border:1px solid var(--line2);font-size:12px;color:var(--muted)}
 .chip.on{color:var(--gold);border-color:var(--gold2);background:var(--gold-soft)}
 .badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11.5px;letter-spacing:.04em;border:1px solid var(--line2)}
-.badge.harm{color:var(--harm);border-color:rgba(125,181,154,.5);background:var(--harm-soft)}
-.badge.tense{color:var(--tense);border-color:rgba(200,112,93,.5);background:var(--tense-soft)}
+.badge.harm{color:var(--harm);border-color:rgba(var(--harm-rgb),.5);background:var(--harm-soft)}
+.badge.tense{color:var(--tense);border-color:rgba(var(--tense-rgb),.5);background:var(--tense-soft)}
 .badge.neutral{color:var(--muted)}
 .tone-harm{color:var(--harm)}.tone-tense{color:var(--tense)}.tone-gold{color:var(--gold)}
 .list{list-style:none;margin:0;padding:0}
@@ -72,17 +129,17 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .monthbar .mn{font-family:var(--display);font-size:26px;font-weight:500;letter-spacing:.02em}
 .monthbar .mn em{font-style:normal;color:var(--muted);font-size:18px;margin-left:8px}
 .navbtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);font-size:18px;display:grid;place-items:center}
-.today-strip{display:flex;gap:14px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,var(--surface),var(--bg2));margin:6px 0 12px;font-size:13px;overflow-x:auto;white-space:nowrap}
+.today-strip{display:flex;gap:14px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:6px 0 12px;font-size:13px;overflow-x:auto;white-space:nowrap}
 .today-strip .k{color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase;display:block}
 .today-strip .v{font-family:var(--mono);font-size:13px}
 .weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:4px}
 .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cell{position:relative;aspect-ratio:1/1.05;border-radius:10px;border:1px solid var(--line);background:var(--surface);padding:6px 6px 4px;text-align:left;transition:transform .12s ease;overflow:hidden}
 .cell:hover{transform:translateY(-1px)}
-.cell.harm{background:radial-gradient(circle at 50% 120%,rgba(125,181,154,var(--a,.22)),var(--surface) 70%);border-color:rgba(125,181,154,.35)}
-.cell.tense{background:radial-gradient(circle at 50% 120%,rgba(200,112,93,var(--a,.22)),var(--surface) 70%);border-color:rgba(200,112,93,.35)}
+.cell.harm{background:linear-gradient(165deg,rgba(var(--harm-rgb),calc(var(--a,.3) * .5 * var(--cell-a))),rgba(var(--harm-rgb),calc(var(--a,.3) * var(--cell-a))));border-color:rgba(var(--harm-rgb),.5)}
+.cell.tense{background:linear-gradient(165deg,rgba(var(--tense-rgb),calc(var(--a,.3) * .5 * var(--cell-a))),rgba(var(--tense-rgb),calc(var(--a,.3) * var(--cell-a))));border-color:rgba(var(--tense-rgb),.5)}
 .cell.empty{background:transparent;border-color:transparent}
-.cell.today{box-shadow:inset 0 0 0 1.5px var(--gold)}
+.cell.today{box-shadow:inset 0 0 0 2px var(--gold),0 0 14px var(--gold-soft)}
 .cell.sel{box-shadow:inset 0 0 0 1.5px var(--text)}
 .cell.today.sel{box-shadow:inset 0 0 0 1.5px var(--gold),0 0 0 2px rgba(217,184,101,.25)}
 .cell .d{font-family:var(--display);font-size:17px;font-weight:600;line-height:1}
@@ -94,6 +151,33 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @media (max-width:420px){.cell{padding:5px 5px 4px}.cell .d{font-size:15px}}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:10px 2px 0}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+/* nejbližší dny */
+.ahead{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;margin:0 -14px;padding-left:14px;padding-right:14px;scrollbar-width:none}
+.ahead::-webkit-scrollbar{display:none}
+.ahead .a{flex:none;width:62px;border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:8px 5px;text-align:center}
+.ahead .a.harm{border-color:rgba(var(--harm-rgb),.5);background:linear-gradient(180deg,rgba(var(--harm-rgb),calc(.2 * var(--cell-a))),rgba(var(--harm-rgb),.06))}
+.ahead .a.tense{border-color:rgba(var(--tense-rgb),.5);background:linear-gradient(180deg,rgba(var(--tense-rgb),calc(.2 * var(--cell-a))),rgba(var(--tense-rgb),.06))}
+.ahead .a.today{box-shadow:inset 0 0 0 2px var(--gold)}
+.ahead .a .wd{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ahead .a .dd{font-family:var(--display);font-size:20px;font-weight:600;line-height:1.1}
+.ahead .a .wo{font-size:9.5px;color:var(--muted);line-height:1.15;margin-top:2px}
+/* praktické bloky */
+.lede{font-family:var(--display);font-size:20px;line-height:1.35;margin:12px 0 4px;color:var(--text)}
+.panel{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0;background:var(--surface)}
+.panel.go{border-color:rgba(var(--harm-rgb),.32);background:linear-gradient(180deg,rgba(var(--harm-rgb),.09),transparent)}
+.panel.cost{border-color:rgba(var(--tense-rgb),.32);background:linear-gradient(180deg,rgba(var(--tense-rgb),.09),transparent)}
+.panel h4{margin:0 0 6px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.panel.go h4{color:var(--harm)}.panel.cost h4{color:var(--tense)}
+.panel ul{list-style:none;margin:0;padding:0}
+.panel li{padding:5px 0;display:flex;gap:8px;align-items:flex-start}
+.panel li::before{content:'·';color:var(--gold);flex:none;line-height:1.4}
+.panel li .n{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+.panel li.mine::before{content:'✦'}
+.tag{display:inline-block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line2);border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+.win{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.win .w{border:1px solid var(--line2);border-radius:10px;padding:7px 11px;font-size:13px;background:var(--bg2)}
+.win .w b{font-family:var(--mono);color:var(--gold);font-weight:500}
+.win .w span{display:block;font-size:11.5px;color:var(--muted)}
 /* detail dne */
 .day{margin-top:16px;border-top:1px solid var(--line2);padding-top:14px}
 .day-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
@@ -101,15 +185,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .day-title small{display:block;font-family:var(--body);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .score{font-family:var(--mono);font-size:12px;color:var(--muted)}
 /* pás dne – podpis aplikace */
-.strip{position:relative;height:74px;margin:14px 0 6px;border-radius:10px;overflow:hidden;background:#0B0E19;border:1px solid var(--line)}
-.strip .sky{position:absolute;inset:0;background:linear-gradient(90deg,#0B0E19,#0B0E19)}
-.strip .daylight{position:absolute;top:0;bottom:0;background:linear-gradient(180deg,rgba(232,192,106,.22),rgba(232,192,106,.06));border-left:1px solid rgba(232,192,106,.5);border-right:1px solid rgba(232,192,106,.5)}
-.strip .voc{position:absolute;top:0;bottom:18px;background:repeating-linear-gradient(135deg,rgba(200,112,93,.0) 0 5px,rgba(200,112,93,.35) 5px 7px)}
-.strip .hour{position:absolute;bottom:0;height:16px;border-right:1px solid rgba(12,15,28,.9)}
+.strip{position:relative;height:74px;margin:14px 0 6px;border-radius:10px;overflow:hidden;background:var(--strip-bg);border:1px solid var(--line)}
+.strip .sky{position:absolute;inset:0}
+.strip .daylight{position:absolute;top:0;bottom:0;background:linear-gradient(180deg,rgba(var(--sun-rgb),.26),rgba(var(--sun-rgb),.07));border-left:1px solid rgba(var(--sun-rgb),.55);border-right:1px solid rgba(var(--sun-rgb),.55)}
+.strip .voc{position:absolute;top:0;bottom:18px;background:repeating-linear-gradient(135deg,rgba(var(--tense-rgb),0) 0 5px,rgba(var(--tense-rgb),.35) 5px 7px)}
+.strip .hour{position:absolute;bottom:0;height:16px;border-right:1px solid var(--strip-line)}
 .strip .hour.cur{outline:1.5px solid var(--gold);outline-offset:-1.5px;z-index:2}
 .strip .hl{position:absolute;top:4px;font-family:var(--mono);font-size:10px;color:var(--muted);transform:translateX(-50%)}
 .strip .tick{position:absolute;top:20px;transform:translateX(-50%);font-size:13px;line-height:1;text-align:center}
-.strip .tick.harm{color:var(--harm)}.strip .tick.tense{color:var(--tense)}.strip .tick.neutral{color:var(--moon)}
+.strip .tick.harm{color:var(--harm)}.strip .tick.tense{color:var(--tense)}.strip .tick.neutral{color:var(--muted)}
 .strip .tick b{display:block;font-family:var(--mono);font-weight:400;font-size:9px;color:var(--muted);margin-top:1px}
 .strip .now{position:absolute;top:0;bottom:0;width:1.5px;background:var(--gold);box-shadow:0 0 8px var(--gold);z-index:3}
 .strip .sunmark{position:absolute;top:42px;font-size:11px;color:var(--sun);transform:translateX(-50%)}
@@ -163,9 +247,10 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 </style>
 </head>
 <body>
+<svg id="stars" aria-hidden="true"></svg><svg id="clouds" aria-hidden="true"></svg><div id="glow" aria-hidden="true"></div>
 <div class="app" id="app">
   <header class="top">
-    <h1 class="brand">KAIROS<small>osobní nebeský kalendář</small></h1>
+    <h1 class="brand">Nebeský kalendář<small>co je dnes ve hře</small></h1>
     <button class="profile-pill" id="profilePill" data-tab="nastaveni" title="Aktivní profil">—</button>
   </header>
   <main>
@@ -998,6 +1083,173 @@ function createKairosEngine(A) {
 }
 if (typeof module !== 'undefined') module.exports = createKairosEngine;
 
+/* ============================================================
+   KAIROS – textová vrstva
+   Převádí spočítanou strukturu dne na věcné české věty.
+   Vrstva 1 (obecná) nezávisí na nativu – stejná pro všechny.
+   Vrstva 2 (osobní) pracuje s tranzity k nativu.
+   Jazyk popisuje terén, nerozhoduje za člověka.
+   ============================================================ */
+function createKairosTexts(K) {
+  'use strict';
+
+  // --- Slunce ve znamení: tón období ---
+  const SUN_TONE = [
+    'začátky, odvaha, první krok', 'stabilita, tělo, hodnota věcí', 'zvědavost, kontakty, informace', 'domov, rodina, vnitřní bezpečí',
+    'viditelnost, tvorba, radost', 'třídění, detail, zdraví a řád', 'vztahy, rovnováha, dohody', 'hloubka, pravda, konec a proměna',
+    'rozhled, plány, smysl', 'práce, závazky, dlouhá trať', 'svoboda, nápady, společenství', 'ztišení, soucit, rozpouštění'
+  ];
+
+  // --- Luna: živel dne ---
+  const MOON_EL = {
+    'oheň': { lede: 'den táhne k akci', go: 'pohyb, sport, prosazení, začátky', cost: 'trpělivost a čekání' },
+    'země': { lede: 'den je praktický a pomalejší', go: 'ruční práce, úklid, peníze, tělo, jídlo', cost: 'improvizace a rychlé obraty' },
+    'vzduch': { lede: 'den je rychlý a ukecaný', go: 'domluvy, psaní, telefonáty, učení', cost: 'soustředění na jednu věc' },
+    'voda': { lede: 'den je citový a obrácený dovnitř', go: 'odpočinek, terapie, blízkost, tvorba', cost: 'chladná logika a tvrdá jednání' },
+  };
+  // --- Luna ve znamení: krátká charakteristika ---
+  const MOON_SIGN = [
+    'nedočkavá, chce první krok', 'pomalá a smyslová, chce pohodlí', 'zvědavá a roztěkaná', 'citlivá, chce domov',
+    'velkorysá, chce být vidět', 'pečlivá, chce mít pořádek', 'smířlivá, chce dohodu', 'intenzivní, jde pod povrch',
+    'rozmáchlá, chce ven', 'věcná, chce výsledek', 'nezávislá, chce prostor', 'prostupná, chce ticho'
+  ];
+
+  // --- fáze ---
+  function phaseText(ph) {
+    if (ph < 15 || ph > 345) return { name: 'novoluní', go: 'nový záměr, tichý start, semínko' };
+    if (ph < 90) return { name: 'dorůstající srpek', go: 'rozjezd, budování, přidávání' };
+    if (ph < 105) return { name: 'první čtvrt', go: 'překonat první překážku, přitlačit' };
+    if (ph < 175) return { name: 'dorůstající Luna', go: 'dotahovat k vrcholu, zviditelnit' };
+    if (ph < 195) return { name: 'úplněk', go: 'vyvrcholení, jasnost, ale i přetlak' };
+    if (ph < 270) return { name: 'couvající Luna', go: 'sklízet, předávat, uzavírat' };
+    if (ph < 285) return { name: 'poslední čtvrt', go: 'pustit, co doslouží' };
+    return { name: 'couvající srpek', go: 'úklid, odpočinek, prázdno před novým' };
+  }
+
+  // --- co která planeta v dobrém aspektu přináší / v napjatém stojí ---
+  const GO = {
+    Sun: 'jasnost a viditelnost', Mercury: 'domluvy, psaní, jednání', Venus: 'vztahy, chuť, smysl pro míru',
+    Mars: 'energie a rozhodné kroky', Jupiter: 'otevírání, důvěra, velký záběr', Saturn: 'trpělivá práce a dotažení',
+    Uranus: 'nový úhel pohledu', Neptune: 'jemné vnímání a představivost', Pluto: 'hloubka a schopnost jít na dřeň', Moon: 'citové naladění',
+  };
+  const COST = {
+    Sun: 'potřeba mít pravdu', Mercury: 'nedorozumění a zbrklá slova', Venus: 'ústupky, kde nemají být',
+    Mars: 'spěch, tření, popudlivost', Jupiter: 'přehánění a velké sliby', Saturn: 'tíha, pochyby, zpomalení',
+    Uranus: 'neklid a nečekané zvraty', Neptune: 'mlha, únava, nejasné hranice', Pluto: 'tlak a boj o kontrolu', Moon: 'kolísavá nálada',
+  };
+  const CONJ = {
+    Sun: 'silné světlo na tomhle místě', Mercury: 'plno myšlenek a slov', Venus: 'měkčí a vlídnější tón',
+    Mars: 'nabuzení, chce to ven', Jupiter: 'prostor se otevírá', Saturn: 'zkouška a nutnost zpevnit',
+    Uranus: 'něco se hýbe jinak, než čekáš', Neptune: 'obrysy se rozpouštějí', Pluto: 'jde to do hloubky', Moon: 'citová vlna',
+  };
+  // --- oblast, které se tranzit dotýká ---
+  const DOMAIN = {
+    Sun: 'směr a sebevědomí', Moon: 'pocity a klid', Mercury: 'myšlení a domluvy',
+    Venus: 'vztahy a peníze', Mars: 'energie a tělo', Jupiter: 'plány a důvěra',
+    Saturn: 'práce a závazky', Uranus: 'svoboda a změny', Neptune: 'intuice a sny',
+    Pluto: 'hloubka a téma moci', Asc: 'vystupování', MC: 'práce a veřejná role',
+  };
+
+  const strip = (s) => s.charAt(0).toLowerCase() + s.slice(1);
+
+  // ============ VRSTVA 1 – obecná věta o dni ============
+  function dayLede(da, ctxEvents) {
+    const el = K.ELEMENT[da.moonSign];
+    const ph = phaseText(da.phaseAngle);
+    const big = (ctxEvents || []).find(e => e.cat === 'zatmeni') || (ctxEvents || []).find(e => e.quarter === 0 || e.quarter === 2) || (ctxEvents || []).find(e => e.cat === 'slunce');
+    let s = `Luna v ${K.SIGN_LOC[da.moonSign]}, ${ph.name} — ${MOON_EL[el].lede}.`;
+    if (big) {
+      if (big.cat === 'zatmeni') s += ` Dnes ${strip(big.title)} — zatmění bývá cítit několik dní kolem.`;
+      else if (big.quarter === 0) s += ' Novoluní: dobrý den vyslovit záměr, ne ho hned tlačit.';
+      else if (big.quarter === 2) s += ' Úplněk: věci jsou vidět naostro, včetně toho, co jsi přehlížel.';
+      else s += ` ${big.title}: ${strip(big.note || '')}`;
+    }
+    return s;
+  }
+
+  // ============ VRSTVA 1 – obecné body ============
+  function generalItems(da, ctxEvents, rules) {
+    const go = [], cost = [];
+    const el = K.ELEMENT[da.moonSign];
+    const ph = phaseText(da.phaseAngle);
+    go.push({ text: MOON_EL[el].go, note: `Luna v ${K.SIGN_LOC[da.moonSign]} — ${MOON_SIGN[da.moonSign]}` });
+    go.push({ text: ph.go, note: `${ph.name}, ${Math.round(da.illum * 100)} % osvětlení` });
+    cost.push({ text: MOON_EL[el].cost, note: `dnešní živel je ${el}, tohle jde proti němu` });
+    for (const v of da.voc) {
+      const konec = v.toClip === da.dayEnd.getTime() ? 'půlnoci' : K.fmtTime(new Date(v.toClip), TZfrom(da));
+      cost.push({ text: `nezačínat nic nového od ${K.fmtTime(new Date(v.fromClip), TZfrom(da))} do ${konec}`, note: 'Luna bez kurzu — rozjeté věci dojedou, nové se drolí. Na dokončování a odpočinek je to naopak dobré okno.' });
+    }
+    if (da.mercuryRetro) cost.push({ text: 'podpisy, nákup techniky, důležité maily', note: 'Merkur retrográdní — vracet se k rozdělanému jde ale líp než jindy' });
+    if (da.kp && da.kp.kp >= 5) cost.push({ text: 'nervozita, mělký spánek, bolest hlavy', note: `${da.kp.text} — u citlivých lidí bývá znát` });
+    if (da.kp && da.kp.kp <= 3) go.push({ text: 'klidné kosmické počasí', note: `Kp ${da.kp.kp} — geomagneticky nerušený den` });
+    for (const e of (ctxEvents || [])) {
+      if (e.cat === 'roje') go.push({ text: 'vyjít se večer podívat na nebe', note: `${e.title} — ${e.note}` });
+      if (e.ingress && e.slow) go.push({ text: 'všímat si, co se v tomhle tématu mění', note: `${e.title} — ${e.note}` });
+    }
+    return { go, cost };
+  }
+  function TZfrom() { return 'Europe/Prague'; }
+
+  // ============ VRSTVA 2 – osobní body ============
+  function personalItems(da, rules) {
+    const goM = {}, costM = {};
+    const add = (map, transit, phrase, nk, applying) => {
+      const k = transit + '|' + phrase;
+      if (!map[k]) map[k] = { text: phrase, transit, doms: [], applying };
+      const dom = DOMAIN[nk];
+      if (map[k].doms.indexOf(dom) < 0) map[k].doms.push(dom);
+      if (applying) map[k].applying = true;
+    };
+    for (const t of da.fast) {
+      if (t.key === 'conj') add(t.weight >= 0 ? goM : costM, t.transit, CONJ[t.transit], t.natal, t.applying);
+      else if (t.kind === 'harm') add(goM, t.transit, GO[t.transit], t.natal, t.applying);
+      else add(costM, t.transit, COST[t.transit], t.natal, t.applying);
+    }
+    const finish = (map) => Object.keys(map).map(k => {
+      const it = map[k];
+      return { text: it.text, note: `${K.BODY_CZ[it.transit]} · ${it.doms.slice(0, 3).join(', ')} · ${it.applying ? 'sílí' : 'odeznívá'}`, n: it.doms.length };
+    }).sort((a, b) => b.n - a.n).slice(0, 4);
+    const go = finish(goM), cost = finish(costM);
+    if (da.elementHarmony) go.push({ text: 'dnešní nálada ti obecně sedí', note: `živel Luny (${K.ELEMENT[da.moonSign]}) ladí s tvým Sluncem` });
+    for (const r of da.resonance) go.push({ text: r.text, note: 'tvá hvězda — dny, kdy se jí něco dotkne, stojí za pozornost', star: true });
+    const t2 = (list) => list.map(e => K.fmtTime(new Date(e.ms), 'Europe/Prague')).join(', ');
+    const hm = da.moonToNatal.filter(e => e.kind === 'harm'), tm = da.moonToNatal.filter(e => e.kind === 'tense');
+    if (hm.length) go.push({ text: 'vstřícné chvíle: ' + t2(hm), note: 'Luna se dotkne tvých bodů v dobrém úhlu' });
+    if (tm.length) cost.push({ text: 'citlivější chvíle: ' + t2(tm), note: 'krátké, do hodiny je po tom — nerozhoduj zrovna tehdy' });
+    return { go, cost };
+  }
+
+  // ============ okna dne ============
+  const HOUR_USE = {
+    Mercury: 'na jednání, maily a domluvy', Venus: 'na vztahy, klid a cokoli s krásou', Jupiter: 'na rozhodnutí a rozjezd',
+    Sun: 'na to, s čím chceš být vidět', Moon: 'na domov, péči a odpočinek', Mars: 'na fyzický výkon — ale i na střety',
+    Saturn: 'na úklid, dotažení a nudnou práci',
+  };
+  function windows(da, ph, tz) {
+    if (!ph) return [];
+    const out = [];
+    const inVoc = (t) => da.voc.some(v => t >= v.fromClip && t < v.toClip);
+    const day = ph.hours.filter(h => !h.night && h.end > da.dayStart && h.start < da.dayEnd);
+    for (const ruler of ['Jupiter', 'Venus', 'Mercury', 'Sun']) {
+      const h = day.find(x => x.ruler === ruler && !inVoc(x.start.getTime()));
+      if (h) out.push({ ruler, from: h.start, to: h.end, use: HOUR_USE[ruler] });
+      if (out.length >= 3) break;
+    }
+    out.sort((a, b) => a.from - b.from);
+    return out;
+  }
+
+  // ============ shrnutí pro mřížku a přehled dnů ============
+  function dayWord(da) {
+    if (da.color === 'harm') return da.score >= 4 ? 'vítr v zádech' : 'podpora';
+    if (da.color === 'tense') return da.score <= -4 ? 'do kopce' : 'tření';
+    return 'klidný';
+  }
+
+  return { SUN_TONE, MOON_EL, MOON_SIGN, GO, COST, CONJ, DOMAIN, HOUR_USE, phaseText, dayLede, generalItems, personalItems, windows, dayWord };
+}
+if (typeof module !== 'undefined') module.exports = createKairosTexts;
+
 </script>
 <script>
 (function () {
@@ -1005,6 +1257,7 @@ if (typeof module !== 'undefined') module.exports = createKairosEngine;
   const VERSION = '1.0.0';
   const A = Astronomy;
   const K = createKairosEngine(A);
+  const TX = createKairosTexts(K);
   const TZ = 'Europe/Prague';
 
   // ===================== výchozí data (můžeš změnit v Nastavení) =====================
@@ -1014,6 +1267,7 @@ if (typeof module !== 'undefined') module.exports = createKairosEngine;
     rules: { harm: 2, tense: -2, vocHours: 6, starOrb: 1 },
     comets: '',
     showKp: true,
+    theme: 'auto',
   };
   const NOAA = {
     kpObs: 'https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json',
@@ -1063,7 +1317,7 @@ if (typeof module !== 'undefined') module.exports = createKairosEngine;
     const r = size / 2 - 0.6, p = phase * Math.PI / 180;
     const f = (1 - Math.cos(p)) / 2, wax = phase < 180, rx = Math.abs(Math.cos(p)) * r, big = f > 0.5;
     const d = wax ? `M0,${-r} A${r},${r} 0 0 1 0,${r} A${rx},${r} 0 0 ${big ? 1 : 0} 0,${-r}Z` : `M0,${-r} A${r},${r} 0 0 0 0,${r} A${rx},${r} 0 0 ${big ? 0 : 1} 0,${-r}Z`;
-    return `<svg class="${cls || 'moon'}" viewBox="${-size / 2} ${-size / 2} ${size} ${size}" width="${size}" height="${size}" aria-hidden="true"><circle r="${r}" fill="#2A3047" stroke="rgba(237,230,214,.3)" stroke-width=".6"/><path d="${d}" fill="#D8D5CC"/></svg>`;
+    return `<svg class="${cls || 'moon'}" viewBox="${-size / 2} ${-size / 2} ${size} ${size}" width="${size}" height="${size}" aria-hidden="true"><circle r="${r}" fill="var(--moon-dark)" stroke="var(--line2)" stroke-width=".6"/><path d="${d}" fill="var(--moon)"/></svg>`;
   }
   const phaseName = (ph) => ph < 10 || ph > 350 ? 'novoluní' : ph < 80 ? 'dorůstající srpek' : ph < 100 ? 'první čtvrt' : ph < 170 ? 'dorůstající Luna' : ph < 190 ? 'úplněk' : ph < 260 ? 'couvající Luna' : ph < 280 ? 'poslední čtvrt' : 'couvající srpek';
 
@@ -1152,6 +1406,7 @@ if (typeof module !== 'undefined') module.exports = createKairosEngine;
     deleteProfile() { if (profiles.length < 2) { toast('Poslední profil nejde smazat.'); return; } if (!confirm('Smazat profil ' + activeProfile().name + '?')) return; profiles = profiles.filter(p => p.id !== activeId); activeId = profiles[0].id; persistProfiles(); computeNatal(); renderSettings(); },
     saveLoc() { const f = $('#locForm'); settings.loc = { name: $('[name=lname]', f).value.trim() || 'místo', lat: +$('[name=llat]', f).value, lon: +$('[name=llon]', f).value, alt: +$('[name=lalt]', f).value || 0 }; persistSettings(); S.dayCache = {}; S.evCache = {}; toast('Místo uloženo.'); },
     saveRules() { const f = $('#rulesForm'); settings.rules = { harm: +$('[name=harm]', f).value, tense: +$('[name=tense]', f).value, vocHours: +$('[name=voc]', f).value, starOrb: +$('[name=starOrb]', f).value }; settings.showKp = $('[name=showKp]', f).checked; persistSettings(); S.dayCache = {}; toast('Pravidla uložena.'); },
+    pickTheme(el) { settings.theme = el.dataset.t; persistSettings(); applyTheme(); renderSettings(); toast(settings.theme === 'auto' ? 'Obloha se mění podle denní doby.' : 'Obloha: ' + THEMES[settings.theme] + '.'); },
     saveComets() { settings.comets = $('#cometsForm textarea').value; persistSettings(); S.evCache = {}; toast('Seznam uložen.'); },
     refreshKp(el) { el.disabled = true; loadKp(true).finally(() => { el.disabled = false; renderSettings(); toast(S.kpError ? S.kpError : 'Kosmické počasí aktualizováno.'); }); },
     clearCache() { store.del('kairos_kp'); S.kpMap = {}; S.kpUpdated = null; S.dayCache = {}; S.evCache = {}; K.clearCache(); if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())); toast('Mezipaměť vymazána.'); renderSettings(); },
@@ -1166,102 +1421,103 @@ if (typeof module !== 'undefined') module.exports = createKairosEngine;
     if (!S.natal) { v.innerHTML = '<div class="card">Nejdřív zadej datum, čas a místo narození v Nastavení.</div>'; return; }
     const { y, m } = S;
     const n = K.daysInMonth(y, m);
-    const first = K.dayStart(y, m, 1, TZ);
-    const offset = (K.tzParts(first, TZ).wd + 6) % 7;
+    const offset = (K.tzParts(K.dayStart(y, m, 1, TZ), TZ).wd + 6) % 7;
     const evs = monthEvents(y, m);
     const evByDay = {};
     for (const e of evs) { const k = K.dateKey(e.date, TZ); (evByDay[k] = evByDay[k] || []).push(e); }
     let cells = '';
     for (let i = 0; i < offset; i++) cells += '<div class="cell empty"></div>';
-    const thr = rules().thresholds;
     for (let d = 1; d <= n; d++) {
       const da = analyze(y, m, d);
       const key = K.isoDate(y, m, d);
       const dayEv = evByDay[key] || [];
-      const alpha = Math.min(0.5, 0.16 + Math.abs(da.score) / 6 * 0.3).toFixed(2);
+      const alpha = Math.min(0.46, 0.14 + Math.abs(da.score) / 6 * 0.32).toFixed(2);
       const isToday = key === TODAY_KEY, isSel = S.sel.y === y && S.sel.m === m && S.sel.d === d;
-      const mk = [];
-      if (da.resonance.length || dayEv.some(e => e.resonance)) mk.push('<span title="rezonance s tvou hvězdou">✦</span>');
-      if (dayEv.some(e => e.eclipse)) mk.push('<span class="ec" title="zatmění">◉</span>');
-      if (da.kp && da.kp.kp >= 5) mk.push('<span class="kp" title="geomagnetická bouře">⚡</span>');
-      if (da.mercuryRetro) mk.push('<span class="r" title="Merkur retrográdní">℞</span>');
+      // jen jedna značka: to nejvýraznější, co ten den je
+      let mk = '';
       const q = da.quarters.find(q => q.quarter === 0 || q.quarter === 2);
-      cells += `<button class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]}, ${da.color === 'harm' ? 'harmonický' : da.color === 'tense' ? 'napjatý' : 'neutrální'} den">
-        <span class="d">${d}</span>${q ? `<span class="ph" title="${q.quarter === 0 ? 'novoluní' : 'úplněk'}">${q.quarter === 0 ? '●' : '○'}</span>` : ''}
-        <span class="mk">${mk.join('')}</span>${moonSVG(da.phaseAngle, 13)}
+      if (dayEv.some(e => e.eclipse)) mk = '<span class="ec" title="zatmění">◉</span>';
+      else if (da.resonance.length || dayEv.some(e => e.resonance)) mk = '<span title="tvá hvězda">✦</span>';
+      else if (q) mk = `<span title="${q.quarter === 0 ? 'novoluní' : 'úplněk'}">${q.quarter === 0 ? '●' : '○'}</span>`;
+      else if (da.kp && da.kp.kp >= 5) mk = '<span class="kp" title="geomagnetická bouře">⚡</span>';
+      cells += `<button class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
+        <span class="d">${d}</span><span class="mk">${mk}</span>${moonSVG(da.phaseAngle, 12)}
       </button>`;
     }
-    const tda = analyze(np.y, np.m, np.d);
-    const tld = K.lunarDay(tda.noon, observer());
-    const kpT = tda.kp;
     v.innerHTML = `
+      ${aheadHTML()}
       <div class="monthbar">
         <button class="navbtn" data-act="prevMonth" aria-label="Předchozí měsíc">‹</button>
         <div class="mn">${K.MONTH_CZ[m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[m - 1].slice(1)}<em>${y}</em></div>
         <div class="row"><button class="btn ghost small" data-act="today">Dnes</button><button class="navbtn" data-act="nextMonth" aria-label="Další měsíc">›</button></div>
       </div>
-      <div class="today-strip">
-        <div><span class="k">Dnes</span><span class="v">${np.d}. ${np.m}. ${np.y}</span></div>
-        <div><span class="k">Slunce</span><span class="v">${K.fmtLon(tda.pos.Sun.lon)}</span></div>
-        <div><span class="k">Luna</span><span class="v">${K.fmtLon(tda.pos.Moon.lon)} · ${Math.round(tda.illum * 100)} %</span></div>
-        <div><span class="k">Lunární den</span><span class="v">${tld ? tld.day + '.' : '—'}</span></div>
-        <div><span class="k">Kp</span><span class="v ${kpT && kpT.kp >= 5 ? 'tone-tense' : ''}">${kpT ? kpT.kp + (kpT.source === 'observed' ? '' : kpT.source === 'forecast' ? ' (předp.)' : ' (výhled)') : '—'}</span></div>
-      </div>
       <div class="weekdays"><span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span></div>
       <div class="grid">${cells}</div>
-      <div class="legend"><span><i style="background:var(--harm)"></i>harmonický (≥ ${signed(thr.harm)})</span><span><i style="background:var(--tense)"></i>napjatý (≤ ${signed(thr.tense)})</span><span>✦ tvá hvězda</span><span>◉ zatmění</span><span>⚡ Kp ≥ 5</span><span>℞ Merkur zpět</span><span>● ○ novoluní / úplněk</span></div>
+      <div class="legend"><span><i style="background:var(--harm)"></i>jde to snáz</span><span><i style="background:var(--tense)"></i>stojí to víc sil</span><span>✦ tvá hvězda</span><span>◉ zatmění</span><span>● ○ novoluní / úplněk</span></div>
       <div class="day" id="dayDetail">${dayDetailHTML(S.sel.y, S.sel.m, S.sel.d, evByDay)}</div>`;
+  }
+
+  // pás nejbližších dnů
+  function aheadHTML() {
+    let out = '';
+    for (let i = 0; i < 14; i++) {
+      const dt = K.addDays(K.dayStart(np.y, np.m, np.d, TZ), i + 0.5);
+      const p = K.tzParts(dt, TZ);
+      const da = analyze(p.y, p.m, p.d);
+      const key = K.isoDate(p.y, p.m, p.d);
+      const sel = S.sel.y === p.y && S.sel.m === p.m && S.sel.d === p.d;
+      out += `<button class="a ${da.color} ${key === TODAY_KEY ? 'today' : ''} ${sel ? 'sel' : ''}" data-act="selDay" data-y="${p.y}" data-m="${p.m}" data-d="${p.d}">
+        <span class="wd">${i === 0 ? 'dnes' : K.WEEKDAY_CZ[p.wd].slice(0, 2)}</span><span class="dd">${p.d}</span><span class="wo">${TX.dayWord(da)}</span></button>`;
+    }
+    return `<div class="h3" style="margin-top:14px">Nejbližší dny</div><div class="ahead">${out}</div>`;
   }
 
   function dayDetailHTML(y, m, d, evByDay) {
     const da = analyze(y, m, d);
     const obs = observer();
     const ph = K.planetaryHours(y, m, d, obs, TZ);
-    const prevDate = K.addDays(da.dayStart, -0.5); const pp = K.tzParts(prevDate, TZ);
+    const pp = K.tzParts(K.addDays(da.dayStart, -0.5), TZ);
     const phPrev = K.planetaryHours(pp.y, pp.m, pp.d, obs, TZ);
     const ld = K.lunarDay(da.noon, obs);
     const key = K.isoDate(y, m, d);
     const dayEv = (evByDay && evByDay[key]) || monthEvents(y, m).filter(e => K.dateKey(e.date, TZ) === key);
     const isToday = key === TODAY_KEY;
-    const label = da.color === 'harm' ? 'harmonický den' : da.color === 'tense' ? 'napjatý den' : 'neutrální den';
     const moonrise = A.SearchRiseSet('Moon', obs, +1, A.MakeTime(da.dayStart), 1), moonset = A.SearchRiseSet('Moon', obs, -1, A.MakeTime(da.dayStart), 1);
-    // --- ve hře ---
-    const items = [];
-    for (const t of da.fast) items.push(transitItem(t));
-    for (const r of da.resonance) items.push({ g: '✦', cls: 'tone-gold', text: r.text, note: r.star.system !== r.star.name ? 'systém ' + r.star.system : '', w: '' });
-    for (const e of da.moonToNatal) items.push({ g: '☽', cls: e.kind === 'harm' ? 'tone-harm' : e.kind === 'tense' ? 'tone-tense' : '', text: `Luna ${e.glyph} ${NATAL_ACC[e.target]} · ${K.fmtTime(new Date(e.ms), TZ)}`, note: e.kind === 'harm' ? 'chvíle, která nese' : e.kind === 'tense' ? 'citové tření, počkej s reakcí' : CONJ_HINT.Moon, w: e.weight ? signed(e.weight) : '' });
-    for (const v of da.voc) items.push({ g: '∅', cls: da.vocAwake >= rules().vocHours ? 'tone-tense' : '', text: `Luna bez kurzu ${K.fmtTime(new Date(v.fromClip), TZ)}–${v.toClip === da.dayEnd.getTime() ? 'půlnoc' : K.fmtTime(new Date(v.toClip), TZ)}`, note: (v.lastAspect ? `po ${ASP_LOC[v.lastAspect.aspect]} ${K.BODY_GEN[v.lastAspect.target]}, ` : '') + `pak vstup do ${K.SIGN_GEN[v.toSign]} · nic nového nezačínej, dokončuj`, w: '' });
-    if (da.mercuryRetro) items.push({ g: '℞', cls: 'tone-tense', text: 'Merkur retrográdní', note: 'komunikace, technika a smlouvy s rezervou; vracej se k rozdělanému', w: signed(rules().mercuryRetro) });
-    if (da.elementHarmony) items.push({ g: K.SIGN_GLYPH[da.moonSign], cls: 'tone-harm', text: `Luna v ${K.SIGN_LOC[da.moonSign]} ladí s tvým Sluncem`, note: `živel ${K.ELEMENT[da.moonSign]}`, w: signed(rules().moonElement) });
-    if (da.kp) items.push({ g: '☀', cls: da.kp.weight > 0 ? 'tone-harm' : da.kp.weight < 0 ? 'tone-tense' : '', text: da.kp.text, note: da.kp.source === 'observed' ? 'naměřeno · NOAA SWPC' : da.kp.source === 'forecast' ? 'třídenní předpověď NOAA' : '27denní výhled NOAA (orientační)', w: da.kp.weight ? signed(da.kp.weight) : '' });
-    for (const e of dayEv) items.push({ g: CAT_ICON[e.cat] || '✧', cls: e.eclipse ? 'tone-gold' : '', text: e.title + ' · ' + K.fmtTime(e.date, TZ), note: e.note, w: '' });
-    const bg = da.background.map(transitItem);
+
+    const gen = TX.generalItems(da, dayEv, rules());
+    const per = TX.personalItems(da, rules());
+    const wins = TX.windows(da, ph, TZ);
+    const bullet = (it) => `<li class="${it.star ? 'mine' : ''}"><span>${esc(it.text)}${it.tag ? `<span class="tag">${it.tag}</span>` : ''}${it.note ? `<span class="n">${esc(it.note)}</span>` : ''}</span></li>`;
+    const go = gen.go.concat(per.go), cost = gen.cost.concat(per.cost);
+
     return `
       <div class="day-head">
         <div class="day-title"><small>${isToday ? 'dnes · ' : ''}${K.WEEKDAY_CZ[K.tzParts(da.noon, TZ).wd]}</small>${d}. ${K.MONTH_GEN[m - 1]} ${y}</div>
-        <div><span class="badge ${da.color}">${label}</span> <span class="score">skóre ${signed(da.score)}</span></div>
+        <div><span class="badge ${da.color}">${TX.dayWord(da)}</span></div>
       </div>
+      <p class="lede">${esc(TX.dayLede(da, dayEv))}</p>
+      <div class="panel go"><h4>Co dnes jde</h4><ul>${go.map(bullet).join('')}</ul></div>
+      ${cost.length ? `<div class="panel cost"><h4>Co bude stát víc sil</h4><ul>${cost.map(bullet).join('')}</ul></div>` : ''}
+      ${wins.length ? `<div class="h3">Okna dne</div><div class="win">${wins.map(w => `<div class="w"><b>${K.fmtTime(w.from, TZ)}–${K.fmtTime(w.to, TZ)}</b><span>${esc(w.use)}</span></div>`).join('')}</div>` : ''}
+      ${dayEv.length ? `<div class="h3">Na nebi</div><ul class="list">${dayEv.map(e => `<li><span class="g">${CAT_ICON[e.cat] || '✧'}</span><span class="t">${esc(e.title)}<span class="n">${K.fmtTime(e.date, TZ)}${e.note ? ' · ' + esc(e.note) : ''}</span></span></li>`).join('')}</ul>` : ''}
       ${stripHTML(da, ph, phPrev, isToday, moonrise, moonset)}
       <div class="striplegend"><span>▮ denní světlo</span><span>▨ Luna bez kurzu</span><span>spodní pás = planetární hodiny</span>${isToday ? '<span style="color:var(--gold)">│ teď</span>' : ''}</div>
-      <div class="h3">${isToday ? 'Tohle je dnes ve hře' : 'Tohle je ve hře'}</div>
-      ${items.length ? `<ul class="list">${items.map(li).join('')}</ul>` : '<p class="muted small">Klidné nebe – žádné výrazné tranzity k tvému nativu.</p>'}
-      ${bg.length ? `<div class="h3">Pozadí období · pomalé planety</div><ul class="list">${bg.map(li).join('')}</ul><p class="note">Pomalé tranzity trvají týdny až měsíce, barvu dne neurčují – dávají tón celému období (součet ${signed(da.backgroundScore)}).</p>` : ''}
-      <div class="h3">Luna</div>
-      <div class="card"><div class="row">${moonSVG(da.phaseAngle, 44, 'moonbig')}<div>
-        <div>${phaseName(da.phaseAngle)} · <b>${Math.round(da.illum * 100)} %</b> · v ${K.SIGN_LOC[da.moonSign]} (${K.fmtLon(da.pos.Moon.lon)})</div>
-        <div class="small muted">${ld ? `${ld.day}. lunární den od ${K.fmtTime(ld.since, TZ)}` : ''}${moonrise ? ` · východ Luny ${K.fmtTime(moonrise.date, TZ)}` : ''}${moonset ? ` · západ ${K.fmtTime(moonset.date, TZ)}` : ''}</div>
-        ${da.quarters.length ? `<div class="small tone-gold">${da.quarters.map(q => ['Novoluní', 'První čtvrt', 'Úplněk', 'Poslední čtvrt'][q.quarter] + ' ' + K.fmtTime(q.date, TZ)).join(' · ')}</div>` : ''}
-      </div></div></div>
-      <div class="h3">Slunce a planetární hodiny</div>
-      <div class="card">
-        ${ph ? `<div class="small">východ <b class="mono">${K.fmtTime(ph.sunrise, TZ)}</b> · západ <b class="mono">${K.fmtTime(ph.sunset, TZ)}</b> · den ${fmtNum((ph.sunset - ph.sunrise) / 3600000, 1).replace('.', ',')} h · vládce dne <b>${K.BODY_GLYPH[ph.ruler]} ${K.BODY_CZ[ph.ruler]}</b></div>
-        <details><summary>24 planetárních hodin</summary><div class="ph-table">${ph.hours.map(h => `<div class="${isToday && Date.now() >= h.start.getTime() && Date.now() < h.end.getTime() ? 'cur' : ''}"><span>${K.BODY_GLYPH[h.ruler]} ${K.BODY_CZ[h.ruler]}${h.night ? ' ·noc' : ''}</span><span>${K.fmtTime(h.start, TZ)}–${K.fmtTime(h.end, TZ)}</span></div>`).join('')}</div>
-        <p class="note">Hodina Merkuru pro psaní a jednání, Venuše pro vztah a krásu, Jupiteru pro start a rozhodnutí, Saturnu pro úklid a dokončení.</p></details>` : '<span class="muted">Slunce dnes nevychází/nezapadá.</span>'}
-      </div>
-      <div class="h3">Planety v poledne</div>
-      <div class="card small mono">${K.BODIES.map(b => `${K.BODY_GLYPH[b]} ${K.fmtLon(da.pos[b].lon)}${da.pos[b].retro ? '<span class="tone-tense">R</span>' : ''}`).join(' &nbsp; ')} &nbsp; ☊ ${K.fmtLon(da.pos.Node.lon)}</div>
-      <p class="note">Glyfy: ☌ konjunkce · ⚹ sextil · □ kvadratura · △ trigon · ☍ opozice. Čísla vpravo jsou příspěvky ke skóre dne. Nic z toho není předpověď – je to mapa toho, co je ve hře.</p>`;
+      <details><summary>Podrobnosti — pro astrologa</summary>
+        <p class="note">Skóre dne ${signed(da.score)} · práh ${signed(rules().thresholds.harm)} / ${signed(rules().thresholds.tense)}.</p>
+        <div class="h3">Tranzity k nativu</div>
+        ${da.fast.length ? `<ul class="list">${da.fast.map(transitItem).map(li).join('')}</ul>` : '<p class="muted small">Žádné v orbisu.</p>'}
+        ${da.background.length ? `<div class="h3">Pozadí období · pomalé planety</div><ul class="list">${da.background.map(transitItem).map(li).join('')}</ul><p class="note">Trvají týdny až měsíce, barvu dne neurčují (součet ${signed(da.backgroundScore)}).</p>` : ''}
+        ${da.moonToNatal.length ? `<div class="h3">Aspekty Luny</div><ul class="list">${da.moonToNatal.map(e => li({ g: '☽', cls: e.kind === 'harm' ? 'tone-harm' : e.kind === 'tense' ? 'tone-tense' : '', text: `Luna ${e.glyph} ${NATAL_ACC[e.target]}`, note: K.fmtTime(new Date(e.ms), TZ), w: e.weight ? signed(e.weight) : '' })).join('')}</ul>` : ''}
+        <div class="h3">Luna</div>
+        <p class="small">${TX.phaseText(da.phaseAngle).name} · ${Math.round(da.illum * 100)} % · ${K.fmtLon(da.pos.Moon.lon)}${ld ? ` · ${ld.day}. lunární den od ${K.fmtTime(ld.since, TZ)}` : ''}${moonrise ? ` · východ ${K.fmtTime(moonrise.date, TZ)}` : ''}${moonset ? ` · západ ${K.fmtTime(moonset.date, TZ)}` : ''}</p>
+        ${ph ? `<div class="h3">Planetární hodiny</div><p class="small">východ Slunce <b class="mono">${K.fmtTime(ph.sunrise, TZ)}</b> · západ <b class="mono">${K.fmtTime(ph.sunset, TZ)}</b> · vládce dne ${K.BODY_GLYPH[ph.ruler]} ${K.BODY_CZ[ph.ruler]}</p>
+        <div class="ph-table">${ph.hours.map(h => `<div class="${isToday && Date.now() >= h.start.getTime() && Date.now() < h.end.getTime() ? 'cur' : ''}"><span>${K.BODY_GLYPH[h.ruler]} ${K.BODY_CZ[h.ruler]}${h.night ? ' ·noc' : ''}</span><span>${K.fmtTime(h.start, TZ)}–${K.fmtTime(h.end, TZ)}</span></div>`).join('')}</div>` : ''}
+        <div class="h3">Planety v poledne</div>
+        <p class="small mono">${K.BODIES.map(b => `${K.BODY_GLYPH[b]} ${K.fmtLon(da.pos[b].lon)}${da.pos[b].retro ? '<span class="tone-tense">R</span>' : ''}`).join(' &nbsp; ')} &nbsp; ☊ ${K.fmtLon(da.pos.Node.lon)}</p>
+      </details>
+      <p class="note">Nic z toho není předpověď ani pokyn. Je to mapa terénu — kudy dnes půjde snáz a kde budeš potřebovat víc trpělivosti. Rozhoduješ pořád ty.</p>`;
   }
+
   function transitItem(t) {
     const cls = t.key === 'conj' ? (t.weight > 0 ? 'tone-harm' : t.weight < 0 ? 'tone-tense' : '') : t.kind === 'harm' ? 'tone-harm' : 'tone-tense';
     const note = (t.key === 'conj' ? CONJ_HINT[t.transit] : t.kind === 'harm' ? 'podpora, plynutí' : 'tření, tlak, nutnost rozhodnout') + ` · orbis ${fmtOrb(t.orb)} · ${t.applying ? 'blíží se' : 'odeznívá'}${t.retro ? ' · retrográdně' : ''}`;
@@ -1422,28 +1678,28 @@ if (typeof module !== 'undefined') module.exports = createKairosEngine;
     const ang = (lon) => (180 + (lon - asc)) * Math.PI / 180;
     const pt = (lon, r) => [cx + r * Math.cos(ang(lon)), cy - r * Math.sin(ang(lon))];
     let s = `<svg class="wheel" viewBox="0 0 360 360" role="img" aria-label="Nativní horoskop">`;
-    s += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#10142A" stroke="rgba(217,184,101,.5)"/><circle cx="${cx}" cy="${cy}" r="${Rz}" fill="none" stroke="rgba(237,230,214,.18)"/><circle cx="${cx}" cy="${cy}" r="${Rh}" fill="none" stroke="rgba(237,230,214,.12)"/>`;
+    s += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="var(--wheel-bg)" stroke="var(--gold2)"/><circle cx="${cx}" cy="${cy}" r="${Rz}" fill="none" stroke="var(--line2)"/><circle cx="${cx}" cy="${cy}" r="${Rh}" fill="none" stroke="var(--line)"/>`;
     for (let i = 0; i < 12; i++) {
-      const [x1, y1] = pt(i * 30, Rz), [x2, y2] = pt(i * 30, R); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(237,230,214,.25)"/>`;
-      const [gx, gy] = pt(i * 30 + 15, (R + Rz) / 2); s += `<text x="${gx}" y="${gy + 5}" text-anchor="middle" font-size="14" fill="#D9B865" font-family="serif">${K.SIGN_GLYPH[i]}</text>`;
+      const [x1, y1] = pt(i * 30, Rz), [x2, y2] = pt(i * 30, R); s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--line2)"/>`;
+      const [gx, gy] = pt(i * 30 + 15, (R + Rz) / 2); s += `<text x="${gx}" y="${gy + 5}" text-anchor="middle" font-size="14" fill="var(--gold)" font-family="serif">${K.SIGN_GLYPH[i]}</text>`;
     }
     for (let h = 1; h <= 12; h++) {
       const [x1, y1] = pt(n.cusps[h], Rz), [x2, y2] = pt(n.cusps[h], h === 1 || h === 7 || h === 4 || h === 10 ? 20 : Rh);
-      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${h === 1 || h === 10 ? 'rgba(217,184,101,.8)' : 'rgba(237,230,214,.22)'}" stroke-width="${h === 1 || h === 10 ? 1.5 : 1}"/>`;
+      s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${h === 1 || h === 10 ? 'var(--gold)' : 'var(--line2)'}" stroke-width="${h === 1 || h === 10 ? 1.5 : 1}"/>`;
       const next = n.cusps[h === 12 ? 1 : h + 1]; const mid = n.cusps[h] + K.norm(next - n.cusps[h]) / 2; const [hx, hy] = pt(mid, Rh - 12);
-      s += `<text x="${hx}" y="${hy + 3}" text-anchor="middle" font-size="9" fill="rgba(154,157,176,.9)">${h}</text>`;
+      s += `<text x="${hx}" y="${hy + 3}" text-anchor="middle" font-size="9" fill="var(--muted)">${h}</text>`;
     }
     const keys = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Node'];
     const placed = keys.map(k => ({ k, lon: n.points[k].lon, disp: n.points[k].lon })).sort((a, b) => a.lon - b.lon);
     for (let iter = 0; iter < 12; iter++) for (let i = 0; i < placed.length; i++) { const a = placed[i], b = placed[(i + 1) % placed.length]; const d = K.norm(b.disp - a.disp); if (d < 8 && d >= 0) { a.disp = K.norm(a.disp - (8 - d) / 2); b.disp = K.norm(b.disp + (8 - d) / 2); } }
     for (const p of placed) {
       const [x, y] = pt(p.disp, Rp + 22), [tx, ty] = pt(p.lon, Rz), [lx, ly] = pt(p.lon, Rz - 8);
-      s += `<line x1="${tx}" y1="${ty}" x2="${lx}" y2="${ly}" stroke="#D9B865" stroke-width="1"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="15" fill="#EDE6D6" font-family="serif">${K.BODY_GLYPH[p.k]}</text>`;
-      const [dx, dy] = pt(p.disp, Rp + 2); s += `<text x="${dx}" y="${dy + 3}" text-anchor="middle" font-size="8" fill="#9A9DB0">${Math.floor(K.degInSign(p.lon))}°</text>`;
+      s += `<line x1="${tx}" y1="${ty}" x2="${lx}" y2="${ly}" stroke="var(--gold)" stroke-width="1"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="15" fill="var(--text)" font-family="serif">${K.BODY_GLYPH[p.k]}</text>`;
+      const [dx, dy] = pt(p.disp, Rp + 2); s += `<text x="${dx}" y="${dy + 3}" text-anchor="middle" font-size="8" fill="var(--muted)">${Math.floor(K.degInSign(p.lon))}°</text>`;
     }
-    for (const st of n.stars.filter(x => x.mine)) { const [x, y] = pt(st.lon, R + 0), [x2, y2] = pt(st.lon, R - 6); s += `<line x1="${x}" y1="${y}" x2="${x2}" y2="${y2}" stroke="#D9B865" stroke-width="2"><title>${esc(st.name)}</title></line>`; }
-    const [ax, ay] = pt(asc, R + 4); s += `<text x="${ax - 14}" y="${ay + 4}" font-size="10" fill="#D9B865">Asc</text>`;
-    const [mx, my] = pt(n.points.MC.lon, R + 4); s += `<text x="${mx}" y="${my - 4}" text-anchor="middle" font-size="10" fill="#D9B865">MC</text>`;
+    for (const st of n.stars.filter(x => x.mine)) { const [x, y] = pt(st.lon, R + 0), [x2, y2] = pt(st.lon, R - 6); s += `<line x1="${x}" y1="${y}" x2="${x2}" y2="${y2}" stroke="var(--gold)" stroke-width="2"><title>${esc(st.name)}</title></line>`; }
+    const [ax, ay] = pt(asc, R + 4); s += `<text x="${ax - 14}" y="${ay + 4}" font-size="10" fill="var(--gold)">Asc</text>`;
+    const [mx, my] = pt(n.points.MC.lon, R + 4); s += `<text x="${mx}" y="${my - 4}" text-anchor="middle" font-size="10" fill="var(--gold)">MC</text>`;
     s += '</svg>';
     return s;
   }
@@ -1485,6 +1741,13 @@ if (typeof module !== 'undefined') module.exports = createKairosEngine;
         <div class="wide row"><button class="btn" data-act="saveRules">Uložit pravidla</button></div>
         <p class="note wide">Váhy: trigon +1, sextil +0,5, kvadratura/opozice −1, konjunkce podle planety (Venuše, Jupiter, Slunce +1 · Mars, Saturn, Pluto −1 · Uran, Neptun −0,5). Násobí se váhou bodu (Slunce, Luna, Asc, MC ×2). Luna přesné aspekty ±0,25, živel Luny +0,5, Merkur retro −0,5, Kp ≤ 3 +0,5, Kp 5 −1, Kp ≥ 6 −2. Jupiter až Pluto tvoří pozadí období, barvu dne neurčují.</p>
       </form>
+      <div class="h2">Obloha</div>
+      <div class="card">
+        <div class="row" style="gap:6px" id="themeRow">
+          ${['auto', 'dawn', 'day', 'dusk', 'night'].map(t => `<button class="chip ${settings.theme === t ? 'on' : ''}" data-act="pickTheme" data-t="${t}">${t === 'auto' ? 'podle denní doby' : THEMES[t]}</button>`).join('')}
+        </div>
+        <p class="note">Na automatiku se obloha mění podle skutečného východu a západu Slunce v ${esc(settings.loc.name)}: rozednívání kolem východu, den, stmívání kolem západu, noc. Teď je ${THEMES[applyTheme()]}.</p>
+      </div>
       <div class="h2">Kosmické počasí · NOAA SWPC</div>
       <div class="card"><div class="small">${kpTxt}</div>${S.kpError ? `<div class="small tone-tense">${esc(S.kpError)}</div><p class="note">Pokud prohlížeč blokuje přímé stažení (CORS), aplikace zkouší záložní cestu <span class="mono">/api/noaa</span> – na Vercelu je součástí balíčku.</p>` : ''}<div class="row" style="margin-top:8px"><button class="btn" data-act="refreshKp">Stáhnout znovu</button></div>
       <p class="note">Zdroje: naměřený Kp (posledních 7 dní), třídenní předpověď a 27denní výhled. Do kalendáře se bere nejvyšší hodnota dne.</p></div>
@@ -1506,8 +1769,78 @@ if (typeof module !== 'undefined') module.exports = createKairosEngine;
     persistProfiles(); computeNatal(); renderSettings(); toast('Nativ přepočítán.');
   }
 
+  // ===================== obloha podle denní doby =====================
+  const THEMES = { dawn: 'rozednívání', day: 'den', dusk: 'stmívání', night: 'noc' };
+  const THEME_META = { dawn: '#EFDDD5', day: '#DFE8EE', dusk: '#2E2438', night: '#16263C' };
+  function themeForNow(dt) {
+    dt = dt || new Date();
+    try {
+      const p = K.tzParts(dt, TZ);
+      const ph = K.planetaryHours(p.y, p.m, p.d, observer(), TZ);
+      if (!ph) return 'night';
+      const t = dt.getTime(), sr = ph.sunrise.getTime(), ss = ph.sunset.getTime();
+      if (t >= sr - 70 * 60000 && t < sr + 50 * 60000) return 'dawn';
+      if (t >= sr + 50 * 60000 && t < ss - 60 * 60000) return 'day';
+      if (t >= ss - 60 * 60000 && t < ss + 70 * 60000) return 'dusk';
+      return 'night';
+    } catch (e) { return 'night'; }
+  }
+  function applyTheme() {
+    const want = settings.theme === 'auto' ? themeForNow() : settings.theme;
+    if (document.documentElement.dataset.theme !== want) {
+      document.documentElement.dataset.theme = want;
+      const mt = document.querySelector('meta[name=theme-color]');
+      if (mt) mt.setAttribute('content', THEME_META[want] || '#111832');
+    }
+    return want;
+  }
+
+  // mraky pro světlé oblohy
+  function drawClouds() {
+    const svg = document.getElementById('clouds');
+    if (!svg) return;
+    const W = 1000, H = 1600;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    let seed = 19800903, rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+    let g = '<defs><filter id="blur"><feGaussianBlur stdDeviation="18"/></filter></defs><g filter="url(#blur)">';
+    for (let i = 0; i < 16; i++) {
+      const cx = rnd() * W, cy = rnd() * H, sc = 0.5 + rnd() * 1.3, o = (0.20 + rnd() * 0.4).toFixed(2);
+      let puffs = '';
+      for (let j = 0; j < 6; j++) puffs += `<ellipse cx="${(cx + (rnd() - 0.5) * 190 * sc).toFixed(0)}" cy="${(cy + (rnd() - 0.5) * 55 * sc).toFixed(0)}" rx="${(60 + rnd() * 80) * sc}" ry="${(26 + rnd() * 34) * sc}" fill="#fff" opacity="${o}"/>`;
+      g += puffs;
+    }
+    svg.innerHTML = g + '</g>';
+  }
+
+  // hvězdné pozadí – deterministické, jemné
+  function drawStars() {
+    const svg = document.getElementById('stars');
+    if (!svg) return;
+    const W = 1000, H = 1600;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    let seed = 20260903, rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+    let g = '';
+    for (let i = 0; i < 260; i++) {
+      const x = (rnd() * W).toFixed(1), yy = (rnd() * H).toFixed(1), r = (rnd() * rnd() * 1.7 + 0.35).toFixed(2), o = (0.18 + rnd() * 0.55).toFixed(2);
+      const gold = rnd() > 0.88;
+      g += `<circle cx="${x}" cy="${yy}" r="${r}" fill="${gold ? 'var(--gold)' : 'var(--text)'}" opacity="${o}"/>`;
+    }
+    // pár jasnějších s jemnou září
+    for (let i = 0; i < 7; i++) {
+      const x = (rnd() * W).toFixed(1), yy = (rnd() * H * 0.7).toFixed(1);
+      g += `<circle cx="${x}" cy="${yy}" r="${(2 + rnd()).toFixed(1)}" fill="var(--gold)" opacity=".55"/><circle cx="${x}" cy="${yy}" r="9" fill="var(--gold)" opacity=".07"/>`;
+    }
+    svg.innerHTML = g;
+  }
+
   // ===================== start =====================
+  applyTheme();
+  drawStars();
+  drawClouds();
   computeNatal();
+  setInterval(() => { if (settings.theme === 'auto') applyTheme(); }, 240000);
   showTab('kalendar');
   loadKp(false);
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); S.installEvt = e; });
