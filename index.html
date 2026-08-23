@@ -134,7 +134,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .today-strip .v{font-family:var(--mono);font-size:13px}
 .weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:4px}
 .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.cell{position:relative;aspect-ratio:1/1.05;border-radius:10px;border:1px solid var(--line);background:var(--surface);padding:6px 6px 4px;text-align:left;transition:transform .12s ease;overflow:hidden}
+.cell{position:relative;aspect-ratio:1/.92;border-radius:10px;border:1px solid var(--line);background:var(--surface);padding:6px 6px 4px;text-align:left;transition:transform .12s ease;overflow:hidden}
 .cell:hover{transform:translateY(-1px)}
 .cell.harm{background:linear-gradient(165deg,rgba(var(--harm-rgb),calc(var(--a,.3) * .5 * var(--cell-a))),rgba(var(--harm-rgb),calc(var(--a,.3) * var(--cell-a))));border-color:rgba(var(--harm-rgb),.5)}
 .cell.tense{background:linear-gradient(165deg,rgba(var(--tense-rgb),calc(var(--a,.3) * .5 * var(--cell-a))),rgba(var(--tense-rgb),calc(var(--a,.3) * var(--cell-a))));border-color:rgba(var(--tense-rgb),.5)}
@@ -146,7 +146,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .cell.today .d{color:var(--gold)}
 .cell .mk{position:absolute;left:6px;bottom:4px;font-size:11px;letter-spacing:-.02em;color:var(--gold);display:flex;gap:2px}
 .cell .mk .r{color:var(--merc);font-size:10px}.cell .mk .kp{color:var(--tense)}.cell .mk .ec{color:var(--text)}
-.cell .moon{position:absolute;right:5px;bottom:5px;width:13px;height:13px}
+.cell .moon{position:absolute;right:5px;bottom:5px;width:13px;height:13px;opacity:.9}
 .cell .ph{position:absolute;right:4px;top:5px;font-size:10px;color:var(--muted)}
 @media (max-width:420px){.cell{padding:5px 5px 4px}.cell .d{font-size:15px}}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:10px 2px 0}
@@ -154,13 +154,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 /* nejbližší dny */
 .ahead{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;margin:0 -14px;padding-left:14px;padding-right:14px;scrollbar-width:none}
 .ahead::-webkit-scrollbar{display:none}
-.ahead .a{flex:none;width:62px;border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:8px 5px;text-align:center}
+.ahead .a{flex:none;width:68px;border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:8px 5px;text-align:center}
 .ahead .a.harm{border-color:rgba(var(--harm-rgb),.5);background:linear-gradient(180deg,rgba(var(--harm-rgb),calc(.2 * var(--cell-a))),rgba(var(--harm-rgb),.06))}
 .ahead .a.tense{border-color:rgba(var(--tense-rgb),.5);background:linear-gradient(180deg,rgba(var(--tense-rgb),calc(.2 * var(--cell-a))),rgba(var(--tense-rgb),.06))}
 .ahead .a.today{box-shadow:inset 0 0 0 2px var(--gold)}
-.ahead .a .wd{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.ahead .a .dd{font-family:var(--display);font-size:20px;font-weight:600;line-height:1.1}
-.ahead .a .wo{font-size:9.5px;color:var(--muted);line-height:1.15;margin-top:2px}
+.ahead .a.sel{box-shadow:inset 0 0 0 2px var(--text)}
+.ahead .a.today.sel{box-shadow:inset 0 0 0 2px var(--gold),0 0 0 2px var(--gold-soft)}
+.ahead .a .wd{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);line-height:1.2}
+.ahead .a .dd{display:block;font-family:var(--display);font-size:21px;font-weight:600;line-height:1.15;margin:1px 0}
+.ahead .a .wo{display:block;font-size:9.5px;color:var(--muted);line-height:1.2;margin-top:1px;hyphens:auto}
 /* praktické bloky */
 .lede{font-family:var(--display);font-size:20px;line-height:1.35;margin:12px 0 4px;color:var(--text)}
 .panel{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0;background:var(--surface)}
@@ -1268,6 +1270,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     comets: '',
     showKp: true,
     theme: 'auto',
+    clouds: true,
   };
   const NOAA = {
     kpObs: 'https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json',
@@ -1406,6 +1409,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     deleteProfile() { if (profiles.length < 2) { toast('Poslední profil nejde smazat.'); return; } if (!confirm('Smazat profil ' + activeProfile().name + '?')) return; profiles = profiles.filter(p => p.id !== activeId); activeId = profiles[0].id; persistProfiles(); computeNatal(); renderSettings(); },
     saveLoc() { const f = $('#locForm'); settings.loc = { name: $('[name=lname]', f).value.trim() || 'místo', lat: +$('[name=llat]', f).value, lon: +$('[name=llon]', f).value, alt: +$('[name=lalt]', f).value || 0 }; persistSettings(); S.dayCache = {}; S.evCache = {}; toast('Místo uloženo.'); },
     saveRules() { const f = $('#rulesForm'); settings.rules = { harm: +$('[name=harm]', f).value, tense: +$('[name=tense]', f).value, vocHours: +$('[name=voc]', f).value, starOrb: +$('[name=starOrb]', f).value }; settings.showKp = $('[name=showKp]', f).checked; persistSettings(); S.dayCache = {}; toast('Pravidla uložena.'); },
+    toggleClouds(el) { settings.clouds = !(settings.clouds === true); persistSettings(); drawClouds(); renderSettings(); },
     pickTheme(el) { settings.theme = el.dataset.t; persistSettings(); applyTheme(); renderSettings(); toast(settings.theme === 'auto' ? 'Obloha se mění podle denní doby.' : 'Obloha: ' + THEMES[settings.theme] + '.'); },
     saveComets() { settings.comets = $('#cometsForm textarea').value; persistSettings(); S.evCache = {}; toast('Seznam uložen.'); },
     refreshKp(el) { el.disabled = true; loadKp(true).finally(() => { el.disabled = false; renderSettings(); toast(S.kpError ? S.kpError : 'Kosmické počasí aktualizováno.'); }); },
@@ -1746,6 +1750,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
         <div class="row" style="gap:6px" id="themeRow">
           ${['auto', 'dawn', 'day', 'dusk', 'night'].map(t => `<button class="chip ${settings.theme === t ? 'on' : ''}" data-act="pickTheme" data-t="${t}">${t === 'auto' ? 'podle denní doby' : THEMES[t]}</button>`).join('')}
         </div>
+        <label class="row" style="gap:8px;margin-top:10px;font-size:14px;cursor:pointer"><input type="checkbox" data-act="toggleClouds" ${settings.clouds === false ? '' : 'checked'}> Mraky ve světlých paletách</label>
         <p class="note">Na automatiku se obloha mění podle skutečného východu a západu Slunce v ${esc(settings.loc.name)}: rozednívání kolem východu, den, stmívání kolem západu, noc. Teď je ${THEMES[applyTheme()]}.</p>
       </div>
       <div class="h2">Kosmické počasí · NOAA SWPC</div>
@@ -1795,21 +1800,30 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     return want;
   }
 
-  // mraky pro světlé oblohy
+  // mraky pro světlé oblohy – široké pásy oparu, ne kaňky
   function drawClouds() {
     const svg = document.getElementById('clouds');
     if (!svg) return;
+    if (settings.clouds === false) { svg.innerHTML = ''; return; }
     const W = 1000, H = 1600;
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
     svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
     let seed = 19800903, rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
-    let g = '<defs><filter id="blur"><feGaussianBlur stdDeviation="18"/></filter></defs><g filter="url(#blur)">';
-    for (let i = 0; i < 16; i++) {
-      const cx = rnd() * W, cy = rnd() * H, sc = 0.5 + rnd() * 1.3, o = (0.20 + rnd() * 0.4).toFixed(2);
-      let puffs = '';
-      for (let j = 0; j < 6; j++) puffs += `<ellipse cx="${(cx + (rnd() - 0.5) * 190 * sc).toFixed(0)}" cy="${(cy + (rnd() - 0.5) * 55 * sc).toFixed(0)}" rx="${(60 + rnd() * 80) * sc}" ry="${(26 + rnd() * 34) * sc}" fill="#fff" opacity="${o}"/>`;
-      g += puffs;
-    }
+    let g = '<defs><filter id="cb" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="26"/></filter></defs><g filter="url(#cb)">';
+    // pásy: nahoře řídké, u obzoru hustší – jako vrstevnatá oblačnost
+    const bands = [0.10, 0.24, 0.40, 0.56, 0.70, 0.80, 0.88, 0.94];
+    bands.forEach((by, i) => {
+      const near = i / (bands.length - 1);
+      const count = 2 + Math.round(near * 3);
+      for (let j = 0; j < count; j++) {
+        const cx = (0.08 + rnd() * 0.84) * W;
+        const cy = (by + (rnd() - 0.5) * 0.035) * H;
+        const rx = (110 + rnd() * 230) * (0.6 + near * 0.9);
+        const ry = (12 + rnd() * 20) * (0.7 + near * 0.6);
+        const o = (0.07 + near * 0.13 + rnd() * 0.05).toFixed(3);
+        g += `<ellipse cx="${cx.toFixed(0)}" cy="${cy.toFixed(0)}" rx="${rx.toFixed(0)}" ry="${ry.toFixed(0)}" fill="#fff" opacity="${o}"/>`;
+      }
+    });
     svg.innerHTML = g + '</g>';
   }
 
