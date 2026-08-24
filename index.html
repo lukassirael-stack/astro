@@ -13,7 +13,7 @@
 <script>(function(){try{var st=JSON.parse(localStorage.getItem('kairos_settings')||'{}'),t=st.theme||'auto';
 if(t==='auto'){var h=new Date().getHours();t=h>=5&&h<8?'dawn':h>=8&&h<19?'day':h>=19&&h<22?'dusk':'night';}
 document.documentElement.dataset.theme=t;
-var c={dawn:'#EFDDD5',day:'#DFE8EE',dusk:'#2E2438',night:'#16263C'}[t];
+var c={dawn:'#EFDDD5',day:'#DFE8EE',dusk:'#241E36',night:'#16263C'}[t];
 var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('content',c);}catch(e){}})();</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -75,19 +75,20 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 }
 /* ---------- STMÍVÁNÍ – rozžhavené mraky nad tmavnoucí modří ---------- */
 [data-theme="dusk"]{
-  --bg:#2E2438; --bg2:#3E2F41; --surface:#413245; --surface2:#4E3C50;
-  --line:rgba(247,234,222,.16); --line2:rgba(247,234,222,.27);
-  --text:#F7EADE; --muted:#C6ACAA; --gold:#F5CE85; --gold2:#A98A50; --gold-soft:rgba(245,206,133,.18);
+  --bg:#241E36; --bg2:#2F2745; --surface:#352C4C; --surface2:#403658;
+  --line:rgba(246,238,228,.17); --line2:rgba(246,238,228,.28);
+  --text:#F7F0E6; --muted:#BCB0C9; --gold:#F0C983; --gold2:#A48A55; --gold-soft:rgba(240,201,131,.18);
   --on-gold:#241705;
-  --harm-rgb:124,208,170; --tense-rgb:244,148,118; --sun-rgb:246,170,98;
-  --moon:#F6D9A8; --moon-dark:rgba(20,12,28,.35); --sun:#F6AA62; --merc:#8FBED4; --ven:#E2A0B4; --mar:#E27B5C; --jup:#E5B06A; --sat:#9B92A6;
-  --strip-bg:#231A2C; --strip-line:rgba(35,26,44,.9); --wheel-bg:#3E2F41;
-  --sky:linear-gradient(180deg,#3B3049 0%,#5C4459 22%,#8E5C58 46%,#C0745E 72%,#3A2C3E 100%);
-  --glow:radial-gradient(ellipse at center,rgba(251,195,117,.28),transparent 62%);
-  --stars:.42; --tabs-bg:rgba(46,36,56,.94); --cell-a:1;
-  --glass:rgba(65,50,69,.52); --glass-line:rgba(247,234,222,.22); --glass-shadow:rgba(20,10,25,.42);
+  --harm-rgb:126,214,176; --tense-rgb:246,150,120; --sun-rgb:246,176,110;
+  --moon:#F8DCAC; --moon-dark:rgba(14,9,26,.42);
+  --sun:#F6B06E; --merc:#92C4D8; --ven:#E3A6BC; --mar:#E4805F; --jup:#E7B571; --sat:#9E97AE;
+  --strip-bg:#1C1730; --strip-line:rgba(28,23,48,.9); --wheel-bg:#2F2745;
+  --glass:rgba(60,52,88,.55); --glass-line:rgba(246,238,228,.24); --glass-shadow:rgba(12,8,24,.42);
+  --sky:linear-gradient(180deg,#332A4C 0%,#4A3A58 24%,#6E4C57 48%,#8A5A58 72%,#2C2440 100%);
+  --glow:radial-gradient(ellipse at center,rgba(246,176,110,.22),transparent 62%);
+  --stars:.42; --tabs-bg:rgba(36,30,54,.94); --cell-a:1.15;
   --photo:url('sky-dusk.webp');
-  --scrim:linear-gradient(180deg,rgba(46,36,56,.42) 0%,rgba(46,36,56,.66) 45%,rgba(46,36,56,.84) 100%);
+  --scrim:linear-gradient(180deg,rgba(36,30,54,.56) 0%,rgba(36,30,54,.78) 42%,rgba(36,30,54,.91) 100%);
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -2158,7 +2159,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 
   // ===================== obloha podle denní doby =====================
   const THEMES = { dawn: 'rozednívání', day: 'den', dusk: 'stmívání', night: 'noc' };
-  const THEME_META = { dawn: '#EFDDD5', day: '#DFE8EE', dusk: '#2E2438', night: '#16263C' };
+  const THEME_META = { dawn: '#EFDDD5', day: '#DFE8EE', dusk: '#241E36', night: '#16263C' };
   function themeForNow(dt) {
     dt = dt || new Date();
     try {
