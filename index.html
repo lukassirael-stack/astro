@@ -13,7 +13,7 @@
 <script>(function(){try{var st=JSON.parse(localStorage.getItem('kairos_settings')||'{}'),t=st.theme||'auto';
 if(t==='auto'||t==='dawn'||t==='dusk'){var h=new Date().getHours();t=h>=6&&h<20?'day':'night';}
 document.documentElement.dataset.theme=t;
-var c={dawn:'#EFDDD5',day:'#DFE8EE',dusk:'#241E36',night:'#16263C'}[t];
+var c={day:'#2F97E4',night:'#08214F'}[t];
 var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('content',c);}catch(e){}})();</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -23,22 +23,23 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
-  /* NOC – podle nočního panelu vizuálu (modrošedá, ne fialová) */
-  --bg:#16263C; --bg2:#1E3149; --surface:#24344E; --surface2:#2D405C;
-  --line:rgba(238,232,219,.14); --line2:rgba(238,232,219,.25);
-  --text:#EFE8DB; --muted:#A6B3C6; --gold:#E4C579; --gold2:#9C8449; --gold-soft:rgba(228,197,121,.16);
+  /* NOC – podle nočního obrazu: hluboká královská modř a zlato */
+  --bg:#08214F; --bg2:#0C2A60; --surface:#123368; --surface2:#1A3F79;
+  --line:rgba(236,232,220,.16); --line2:rgba(236,232,220,.28);
+  --text:#F1EADA; --muted:#9FB4D6; --gold:#F0C874; --gold2:#A8873F; --gold-soft:rgba(240,200,116,.18);
   --on-gold:#161204;
-  --harm-rgb:118,204,168; --tense-rgb:236,142,114; --sun-rgb:232,192,106;
+  --harm-rgb:110,214,172; --tense-rgb:242,140,110; --sun-rgb:240,200,116;
   --harm:rgb(var(--harm-rgb)); --tense:rgb(var(--tense-rgb));
   --harm-soft:rgba(var(--harm-rgb),.18); --tense-soft:rgba(var(--tense-rgb),.18);
-  --moon:#F3EEE2; --moon-dark:rgba(6,14,26,.4); --sun:#E8C06A; --merc:#7FB3C9; --ven:#D79BB0; --mar:#C8705D; --jup:#D9A35B; --sat:#8A93A8;
-  --strip-bg:#0F1B2C; --strip-line:rgba(15,27,44,.9); --wheel-bg:#1B2C43;
-  --sky:linear-gradient(180deg,#13233A 0%,#1D3049 35%,#25405F 68%,#182A40 100%);
-  --glow:radial-gradient(ellipse at center,rgba(228,197,121,.11),transparent 62%);
-  --stars:.9; --tabs-bg:rgba(22,38,60,.93); --cell-a:1;
-  --glass:rgba(36,52,78,.52); --glass-line:rgba(238,232,219,.20); --glass-shadow:rgba(4,10,20,.45);
+  --moon:#F6E6C2; --moon-dark:rgba(2,10,30,.45);
+  --sun:#F0C874; --merc:#83BEDC; --ven:#DFA0BC; --mar:#E0785C; --jup:#E4B268; --sat:#93A6C4;
+  --strip-bg:#04122F; --strip-line:rgba(4,18,47,.9); --wheel-bg:#0C2A60;
+  --glass:rgba(20,56,112,.50); --glass-line:rgba(236,232,220,.24); --glass-shadow:rgba(1,8,26,.5);
+  --sky:linear-gradient(180deg,#04153A 0%,#082859 45%,#072150 78%,#05183C 100%);
+  --glow:radial-gradient(ellipse at center,rgba(240,200,116,.12),transparent 62%);
+  --stars:.9; --tabs-bg:rgba(6,26,62,.94); --cell-a:1;
   --photo:url('sky-night.webp');
-  --scrim:linear-gradient(180deg,rgba(22,38,60,.42) 0%,rgba(22,38,60,.66) 45%,rgba(22,38,60,.82) 100%);
+  --scrim:linear-gradient(180deg,rgba(5,21,56,.34) 0%,rgba(5,21,56,.55) 40%,rgba(5,21,56,.72) 100%);
   --display:'Cormorant Garamond',Georgia,'Times New Roman',serif; --body:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 /* ---------- ROZEDNÍVÁNÍ – popelavá růž a broskev ---------- */
@@ -59,19 +60,20 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 }
 /* ---------- DEN – modř průhledu a teplé krémové mraky ---------- */
 [data-theme="day"]{
-  --bg:#DFE8EE; --bg2:#EDEFEA; --surface:#FDFBF5; --surface2:#F2F2EA;
-  --line:rgba(24,44,68,.14); --line2:rgba(24,44,68,.25);
-  --text:#1B2C42; --muted:#566780; --gold:#8F6A18; --gold2:#C9A251; --gold-soft:rgba(143,106,24,.12);
+  --bg:#1E8AE0; --bg2:#3AA3EE; --surface:#F7FBFF; --surface2:#E8F3FD;
+  --line:rgba(8,44,86,.16); --line2:rgba(8,44,86,.28);
+  --text:#0A2A50; --muted:#4A6F98; --gold:#8A6410; --gold2:#C09B3E; --gold-soft:rgba(138,100,16,.13);
   --on-gold:#FFFBF2;
-  --harm-rgb:20,112,86; --tense-rgb:172,64,40; --sun-rgb:194,132,40;
-  --moon:#A8791F; --moon-dark:rgba(60,90,120,.18); --sun:#C28428; --merc:#2C7290; --ven:#A4577A; --mar:#A9452D; --jup:#A07421; --sat:#616F88;
-  --strip-bg:#DDE6EC; --strip-line:rgba(253,251,245,.9); --wheel-bg:#F2F2EA;
-  --sky:linear-gradient(180deg,#2F6BA4 0%,#6E9CC6 20%,#A9C4D9 42%,#CFD9D6 68%,#F0E3BD 100%);
-  --glow:radial-gradient(ellipse at center,rgba(255,252,240,.6),transparent 64%);
-  --stars:0; --tabs-bg:rgba(237,239,234,.95); --cell-a:1.3;
-  --glass:rgba(253,251,245,.54); --glass-line:rgba(255,255,255,.8); --glass-shadow:rgba(30,60,95,.14);
+  --harm-rgb:12,110,84; --tense-rgb:176,58,32; --sun-rgb:190,128,30;
+  --moon:#9A6E12; --moon-dark:rgba(10,42,80,.16);
+  --sun:#BE801E; --merc:#20708F; --ven:#9E4F73; --mar:#AE3E26; --jup:#9C6E18; --sat:#546A88;
+  --strip-bg:#DCEDFB; --strip-line:rgba(255,255,255,.9); --wheel-bg:#EDF5FD;
+  --glass:rgba(250,253,255,.72); --glass-line:rgba(255,255,255,.9); --glass-shadow:rgba(6,50,100,.18);
+  --sky:linear-gradient(180deg,#0A5FCE 0%,#1394EC 45%,#4FB4F6 78%,#6BC7FA 100%);
+  --glow:radial-gradient(ellipse at center,rgba(255,255,255,.5),transparent 64%);
+  --stars:0; --tabs-bg:rgba(232,243,253,.95); --cell-a:1.15;
   --photo:url('sky-day.webp');
-  --scrim:linear-gradient(180deg,rgba(223,232,238,.36) 0%,rgba(223,232,238,.62) 45%,rgba(223,232,238,.84) 100%);
+  --scrim:linear-gradient(180deg,rgba(190,222,248,.30) 0%,rgba(205,231,250,.52) 40%,rgba(220,238,252,.70) 100%);
 }
 /* ---------- STMÍVÁNÍ – rozžhavené mraky nad tmavnoucí modří ---------- */
 [data-theme="dusk"]{
@@ -94,12 +96,10 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.45;min-height:100vh;
   background-image:var(--sky);transition:background-color .4s ease,color .4s ease}
-#skybg{position:fixed;top:0;left:0;right:0;height:56vh;z-index:-2;pointer-events:none;
-  background-image:var(--photo);background-size:cover;background-position:center 28%;background-repeat:no-repeat;
-  opacity:.62;
-  -webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,1) 0%,rgba(0,0,0,.85) 30%,rgba(0,0,0,.35) 65%,transparent 100%);
-  mask-image:linear-gradient(180deg,rgba(0,0,0,1) 0%,rgba(0,0,0,.85) 30%,rgba(0,0,0,.35) 65%,transparent 100%)}
-[data-bg="plain"] #skybg{display:none}
+#skybg{position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background-image:var(--scrim),var(--photo);background-size:cover,cover;
+  background-position:center top,center top;background-repeat:no-repeat,no-repeat}
+[data-bg="plain"] #skybg{background-image:none}
 
 a{color:var(--gold)}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -2170,7 +2170,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   // Zatím jen den a noc. Palety pro rozednívání a stmívání zůstávají v CSS —
   // až je budeme chtít, stačí je vrátit sem a do themeForNow.
   const THEMES = { day: 'den', night: 'noc' };
-  const THEME_META = { dawn: '#EFDDD5', day: '#DFE8EE', dusk: '#241E36', night: '#16263C' };
+  const THEME_META = { day: '#2F97E4', night: '#08214F' };
   function themeForNow(dt) {
     dt = dt || new Date();
     try {
