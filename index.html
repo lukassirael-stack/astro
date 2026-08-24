@@ -110,9 +110,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .app{max-width:760px;margin:0 auto;padding:0 14px 96px}
 /* hlavička */
-.top{display:flex;align-items:baseline;justify-content:space-between;padding:18px 0 6px;border-bottom:1px solid var(--line)}
-.brand{font-family:var(--display);font-size:29px;font-weight:600;letter-spacing:.01em;color:var(--gold);margin:0;line-height:1;text-shadow:var(--halo)}
-.brand small{text-shadow:var(--halo);display:block;font-family:var(--body);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0 10px;border-bottom:1px solid var(--line)}
+.brand{margin:0;line-height:0;color:var(--gold);display:block;flex:1 1 auto;min-width:0;font-size:0}
+.brand .logo{display:block;height:64px;width:auto;max-width:100%;filter:drop-shadow(var(--logo-halo))}
+@media (max-width:640px){.brand .logo{height:52px}}
+@media (max-width:420px){.brand .logo{height:42px}}
 .profile-pill{font-size:12px;color:var(--muted);letter-spacing:.04em;padding:6px 10px;border:1px solid var(--line2);border-radius:999px;white-space:nowrap}
 /* navigace */
 .tabs{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:2px;padding:8px max(10px,env(safe-area-inset-left)) max(10px,env(safe-area-inset-bottom));background:var(--tabs-bg);backdrop-filter:blur(10px);border-top:1px solid var(--line);z-index:20}
@@ -240,8 +242,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .tl .e.mine .x{font-weight:600}
 .cell.planned .d:after{content:'◆';font-size:8px;color:var(--gold);vertical-align:6px;margin-left:3px;font-family:var(--body)}
 /* text ležící přímo na obraze */
-.brand,.brand small,.h2,.h3,.lede,.note,.legend,.weekdays,.striplegend,.ev-month,.monthbar .mn,.day-title,.day-title small{text-shadow:var(--halo)}
-[data-bg="plain"] .brand,[data-bg="plain"] .brand small,[data-bg="plain"] .h2,[data-bg="plain"] .h3,[data-bg="plain"] .lede,[data-bg="plain"] .note,[data-bg="plain"] .legend,[data-bg="plain"] .weekdays,[data-bg="plain"] .striplegend,[data-bg="plain"] .ev-month,[data-bg="plain"] .monthbar .mn,[data-bg="plain"] .day-title,[data-bg="plain"] .day-title small{text-shadow:none}
+.h2,.h3,.lede,.note,.legend,.weekdays,.striplegend,.ev-month,.monthbar .mn,.day-title,.day-title small{text-shadow:var(--halo)}
+[data-bg="plain"] .h2,[data-bg="plain"] .h3,[data-bg="plain"] .lede,[data-bg="plain"] .note,[data-bg="plain"] .legend,[data-bg="plain"] .weekdays,[data-bg="plain"] .striplegend,[data-bg="plain"] .ev-month,[data-bg="plain"] .monthbar .mn,[data-bg="plain"] .day-title,[data-bg="plain"] .day-title small{text-shadow:none}
 /* diář */
 .panel.jr{border-color:var(--gold2)}
 .panel.jr h4{color:var(--gold)}
