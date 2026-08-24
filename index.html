@@ -198,6 +198,38 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .win .w{border:1px solid var(--line2);border-radius:10px;padding:7px 11px;font-size:13px;background:var(--bg2)}
 .win .w b{font-family:var(--mono);color:var(--gold);font-weight:500}
 .win .w span{display:block;font-size:11.5px;color:var(--muted)}
+/* plán dne */
+.panel.pl{border-color:var(--line2)}
+.panel.pl h4{color:var(--text)}
+.plist{list-style:none;margin:0 0 9px;padding:0}
+.plist li{display:grid;grid-template-columns:52px 1fr 26px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.plist li:first-child{border-top:0}
+.plist .pt{font-family:var(--mono);font-size:13px;color:var(--gold);font-variant-numeric:tabular-nums;padding-right:6px}
+.plist .pn{font-size:14.5px}
+.plist .px{width:24px;height:24px;border-radius:50%;border:1px solid var(--line2);color:var(--muted);font-size:15px;line-height:1;display:grid;place-items:center}
+.plist .px:hover{color:var(--tense);border-color:var(--tense)}
+.planadd{display:grid;grid-template-columns:104px 1fr auto;gap:7px}
+.planadd input{font:inherit;font-size:14.5px;color:var(--text);background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:8px 10px;min-width:0}
+@media (max-width:420px){.planadd{grid-template-columns:96px 1fr;grid-auto-rows:auto}.planadd .btn{grid-column:1/-1}}
+.tl .e.mine .dot{color:var(--text)}
+.tl .e.mine .x{font-weight:500}
+.cell.planned:before{content:'';position:absolute;right:6px;top:7px;width:5px;height:5px;border-radius:1px;background:var(--text);opacity:.65;transform:rotate(45deg)}
+/* plán dne */
+.panel.pl{border-color:var(--line2)}
+.plist{list-style:none;margin:0 0 9px;padding:0}
+.plist li{display:grid;grid-template-columns:52px 1fr 26px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.plist li:last-child{border-bottom:0}
+.plist .pt{font-family:var(--mono);font-size:13px;color:var(--gold);text-align:right}
+.plist .pn{font-size:14.5px;word-break:break-word}
+.plist .px{width:24px;height:24px;border-radius:50%;border:1px solid var(--line2);color:var(--muted);font-size:14px;line-height:1;display:grid;place-items:center}
+.plist .px:hover{color:var(--tense);border-color:var(--tense)}
+.planadd{display:grid;grid-template-columns:96px 1fr auto;gap:7px}
+.planadd input{font:inherit;font-size:14px;color:var(--text);background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:8px 10px;min-width:0}
+.planadd input::placeholder{color:var(--muted)}
+@media (max-width:400px){.planadd{grid-template-columns:86px 1fr auto}}
+.tl .e.mine .dot{color:var(--gold)}
+.tl .e.mine .x{font-weight:600}
+.cell.planned .d:after{content:'◆';font-size:8px;color:var(--gold);vertical-align:6px;margin-left:3px;font-family:var(--body)}
 /* diář */
 .panel.jr{border-color:var(--gold2)}
 .panel.jr h4{color:var(--gold)}
@@ -220,6 +252,22 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .jitem .jc{display:block;margin-top:3px;white-space:pre-wrap;word-break:break-word}
 .jitem .n{display:block;color:var(--muted);font-size:11.5px;margin-top:4px}
 .cell.noted:after{content:'';position:absolute;left:50%;bottom:5px;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--gold);opacity:.9}
+/* plán dne */
+.panel.pl h4{color:var(--text)}
+.plist{list-style:none;margin:0 0 9px;padding:0}
+.plist li{display:grid;grid-template-columns:48px 1fr 26px;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line)}
+.plist li:last-child{border-bottom:0}
+.plist .pt{font-family:var(--mono);font-size:12.5px;color:var(--gold);font-variant-numeric:tabular-nums}
+.plist .pn{font-size:14px;word-break:break-word}
+.plist .px{width:24px;height:24px;border-radius:50%;border:1px solid var(--line2);color:var(--muted);font-size:14px;line-height:1;display:grid;place-items:center}
+.plist .px:hover{color:var(--tense);border-color:var(--tense)}
+.planadd{display:grid;grid-template-columns:92px 1fr auto;gap:7px}
+.planadd input{font:inherit;font-size:14px;color:var(--text);background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:8px 9px;min-width:0}
+.planadd input::placeholder{color:var(--muted)}
+.tl .e.mine .dot{color:var(--text)}
+.tl .e.mine .x{font-weight:600}
+.cell.planned .d:after{content:'◆';font-size:8px;vertical-align:6px;margin-left:3px;color:var(--text);opacity:.75;font-family:var(--body)}
+@media (max-width:420px){.planadd{grid-template-columns:84px 1fr auto}}
 /* časová osa dne */
 .tl{margin:10px 0 4px;position:relative;padding-left:4px}
 .tl:before{content:'';position:absolute;left:57px;top:8px;bottom:8px;width:1px;background:linear-gradient(180deg,transparent,var(--line2) 12%,var(--line2) 88%,transparent)}
@@ -1400,6 +1448,15 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     { v: 1, label: 'podpora', cls: 'harm' },
     { v: 2, label: 'vítr v zádech', cls: 'harm' },
   ];
+  // plán: { "2026-08-24": [ {id, t:'14:00'|null, name, note} ] }
+  let plan = store.get('kairos_plan', {}) || {};
+  const pGet = (key) => plan[key] || [];
+  function pSave() { store.set('kairos_plan', plan); }
+  function pAdd(key, item) { (plan[key] = plan[key] || []).push(item); plan[key].sort(cmpPlan); pSave(); }
+  function pDel(key, id) { plan[key] = pGet(key).filter(x => x.id !== id); if (!plan[key].length) delete plan[key]; pSave(); }
+  function cmpPlan(a, b) { if (!a.t && !b.t) return 0; if (!a.t) return 1; if (!b.t) return -1; return a.t.localeCompare(b.t); }
+  const planMs = (key, t) => { const [y, m, d] = key.split('-').map(Number); const [hh, mm] = (t || '00:00').split(':').map(Number); return K.localToDate(y, m, d, hh, mm, TZ).getTime(); };
+
   const jGet = (key) => journal[key] || null;
   function jSet(key, patch) {
     const cur = journal[key] || {};
@@ -1549,6 +1606,17 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     saveLoc() { const f = $('#locForm'); settings.loc = { name: $('[name=lname]', f).value.trim() || 'místo', lat: +$('[name=llat]', f).value, lon: +$('[name=llon]', f).value, alt: +$('[name=lalt]', f).value || 0 }; persistSettings(); S.dayCache = {}; S.evCache = {}; applyTheme(); renderSettings(); toast('Místo uloženo — časy a viditelnost přepočítány.'); },
     saveRules() { const f = $('#rulesForm'); settings.rules = { harm: +$('[name=harm]', f).value, tense: +$('[name=tense]', f).value, vocHours: +$('[name=voc]', f).value, starOrb: +$('[name=starOrb]', f).value }; settings.showKp = $('[name=showKp]', f).checked; persistSettings(); S.dayCache = {}; toast('Pravidla uložena.'); },
     toggleClouds(el) { settings.clouds = !(settings.clouds === true); persistSettings(); drawClouds(); renderSettings(); },
+    addPlan(el) {
+      const key = el.dataset.k;
+      const wrap = el.closest('.planadd');
+      const t = $('[name=ptime]', wrap).value.trim();
+      const name = $('[name=pname]', wrap).value.trim();
+      if (!name) { toast('Napiš, co tě čeká.'); return; }
+      pAdd(key, { id: 'p' + Date.now().toString(36), t: t || null, name });
+      $('[name=pname]', wrap).value = ''; $('[name=ptime]', wrap).value = '';
+      if (S.tab === 'diar') renderJournal(); else renderCalendar();
+    },
+    delPlan(el) { pDel(el.dataset.k, el.dataset.id); if (S.tab === 'diar') renderJournal(); else renderCalendar(); },
     rate(el) {
       const key = el.dataset.k, v = +el.dataset.v;
       const cur = jGet(key);
@@ -1565,7 +1633,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     jumpDay(el) { S.sel = { y: +el.dataset.y, m: +el.dataset.m, d: +el.dataset.d }; S.y = S.sel.y; S.m = S.sel.m; showTab('kalendar'); setTimeout(() => { const n = $('#dayDetail'); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); },
     exportJournal() {
       const rows = Object.keys(journal).sort();
-      const payload = { app: 'nebesky-kalendar', version: VERSION, exported: new Date().toISOString(), profile: activeProfile().name, entries: journal };
+      const payload = { app: 'nebesky-kalendar', version: VERSION, exported: new Date().toISOString(), profile: activeProfile().name, entries: journal, plan: plan };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
       a.download = `diar-${K.isoDate(np.y, np.m, np.d)}.json`; document.body.appendChild(a); a.click();
@@ -1622,7 +1690,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       else if (q) mk = `<span title="${q.quarter === 0 ? 'novoluní' : 'úplněk'}">${q.quarter === 0 ? '●' : '○'}</span>`;
       else if (da.kp && da.kp.kp >= 5) mk = '<span class="kp" title="geomagnetická bouře">⚡</span>';
       const hasJ = !!jGet(key);
-      cells += `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${hasJ ? 'noted' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
+      const hasP = pGet(key).length > 0;
+      cells += `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${hasJ ? 'noted' : ''} ${hasP ? 'planned' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
         <span class="d">${d}</span><span class="mk">${mk}</span>${moonSVG(da.phaseAngle, 12)}
       </button>`;
     }
@@ -1678,11 +1747,12 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
         <div><span class="badge ${da.color}">${TX.dayWord(da)}</span></div>
       </div>
       <p class="lede">${esc(TX.dayLede(da, dayEv))}</p>
+      ${planPanel(K.isoDate(y, m, d))}
       <div class="panel go"><h4>Co dnes jde</h4><ul>${go.map(bullet).join('')}</ul></div>
       ${cost.length ? `<div class="panel cost"><h4>Co bude stát víc sil</h4><ul>${cost.map(bullet).join('')}</ul></div>` : ''}
-      ${journalPanel(K.isoDate(y, m, d), da)}
       <div class="h3">Průběh dne</div>
       ${timelineHTML(da, ph, wins, ld, moonrise, moonset, dayEv, isToday)}
+      ${journalPanel(K.isoDate(y, m, d), da)}
       <details><summary>Podrobnosti — pro astrologa</summary>
         <div class="h3">Pás dne</div>
         ${stripHTML(da, ph, phPrev, isToday, moonrise, moonset)}
@@ -1702,6 +1772,21 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <p class="note">Nic z toho není předpověď ani pokyn. Je to mapa terénu — kudy dnes půjde snáz a kde budeš potřebovat víc trpělivosti. Rozhoduješ pořád ty.</p>`;
   }
 
+  function planPanel(key) {
+    const items = pGet(key);
+    const list = items.map(it => `<li><span class="pt">${it.t ? esc(it.t) : '—'}</span><span class="pn">${esc(it.name)}</span>
+      <button type="button" class="px" data-act="delPlan" data-k="${key}" data-id="${it.id}" aria-label="Smazat">×</button></li>`).join('');
+    return `<div class="panel pl">
+      <h4>Co mě čeká</h4>
+      ${items.length ? `<ul class="plist">${list}</ul>` : '<p class="small muted" style="margin:0 0 8px">Zatím nic zapsaného.</p>'}
+      <div class="planadd">
+        <input type="time" name="ptime" aria-label="Čas">
+        <input type="text" name="pname" placeholder="Schůzka, zubař, cesta…" aria-label="Co">
+        <button type="button" class="btn small" data-act="addPlan" data-k="${key}">Přidat</button>
+      </div>
+    </div>`;
+  }
+
   function journalPanel(key, da) {
     const e = jGet(key) || {};
     const chips = RATES.map(r => `<button type="button" class="rate ${r.cls} ${e.rate === r.v ? 'on' : ''}" data-act="rate" data-k="${key}" data-v="${r.v}">${r.label}</button>`).join('');
@@ -1718,16 +1803,17 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 
   function renderJournal() {
     const v = $('#view-diar');
-    const keys = Object.keys(journal).sort().reverse();
+    const jk = Object.keys(journal), pk = Object.keys(plan);
+    const keys = [...new Set([...jk, ...pk])].sort().reverse();
     if (!keys.length) {
       v.innerHTML = `<div class="h2">Diář</div>
-        <div class="card"><p>Zatím tu nic není. Otevři si den v kalendáři a dole u něj napiš, jak šel — nebo jen klikni na jedno z pěti slov.</p>
+        <div class="card"><p>Zatím tu nic není. Otevři si den v kalendáři — nahoře u něj zapíšeš, co tě čeká (schůzka, cesta, zubař…), a dole večer jedním klikem, jak den šel.</p>
         <p class="note">Po nějaké době se tady ukáže, jak moc se tvoje hodnocení potkává s tím, co appka spočítala. To je jediný způsob, jak zjistit, jestli ti barvení dnů skutečně sedí.</p></div>
         ${journalIO()}`;
       return;
     }
     // shoda hodnocení se spočítaným skóre
-    const rated = keys.filter(k => jGet(k).rate != null);
+    const rated = keys.filter(k => { const e = jGet(k); return e && e.rate != null; });
     let stat = '';
     if (rated.length >= 5) {
       let n = 0, agree = 0, sx = 0, sy = 0, sxx = 0, syy = 0, sxy = 0;
@@ -1754,12 +1840,14 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       const [y, m, d] = k.split('-').map(Number);
       const mk = `${y}-${m}`;
       if (mk !== curMonth) { curMonth = mk; html += `<div class="ev-month">${K.MONTH_CZ[m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[m - 1].slice(1)} ${y}</div>`; }
-      const e = jGet(k), da = analyze(y, m, d);
+      const e = jGet(k) || {}, da = analyze(y, m, d);
       const r = RATES.find(x => x.v === e.rate);
+      const pls = pGet(k);
+      const plHtml = pls.length ? `<span class="jc" style="color:var(--gold)">${pls.map(x => (x.t ? x.t + ' ' : '') + esc(x.name)).join(' · ')}</span>` : '';
       const p = K.tzParts(K.dayStart(y, m, d, TZ), TZ);
       html += `<button type="button" class="jitem ${da.color}" data-act="jumpDay" data-y="${y}" data-m="${m}" data-d="${d}">
         <span class="jd"><b>${d}.</b>${K.WEEKDAY_CZ[p.wd].slice(0, 2)}</span>
-        <span class="jt">${r ? `<span class="badge ${r.cls}">${r.label}</span>` : ''}<span class="jc">${esc(e.note || '')}</span>
+        <span class="jt">${r ? `<span class="badge ${r.cls}">${r.label}</span>` : ''}${plHtml}${e.note ? `<span class="jc">${esc(e.note)}</span>` : ''}
         <span class="n">appka: ${TX.dayWord(da)}${r && ((r.v > 0 && da.color === 'tense') || (r.v < 0 && da.color === 'harm')) ? ' · rozchází se' : ''}</span></span></button>`;
     }
     v.innerHTML = html + journalIO();
@@ -1773,6 +1861,11 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 
   function timelineHTML(da, ph, wins, ld, moonrise, moonset, dayEv, isToday) {
     const E = TX.timeline(da, ph, wins, ld, moonrise, moonset, dayEv, TZ);
+    const key = K.isoDate(da.y, da.m, da.d);
+    const mine = pGet(key);
+    for (const it of mine) if (it.t) E.push({ ms: planMs(key, it.t), icon: '◆', text: it.name, note: nearbyNote(planMs(key, it.t), da, wins), kind: 'mine', mine: true });
+    E.sort((a, b) => a.ms - b.ms);
+    const untimed = mine.filter(it => !it.t);
     if (!E.length) return '<p class="muted small">Dnes se na obloze nic výrazného neděje.</p>';
     const nowMs = Date.now();
     let nextIdx = -1;
@@ -1780,7 +1873,26 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     return `<div class="tl">${E.map((e, i) => `<div class="e ${e.kind} ${i === nextIdx ? 'now' : ''}">
       <span class="t">${K.fmtTime(new Date(e.ms), TZ)}</span><span class="dot">${e.icon}</span>
       <span class="x">${esc(e.text)}${e.note ? `<span class="n">${esc(e.note)}</span>` : ''}</span></div>`).join('')}</div>
+      ${untimed.length ? `<p class="note">Bez času: ${untimed.map(x => esc(x.name)).join(' · ')}</p>` : ''}
       ${isToday && nextIdx > 0 ? '<p class="note">Zvýrazněné je nejbližší, co tě dnes čeká.</p>' : ''}`;
+  }
+
+  // co leží blízko naplánovaného času – kvůli tomu ten plán v ose je
+  function nearbyNote(ms, da, wins) {
+    const bits = [];
+    for (const w of wins || []) if (ms >= w.from.getTime() - 60000 && ms < w.to.getTime()) bits.push('padá do okna ' + w.use);
+    for (const v of da.voc) if (ms >= v.fromClip && ms < v.toClip) bits.push('Luna bez kurzu — nezačínej tím nic nového');
+    for (const e of da.moonToNatal) {
+      const d = Math.abs(e.ms - ms);
+      if (d <= 75 * 60000) {
+        const kdy = e.ms > ms ? 'krátce po' : 'krátce před';
+        if (e.kind === 'harm') bits.push(`${kdy} tom vstřícná chvíle (${K.fmtTime(new Date(e.ms), TZ)})`);
+        else if (e.kind === 'tense') bits.push(`${kdy} tom citlivější chvíle (${K.fmtTime(new Date(e.ms), TZ)})`);
+      }
+    }
+    const ph = K.planetaryHours(da.y, da.m, da.d, observer(), TZ);
+    if (ph) { const h = ph.hours.find(x => ms >= x.start.getTime() && ms < x.end.getTime()); if (h) bits.push('hodina ' + K.BODY_GEN[h.ruler]); }
+    return bits.length ? bits.join(' · ') : '';
   }
 
   function transitItem(t) {
@@ -2135,7 +2247,11 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
           let added = 0;
           for (const k of Object.keys(ent)) if (/^\d{4}-\d{2}-\d{2}$/.test(k)) { const cur = journal[k]; if (!cur || !cur.note) { journal[k] = ent[k]; added++; } }
           store.set('kairos_journal', journal);
-          toast('Načteno ' + added + ' zápisů.');
+          if (data.plan) { for (const k of Object.keys(data.plan)) if (/^\d{4}-\d{2}-\d{2}$/.test(k) && !plan[k]) plan[k] = data.plan[k]; pSave(); }
+          let pl = 0;
+          if (data.plan) for (const k of Object.keys(data.plan)) if (/^\d{4}-\d{2}-\d{2}$/.test(k) && !plan[k]) { plan[k] = data.plan[k]; pl++; }
+          pSave();
+          toast('Načteno ' + added + ' zápisů' + (pl ? ' a ' + pl + ' dnů plánu' : '') + '.');
           renderJournal();
         } catch (err) { toast('Soubor se nepodařilo přečíst.'); }
       };
