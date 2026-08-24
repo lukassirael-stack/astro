@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Nebeský kalendář">
 <meta name="robots" content="noindex">
 <script>(function(){try{var st=JSON.parse(localStorage.getItem('kairos_settings')||'{}'),t=st.theme||'auto';
-if(t==='auto'){var h=new Date().getHours();t=h>=5&&h<8?'dawn':h>=8&&h<19?'day':h>=19&&h<22?'dusk':'night';}
+if(t==='auto'||t==='dawn'||t==='dusk'){var h=new Date().getHours();t=h>=6&&h<20?'day':'night';}
 document.documentElement.dataset.theme=t;
 var c={dawn:'#EFDDD5',day:'#DFE8EE',dusk:'#241E36',night:'#16263C'}[t];
 var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('content',c);}catch(e){}})();</script>
@@ -94,8 +94,12 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.45;min-height:100vh;
   background-image:var(--sky);transition:background-color .4s ease,color .4s ease}
-#skybg{position:fixed;inset:0;z-index:-2;pointer-events:none;background-image:var(--scrim),var(--photo);
-  background-size:cover,cover;background-position:center top,center top;background-repeat:no-repeat,no-repeat}
+#skybg{position:fixed;top:0;left:0;right:0;height:56vh;z-index:-2;pointer-events:none;
+  background-image:var(--photo);background-size:cover;background-position:center 28%;background-repeat:no-repeat;
+  opacity:.62;
+  -webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,1) 0%,rgba(0,0,0,.85) 30%,rgba(0,0,0,.35) 65%,transparent 100%);
+  mask-image:linear-gradient(180deg,rgba(0,0,0,1) 0%,rgba(0,0,0,.85) 30%,rgba(0,0,0,.35) 65%,transparent 100%)}
+[data-bg="plain"] #skybg{display:none}
 
 a{color:var(--gold)}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -1656,6 +1660,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
     },
     importJournal() { const i = $('#jFile'); if (i) i.click(); },
+    pickBg(el) { settings.bg = el.dataset.b; persistSettings(); applyTheme(); renderSettings(); },
     pickTheme(el) { settings.theme = el.dataset.t; persistSettings(); applyTheme(); renderSettings(); toast(settings.theme === 'auto' ? 'Obloha se mění podle denní doby.' : 'Obloha: ' + THEMES[settings.theme] + '.'); },
     saveComets() { settings.comets = $('#cometsForm textarea').value; persistSettings(); S.evCache = {}; toast('Seznam uložen.'); },
     refreshKp(el) { el.disabled = true; loadKp(true).finally(() => { el.disabled = false; renderSettings(); toast(S.kpError ? S.kpError : 'Kosmické počasí aktualizováno.'); }); },
@@ -2131,10 +2136,14 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <div class="h2">Obloha</div>
       <div class="card">
         <div class="row" style="gap:6px" id="themeRow">
-          ${['auto', 'dawn', 'day', 'dusk', 'night'].map(t => `<button type="button" class="chip ${settings.theme === t ? 'on' : ''}" data-act="pickTheme" data-t="${t}">${t === 'auto' ? 'podle denní doby' : THEMES[t]}</button>`).join('')}
+          ${['auto', 'day', 'night'].map(t => `<button type="button" class="chip ${settings.theme === t ? 'on' : ''}" data-act="pickTheme" data-t="${t}">${t === 'auto' ? 'podle denní doby' : THEMES[t]}</button>`).join('')}
         </div>
         <label class="row" style="gap:8px;margin-top:10px;font-size:14px;cursor:pointer"><input type="checkbox" data-act="toggleClouds" ${settings.clouds === false ? '' : 'checked'}> Mraky ve světlých paletách</label>
-        <p class="note">Na automatiku se obloha mění podle skutečného východu a západu Slunce v ${esc(settings.loc.name)}: rozednívání kolem východu, den, stmívání kolem západu, noc. Teď je ${THEMES[applyTheme()]}.</p>
+        <div class="row" style="gap:6px;margin-top:10px">
+          <button type="button" class="chip ${settings.bg !== 'plain' ? 'on' : ''}" data-act="pickBg" data-b="photo">s obrazem nebe</button>
+          <button type="button" class="chip ${settings.bg === 'plain' ? 'on' : ''}" data-act="pickBg" data-b="plain">jen barvy</button>
+        </div>
+        <p class="note">Na automatiku se obloha mění podle skutečného východu a západu Slunce v ${esc(settings.loc.name)} — od svítání do soumraku denní, jinak noční. Teď je ${THEMES[applyTheme()]}.</p>
       </div>
       <div class="h2">Kosmické počasí · NOAA SWPC</div>
       <div class="card"><div class="small">${kpTxt}</div>${S.kpError ? `<div class="small tone-tense">${esc(S.kpError)}</div><p class="note">Pokud prohlížeč blokuje přímé stažení (CORS), aplikace zkouší záložní cestu <span class="mono">/api/noaa</span> – na Vercelu je součástí balíčku.</p>` : ''}<div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="refreshKp">Stáhnout znovu</button></div>
@@ -2158,7 +2167,9 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
 
   // ===================== obloha podle denní doby =====================
-  const THEMES = { dawn: 'rozednívání', day: 'den', dusk: 'stmívání', night: 'noc' };
+  // Zatím jen den a noc. Palety pro rozednívání a stmívání zůstávají v CSS —
+  // až je budeme chtít, stačí je vrátit sem a do themeForNow.
+  const THEMES = { day: 'den', night: 'noc' };
   const THEME_META = { dawn: '#EFDDD5', day: '#DFE8EE', dusk: '#241E36', night: '#16263C' };
   function themeForNow(dt) {
     dt = dt || new Date();
@@ -2167,13 +2178,12 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       const ph = K.planetaryHours(p.y, p.m, p.d, observer(), TZ);
       if (!ph) return 'night';
       const t = dt.getTime(), sr = ph.sunrise.getTime(), ss = ph.sunset.getTime();
-      if (t >= sr - 70 * 60000 && t < sr + 50 * 60000) return 'dawn';
-      if (t >= sr + 50 * 60000 && t < ss - 60 * 60000) return 'day';
-      if (t >= ss - 60 * 60000 && t < ss + 70 * 60000) return 'dusk';
+      if (t >= sr - 40 * 60000 && t < ss + 40 * 60000) return 'day';
       return 'night';
     } catch (e) { return 'night'; }
   }
   function applyTheme() {
+    document.documentElement.dataset.bg = settings.bg === 'plain' ? 'plain' : 'photo';
     const want = settings.theme === 'auto' ? themeForNow() : settings.theme;
     if (document.documentElement.dataset.theme !== want) {
       document.documentElement.dataset.theme = want;
