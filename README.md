@@ -8,7 +8,9 @@ PWA pro `kairos.oaza-adamanthea.cz`. Jeden `index.html` s veškerou logikou, vý
 | `index.html` | celá aplikace (CSS + jádro výpočtů + UI) |
 | `astronomy.browser.min.js` | astronomická knihovna (astronomy-engine 2.1.19, MIT) |
 | `sw.js` | service worker – offline, cache `kairos-vN` |
-| `manifest.webmanifest`, `icon.svg`, `icon-192.png`, `icon-512.png` | PWA |
+| `logo.png` | logo v hlavicce (rastr, 1120 px kvuli retine) |
+| `sky-day.webp`, `sky-night.webp` | pozadi pro denni a nocni paletu |
+| `manifest.webmanifest`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | PWA |
 | `api/noaa.js` | záložní proxy pro data NOAA (když prohlížeč zablokuje přímé stažení) |
 
 ## Nasazení
@@ -49,6 +51,9 @@ Nativ pro 3. 9. 1980 16:04 Kroměříž srovnán se Swiss Ephemeris (pyswisseph 
 - Viditelnost zatmění Luny se bere z výšky Luny v maximu a na okrajích částečné fáze.
 - Kp z 27denního výhledu je orientační. Erupce a sluneční vítr zatím nejsou.
 - Pomalé tranzity (Jupiter–Pluto) barvu dne záměrně neurčují – jsou „pozadí období“.
+
+## Diar a plan (v1.4)
+Treti zalozka je **Diar**. U kazdeho dne jsou dva panely: **Co me ceka** (udalosti s casem — objevi se primo v Prubehu dne i s kontextem: do jakeho okna padaji, jestli nekoli do Luny bez kurzu, jaka je planetarni hodina) a **Zapis dne** (pet slov + text, zpetne hodnoceni). V zalozce Diar je prehled zapisu a od peti ohodnocenych dnu sekce **Jak to sedi** — shoda a korelace mezi hodnocenim a spocitanym skore. Zapisy i plan ziji jen v localStorage; zaloha JSON/CSV je v Diari. Efemeridy se presunuly pod Nativ.
 
 ## Obloha podle denni doby (v1.2)
 Ctyri palety - **rozednivani, den, stmivani, noc**. Na automatiku se prepinaji podle skutecneho vychodu a zapadu Slunce v nastavenem miste: rozednivani od 70 min pred vychodem do 50 min po nem, den do 60 min pred zapadem, stmivani do 70 min po zapadu, jinak noc. Prepina se pri otevreni, pri navratu na kartu a kazde 4 minuty. Rucne lze zvolit pevnou paletu v **Nastaveni -> Obloha**.
