@@ -34,7 +34,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
   --moon:#F6E6C2; --moon-dark:rgba(1,5,14,.5);
   --sun:#F0C874; --merc:#7FBBDC; --ven:#DC9EBC; --mar:#DE745C; --jup:#E2B068; --sat:#8D9FC0;
   --strip-bg:#02060F; --strip-line:rgba(2,6,15,.9); --wheel-bg:#0A162B;
-  --glass:rgba(16,34,66,.62); --glass-line:rgba(236,232,220,.24); --glass-shadow:rgba(0,3,12,.55);
+  --glass:#152949; --field:#0D1B31; --glass-line:rgba(236,232,220,.24); --glass-shadow:rgba(0,3,12,.55);
   --sky:linear-gradient(180deg,#0A1B33 0%,#1B2434 40%,#272E39 100%);--sky-tail:#272E39;
   --halo:0 1px 3px rgba(0,4,14,.85), 0 0 16px rgba(0,4,14,.6);
   --logo-filter:drop-shadow(0 2px 10px rgba(0,4,14,.7)); --logo-accent:#9FD0F0;
@@ -54,7 +54,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
   --sky:linear-gradient(180deg,#9A94A6 0%,#B7A3A6 24%,#C9AFA6 45%,#DEB49C 72%,#FBD8AE 100%);
   --glow:radial-gradient(ellipse at center,rgba(251,216,174,.5),transparent 66%);
   --stars:.14; --tabs-bg:rgba(247,231,218,.95); --cell-a:1.3; --h3:#7C6567;
-  --glass:rgba(255,250,243,.56); --glass-line:rgba(255,255,255,.75); --glass-shadow:rgba(90,60,60,.14);
+  --glass:#FFFAF3; --field:#F7EDE5; --glass-line:rgba(255,255,255,.75); --glass-shadow:rgba(90,60,60,.14);
   --photo:url('sky-dawn.webp');
   --scrim:linear-gradient(180deg,rgba(239,221,213,.40) 0%,rgba(239,221,213,.66) 45%,rgba(239,221,213,.84) 100%);
 }
@@ -68,7 +68,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
   --moon:#9A6E12; --moon-dark:rgba(10,42,80,.16);
   --sun:#BE801E; --merc:#20708F; --ven:#9E4F73; --mar:#AE3E26; --jup:#9C6E18; --sat:#546A88;
   --strip-bg:#DDEAF8; --strip-line:rgba(255,255,255,.9); --wheel-bg:#EDF4FD;
-  --glass:rgba(250,253,255,.80); --glass-line:rgba(255,255,255,.92); --glass-shadow:rgba(3,32,72,.22);
+  --glass:#FAFCFF; --field:#EEF3F9; --glass-line:rgba(255,255,255,.92); --glass-shadow:rgba(3,32,72,.22);
   --sky:linear-gradient(180deg,#4590D1 0%,#8AA6C2 45%,#AAACB2 100%);--sky-tail:#AAACB2;
   --halo:0 1px 2px rgba(255,255,255,.98), 0 0 8px rgba(255,255,255,.9), 0 0 22px rgba(255,255,255,.65);
   --logo-filter:drop-shadow(0 2px 10px rgba(1,20,50,.55));
@@ -86,7 +86,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
   --moon:#F8DCAC; --moon-dark:rgba(14,9,26,.42);
   --sun:#F6B06E; --merc:#92C4D8; --ven:#E3A6BC; --mar:#E4805F; --jup:#E7B571; --sat:#9E97AE;
   --strip-bg:#1C1730; --strip-line:rgba(28,23,48,.9); --wheel-bg:#2F2745;
-  --glass:rgba(60,52,88,.55); --glass-line:rgba(246,238,228,.24); --glass-shadow:rgba(12,8,24,.42);
+  --glass:#3B3253; --field:#2C2440; --glass-line:rgba(246,238,228,.24); --glass-shadow:rgba(12,8,24,.42);
   --sky:linear-gradient(180deg,#332A4C 0%,#4A3A58 24%,#6E4C57 48%,#8A5A58 72%,#2C2440 100%);
   --glow:radial-gradient(ellipse at center,rgba(246,176,110,.22),transparent 62%);
   --stars:.42; --tabs-bg:rgba(36,30,54,.94); --cell-a:1.15; --h3:#BCB0C9;
@@ -116,7 +116,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @media (max-width:420px){.top{padding:22px 0 18px}.brand .logo{width:96%}}
 .profile-pill{font-size:12px;color:var(--muted);letter-spacing:.04em;padding:6px 10px;border:1px solid var(--line2);border-radius:999px;white-space:nowrap}
 /* navigace */
-.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:2px;padding:8px max(10px,env(safe-area-inset-left)) max(10px,env(safe-area-inset-bottom));background:var(--tabs-bg);backdrop-filter:blur(10px);border-top:1px solid var(--line);z-index:20}
+.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:2px;padding:8px max(10px,env(safe-area-inset-left)) max(10px,env(safe-area-inset-bottom));background:var(--tabs-bg);border-top:1px solid var(--line);z-index:20}
 .tab{flex:1;max-width:150px;padding:8px 4px;border-radius:10px;font-size:12px;letter-spacing:.03em;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
 .tab .g{font-size:17px;line-height:1}
 .tab.on{color:var(--gold);background:var(--gold-soft)}
@@ -124,7 +124,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 /* obecné */
 .h2{font-family:var(--display);font-size:24px;font-weight:500;margin:22px 0 8px;color:var(--text);text-shadow:var(--halo)}
 .h3{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;text-shadow:var(--halo)}
-.card{background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;backdrop-filter:blur(9px) saturate(1.2);-webkit-backdrop-filter:blur(9px) saturate(1.2);box-shadow:0 2px 10px var(--glass-shadow);padding:14px 14px 12px;margin:10px 0}
+.card{background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;-webkit-box-shadow:0 2px 10px var(--glass-shadow);padding:14px 14px 12px;margin:10px 0}
 .muted{color:var(--muted)}.small{font-size:12.5px}.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .btn{padding:9px 14px;border-radius:10px;border:1px solid var(--line2);font-size:13.5px;letter-spacing:.02em;background:var(--surface2)}
@@ -150,13 +150,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .monthbar .mn{font-family:var(--display);font-size:26px;font-weight:500;letter-spacing:.02em;text-shadow:var(--halo)}
 .monthbar .mn em{font-style:normal;color:var(--muted);font-size:18px;margin-left:8px}
 .navbtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);font-size:18px;display:grid;place-items:center}
-.today-strip{display:flex;gap:14px;align-items:center;padding:10px 12px;border:1px solid var(--glass-line);border-radius:12px;background:var(--glass);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);margin:6px 0 12px;font-size:13px;overflow-x:auto;white-space:nowrap}
+.today-strip{display:flex;gap:14px;align-items:center;padding:10px 12px;border:1px solid var(--glass-line);border-radius:12px;background:var(--glass);-webkit-margin:6px 0 12px;font-size:13px;overflow-x:auto;white-space:nowrap}
 .today-strip .k{color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase;display:block}
 .today-strip .v{font-family:var(--mono);font-size:13px}
 .weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:4px;text-shadow:var(--halo)}
 .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .cell{position:relative;aspect-ratio:1/.94;border-radius:14px;border:1px solid var(--glass-line);
-  background:var(--glass);backdrop-filter:blur(9px) saturate(1.2);-webkit-backdrop-filter:blur(9px) saturate(1.2);
+  background:var(--glass);-webkit-
   padding:8px 8px 6px;text-align:left;overflow:hidden;box-shadow:0 2px 10px var(--glass-shadow);
   transition:transform .16s ease,box-shadow .16s ease}
 .cell:hover{transform:translateY(-2px);box-shadow:0 6px 18px var(--glass-shadow)}
@@ -178,8 +178,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 /* nejbližší dny */
 .ahead{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;margin:0 -14px;padding-left:14px;padding-right:14px;scrollbar-width:none}
 .ahead::-webkit-scrollbar{display:none}
-.ahead .a{flex:none;width:68px;border-radius:13px;border:1px solid var(--glass-line);background:var(--glass);
-  backdrop-filter:blur(9px) saturate(1.2);-webkit-backdrop-filter:blur(9px) saturate(1.2);padding:9px 5px;text-align:center;
+.ahead .a{flex:none;width:68px;border-radius:13px;border:1px solid var(--glass-line);background:var(--glass);-webkit-padding:9px 5px;text-align:center;
   box-shadow:0 2px 8px var(--glass-shadow);transition:transform .16s ease}
 .ahead .a:hover{transform:translateY(-2px)}
 .ahead .a.harm{border-color:rgba(var(--harm-rgb),.45);background:linear-gradient(180deg,rgba(var(--harm-rgb),calc(.22 * var(--cell-a))),rgba(var(--harm-rgb),.06)),var(--glass)}
@@ -192,8 +191,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .ahead .a .wo{display:block;font-size:9.5px;color:var(--muted);line-height:1.2;margin-top:1px;hyphens:auto}
 /* praktické bloky */
 .lede{font-family:var(--display);font-size:20px;line-height:1.35;margin:12px 0 4px;color:var(--text);text-shadow:var(--halo)}
-.panel{border:1px solid var(--glass-line);border-radius:14px;padding:13px 15px;margin:10px 0;background:var(--glass);
-  backdrop-filter:blur(9px) saturate(1.2);-webkit-backdrop-filter:blur(9px) saturate(1.2);box-shadow:0 2px 10px var(--glass-shadow)}
+.panel{border:1px solid var(--glass-line);border-radius:14px;padding:13px 15px;margin:10px 0;background:var(--glass);-webkit-box-shadow:0 2px 10px var(--glass-shadow)}
 .panel.go{border-color:rgba(var(--harm-rgb),.35);background:linear-gradient(180deg,rgba(var(--harm-rgb),.13),rgba(var(--harm-rgb),.03)),var(--glass)}
 .panel.cost{border-color:rgba(var(--tense-rgb),.35);background:linear-gradient(180deg,rgba(var(--tense-rgb),.13),rgba(var(--tense-rgb),.03)),var(--glass)}
 .panel h4{margin:0 0 6px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:500}
@@ -205,7 +203,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .panel li.mine::before{content:'✦'}
 .tag{display:inline-block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line2);border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:1px}
 .win{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
-.win .w{border:1px solid var(--line2);border-radius:10px;padding:7px 11px;font-size:13px;background:var(--bg2)}
+.win .w{border:1px solid var(--line2);border-radius:10px;padding:7px 11px;font-size:13px;background:var(--field)}
 .win .w b{font-family:var(--mono);color:var(--gold);font-weight:500}
 .win .w span{display:block;font-size:11.5px;color:var(--muted)}
 /* plán dne */
@@ -234,7 +232,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .plist .px{width:24px;height:24px;border-radius:50%;border:1px solid var(--line2);color:var(--muted);font-size:14px;line-height:1;display:grid;place-items:center}
 .plist .px:hover{color:var(--tense);border-color:var(--tense)}
 .planadd{display:grid;grid-template-columns:96px 1fr auto;gap:7px}
-.planadd input{font:inherit;font-size:14px;color:var(--text);background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:8px 10px;min-width:0}
+.planadd input{font:inherit;font-size:14px;color:var(--text);background:var(--field);border:1px solid var(--line2);border-radius:9px;padding:8px 10px;min-width:0}
 .planadd input::placeholder{color:var(--muted)}
 @media (max-width:400px){.planadd{grid-template-columns:86px 1fr auto}}
 .tl .e.mine .dot{color:var(--gold)}
@@ -252,10 +250,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .rate.on{color:var(--text);border-color:var(--gold);background:var(--gold-soft);font-weight:500}
 .rate.harm.on{border-color:rgba(var(--harm-rgb),.7);background:var(--harm-soft);color:var(--harm)}
 .rate.tense.on{border-color:rgba(var(--tense-rgb),.7);background:var(--tense-soft);color:var(--tense)}
-.jnote{width:100%;font:inherit;font-size:14.5px;color:var(--text);background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:9px 11px;resize:vertical;min-height:64px}
+.jnote{width:100%;font:inherit;font-size:14.5px;color:var(--text);background:var(--field);border:1px solid var(--line2);border-radius:10px;padding:9px 11px;resize:vertical;min-height:64px}
 .jnote::placeholder{color:var(--muted)}
 .jitem{display:grid;grid-template-columns:46px 1fr;gap:10px;width:100%;text-align:left;padding:10px 12px;margin:6px 0;border-radius:12px;
-  border:1px solid var(--glass-line);background:var(--glass);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);box-shadow:0 2px 8px var(--glass-shadow);transition:transform .14s ease}
+  border:1px solid var(--glass-line);background:var(--glass);-webkit-box-shadow:0 2px 8px var(--glass-shadow);transition:transform .14s ease}
 .jitem:hover{transform:translateY(-1px)}
 .jitem.harm{border-color:rgba(var(--harm-rgb),.4)}
 .jitem.tense{border-color:rgba(var(--tense-rgb),.4)}
@@ -275,7 +273,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .plist .px{width:24px;height:24px;border-radius:50%;border:1px solid var(--line2);color:var(--muted);font-size:14px;line-height:1;display:grid;place-items:center}
 .plist .px:hover{color:var(--tense);border-color:var(--tense)}
 .planadd{display:grid;grid-template-columns:92px 1fr auto;gap:7px}
-.planadd input{font:inherit;font-size:14px;color:var(--text);background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:8px 9px;min-width:0}
+.planadd input{font:inherit;font-size:14px;color:var(--text);background:var(--field);border:1px solid var(--line2);border-radius:9px;padding:8px 9px;min-width:0}
 .planadd input::placeholder{color:var(--muted)}
 .tl .e.mine .dot{color:var(--text)}
 .tl .e.mine .x{font-weight:600}
@@ -352,7 +350,7 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .form{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .form label{display:flex;flex-direction:column;gap:4px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .form label.wide{grid-column:1/-1}
-.form input,.form select,.form textarea{font:inherit;font-size:15px;letter-spacing:0;text-transform:none;color:var(--text);background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:9px 10px;min-width:0}
+.form input,.form select,.form textarea{font:inherit;font-size:15px;letter-spacing:0;text-transform:none;color:var(--text);background:var(--field);border:1px solid var(--line2);border-radius:9px;padding:9px 10px;min-width:0}
 .form textarea{min-height:90px;font-family:var(--mono);font-size:13px}
 .note{font-size:12.5px;color:var(--muted);margin:6px 0;text-shadow:var(--halo)}
 .toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--gold2);color:var(--text);padding:10px 16px;border-radius:12px;font-size:13px;z-index:30;opacity:0;transition:opacity .2s}
@@ -2210,7 +2208,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <div class="card"><div class="small">${kpTxt}</div>${S.kpError ? `<div class="small tone-tense">${esc(S.kpError)}</div><p class="note">Pokud prohlížeč blokuje přímé stažení (CORS), aplikace zkouší záložní cestu <span class="mono">/api/noaa</span> – na Vercelu je součástí balíčku.</p>` : ''}<div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="refreshKp">Stáhnout znovu</button></div>
       <p class="note">Zdroje: naměřený Kp (posledních 7 dní), třídenní předpověď a 27denní výhled. Do kalendáře se bere nejvyšší hodnota dne.</p></div>
       <div class="h2">Komety a vlastní úkazy</div>
-      <form class="card" id="cometsForm" onsubmit="return false"><textarea class="mono" style="width:100%;min-height:90px;font-size:13px;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:9px;padding:9px" placeholder="2026-10-20 | Kometa C/2025 A6 (Lemmon) | nejjasnější, večer nízko na západě">${esc(settings.comets)}</textarea><div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="saveComets">Uložit seznam</button></div><p class="note">Jeden úkaz na řádek: datum | název | poznámka. Zobrazí se v Úkazech i v detailu dne.</p></form>
+      <form class="card" id="cometsForm" onsubmit="return false"><textarea class="mono" style="width:100%;min-height:90px;font-size:13px;background:var(--field);color:var(--text);border:1px solid var(--line2);border-radius:9px;padding:9px" placeholder="2026-10-20 | Kometa C/2025 A6 (Lemmon) | nejjasnější, večer nízko na západě">${esc(settings.comets)}</textarea><div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="saveComets">Uložit seznam</button></div><p class="note">Jeden úkaz na řádek: datum | název | poznámka. Zobrazí se v Úkazech i v detailu dne.</p></form>
       <div class="h2">Aplikace</div>
       <div class="card"><div class="row"><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
       <p class="note">Kairos ${VERSION} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
