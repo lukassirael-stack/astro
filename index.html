@@ -13,7 +13,7 @@
 <script>(function(){try{var st=JSON.parse(localStorage.getItem('kairos_settings')||'{}'),t=st.theme||'auto';
 if(t==='auto'||t==='dawn'||t==='dusk'){var h=new Date().getHours();t=h>=6&&h<20?'day':'night';}
 document.documentElement.dataset.theme=t;
-var c={day:'#2F97E4',night:'#08214F'}[t];
+var c={day:'#0A4FA8',night:'#040A18'}[t];
 var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('content',c);}catch(e){}})();</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -23,25 +23,23 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
-  /* NOC – podle nočního obrazu: hluboká královská modř a zlato */
-  --bg:#08214F; --bg2:#0C2A60; --surface:#123368; --surface2:#1A3F79;
-  --line:rgba(236,232,220,.16); --line2:rgba(236,232,220,.28);
-  --text:#F1EADA; --muted:#9FB4D6; --gold:#F0C874; --gold2:#A8873F; --gold-soft:rgba(240,200,116,.18);
-  --on-gold:#161204;
-  --harm-rgb:110,214,172; --tense-rgb:242,140,110; --sun-rgb:240,200,116;
+  /* NOC – podle nočního obrazu: půlnoční modř a zlato */
+  --bg:#040A18; --bg2:#0A162B; --surface:#111F3A; --surface2:#18294A;
+  --line:rgba(236,232,220,.15); --line2:rgba(236,232,220,.27);
+  --text:#F2EBDB; --muted:#9AAEC8; --gold:#F0C874; --gold2:#A8873F; --gold-soft:rgba(240,200,116,.18);
+  --on-gold:#161204; --h3:#C4D2E6;
+  --harm-rgb:104,212,168; --tense-rgb:240,138,106; --sun-rgb:240,200,116;
   --harm:rgb(var(--harm-rgb)); --tense:rgb(var(--tense-rgb));
   --harm-soft:rgba(var(--harm-rgb),.18); --tense-soft:rgba(var(--tense-rgb),.18);
-  --moon:#F6E6C2; --moon-dark:rgba(2,10,30,.45);
-  --sun:#F0C874; --merc:#83BEDC; --ven:#DFA0BC; --mar:#E0785C; --jup:#E4B268; --sat:#93A6C4;
-  --strip-bg:#04122F; --strip-line:rgba(4,18,47,.9); --wheel-bg:#0C2A60;
-  --glass:rgba(14,44,96,.66); --glass-line:rgba(236,232,220,.30); --glass-shadow:rgba(1,8,26,.55);
-  --sky:linear-gradient(180deg,#04153A 0%,#082859 45%,#072150 78%,#05183C 100%);
-  --glow:radial-gradient(ellipse at center,rgba(240,200,116,.12),transparent 62%);
-  --stars:.9; --tabs-bg:rgba(6,26,62,.94); --cell-a:1;
+  --moon:#F6E6C2; --moon-dark:rgba(1,5,14,.5);
+  --sun:#F0C874; --merc:#7FBBDC; --ven:#DC9EBC; --mar:#DE745C; --jup:#E2B068; --sat:#8D9FC0;
+  --strip-bg:#02060F; --strip-line:rgba(2,6,15,.9); --wheel-bg:#0A162B;
+  --glass:rgba(16,34,66,.62); --glass-line:rgba(236,232,220,.24); --glass-shadow:rgba(0,3,12,.55);
+  --sky:linear-gradient(180deg,#020510 0%,#0A1B33 45%,#121E33 78%,#272E39 100%);
+  --halo:0 1px 3px rgba(0,4,14,.85), 0 0 16px rgba(0,4,14,.6);
+  --logo-filter:drop-shadow(0 2px 10px rgba(0,4,14,.7)); --logo-accent:#9FD0F0;
+  --stars:.9; --tabs-bg:rgba(4,10,24,.94); --cell-a:1;
   --photo:url('sky-night.webp');
-  --scrim:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0));
-  --halo:0 1px 3px rgba(2,12,34,.75), 0 0 16px rgba(2,12,34,.55);
-  --logo-filter:drop-shadow(0 2px 9px rgba(2,12,34,.65)) drop-shadow(0 0 2px rgba(2,12,34,.5)); --logo-accent:#9FD0F0; --h3:#C9D8EE;
   --display:'Cormorant Garamond',Georgia,'Times New Roman',serif; --body:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 /* ---------- ROZEDNÍVÁNÍ – popelavá růž a broskev ---------- */
@@ -62,22 +60,21 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 }
 /* ---------- DEN – modř průhledu a teplé krémové mraky ---------- */
 [data-theme="day"]{
-  --bg:#1E8AE0; --bg2:#3AA3EE; --surface:#F7FBFF; --surface2:#E8F3FD;
-  --line:rgba(8,44,86,.16); --line2:rgba(8,44,86,.28);
+  --bg:#0A4FA8; --bg2:#1C68C4; --surface:#F8FBFF; --surface2:#E9F2FC;
+  --line:rgba(4,32,68,.16); --line2:rgba(4,32,68,.28);
   --text:#04203F; --muted:#0E4372; --gold:#8A6410; --gold2:#C09B3E; --gold-soft:rgba(138,100,16,.13);
-  --on-gold:#FFFBF2;
+  --on-gold:#FFFBF2; --h3:#EAF3FF;
   --harm-rgb:12,110,84; --tense-rgb:176,58,32; --sun-rgb:190,128,30;
   --moon:#9A6E12; --moon-dark:rgba(10,42,80,.16);
   --sun:#BE801E; --merc:#20708F; --ven:#9E4F73; --mar:#AE3E26; --jup:#9C6E18; --sat:#546A88;
-  --strip-bg:#DCEDFB; --strip-line:rgba(255,255,255,.9); --wheel-bg:#EDF5FD;
-  --glass:rgba(252,254,255,.84); --glass-line:rgba(255,255,255,.95); --glass-shadow:rgba(4,42,92,.22);
-  --sky:linear-gradient(180deg,#0A5FCE 0%,#1394EC 45%,#4FB4F6 78%,#6BC7FA 100%);
-  --glow:radial-gradient(ellipse at center,rgba(255,255,255,.5),transparent 64%);
-  --stars:0; --tabs-bg:rgba(232,243,253,.95); --cell-a:1.15;
+  --strip-bg:#DDEAF8; --strip-line:rgba(255,255,255,.9); --wheel-bg:#EDF4FD;
+  --glass:rgba(250,253,255,.80); --glass-line:rgba(255,255,255,.92); --glass-shadow:rgba(3,32,72,.22);
+  --sky:linear-gradient(180deg,#054095 0%,#1A6BC0 40%,#4590D1 70%,#AAACB2 100%);
+  --halo:0 1px 2px rgba(255,255,255,.98), 0 0 8px rgba(255,255,255,.9), 0 0 22px rgba(255,255,255,.65);
+  --logo-filter:drop-shadow(0 2px 10px rgba(1,20,50,.55));
+  --logo-accent:#9FD0F0;
+  --stars:0; --tabs-bg:rgba(233,242,252,.95); --cell-a:1.2;
   --photo:url('sky-day.webp');
-  --scrim:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0));
-  --halo:0 1px 2px rgba(255,255,255,.98), 0 0 8px rgba(255,255,255,.95), 0 0 20px rgba(255,255,255,.7);
-  --logo-filter:brightness(.78) saturate(1.35) contrast(1.12) drop-shadow(0 2px 6px rgba(3,26,58,.6)) drop-shadow(0 0 2px rgba(3,26,58,.55)); --logo-accent:#12558C; --h3:#083A66;
 }
 /* ---------- STMÍVÁNÍ – rozžhavené mraky nad tmavnoucí modří ---------- */
 [data-theme="dusk"]{
@@ -2233,7 +2230,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   // Zatím jen den a noc. Palety pro rozednívání a stmívání zůstávají v CSS —
   // až je budeme chtít, stačí je vrátit sem a do themeForNow.
   const THEMES = { day: 'den', night: 'noc' };
-  const THEME_META = { day: '#2F97E4', night: '#08214F' };
+  const THEME_META = { day: '#0A4FA8', night: '#040A18' };
   function themeForNow(dt) {
     dt = dt || new Date();
     try {
