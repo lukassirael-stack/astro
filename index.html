@@ -96,8 +96,9 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{position:relative;margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.45;min-height:100vh;
-  background-image:var(--sky);background-attachment:fixed;transition:background-color .4s ease,color .4s ease}
-#skybg{position:absolute;top:0;left:0;right:0;height:min(2100px,190vh);z-index:-2;pointer-events:none;
+  transition:background-color .4s ease,color .4s ease}
+[data-bg="plain"] body{background-image:var(--sky);background-attachment:fixed}
+#skybg{position:absolute;top:0;left:0;right:0;bottom:0;min-height:100vh;z-index:-2;pointer-events:none;
   background-image:var(--photo);background-size:cover;background-position:center top;background-repeat:no-repeat;
 }
 [data-bg="plain"] #skybg{background-image:none}
