@@ -138,7 +138,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .badge.tense{color:var(--tense);border-color:rgba(var(--tense-rgb),.5);background:var(--tense-soft)}
 .badge.neutral{color:var(--muted)}
 .tone-harm{color:var(--harm)}.tone-tense{color:var(--tense)}.tone-gold{color:var(--gold)}
-.list{list-style:none;margin:0;padding:0}
+.list{list-style:none;margin:8px 0;padding:8px 14px;background:var(--glass);border:1px solid var(--glass-line);border-radius:12px;box-shadow:0 2px 8px var(--glass-shadow)}
 .list li{padding:7px 0;border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
 .list li:first-child{border-top:0}
 .list .g{width:22px;flex:none;text-align:center;color:var(--gold);font-size:16px;line-height:1.3}
@@ -280,8 +280,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .cell.planned .d:after{content:'◆';font-size:8px;vertical-align:6px;margin-left:3px;color:var(--text);opacity:.75;font-family:var(--body)}
 @media (max-width:420px){.planadd{grid-template-columns:84px 1fr auto}}
 /* časová osa dne */
-.tl{margin:10px 0 4px;position:relative;padding-left:4px}
-.tl:before{content:'';position:absolute;left:57px;top:8px;bottom:8px;width:1px;background:linear-gradient(180deg,transparent,var(--line2) 12%,var(--line2) 88%,transparent)}
+.tl{margin:10px 0 4px;position:relative;padding:10px 14px 10px 4px;background:var(--glass);border:1px solid var(--glass-line);border-radius:14px;box-shadow:0 2px 10px var(--glass-shadow)}
+.tl:before{content:'';position:absolute;left:57px;top:18px;bottom:18px;width:1px;background:linear-gradient(180deg,transparent,var(--line2) 12%,var(--line2) 88%,transparent)}
 .tl .e{display:grid;grid-template-columns:52px 18px 1fr;gap:0 10px;align-items:start;padding:6px 0;position:relative}
 .tl .t{font-family:var(--mono);font-size:12.5px;color:var(--muted);text-align:right;padding-top:2px;font-variant-numeric:tabular-nums}
 .tl .dot{position:relative;z-index:1;width:18px;text-align:center;font-size:13px;line-height:1.35;color:var(--gold)}
@@ -320,14 +320,14 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;letter-spacin
 details summary::before{content:'▸ ';color:var(--gold)}details[open] summary::before{content:'▾ '}
 /* úkazy */
 .ev-month{font-family:var(--display);font-size:22px;margin:20px 0 4px;color:var(--gold);text-shadow:var(--halo)}
-.ev{display:grid;grid-template-columns:58px 1fr;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.ev{display:grid;grid-template-columns:58px 1fr;gap:10px;padding:11px 14px;margin:6px 0;background:var(--glass);border:1px solid var(--glass-line);border-radius:12px;box-shadow:0 2px 8px var(--glass-shadow)}
 .ev .dt{font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.3}
 .ev .dt b{display:block;font-family:var(--display);font-weight:600;font-size:18px;color:var(--text)}
 .ev .ti{font-weight:500}.ev .ti .c{font-size:13px;margin-right:6px}
 .ev .no{color:var(--muted);font-size:12.5px;margin-top:2px}
 .ev.res .ti{color:var(--gold)}
 /* efemeridy */
-.eph-wrap{overflow-x:auto;margin:8px -14px;padding:0 14px}
+.eph-wrap{overflow-x:auto;margin:8px 0;padding:10px 12px;background:var(--glass);border:1px solid var(--glass-line);border-radius:12px;box-shadow:0 2px 8px var(--glass-shadow)}
 table.eph{border-collapse:collapse;font-family:var(--mono);font-size:11.5px;white-space:nowrap}
 table.eph th{font-weight:500;color:var(--gold);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line2);font-family:var(--display);font-size:16px}
 table.eph td{padding:4px 8px;border-bottom:1px solid var(--line)}
@@ -336,11 +336,12 @@ table.eph tr.phase td:first-child{color:var(--gold)}
 table.eph .r{color:var(--tense)}
 /* nativ */
 .wheel{display:block;margin:6px auto;max-width:360px;width:100%}
-table.pts{width:100%;border-collapse:collapse;font-size:13px}
+table.pts{width:100%;border-collapse:collapse;font-size:13px;background:var(--glass);border-radius:12px;overflow:hidden;box-shadow:0 2px 8px var(--glass-shadow)}
+table.pts td:first-child{padding-left:12px}table.pts td:last-child{padding-right:12px}
 table.pts td{padding:5px 4px;border-bottom:1px solid var(--line);vertical-align:top}
 table.pts td.g{font-family:var(--display);font-size:18px;width:28px;color:var(--gold)}
 table.pts td.p{font-family:var(--mono);white-space:nowrap}
-.star{padding:10px 0;border-top:1px solid var(--line)}
+.star{padding:12px 14px;margin:8px 0;background:var(--glass);border:1px solid var(--glass-line);border-radius:12px;box-shadow:0 2px 8px var(--glass-shadow)}
 .star .nm{font-family:var(--display);font-size:19px;font-weight:600}
 .star .nm em{font-style:normal;font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:8px;font-weight:400}
 .star .why{font-size:12.5px;color:var(--muted);margin-top:2px}
