@@ -41,7 +41,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
   --photo:url('sky-night.webp');
   --scrim:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0));
   --halo:0 1px 3px rgba(2,12,34,.75), 0 0 16px rgba(2,12,34,.55);
-  --logo-halo:0 2px 8px rgba(2,12,34,.55); --logo-accent:#9FD0F0;
+  --logo-filter:drop-shadow(0 2px 9px rgba(2,12,34,.65)) drop-shadow(0 0 2px rgba(2,12,34,.5)); --logo-accent:#9FD0F0; --h3:#C9D8EE;
   --display:'Cormorant Garamond',Georgia,'Times New Roman',serif; --body:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 /* ---------- ROZEDNÍVÁNÍ – popelavá růž a broskev ---------- */
@@ -55,7 +55,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
   --strip-bg:#EADCD3; --strip-line:rgba(255,252,247,.85); --wheel-bg:#F9EDE2;
   --sky:linear-gradient(180deg,#9A94A6 0%,#B7A3A6 24%,#C9AFA6 45%,#DEB49C 72%,#FBD8AE 100%);
   --glow:radial-gradient(ellipse at center,rgba(251,216,174,.5),transparent 66%);
-  --stars:.14; --tabs-bg:rgba(247,231,218,.95); --cell-a:1.3;
+  --stars:.14; --tabs-bg:rgba(247,231,218,.95); --cell-a:1.3; --h3:#7C6567;
   --glass:rgba(255,250,243,.56); --glass-line:rgba(255,255,255,.75); --glass-shadow:rgba(90,60,60,.14);
   --photo:url('sky-dawn.webp');
   --scrim:linear-gradient(180deg,rgba(239,221,213,.40) 0%,rgba(239,221,213,.66) 45%,rgba(239,221,213,.84) 100%);
@@ -64,7 +64,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 [data-theme="day"]{
   --bg:#1E8AE0; --bg2:#3AA3EE; --surface:#F7FBFF; --surface2:#E8F3FD;
   --line:rgba(8,44,86,.16); --line2:rgba(8,44,86,.28);
-  --text:#0A2A50; --muted:#4A6F98; --gold:#8A6410; --gold2:#C09B3E; --gold-soft:rgba(138,100,16,.13);
+  --text:#04203F; --muted:#0E4372; --gold:#8A6410; --gold2:#C09B3E; --gold-soft:rgba(138,100,16,.13);
   --on-gold:#FFFBF2;
   --harm-rgb:12,110,84; --tense-rgb:176,58,32; --sun-rgb:190,128,30;
   --moon:#9A6E12; --moon-dark:rgba(10,42,80,.16);
@@ -76,8 +76,8 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
   --stars:0; --tabs-bg:rgba(232,243,253,.95); --cell-a:1.15;
   --photo:url('sky-day.webp');
   --scrim:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0));
-  --halo:0 1px 3px rgba(255,255,255,.9), 0 0 18px rgba(255,255,255,.75);
-  --logo-halo:0 2px 7px rgba(6,40,84,.45); --logo-accent:#1F6FA8;
+  --halo:0 1px 2px rgba(255,255,255,.98), 0 0 8px rgba(255,255,255,.95), 0 0 20px rgba(255,255,255,.7);
+  --logo-filter:brightness(.78) saturate(1.35) contrast(1.12) drop-shadow(0 2px 6px rgba(3,26,58,.6)) drop-shadow(0 0 2px rgba(3,26,58,.55)); --logo-accent:#12558C; --h3:#083A66;
 }
 /* ---------- STMÍVÁNÍ – rozžhavené mraky nad tmavnoucí modří ---------- */
 [data-theme="dusk"]{
@@ -92,7 +92,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
   --glass:rgba(60,52,88,.55); --glass-line:rgba(246,238,228,.24); --glass-shadow:rgba(12,8,24,.42);
   --sky:linear-gradient(180deg,#332A4C 0%,#4A3A58 24%,#6E4C57 48%,#8A5A58 72%,#2C2440 100%);
   --glow:radial-gradient(ellipse at center,rgba(246,176,110,.22),transparent 62%);
-  --stars:.42; --tabs-bg:rgba(36,30,54,.94); --cell-a:1.15;
+  --stars:.42; --tabs-bg:rgba(36,30,54,.94); --cell-a:1.15; --h3:#BCB0C9;
   --photo:url('sky-dusk.webp');
   --scrim:linear-gradient(180deg,rgba(36,30,54,.56) 0%,rgba(36,30,54,.78) 42%,rgba(36,30,54,.91) 100%);
 }
@@ -110,18 +110,19 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .app{max-width:760px;margin:0 auto;padding:0 14px 96px}
 /* hlavička */
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0 10px;border-bottom:1px solid var(--line)}
-.brand{margin:0;line-height:0;color:var(--gold);display:block;flex:1 1 auto;min-width:0;font-size:0}
-.brand .logo{display:block;height:64px;width:auto;max-width:100%;filter:drop-shadow(var(--logo-halo))}
-@media (max-width:640px){.brand .logo{height:52px}}
-@media (max-width:420px){.brand .logo{height:42px}}
+.top{position:relative;display:flex;flex-direction:column;align-items:center;padding:34px 0 30px;border-bottom:1px solid var(--line)}
+.top .profile-pill{position:absolute;top:14px;right:0}
+.brand{margin:0;line-height:0;color:var(--gold);display:block;width:100%;font-size:0;text-align:center}
+.brand .logo{display:block;margin:0 auto;width:min(560px,86%);height:auto;filter:var(--logo-filter)}
+@media (max-width:640px){.top{padding:26px 0 22px}.brand .logo{width:92%}}
+@media (max-width:420px){.top{padding:22px 0 18px}.brand .logo{width:96%}}
 .profile-pill{font-size:12px;color:var(--muted);letter-spacing:.04em;padding:6px 10px;border:1px solid var(--line2);border-radius:999px;white-space:nowrap}
 /* navigace */
 .tabs{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:2px;padding:8px max(10px,env(safe-area-inset-left)) max(10px,env(safe-area-inset-bottom));background:var(--tabs-bg);backdrop-filter:blur(10px);border-top:1px solid var(--line);z-index:20}
 .tab{flex:1;max-width:150px;padding:8px 4px;border-radius:10px;font-size:12px;letter-spacing:.03em;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px}
 .tab .g{font-size:17px;line-height:1}
 .tab.on{color:var(--gold);background:var(--gold-soft)}
-.view{display:none;padding-top:14px}.view.on{display:block}
+.view{display:none;padding-top:20px}.view.on{display:block}
 /* obecné */
 .h2{font-family:var(--display);font-size:24px;font-weight:500;margin:22px 0 8px;color:var(--text);text-shadow:var(--halo)}
 .h3{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;text-shadow:var(--halo)}
