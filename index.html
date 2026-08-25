@@ -35,7 +35,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
   --sun:#F0C874; --merc:#7FBBDC; --ven:#DC9EBC; --mar:#DE745C; --jup:#E2B068; --sat:#8D9FC0;
   --strip-bg:#02060F; --strip-line:rgba(2,6,15,.9); --wheel-bg:#0A162B;
   --glass:#152949; --field:#0D1B31; --glass-line:rgba(236,232,220,.24); --glass-shadow:rgba(0,3,12,.55);
-  --sky:linear-gradient(180deg,#0A1B33 0%,#1B2434 40%,#272E39 100%);--sky-tail:#272E39;
+  --sky:linear-gradient(180deg,#0A1B33 0%,#081527 50%,#050E1C 100%);--sky-tail:#050E1C;
   --halo:0 1px 3px rgba(0,4,14,.85), 0 0 16px rgba(0,4,14,.6);
   --logo-filter:drop-shadow(0 2px 10px rgba(0,4,14,.7)); --logo-accent:#9FD0F0;
   --stars:.9; --tabs-bg:rgba(4,10,24,.94); --cell-a:1;
@@ -69,7 +69,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
   --sun:#BE801E; --merc:#20708F; --ven:#9E4F73; --mar:#AE3E26; --jup:#9C6E18; --sat:#546A88;
   --strip-bg:#DDEAF8; --strip-line:rgba(255,255,255,.9); --wheel-bg:#EDF4FD;
   --glass:#FAFCFF; --field:#EEF3F9; --glass-line:rgba(255,255,255,.92); --glass-shadow:rgba(3,32,72,.22);
-  --sky:linear-gradient(180deg,#4590D1 0%,#8AA6C2 45%,#AAACB2 100%);--sky-tail:#AAACB2;
+  --sky:linear-gradient(180deg,#4590D1 0%,#2F7CC6 50%,#1B62B2 100%);--sky-tail:#1B62B2;
   --halo:0 1px 2px rgba(255,255,255,.98), 0 0 8px rgba(255,255,255,.9), 0 0 22px rgba(255,255,255,.65);
   --logo-filter:drop-shadow(0 2px 10px rgba(1,20,50,.55));
   --logo-accent:#9FD0F0;
@@ -99,8 +99,7 @@ body{position:relative;margin:0;background:var(--bg);color:var(--text);font-fami
   background-image:var(--sky);background-attachment:fixed;transition:background-color .4s ease,color .4s ease}
 #skybg{position:absolute;top:0;left:0;right:0;height:min(2100px,190vh);z-index:-2;pointer-events:none;
   background-image:var(--photo);background-size:cover;background-position:center top;background-repeat:no-repeat;
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 76%,rgba(0,0,0,.55) 90%,transparent 100%);
-  mask-image:linear-gradient(180deg,#000 0%,#000 76%,rgba(0,0,0,.55) 90%,transparent 100%)}
+}
 [data-bg="plain"] #skybg{background-image:none}
 
 a{color:var(--gold)}
