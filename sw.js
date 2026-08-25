@@ -1,5 +1,5 @@
 /* Kairos – service worker. Při každé změně index.html zvedni číslo verze. */
-const CACHE = 'kairos-v18';
+const CACHE = 'kairos-v20';
 const SHELL = ['./', './index.html', './astronomy.browser.min.js', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './sky-day.webp', './sky-night.webp'];
 
 self.addEventListener('install', (e) => {
