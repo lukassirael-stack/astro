@@ -226,6 +226,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .legend-more[open] summary{margin-bottom:6px}
 .legend-more p{margin:5px 0;line-height:1.5;text-shadow:var(--halo-soft)}
 .legend-more b{font-weight:600}
+.legend-more .lg{display:inline-block;width:14px;height:2px;margin-right:6px;vertical-align:3px}
 /* dnešní shrnutí */
 .hero-today{display:flex;flex-direction:column;gap:5px;width:100%;text-align:left;margin:16px 0 4px;padding:15px 16px 13px;
   border:1px solid var(--inst-line-soft);border-radius:var(--r);background:var(--inst);color:var(--inst-text);
@@ -1804,14 +1805,14 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       </div>
       <div class="weekdays"><span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span></div>
       <div class="grid">${cells}</div>
-      <div class="legend"><span><i style="background:linear-gradient(90deg,#8FE8BE,#2F9E72)"></i>jde to snáz</span><span><i style="background:linear-gradient(90deg,#FFB598,#C9563A)"></i>stojí to víc sil</span><span>✦ tvá hvězda</span><span>◉ zatmění</span><span>● ○ novoluní / úplněk</span></div>
+      <div class="legend"><span><i style="background:linear-gradient(90deg,#8FE8BE,#2F9E72)"></i>plyne to</span><span><i style="background:linear-gradient(90deg,#FFB598,#C9563A)"></i>větší tření</span><span>✦ tvá hvězda</span><span>◉ zatmění</span><span>● ○ novoluní / úplněk</span></div>
       <details class="legend-more"><summary>Co značky znamenají?</summary>
-        <p><b style="color:#8FE8BE">Zelený proužek</b> — nebe ten den ladí s tvým nativem, věci kloužou samy.</p>
-        <p><b style="color:#FFB598">Lososový proužek</b> — energie jde proti srsti, počítej s větším třením a únavou.</p>
-        <p><b>✦ Tvá hvězda</b> — Luna nebo planety se ten den dotýkají bodů tvého nativního horoskopu. Den je pro tebe osobně <em>významný</em>, ne nutně snadný. Hvězda na zeleném dni = ideální okno pro důležité kroky. Hvězda na lososovém dni není protimluv: silné osobní téma přichází v náročné energii — den, který stojí za pozornost, ale ne za tlačení na pilu.</p>
-        <p><b>◉ Zatmění</b> — zesílené novoluní/úplněk, energeticky výrazný den; velké začátky se tradičně odkládají.</p>
-        <p><b>● / ○ Novoluní a úplněk</b> — nov = setba a záměry, úplněk = vrchol a sklizeň.</p>
-        <p>Barvy a značky se počítají z tvého nativu — u jiného profilu vyjdou jinak. Detail dne pod kalendářem vždy vysvětlí konkrétní proč.</p>
+        <p><b style="color:#8FE8BE"><i class="lg" style="background:linear-gradient(90deg,#8FE8BE,#2F9E72)"></i>Zelený proužek</b> — den, kdy jsou energie více v souladu s tvým osobním horoskopem. Věci mohou jít přirozeněji a s menším úsilím.</p>
+        <p><b style="color:#FFB598"><i class="lg" style="background:linear-gradient(90deg,#FFB598,#C9563A)"></i>Lososový proužek</b> — den s větším odporem nebo napětím. Některé věci mohou vyžadovat více energie, trpělivosti a odpočinku.</p>
+        <p><b>✦ Tvá hvězda</b> — tento den se tě postavení Luny nebo planet dotýká osobně. Něco může být výraznější, důležitější nebo citlivější právě pro tebe. Hvězda na zeleném dni značí příznivý čas pro důležité kroky. Hvězda na lososovém dni znamená silné osobní téma, ale zároveň náročnější energii — spíš vnímej, co se děje, než abys tlačil/a na výsledek.</p>
+        <p><b>◉ Zatmění</b> — energeticky výrazné novoluní nebo úplněk. Tradičně se doporučuje nechat velká rozhodnutí a nové začátky na jiný den.</p>
+        <p><b>● / ○ Novoluní a úplněk</b> — novoluní podporuje nové záměry a začátky, úplněk přináší vyvrcholení, uvědomění a završení.</p>
+        <p>Barvy i značky jsou vypočítané podle tvého osobního horoskopu, takže u každého člověka mohou vycházet jinak. Po rozkliknutí konkrétního dne se dozvíš, proč má právě takové označení.</p>
       </details>
       <div class="day" id="dayDetail">${dayDetailHTML(S.sel.y, S.sel.m, S.sel.d, evByDay)}</div>`;
   }
