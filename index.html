@@ -296,7 +296,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .plist .pn{font-size:14.5px}
 .plist .px{width:24px;height:24px;border-radius:50%;border:1px solid var(--line2);color:var(--muted);font-size:15px;line-height:1;display:grid;place-items:center}
 .plist .px:hover{color:var(--tense);border-color:var(--tense)}
-.planadd{display:grid;grid-template-columns:104px 1fr auto;gap:7px}
+.planadd{display:grid;grid-template-columns:112px 1fr auto;gap:7px;align-items:end}
+.planadd .pl{display:flex;flex-direction:column;gap:3px;min-width:0}
+.planadd .pl>span{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.planadd .pl>span small{text-transform:none;letter-spacing:0;font-size:10px;opacity:.8}
 .planadd input{font:inherit;font-size:14.5px;color:var(--text);background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:8px 10px;min-width:0}
 @media (max-width:420px){.planadd{grid-template-columns:96px 1fr;grid-auto-rows:auto}.planadd .btn{grid-column:1/-1}}
 .tl .e.mine .dot{color:var(--text)}
@@ -1915,8 +1918,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <h4>Co mě čeká</h4>
       ${items.length ? `<ul class="plist">${list}</ul>` : '<p class="small muted" style="margin:0 0 8px">Zatím nic zapsaného.</p>'}
       <div class="planadd">
-        <input type="time" name="ptime" aria-label="Čas">
-        <input type="text" name="pname" placeholder="Schůzka, zubař, cesta…" aria-label="Co">
+        <label class="pl"><span>Čas <small>(nepovinný)</small></span><input type="time" name="ptime" aria-label="Čas"></label>
+        <label class="pl"><span>Co tě čeká</span><input type="text" name="pname" placeholder="Schůzka, zubař, cesta…" aria-label="Co"></label>
         <button type="button" class="btn small" data-act="addPlan" data-k="${key}">Přidat</button>
       </div>
     </div>`;
