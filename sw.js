@@ -1,5 +1,5 @@
 /* Kairos – service worker. Při každé změně index.html zvedni číslo verze. */
-const CACHE = 'kairos-v32';
+const CACHE = 'kairos-v33';
 const SHELL = ['./', './index.html', './astronomy.browser.min.js', './manifest.webmanifest', './logo.png', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './sky-day.webp?v=2', './sky-night.webp?v=2'];
 
 self.addEventListener('install', (e) => {
@@ -22,6 +22,11 @@ self.addEventListener('fetch', (e) => {
     return;
   }
   if (url.origin !== self.location.origin) return;
-  // aplikace: nejdřív síť (ať je index vždy čerstvý), při výpadku cache
-  e.respondWith(fetch(e.request).then((r) => { if (r.ok) caches.open(CACHE).then((c) => c.put(e.request, r.clone())); return r; }).catch(() => caches.match(e.request).then((hit) => hit || caches.match('./index.html'))));
+  // verzované a statické assety: nejdřív cache (jsou v precache aktuální verze), síť jen jako doplněk
+  if (url.search.includes('v=') || /\.(webp|png|js|webmanifest)$/.test(url.pathname)) {
+    e.respondWith(caches.match(e.request, { ignoreVary: true }).then((hit) => hit || fetch(e.request).then((r) => { if (r.ok) caches.open(CACHE).then((c) => c.put(e.request, r.clone())); return r; })));
+    return;
+  }
+  // HTML/navigace: vždy čerstvě ze sítě (obejít HTTP cache), při výpadku cache
+  e.respondWith(fetch(e.request, { cache: 'no-cache' }).then((r) => { if (r.ok) caches.open(CACHE).then((c) => c.put(e.request, r.clone())); return r; }).catch(() => caches.match(e.request).then((hit) => hit || caches.match('./index.html'))));
 });

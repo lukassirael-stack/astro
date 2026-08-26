@@ -2357,7 +2357,14 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   });
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); S.installEvt = e; });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { const q = K.tzParts(new Date(), TZ); if (K.isoDate(q.y, q.m, q.d) !== TODAY_KEY) location.reload(); else if (S.tab === 'kalendar') renderCalendar(); } });
-  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => { });
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => reg.update()).catch(() => { });
+    let hadCtrl = !!navigator.serviceWorker.controller, reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (hadCtrl && !reloaded) { reloaded = true; location.reload(); }
+      hadCtrl = true;
+    });
+  }
   window.KAIROS = { K, S, settings, profiles };
 })();
 
