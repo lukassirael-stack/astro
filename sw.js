@@ -1,6 +1,6 @@
 /* Kairos – service worker. Při každé změně index.html zvedni číslo verze. */
-const CACHE = 'kairos-v38';
-const SHELL = ['./', './index.html', './astronomy.browser.min.js', './manifest.webmanifest', './logo.png', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './sky-day.webp?v=6', './sky-night.webp?v=2'];
+const CACHE = 'kairos-v39';
+const SHELL = ['./', './index.html', './astronomy.browser.min.js', './manifest.webmanifest', './logo.png', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './sky-day.webp?v=7', './sky-night.webp?v=2'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL.map((u) => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
