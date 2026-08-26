@@ -207,6 +207,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .cell.harm .d{color:var(--harm-lite)}
 .cell.tense .d{color:var(--tense-lite)}
 .cell.empty{background:none;border-color:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.cell.past{opacity:.38;filter:saturate(.55);box-shadow:none}
+.cell.past.sel{opacity:.85;filter:none}
 .cell.empty:hover{transform:none;box-shadow:none}
 .cell.today{border-color:var(--inst-gold);box-shadow:inset 0 0 0 1px var(--inst-gold),inset 0 1px 0 rgba(255,255,255,.07),0 0 12px rgba(239,200,120,.25)}
 .cell.sel{border-color:var(--inst-text);box-shadow:inset 0 0 0 1px var(--inst-text),0 4px 16px rgba(2,8,24,.35)}
@@ -1782,7 +1784,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       else if (da.kp && da.kp.kp >= 5) mk = '<span class="kp" title="geomagnetická bouře">⚡</span>';
       const hasJ = !!jGet(key);
       const hasP = pGet(key).length > 0;
-      cells += `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${hasJ ? 'noted' : ''} ${hasP ? 'planned' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
+      const isPast = key < TODAY_KEY;
+      cells += `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${isPast ? 'past' : ''} ${hasJ ? 'noted' : ''} ${hasP ? 'planned' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
         <span class="d">${d}</span><span class="mk">${mk}</span>${moonSVG(da.phaseAngle, 12)}
       </button>`;
     }
