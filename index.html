@@ -227,6 +227,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .legend-more p{margin:5px 0;line-height:1.5;text-shadow:var(--halo-soft)}
 .legend-more b{font-weight:600}
 .legend-more .lg{display:inline-block;width:14px;height:2px;margin-right:6px;vertical-align:3px}
+.legend-more summary{list-style:none}
+.legend-more summary::-webkit-details-marker{display:none}
+.legend-more summary .tri::before{content:'▸';display:inline-block;margin-right:7px;transition:transform .15s ease}
+.legend-more[open] summary .tri::before{content:'▾'}
+.legend-close{display:block;margin:10px 0 2px;padding:7px 14px;border:1px solid var(--line2);border-radius:8px;color:var(--gold);font-size:12px;letter-spacing:.06em;background:none}
 /* dnešní shrnutí */
 .hero-today{display:flex;flex-direction:column;gap:5px;width:100%;text-align:left;margin:16px 0 4px;padding:15px 16px 13px;
   border:1px solid var(--inst-line-soft);border-radius:var(--r);background:var(--inst);color:var(--inst-text);
@@ -1753,6 +1758,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
     },
     importJournal() { const i = $('#jFile'); if (i) i.click(); },
+    closeLegend(el) { const d = el.closest('details'); if (d) { d.removeAttribute('open'); d.scrollIntoView({ block: 'nearest' }); } },
     pickBg(el) { settings.bg = el.dataset.b; persistSettings(); applyTheme(); renderSettings(); },
     pickTheme(el) { settings.theme = el.dataset.t; persistSettings(); applyTheme(); renderSettings(); toast(settings.theme === 'auto' ? 'Obloha se mění podle denní doby.' : 'Obloha: ' + THEMES[settings.theme] + '.'); },
     saveComets() { settings.comets = $('#cometsForm textarea').value; persistSettings(); S.evCache = {}; toast('Seznam uložen.'); },
@@ -1806,13 +1812,14 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <div class="weekdays"><span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span></div>
       <div class="grid">${cells}</div>
       <div class="legend"><span><i style="background:linear-gradient(90deg,#8FE8BE,#2F9E72)"></i>plyne to</span><span><i style="background:linear-gradient(90deg,#FFB598,#C9563A)"></i>větší tření</span><span>✦ tvá hvězda</span><span>◉ zatmění</span><span>● ○ novoluní / úplněk</span></div>
-      <details class="legend-more"><summary>Co značky znamenají?</summary>
+      <details class="legend-more"><summary><span class="tri" aria-hidden="true"></span>Co značky znamenají?</summary>
         <p><b style="color:#8FE8BE"><i class="lg" style="background:linear-gradient(90deg,#8FE8BE,#2F9E72)"></i>Zelený proužek</b> — den, kdy jsou energie více v souladu s tvým osobním horoskopem. Věci mohou jít přirozeněji a s menším úsilím.</p>
         <p><b style="color:#FFB598"><i class="lg" style="background:linear-gradient(90deg,#FFB598,#C9563A)"></i>Lososový proužek</b> — den s větším odporem nebo napětím. Některé věci mohou vyžadovat více energie, trpělivosti a odpočinku.</p>
         <p><b>✦ Tvá hvězda</b> — tento den se tě postavení Luny nebo planet dotýká osobně. Něco může být výraznější, důležitější nebo citlivější právě pro tebe. Hvězda na zeleném dni značí příznivý čas pro důležité kroky. Hvězda na lososovém dni znamená silné osobní téma, ale zároveň náročnější energii — spíš vnímej, co se děje, než abys tlačil/a na výsledek.</p>
         <p><b>◉ Zatmění</b> — energeticky výrazné novoluní nebo úplněk. Tradičně se doporučuje nechat velká rozhodnutí a nové začátky na jiný den.</p>
         <p><b>● / ○ Novoluní a úplněk</b> — novoluní podporuje nové záměry a začátky, úplněk přináší vyvrcholení, uvědomění a završení.</p>
         <p>Barvy i značky jsou vypočítané podle tvého osobního horoskopu, takže u každého člověka mohou vycházet jinak. Po rozkliknutí konkrétního dne se dozvíš, proč má právě takové označení.</p>
+        <button type="button" class="legend-close" data-act="closeLegend">▲ &nbsp;Sbalit vysvětlivky</button>
       </details>
       <div class="day" id="dayDetail">${dayDetailHTML(S.sel.y, S.sel.m, S.sel.d, evByDay)}</div>`;
   }
