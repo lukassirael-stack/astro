@@ -1303,59 +1303,59 @@ function createKairosTexts(K) {
 
   // --- Slunce ve znamení: tón období ---
   const SUN_TONE = [
-    'začátky, odvaha, první krok', 'stabilita, tělo, hodnota věcí', 'zvědavost, kontakty, informace', 'domov, rodina, vnitřní bezpečí',
-    'viditelnost, tvorba, radost', 'třídění, detail, zdraví a řád', 'vztahy, rovnováha, dohody', 'hloubka, pravda, konec a proměna',
-    'rozhled, plány, smysl', 'práce, závazky, dlouhá trať', 'svoboda, nápady, společenství', 'ztišení, soucit, rozpouštění'
+    'nové začátky, odvaha a chuť jednat', 'stabilita, tělo, peníze a to, co má skutečnou hodnotu', 'komunikace, nové informace, lidé a pohyb', 'domov, rodina, blízkost a pocit bezpečí',
+    'tvořivost, radost, sebevyjádření a chuť být vidět', 'pořádek, praktické věci, zdraví a každodenní fungování', 'vztahy, spolupráce a hledání rovnováhy', 'hloubka, pravda, pouštění starého a proměna',
+    'nové obzory, plány a hledání smyslu', 'práce, odpovědnost a dlouhodobé cíle', 'svoboda, nové nápady, změny a lidé kolem nás', 'zklidnění, citlivost, intuice a větší potřeba být sám se sebou'
   ];
 
   // --- Luna: živel dne ---
   const MOON_EL = {
-    'oheň': { lede: 'den táhne k akci', go: 'pohyb, sport, prosazení, začátky', cost: 'trpělivost a čekání' },
-    'země': { lede: 'den je praktický a pomalejší', go: 'ruční práce, úklid, peníze, tělo, jídlo', cost: 'improvizace a rychlé obraty' },
-    'vzduch': { lede: 'den je rychlý a ukecaný', go: 'domluvy, psaní, telefonáty, učení', cost: 'soustředění na jednu věc' },
-    'voda': { lede: 'den je citový a obrácený dovnitř', go: 'odpočinek, terapie, blízkost, tvorba', cost: 'chladná logika a tvrdá jednání' },
+    'oheň': { lede: 'dnes tě to táhne do akce', go: 'pohyb, sport, rozhodování, nové začátky', cost: 'čekání a pomalé tempo' },
+    'země': { lede: 'dnes se vyplatí držet při zemi', go: 'praktické věci, úklid, peníze, péče o tělo a dobré jídlo', cost: 'rychlé změny a improvizace' },
+    'vzduch': { lede: 'hlava jede rychleji a chce komunikovat', go: 'domluvy, psaní, telefonáty, učení a nové nápady', cost: 'udržet pozornost u jedné věci' },
+    'voda': { lede: 'dnes víc vnímáš sebe i svoje pocity', go: 'odpočinek, blízkost, terapie, tvoření a čas pro sebe', cost: 'tvrdá jednání a rozhodování čistě hlavou' },
   };
   // --- Luna ve znamení: krátká charakteristika ---
   const MOON_SIGN = [
-    'nedočkavá, chce první krok', 'pomalá a smyslová, chce pohodlí', 'zvědavá a roztěkaná', 'citlivá, chce domov',
-    'velkorysá, chce být vidět', 'pečlivá, chce mít pořádek', 'smířlivá, chce dohodu', 'intenzivní, jde pod povrch',
-    'rozmáchlá, chce ven', 'věcná, chce výsledek', 'nezávislá, chce prostor', 'prostupná, chce ticho'
+    'chce jednat hned a udělat první krok', 'chce klid, pohodlí a nikam nespěchat', 'je zvědavá, živá a snadno přeskakuje od jednoho k druhému', 'je citlivější a táhne ji to k domovu a blízkým',
+    'chce tvořit, zářit a být vidět', 'chce mít jasno, pořádek a věci dotažené', 'hledá klid, rovnováhu a společnou řeč', 'prožívá věci intenzivněji a jde pod povrch',
+    'chce prostor, pohyb a něco nového', 'soustředí se na výsledek a na to, co je potřeba udělat', 'potřebuje volnost, odstup a vlastní prostor', 'je vnímavější, zasněná a potřebuje víc klidu'
   ];
 
   // --- fáze ---
   function phaseText(ph) {
-    if (ph < 15 || ph > 345) return { name: 'novoluní', go: 'nový záměr, tichý start, semínko' };
-    if (ph < 90) return { name: 'dorůstající srpek', go: 'rozjezd, budování, přidávání' };
-    if (ph < 105) return { name: 'první čtvrt', go: 'překonat první překážku, přitlačit' };
-    if (ph < 175) return { name: 'dorůstající Luna', go: 'dotahovat k vrcholu, zviditelnit' };
-    if (ph < 195) return { name: 'úplněk', go: 'vyvrcholení, jasnost, ale i přetlak' };
-    if (ph < 270) return { name: 'couvající Luna', go: 'sklízet, předávat, uzavírat' };
-    if (ph < 285) return { name: 'poslední čtvrt', go: 'pustit, co doslouží' };
-    return { name: 'couvající srpek', go: 'úklid, odpočinek, prázdno před novým' };
+    if (ph < 15 || ph > 345) return { name: 'novoluní', go: 'čas pro nový záměr a klidný začátek' };
+    if (ph < 90) return { name: 'dorůstající srpek', go: 'čas začít a postupně přidávat' };
+    if (ph < 105) return { name: 'první čtvrt', go: 'čas překonat první překážky a pokračovat' };
+    if (ph < 175) return { name: 'dorůstající Luna', go: 'čas věci rozvíjet, dotahovat a ukázat světu' };
+    if (ph < 195) return { name: 'úplněk', go: 'věci vrcholí a jsou víc vidět i cítit' };
+    if (ph < 270) return { name: 'couvající Luna', go: 'čas sklízet výsledky, dokončovat a uzavírat' };
+    if (ph < 285) return { name: 'poslední čtvrt', go: 'čas pustit to, co už ti neslouží' };
+    return { name: 'couvající srpek', go: 'čas zpomalit, uklidit si a nabrat síly před novým začátkem' };
   }
 
   // --- co která planeta v dobrém aspektu přináší / v napjatém stojí ---
   const GO = {
-    Sun: 'jasnost a viditelnost', Mercury: 'domluvy, psaní, jednání', Venus: 'vztahy, chuť, smysl pro míru',
-    Mars: 'energie a rozhodné kroky', Jupiter: 'otevírání, důvěra, velký záběr', Saturn: 'trpělivá práce a dotažení',
-    Uranus: 'nový úhel pohledu', Neptune: 'jemné vnímání a představivost', Pluto: 'hloubka a schopnost jít na dřeň', Moon: 'citové naladění',
+    Sun: 'víc jasno, jistota a chuť ukázat se', Mercury: 'snazší domluva, psaní a komunikace', Venus: 'větší lehkost ve vztazích a příjemnější atmosféra',
+    Mars: 'víc energie a odvahy něco udělat', Jupiter: 'větší optimismus, důvěra a chuť rozšířit obzory', Saturn: 'trpělivost, disciplína a schopnost něco dotáhnout',
+    Uranus: 'nové nápady a jiný pohled na věc', Neptune: 'silnější intuice, fantazie a citlivost', Pluto: 'odvaha jít do hloubky a něco skutečně změnit', Moon: 'větší citová pohoda a vnitřní soulad',
   };
   const COST = {
-    Sun: 'potřeba mít pravdu', Mercury: 'nedorozumění a zbrklá slova', Venus: 'ústupky, kde nemají být',
-    Mars: 'spěch, tření, popudlivost', Jupiter: 'přehánění a velké sliby', Saturn: 'tíha, pochyby, zpomalení',
-    Uranus: 'neklid a nečekané zvraty', Neptune: 'mlha, únava, nejasné hranice', Pluto: 'tlak a boj o kontrolu', Moon: 'kolísavá nálada',
+    Sun: 'větší potřeba prosadit si svoje', Mercury: 'nedorozumění, zbrklost a unáhlená slova', Venus: 'snaha vyhovět i tam, kde už ti to není příjemné',
+    Mars: 'spěch, podráždění a větší sklon ke konfliktu', Jupiter: 'přehánění a sliby větší, než je reálné', Saturn: 'pocit tíhy, pochybnosti a pomalejší tempo',
+    Uranus: 'neklid, změny plánů a překvapení', Neptune: 'nejasnosti, únava a horší odhad situace', Pluto: 'silný tlak a potřeba mít věci pod kontrolou', Moon: 'větší citlivost a proměnlivá nálada',
   };
   const CONJ = {
-    Sun: 'silné světlo na tomhle místě', Mercury: 'plno myšlenek a slov', Venus: 'měkčí a vlídnější tón',
-    Mars: 'nabuzení, chce to ven', Jupiter: 'prostor se otevírá', Saturn: 'zkouška a nutnost zpevnit',
-    Uranus: 'něco se hýbe jinak, než čekáš', Neptune: 'obrysy se rozpouštějí', Pluto: 'jde to do hloubky', Moon: 'citová vlna',
+    Sun: 'tohle téma je dnes hodně vidět', Mercury: 'hlava jede naplno a je toho hodně k řešení nebo říkání', Venus: 'víc jemnosti, blízkosti a příjemné energie',
+    Mars: 'silný příval energie a potřeba jednat', Jupiter: 'věci se zvětšují a otevírají nové možnosti', Saturn: 'tohle téma chce brát vážně a postavit na pevných základech',
+    Uranus: 'něco se může pohnout nečekaným směrem', Neptune: 'hranice jsou méně jasné a víc pracuje intuice', Pluto: 'tohle téma jde opravdu do hloubky', Moon: 'silnější emoce a citlivější prožívání',
   };
   // --- oblast, které se tranzit dotýká ---
   const DOMAIN = {
-    Sun: 'směr a sebevědomí', Moon: 'pocity a klid', Mercury: 'myšlení a domluvy',
-    Venus: 'vztahy a peníze', Mars: 'energie a tělo', Jupiter: 'plány a důvěra',
-    Saturn: 'práce a závazky', Uranus: 'svoboda a změny', Neptune: 'intuice a sny',
-    Pluto: 'hloubka a téma moci', Asc: 'vystupování', MC: 'práce a veřejná role',
+    Sun: 'sebevědomí a směr', Moon: 'pocity a vnitřní pohoda', Mercury: 'myšlení a komunikace',
+    Venus: 'vztahy a peníze', Mars: 'energie a schopnost jednat', Jupiter: 'plány, růst a důvěra',
+    Saturn: 'povinnosti a dlouhodobé věci', Uranus: 'svoboda a změny', Neptune: 'intuice, sny a vnitřní svět',
+    Pluto: 'hluboké změny a téma kontroly', Asc: 'jak působíš na okolí', MC: 'práce, směřování a veřejná role',
   };
 
   const NATAL_LOC = { Sun: 'tvé Slunce', Moon: 'tvou Lunu', Mercury: 'tvůj Merkur', Venus: 'tvou Venuši', Mars: 'tvůj Mars', Jupiter: 'tvůj Jupiter', Saturn: 'tvůj Saturn', Uranus: 'tvůj Uran', Neptune: 'tvůj Neptun', Pluto: 'tvé Pluto', Asc: 'tvůj Ascendent', MC: 'tvé MC' };
@@ -1387,11 +1387,11 @@ function createKairosTexts(K) {
     cost.push({ text: MOON_EL[el].cost, note: `dnešní živel je ${el}, tohle jde proti němu` });
     for (const v of da.voc) {
       const konec = v.toClip === da.dayEnd.getTime() ? 'půlnoci' : K.fmtTime(new Date(v.toClip), TZfrom(da));
-      cost.push({ text: `nezačínat nic nového od ${K.fmtTime(new Date(v.fromClip), TZfrom(da))} do ${konec}`, note: 'Luna bez kurzu — rozjeté věci dojedou, nové se drolí. Na dokončování a odpočinek je to naopak dobré okno.' });
+      cost.push({ text: `od ${K.fmtTime(new Date(v.fromClip), TZfrom(da))} do ${konec} je lepší nic důležitého nerozjíždět`, note: 'Luna je bez kurzu — nové věci se mohou hůř chytat, ale na dokončování, běžné věci a odpočinek je to dobrý čas.' });
     }
-    if (da.mercuryRetro) cost.push({ text: 'podpisy, nákup techniky, důležité maily', note: 'Merkur retrográdní — vracet se k rozdělanému jde ale líp než jindy' });
-    if (da.kp && da.kp.kp >= 5) cost.push({ text: 'nervozita, mělký spánek, bolest hlavy', note: `${da.kp.text} — u citlivých lidí bývá znát` });
-    if (da.kp && da.kp.kp <= 3) go.push({ text: 'klidné kosmické počasí', note: `Kp ${da.kp.kp} — geomagneticky nerušený den` });
+    if (da.mercuryRetro) cost.push({ text: 'buď pečlivější u smluv, důležitých zpráv a nákupů techniky', note: 'Merkur je retrográdní — víc se hodí vracet k rozdělaným věcem, opravovat a kontrolovat než bezhlavě rozjíždět nové.' });
+    if (da.kp && da.kp.kp >= 5) cost.push({ text: 'můžeš být citlivější, hůř spát nebo cítit větší neklid', note: 'geomagnetická aktivita je zvýšená a citlivější lidé ji někdy vnímají' });
+    if (da.kp && da.kp.kp <= 3) go.push({ text: 'dnes je geomagnetická aktivita klidná', note: `Kp ${da.kp.kp} — bez výraznějšího rušení` });
     for (const e of (ctxEvents || [])) {
       if (e.cat === 'roje') go.push({ text: 'vyjít se večer podívat na nebe', note: `${e.title} — ${e.note}` });
       if (e.ingress && e.slow) go.push({ text: 'všímat si, co se v tomhle tématu mění', note: `${e.title} — ${e.note}` });
@@ -1431,9 +1431,9 @@ function createKairosTexts(K) {
 
   // ============ okna dne ============
   const HOUR_USE = {
-    Mercury: 'na jednání, maily a domluvy', Venus: 'na vztahy, klid a cokoli s krásou', Jupiter: 'na rozhodnutí a rozjezd',
-    Sun: 'na to, s čím chceš být vidět', Moon: 'na domov, péči a odpočinek', Mars: 'na fyzický výkon — ale i na střety',
-    Saturn: 'na úklid, dotažení a nudnou práci',
+    Mercury: 'hodí se na maily, hovory, jednání a domluvy', Venus: 'hodí se na vztahy, setkání, odpočinek a příjemné věci', Jupiter: 'hodí se na důležitá rozhodnutí, plánování a nové kroky',
+    Sun: 'hodí se na věci, ve kterých chceš být vidět a prosadit se', Moon: 'hodí se na domov, péči, odpočinek a čas pro sebe', Mars: 'hodí se na pohyb, výkon a věci, které potřebují razanci',
+    Saturn: 'hodí se na povinnosti, úklid, administrativu a dokončování',
   };
   function windows(da, ph, tz) {
     if (!ph) return [];
@@ -1451,9 +1451,9 @@ function createKairosTexts(K) {
 
   // ============ shrnutí pro mřížku a přehled dnů ============
   function dayWord(da) {
-    if (da.color === 'harm') return da.score >= 4 ? 'vítr v zádech' : 'podpora';
-    if (da.color === 'tense') return da.score <= -4 ? 'do kopce' : 'tření';
-    return 'klidný';
+    if (da.color === 'harm') return da.score >= 4 ? 'vítr v zádech' : 'jde to dobře';
+    if (da.color === 'tense') return da.score <= -4 ? 'do kopce' : 'chce to víc trpělivosti';
+    return 'v klidu';
   }
 
   // ============ časová osa dne ============
@@ -1549,9 +1549,9 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   let journal = store.get('kairos_journal', {}) || {};
   const RATES = [
     { v: -2, label: 'do kopce', cls: 'tense' },
-    { v: -1, label: 'tření', cls: 'tense' },
-    { v: 0, label: 'klidný', cls: '' },
-    { v: 1, label: 'podpora', cls: 'harm' },
+    { v: -1, label: 'chce to víc trpělivosti', cls: 'tense' },
+    { v: 0, label: 'v klidu', cls: '' },
+    { v: 1, label: 'jde to dobře', cls: 'harm' },
     { v: 2, label: 'vítr v zádech', cls: 'harm' },
   ];
   // plán: { "2026-08-24": [ {id, t:'14:00'|null, name, note} ] }
