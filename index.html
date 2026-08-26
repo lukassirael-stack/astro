@@ -41,7 +41,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
   --r:12px; --r-s:9px;
   --logo-filter:drop-shadow(0 2px 10px rgba(0,4,14,.7)); --logo-accent:#9FD0F0;
   --stars:.9; --tabs-bg:rgba(4,10,24,.94); --cell-a:1;
-  --photo:url('sky-night.webp?v=2');
+  --photo:url('sky-night.webp?v=2'); --photo-tail:#061229;
   /* přístroj – mřížka jako logo: zlato na půlnoční modři, v obou režimech */
   --inst:linear-gradient(168deg,rgba(13,28,64,.85),rgba(5,12,34,.72));
   --inst-line:rgba(240,200,116,.34); --inst-line-soft:rgba(240,200,116,.16);
@@ -82,7 +82,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
   --logo-filter:drop-shadow(0 2px 10px rgba(1,20,50,.55));
   --logo-accent:#9FD0F0;
   --stars:0; --tabs-bg:rgba(233,242,252,.95); --cell-a:1.2;
-  --photo:url('sky-day.webp?v=5');
+  --photo:url('sky-day.webp?v=6'); --photo-tail:#162940;
 }
 /* ---------- STMÍVÁNÍ – rozžhavené mraky nad tmavnoucí modří ---------- */
 [data-theme="dusk"]{
@@ -107,7 +107,8 @@ body{position:relative;margin:0;background:var(--bg);color:var(--text);font-fami
   transition:background-color .4s ease,color .4s ease}
 [data-bg="plain"] body{background-image:var(--sky);background-attachment:fixed}
 #skybg{position:absolute;top:0;left:0;right:0;bottom:0;min-height:100vh;z-index:-2;pointer-events:none;
-  background-image:var(--photo);background-size:cover;background-position:center top;background-repeat:no-repeat;
+  background-image:var(--photo);background-size:100% auto;background-position:center top;background-repeat:no-repeat;
+  background-color:var(--photo-tail);
 }
 [data-bg="plain"] #skybg{background-image:none}
 
