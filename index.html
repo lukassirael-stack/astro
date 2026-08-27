@@ -1711,34 +1711,16 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const f = (1 - Math.cos(p)) / 2, wax = phase < 180, rx = Math.abs(Math.cos(p)) * r, big = f > 0.5;
     const d = wax ? `M0,${-r} A${r},${r} 0 0 1 0,${r} A${rx},${r} 0 0 ${big ? 1 : 0} 0,${-r}Z` : `M0,${-r} A${r},${r} 0 0 0 0,${r} A${rx},${r} 0 0 ${big ? 0 : 1} 0,${-r}Z`;
     if (size < 28) return `<svg class="${cls || 'moon'}" viewBox="${-size / 2} ${-size / 2} ${size} ${size}" width="${size}" height="${size}" aria-hidden="true"><circle r="${r}" fill="var(--moon-dark)" stroke="var(--line2)" stroke-width=".6"/><path d="${d}" fill="var(--moon)"/></svg>`;
-    // velký medailon: plastická Luna — slitá moře (skupinová průhlednost), krátery s okrajem, ztmavení limbu
+    // velký medailon: fotorealistická Luna (textura), fáze přes výřez terminátoru
     const uid = 'mn' + (moonSVG._i = (moonSVG._i || 0) + 1);
-    const lx = wax ? -0.38 : 0.38;
-    const M1 = [[-0.30, -0.24, 0.26, 0.21, -18], [-0.06, -0.30, 0.18, 0.14, 8], [0.16, -0.26, 0.19, 0.15, 14], [0.33, -0.10, 0.19, 0.16, 4], [0.20, 0.06, 0.14, 0.11, 0], [0.43, 0.14, 0.12, 0.10, 0]];
-    const M2 = [[-0.48, -0.02, 0.13, 0.24, 12], [-0.30, 0.06, 0.14, 0.11, 0], [-0.10, 0.16, 0.15, 0.11, -6], [0.10, 0.34, 0.10, 0.08, 0]];
-    const CRT = [[0.02, 0.58, 0.072], [-0.40, 0.42, 0.05], [0.56, -0.34, 0.042], [-0.16, -0.58, 0.036]];
-    const ell = (lst) => lst.map(c => `<ellipse cx="${(c[0] * r).toFixed(1)}" cy="${(c[1] * r).toFixed(1)}" rx="${(c[2] * r).toFixed(1)}" ry="${(c[3] * r).toFixed(1)}" transform="rotate(${c[4]} ${(c[0] * r).toFixed(1)} ${(c[1] * r).toFixed(1)})"/>`).join('');
-    const crt = CRT.map(c => `<circle cx="${(c[0] * r).toFixed(1)}" cy="${(c[1] * r).toFixed(1)}" r="${(c[2] * r).toFixed(1)}" fill="#8A7548" fill-opacity=".55"/><path d="M${((c[0] - c[2]) * r).toFixed(1)},${(c[1] * r).toFixed(1)} A${(c[2] * r).toFixed(1)},${(c[2] * r).toFixed(1)} 0 0 1 ${(c[0] * r).toFixed(1)},${((c[1] - c[2]) * r).toFixed(1)}" fill="none" stroke="rgba(255,251,232,.75)" stroke-width="${Math.max(1, r * 0.02).toFixed(1)}" stroke-linecap="round"/>`).join('');
-    const bl = (r * 0.045).toFixed(1), bl2 = (r * 0.016).toFixed(1);
     return `<svg class="${cls || 'moon'}" viewBox="${-size / 2} ${-size / 2} ${size} ${size}" width="${size}" height="${size}" aria-hidden="true">
-      <defs>
-        <radialGradient id="${uid}l" cx="${((0.5 + lx * 0.5) * 100).toFixed(0)}%" cy="36%" r="88%"><stop offset="0%" stop-color="#FFFBEE"/><stop offset="45%" stop-color="#F3E6BE"/><stop offset="82%" stop-color="#DCC791"/><stop offset="100%" stop-color="#C2AA72"/></radialGradient>
-        <radialGradient id="${uid}d" cx="50%" cy="42%" r="80%"><stop offset="0%" stop-color="#39415C"/><stop offset="100%" stop-color="#1E2740"/></radialGradient>
-        <radialGradient id="${uid}v" cx="50%" cy="46%" r="52%"><stop offset="70%" stop-color="rgba(80,62,20,0)"/><stop offset="100%" stop-color="rgba(66,49,12,.4)"/></radialGradient>
-        <clipPath id="${uid}c"><path d="${d}"/></clipPath>
-        <filter id="${uid}b" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="${bl}"/></filter>
-        <filter id="${uid}b2" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="${bl2}"/></filter>
-      </defs>
+      <defs><clipPath id="${uid}c"><path d="${d}"/></clipPath></defs>
       <circle r="${r + 0.5}" fill="none" stroke="rgba(240,216,152,.32)" stroke-width="1"/>
-      <circle r="${r}" fill="url(#${uid}d)"/>
-      <g filter="url(#${uid}b)" fill="#8A93AC" opacity=".16">${ell(M1)}${ell(M2)}</g>
+      <image href="moon-tex.png?v=1" x="${-r}" y="${-r}" width="${2 * r}" height="${2 * r}" opacity=".3"/>
+      <circle r="${r}" fill="rgba(18,26,50,.5)"/>
       <g clip-path="url(#${uid}c)">
-        <circle r="${r}" fill="url(#${uid}l)"/>
-        <g filter="url(#${uid}b)" fill="#95804A" opacity=".38">${ell(M1)}</g>
-        <g filter="url(#${uid}b)" fill="#95804A" opacity=".30">${ell(M2)}</g>
-        <g filter="url(#${uid}b2)">${crt}</g>
-        <circle r="${r}" fill="url(#${uid}v)"/>
-        <circle r="${r}" fill="none" stroke="rgba(255,250,230,.5)" stroke-width="1"/>
+        <image href="moon-tex.png?v=1" x="${-r}" y="${-r}" width="${2 * r}" height="${2 * r}"/>
+        <circle r="${r}" fill="none" stroke="rgba(255,250,230,.35)" stroke-width=".8"/>
       </g>
     </svg>`;
   }
