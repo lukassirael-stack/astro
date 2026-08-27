@@ -2000,7 +2000,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     { id: 'bydleni', label: 'Stěhování a bydlení', rules: { wax: .5, noKp: 1, retroMinus: .5 }, subs: [['stehovani', 'Stěhování'], ['najem', 'Nové bydlení · nájem']] },
     { id: 'cesta', label: 'Cesta a dovolená', rules: { noKp: 1, retroMinus: 1 }, subs: [['odjezd', 'Odjezd na cestu'], ['dovolena', 'Dovolená'], ['presun', 'Přesun · logistika']] },
     { id: 'rozhovor', label: 'Důležitý rozhovor', rules: { noRetro: 1, vocPlus: 1, airSign: 1 }, subs: [['vyjednavani', 'Vyjednávání'], ['citlive', 'Citlivé téma'], ['zadost', 'Žádost · prosba']] },
-    { id: 'zakrok', label: 'Plánovaný zákrok', rules: { wane: 1, avoidFull: 1, noKp: 1, health: 1 }, subs: [['operace', 'Zákrok · operace'], ['zubar', 'Zubař']] },
+    { id: 'zakrok', label: 'Plánovaný zákrok', rules: { wane: 1, avoidFull: 1, noKp: 1, noRetro: 1, marsNoRetro: 1, vocPlus: 1, health: 1 }, subs: [['operace', 'Zákrok · operace'], ['zubar', 'Zubař', { avoidMoonSigns: [0, 6] }]] },
   ];
   function electCfg() {
     const cat = ELECT_CATS.find(c => c.id === S.elek.cat);
@@ -2014,6 +2014,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     if (evs.some(e => e.eclipse && K.dateKey(e.date, TZ) === key)) return null;
     if (cfg.noRetro && da.mercuryRetro) return null;
     if (cfg.venusNoRetro && da.pos.Venus.retro) return null;
+    if (cfg.marsNoRetro && da.pos.Mars.retro) return null;
+    if (cfg.avoidMoonSigns && cfg.avoidMoonSigns.includes(da.moonSign)) return null;
     if (cfg.noKp && da.kp && da.kp.kp >= 5) return null;
     const phA = da.phaseAngle;
     if (cfg.avoidFull && phA >= 160 && phA <= 200) return null;
@@ -2058,7 +2060,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
           <span class="badge ${r.da.color}">${TX.dayWord(r.da)}</span>
           <span class="ew">${esc(r.why.join(' · ') || 'bez zvláštních výhrad')}</span>
         </button></li>`).join('')}</ul>` : '<p class="small muted" style="margin:8px 0 0">V tomhle rozmezí žádný vyloženě vhodný den nevychází — zkus delší rozsah.</p>';
-        body += `<p class="note">Nejlepší dny pro: ${cfg.subLabel.toLowerCase()}. Řazeno podle skóre dne s příplatky za to, co dané věci svědčí; vyřazeny dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.venusNoRetro ? ', retrográdní Venuše' : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ' a okolí úplňku' : ''}.${cfg.health ? ' Jen orientačně — termín zákroku se vždy řídí tím, co řekne lékař.' : ''}</p>`;
+        body += `<p class="note">Nejlepší dny pro: ${cfg.subLabel.toLowerCase()}. Řazeno podle skóre dne s příplatky za to, co dané věci svědčí; vyřazeny dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.venusNoRetro ? ', retrográdní Venuše' : ''}${cfg.marsNoRetro ? ', retrográdního Marsu' : ''}${cfg.avoidMoonSigns ? ', Luny ve znamení operované části těla (Beran/Váhy)' : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ' a okolí úplňku' : ''}.${cfg.health ? ' Jen orientačně — termín zákroku se vždy řídí tím, co řekne lékař.' : ''}</p>`;
       }
     }
     const head = `<button type="button" class="eltoggle ${S.elek.open ? 'open' : ''}" data-act="elekToggle" aria-expanded="${S.elek.open}">Najít vhodný den <i>${S.elek.open ? '▾' : '▸'}</i></button>`;
