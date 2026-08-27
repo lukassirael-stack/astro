@@ -2095,7 +2095,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   const hsPlanetsIn = (n, h) => ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'].filter(k => n.points[k].house === h);
   function horoscopeMoney(n) {
     const si = K.signOf(n.cusps[2]);
-    let out = hsPara('Tvůj rukopis s penězi', HS.D2[si], `2. dům ${K.SIGN_LOC_V[si]}`);
+    let out = hsPara('Tvůj rukopis s penězi', `Druhý dům mapy ukazuje tvůj vztah k penězům, majetku a vlastní hodnotě — jak vyděláváš, držíš a utrácíš. ${HS.D2[si]}`, `2. dům ${K.SIGN_LOC_V[si]}`);
     const in2 = hsPlanetsIn(n, 2);
     if (in2.length) out += in2.map(k => hsPara('', `${K.BODY_CZ[k]} v oblasti peněz: ${HS.P_MONEY[k]}`, `${K.BODY_CZ[k]} · 2. dům`)).join('');
     else out += hsPara('', 'Ve 2. domě nemáš žádnou planetu — peníze pro tebe nejsou životní téma samo o sobě. Řídí se tím, jak žiješ ostatní oblasti; základní rukopis ti dává znamení na hrotu.', '');
@@ -2110,7 +2110,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
   function horoscopeLove(n) {
     const si = K.signOf(n.cusps[7]), v = K.signOf(n.points.Venus.lon), ma = K.signOf(n.points.Mars.lon);
-    let out = hsPara('Co hledáš v partnerství', HS.D7[si], `7. dům ${K.SIGN_LOC_V[si]}`);
+    let out = hsPara('Co hledáš v partnerství', `Sedmý dům je zrcadlo naproti tobě: ukazuje, koho přitahuješ, co od partnerství čekáš — a co se o sobě skrze druhé učíš. ${HS.D7[si]}`, `7. dům ${K.SIGN_LOC_V[si]}`);
     out += hsPara('Jak miluješ', `Miluješ ${HS.VEN[v]}. Tvá jiskra: ${HS.MARS[ma]}.`, `Venuše ${K.SIGN_LOC_V[v]} · Mars ${K.SIGN_LOC_V[ma]}`);
     const in7 = hsPlanetsIn(n, 7);
     if (in7.length) out += in7.map(k => hsPara('', `${K.BODY_CZ[k]} v domě partnerství: ${HS.P_REL[k]}`, `${K.BODY_CZ[k]} · 7. dům`)).join('');
@@ -2119,7 +2119,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
   function horoscopeFamily(n) {
     const si = K.signOf(n.cusps[4]);
-    let out = hsPara('Tvé kořeny', HS.D4[si], `4. dům ${K.SIGN_LOC_V[si]}`);
+    let out = hsPara('Tvé kořeny', `Čtvrtý dům je základ mapy: rodina, ze které vycházíš, domov, který tvoříš, a to, co sis z dětství odnesl jako samozřejmost. ${HS.D4[si]}`, `4. dům ${K.SIGN_LOC_V[si]}`);
     const in4 = hsPlanetsIn(n, 4);
     if (in4.length) out += in4.map(k => hsPara('', `${K.BODY_CZ[k]} u kořenů: ${HS.P_FAM[k]}`, `${K.BODY_CZ[k]} · 4. dům`)).join('');
     else out += hsPara('', 'Ve 4. domě nemáš planetu — rodina není tvé osudové bojiště. Rukopis kořenů čti ze znamení hrotu; svůj vlastní domov tvoříš svobodněji než většina.', '');
@@ -2128,7 +2128,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
   function horoscopeSpirit(n) {
     const ns = K.signOf(n.points.Node.lon);
-    let out = hsPara('Směr růstu', `${HS.NODE[ns]} Tahle cesta se odehrává hlavně v oblasti ${HS.HOUSE_AREA[n.points.Node.house - 1]}.`, `Uzel ${K.SIGN_LOC_V[ns]} · ${n.points.Node.house}. dům`);
+    let out = hsPara('Směr růstu', `Uzel je směrovka duše — neukazuje, co ti jde samo, ale kam máš v tomhle životě dorůst; proto to zprvu drhne a časem naplňuje. ${HS.NODE[ns]} Tahle cesta se odehrává hlavně v oblasti ${HS.HOUSE_AREA[n.points.Node.house - 1]}.`, `Uzel ${K.SIGN_LOC_V[ns]} · ${n.points.Node.house}. dům`);
     out += hsPara('Kde se dotýkáš přesahu', `Hranice mezi tebou a něčím větším je nejtenčí v oblasti ${HS.HOUSE_AREA[n.points.Neptune.house - 1]}. Tam přichází inspirace — a tam je i potřeba střízlivosti.`, `Neptun · ${n.points.Neptune.house}. dům`);
     const in12 = hsPlanetsIn(n, 12).filter(k => k !== 'Neptune');
     if (in12.length) out += in12.map(k => hsPara('Ve vnitřním tichu', `${K.BODY_CZ[k]}: ${HS.P_SPIRIT[k]}`, `${K.BODY_CZ[k]} · 12. dům`)).join('');
@@ -2137,7 +2137,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
   function horoscopeChallenge(n) {
     const ss = K.signOf(n.points.Saturn.lon);
-    let out = hsPara('Hlavní lekce', HS.SAT[ss], `Saturn ${K.SIGN_LOC_V[ss]}`);
+    let out = hsPara('Hlavní lekce', `Saturn v mapě označuje místo, kde život nejde zadarmo — a kde právě proto vzniká tvá největší dovednost. ${HS.SAT[ss]}`, `Saturn ${K.SIGN_LOC_V[ss]}`);
     out += hsPara('Kde tě život zkouší', `Nejvíc trpělivosti po tobě chce oblast ${HS.HOUSE_AREA[n.points.Saturn.house - 1]}. Pozdě, ale doopravdy — to je saturnský slib.`, `Saturn · ${n.points.Saturn.house}. dům`);
     const NA = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto','Asc','MC'];
     const HEAVY = ['Pluto','Neptune','Uranus','Saturn','Mars'];
@@ -2194,7 +2194,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   HS.STAR_TXT = { alcyone:'Plejády — hvězdy vidění a citlivosti; dar vhledu, který chce soucit, ne únik.', hyades:'Hyády — hvězdy prožitku naplno; síla, která zraje sebekázní.', aldebaran:'Aldebaran, královská hvězda východu — úspěch skrze integritu; drž slovo a nic tě nezastaví.', rigel:'Rigel — hvězda učitele a stavitele; úspěch skrze předávání znalostí.', bellatrix:'Bellatrix — bojovnice Orionu; odvaha a strategie, vítězství skrze rozvahu.', mintaka:'Mintaka — hvězda pásu Orionu; smysl pro řád a správné načasování.', betelgeuse:'Betelgeuse — velká šťastná hvězda; úspěch a síla, které rostou velkorysostí.', sirius:'Sirius — nejjasnější hvězda nebe; posvátný oheň, věhlas a strážcovství.', procyon:'Procyon — rychlý úspěch; nauč se ho udržet trpělivostí.', regulus:'Regulus, královská hvězda severu — srdce Lva: vůdcovství, které stojí a padá s ušlechtilostí. Vyhni se odplatě a koruna drží.', arcturus:'Arcturus — průkopník a průvodce; jdeš první a prošlapáváš cestu jiným.', hadar:'Hadar — hvězda oddanosti a služby celku.', alphacen:'Alfa Centauri — hvězda vztahu dvou sluncí; síla rovnocenného partnerství.', antares:'Antares, královská hvězda západu — srdce Štíra: intenzita, odvaha a regenerace; síla, která chce čistý záměr.', vega:'Vega — hvězda harmonie a umění; charisma, které léčí krásou.', sheliak:'Sheliak — lyra jemných tónů; umění vyjádřit nevyslovitelné.', fomalhaut:'Fomalhaut, královská hvězda jihu — vize a ideály; úspěch skrze čistotu snu.', andromeda:'Andromeda — vysvobození z řetězů; dar pomáhat spoutaným.', schedar:'Schedar — důstojnost královny; klidná autorita.', polaris:'Polárka — hvězda severu; jsi bod, podle kterého se jiní orientují.', tauceti:'Tau Ceti — tiché blízké slunce; stálost a domov v sobě.', zetaret:'Zeta Reticuli — hvězda hlubokého poznání za hranou známého.' };
   function horoscopeWork(n) {
     const mc = K.signOf(n.points.MC.lon), d6 = K.signOf(n.cusps[6]);
-    let out = hsPara('Kam směřuješ', HS.MC[mc], `MC ${K.SIGN_LOC_V[mc]}`);
+    let out = hsPara('Kam směřuješ', `MC je nejvyšší bod mapy — směr, kterým tvůj život veřejně míří: povolání, pověst, stopa, kterou zanecháš. ${HS.MC[mc]}`, `MC ${K.SIGN_LOC_V[mc]}`);
     const in10 = hsPlanetsIn(n, 10);
     if (in10.length) out += in10.map(k => hsPara('', `${K.BODY_CZ[k]} v domě povolání: ${HS.P_CAREER[k]}`, `${K.BODY_CZ[k]} · 10. dům`)).join('');
     let denni = `Všední práci děláš ${HS.D6[d6]}.`;
@@ -2214,7 +2214,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
   function horoscopeJoy(n) {
     const d5 = K.signOf(n.cusps[5]);
-    let out = hsPara('Jak tvoříš a raduješ se', HS.D5[d5], `5. dům ${K.SIGN_LOC_V[d5]}`);
+    let out = hsPara('Jak tvoříš a raduješ se', `Pátý dům je tvá hra: tvořivost, radost, láska, která se dvoří, a děti — všechno, co děláš proto, že tě to těší. ${HS.D5[d5]}`, `5. dům ${K.SIGN_LOC_V[d5]}`);
     const in5 = hsPlanetsIn(n, 5);
     if (in5.length) out += in5.map(k => hsPara('', `${K.BODY_CZ[k]} v domě tvořivosti: ${HS.P_JOY[k]}`, `${K.BODY_CZ[k]} · 5. dům`)).join('');
     out += hsPara('Kde nacházíš krásu', `Radost a krásu ti nejsnáz nosí oblast ${HS.HOUSE_AREA[n.points.Venus.house - 1]}. Choď tam, když je ti šedivo.`, `Venuše · ${n.points.Venus.house}. dům`);
@@ -2223,7 +2223,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
   function horoscopeMind(n) {
     const me = K.signOf(n.points.Mercury.lon);
-    let out = hsPara('Jak myslíš a mluvíš', HS.MERC[me], `Merkur ${K.SIGN_LOC_V[me]}${n.points.Mercury.retro ? ' · retrográdní' : ''}`);
+    let out = hsPara('Jak myslíš a mluvíš', `Merkur je tvá hlava a jazyk — způsob, jakým vnímáš, zpracováváš a předáváš. ${HS.MERC[me]}`, `Merkur ${K.SIGN_LOC_V[me]}${n.points.Mercury.retro ? ' · retrográdní' : ''}`);
     if (n.points.Mercury.retro) out += hsPara('', HS.MERC_RX, '');
     out += hsPara('Kde ti hlava pracuje nejvíc', `Myšlení a slovo nejvíc zapojuješ v oblasti ${HS.HOUSE_AREA[n.points.Mercury.house - 1]}.`, `Merkur · ${n.points.Mercury.house}. dům`);
     const in3 = hsPlanetsIn(n, 3).filter(k => k !== 'Mercury');
