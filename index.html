@@ -347,8 +347,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @media (max-width:420px){.planadd{grid-template-columns:86px 1fr auto}}
 .tl .e.mine .dot{color:var(--text)}
 .tl .e.mine .x{font-weight:500}
-.cell .pc{position:absolute;left:5px;top:5px;min-width:15px;height:15px;border-radius:8px;background:var(--gold);color:#1e1706;font-size:9.5px;line-height:15px;font-weight:700;text-align:center;padding:0 3px;font-family:var(--body)}
-.cell.noted:after{content:'✎';position:absolute;left:6px;bottom:4px;font-size:9.5px;color:var(--gold);opacity:.95}
+.cell .marks{position:absolute;left:6px;bottom:4px;display:flex;align-items:center;gap:3px}
+.cell .pc{min-width:12px;height:12px;border-radius:6px;background:var(--gold);color:#1e1706;font-size:8px;line-height:12px;font-weight:700;text-align:center;padding:0 2px;font-family:var(--body)}
+.cell .pen{font-size:8.5px;color:var(--gold);opacity:.95;line-height:1}
 .cell .mk .fm,.cell .mk.fm,.cell .mk .st,.cell .mk.st{color:var(--gold)}
 .cell .mk .fm,.cell .mk.fm{text-shadow:0 0 7px rgba(235,200,110,.95)}
 .cell svg.moon.full{filter:drop-shadow(0 0 4px rgba(240,210,130,.95))}
@@ -1876,7 +1877,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       const hasP = pGet(key).length > 0;
       const isPast = key < TODAY_KEY;
       cells += `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${isPast ? 'past' : ''} ${hasJ ? 'noted' : ''} ${hasP ? 'planned' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
-        <span class="d">${d}</span><span class="mk">${mk}</span>${hasP ? `<span class="pc" title="zapsané plány">${pGet(key).length}</span>` : ''}${moonSVG(da.phaseAngle, 12, q ? (q.quarter === 2 ? 'moon full' : 'moon new') : 'moon')}
+        <span class="d">${d}</span><span class="mk">${mk}</span>${hasP || hasJ ? `<span class="marks">${hasP ? `<span class="pc" title="zapsané plány">${pGet(key).length}</span>` : ''}${hasJ ? '<span class="pen" title="zápis dne">✎</span>' : ''}</span>` : ''}${moonSVG(da.phaseAngle, 12, q ? (q.quarter === 2 ? 'moon full' : 'moon new') : 'moon')}
       </button>`;
     }
     v.innerHTML = `
