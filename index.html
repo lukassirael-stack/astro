@@ -1514,6 +1514,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     comets: '',
     showKp: true,
     theme: 'auto',
+    themeHold: 'stay',   // 'stay' = ruční volba drží, 'once' = do nejbližší přirozené změny
+    themeMark: null,     // jaká byla automatika ve chvíli ruční volby
     clouds: true,
   };
   // místa na jeden klik – uprav podle sebe
@@ -1763,7 +1765,18 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     importJournal() { const i = $('#jFile'); if (i) i.click(); },
     closeLegend(el) { const d = el.closest('details'); if (d) { d.removeAttribute('open'); d.scrollIntoView({ block: 'nearest' }); } },
     pickBg(el) { settings.bg = el.dataset.b; persistSettings(); applyTheme(); renderSettings(); },
-    pickTheme(el) { settings.theme = el.dataset.t; persistSettings(); applyTheme(); renderSettings(); toast(settings.theme === 'auto' ? 'Obloha se mění podle denní doby.' : 'Obloha: ' + THEMES[settings.theme] + '.'); },
+    pickTheme(el) {
+      settings.theme = el.dataset.t;
+      settings.themeMark = settings.theme === 'auto' ? null : themeForNow();
+      persistSettings(); applyTheme(); renderSettings();
+      toast(settings.theme === 'auto' ? 'Obloha se mění podle denní doby.'
+        : 'Obloha: ' + THEMES[settings.theme] + (settings.themeHold === 'once' ? ' — do nejbližší změny.' : '.'));
+    },
+    pickHold(el) {
+      settings.themeHold = el.dataset.h;
+      if (settings.theme !== 'auto') settings.themeMark = themeForNow();
+      persistSettings(); applyTheme(); renderSettings();
+    },
     saveComets() { settings.comets = $('#cometsForm textarea').value; persistSettings(); S.evCache = {}; toast('Seznam uložen.'); },
     refreshKp(el) { el.disabled = true; loadKp(true).finally(() => { el.disabled = false; renderSettings(); toast(S.kpError ? S.kpError : 'Kosmické počasí aktualizováno.'); }); },
     clearCache() { store.del('kairos_kp'); S.kpMap = {}; S.kpUpdated = null; S.dayCache = {}; S.evCache = {}; K.clearCache(); if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())); toast('Mezipaměť vymazána.'); renderSettings(); },
@@ -2276,12 +2289,15 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
         <div class="row" style="gap:6px" id="themeRow">
           ${['auto', 'day', 'night'].map(t => `<button type="button" class="chip ${settings.theme === t ? 'on' : ''}" data-act="pickTheme" data-t="${t}">${t === 'auto' ? 'podle denní doby' : THEMES[t]}</button>`).join('')}
         </div>
+        ${settings.theme === 'auto' ? '' : `<div class="row" style="gap:6px;margin-top:8px">
+          ${[['stay', 'nechat napořád'], ['once', 'do nejbližší změny']].map(([h, lbl]) => `<button type="button" class="chip ${(settings.themeHold || 'stay') === h ? 'on' : ''}" data-act="pickHold" data-h="${h}">${lbl}</button>`).join('')}
+        </div>`}
         <label class="row" style="gap:8px;margin-top:10px;font-size:14px;cursor:pointer"><input type="checkbox" data-act="toggleClouds" ${settings.clouds === false ? '' : 'checked'}> Mraky ve světlých paletách</label>
         <div class="row" style="gap:6px;margin-top:10px">
           <button type="button" class="chip ${settings.bg !== 'plain' ? 'on' : ''}" data-act="pickBg" data-b="photo">s obrazem nebe</button>
           <button type="button" class="chip ${settings.bg === 'plain' ? 'on' : ''}" data-act="pickBg" data-b="plain">jen barvy</button>
         </div>
-        <p class="note">Na automatiku se obloha mění podle skutečného východu a západu Slunce v ${esc(settings.loc.name)} — od svítání do soumraku denní, jinak noční. Teď je ${THEMES[applyTheme()]}.</p>
+        <p class="note">Na automatiku se obloha mění podle skutečného východu a západu Slunce v ${esc(settings.loc.name)} — od svítání do soumraku denní, jinak noční. Teď je ${THEMES[applyTheme()]}.${settings.theme === 'auto' ? '' : (settings.themeHold === 'once' ? ' Ruční volba se sama vrátí do automatiky při nejbližším východu nebo západu Slunce.' : ' Ruční volba drží, dokud ji nezměníš.')}</p>
       </div>
       <div class="h2">Kosmické počasí · NOAA SWPC</div>
       <div class="card"><div class="small">${kpTxt}</div>${S.kpError ? `<div class="small tone-tense">${esc(S.kpError)}</div><p class="note">Pokud prohlížeč blokuje přímé stažení (CORS), aplikace zkouší záložní cestu <span class="mono">/api/noaa</span> – na Vercelu je součástí balíčku.</p>` : ''}<div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="refreshKp">Stáhnout znovu</button></div>
@@ -2322,6 +2338,12 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
   function applyTheme() {
     document.documentElement.dataset.bg = settings.bg === 'plain' ? 'plain' : 'photo';
+    // ruční volba nastavená jen „do nejbližší změny" se sama vrátí do automatiky,
+    // jakmile se obloha přirozeně přehoupne (východ nebo západ Slunce)
+    if (settings.theme !== 'auto' && settings.themeHold === 'once' && settings.themeMark
+        && themeForNow() !== settings.themeMark) {
+      settings.theme = 'auto'; settings.themeMark = null; persistSettings();
+    }
     const want = settings.theme === 'auto' ? themeForNow() : settings.theme;
     if (document.documentElement.dataset.theme !== want) {
       document.documentElement.dataset.theme = want;
@@ -2383,7 +2405,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   // ===================== start =====================
   applyTheme();
   computeNatal();
-  setInterval(() => { if (settings.theme === 'auto') applyTheme(); }, 240000);
+  setInterval(applyTheme, 240000);
   showTab('kalendar');
   loadKp(false);
   document.addEventListener('change', (e) => {
