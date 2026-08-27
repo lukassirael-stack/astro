@@ -360,6 +360,9 @@ details.expl .card p:last-child{margin:0}
 @media (min-width:900px){.strip-nav{display:grid}}
 .pastbar{display:flex;justify-content:flex-start;margin:2px 0 6px}
 .pastbar .chip{cursor:pointer;color:var(--muted);background:var(--glass)}
+.elcust{display:inline-flex;align-items:center;gap:4px}
+.elcust input{width:52px;background:transparent;border:0;border-bottom:1px solid var(--hairline);color:inherit;font:inherit;text-align:center;padding:0 2px}
+.elcust input:focus{outline:none;border-color:var(--gold)}
 @media (min-width:1024px){
   #skybg::before{filter:saturate(1.07) contrast(1.05) brightness(1.02)}
   #skybg::after{content:'';position:absolute;top:0;left:0;right:0;height:var(--photo-h);pointer-events:none;
@@ -1708,28 +1711,34 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const f = (1 - Math.cos(p)) / 2, wax = phase < 180, rx = Math.abs(Math.cos(p)) * r, big = f > 0.5;
     const d = wax ? `M0,${-r} A${r},${r} 0 0 1 0,${r} A${rx},${r} 0 0 ${big ? 1 : 0} 0,${-r}Z` : `M0,${-r} A${r},${r} 0 0 0 0,${r} A${rx},${r} 0 0 ${big ? 0 : 1} 0,${-r}Z`;
     if (size < 28) return `<svg class="${cls || 'moon'}" viewBox="${-size / 2} ${-size / 2} ${size} ${size}" width="${size}" height="${size}" aria-hidden="true"><circle r="${r}" fill="var(--moon-dark)" stroke="var(--line2)" stroke-width=".6"/><path d="${d}" fill="var(--moon)"/></svg>`;
-    // velký medailon: plastická Luna s krátery, světlo ze strany dorůstání
+    // velký medailon: plastická Luna — slitá moře (skupinová průhlednost), krátery s okrajem, ztmavení limbu
     const uid = 'mn' + (moonSVG._i = (moonSVG._i || 0) + 1);
-    const lx = wax ? -0.38 : 0.38; // odlesk na osvětlené straně
-    const CR = [[-0.26, -0.3, 0.34, 0.16], [0.16, -0.06, 0.23, 0.13], [-0.06, 0.3, 0.27, 0.15], [0.42, 0.26, 0.08, 0.22], [-0.46, 0.1, 0.07, 0.2], [0.3, -0.44, 0.06, 0.22], [0.06, 0.6, 0.06, 0.24], [-0.2, -0.62, 0.05, 0.2]];
-    const crat = (op) => CR.map(c => `<circle cx="${(c[0] * r).toFixed(1)}" cy="${(c[1] * r).toFixed(1)}" r="${(c[2] * r).toFixed(1)}" fill="#8E7F5C" opacity="${(c[3] * op).toFixed(2)}"/>`).join('');
+    const lx = wax ? -0.38 : 0.38;
+    const M1 = [[-0.30, -0.24, 0.26, 0.21, -18], [-0.06, -0.30, 0.18, 0.14, 8], [0.16, -0.26, 0.19, 0.15, 14], [0.33, -0.10, 0.19, 0.16, 4], [0.20, 0.06, 0.14, 0.11, 0], [0.43, 0.14, 0.12, 0.10, 0]];
+    const M2 = [[-0.48, -0.02, 0.13, 0.24, 12], [-0.30, 0.06, 0.14, 0.11, 0], [-0.10, 0.16, 0.15, 0.11, -6], [0.10, 0.34, 0.10, 0.08, 0]];
+    const CRT = [[0.02, 0.58, 0.072], [-0.40, 0.42, 0.05], [0.56, -0.34, 0.042], [-0.16, -0.58, 0.036]];
+    const ell = (lst) => lst.map(c => `<ellipse cx="${(c[0] * r).toFixed(1)}" cy="${(c[1] * r).toFixed(1)}" rx="${(c[2] * r).toFixed(1)}" ry="${(c[3] * r).toFixed(1)}" transform="rotate(${c[4]} ${(c[0] * r).toFixed(1)} ${(c[1] * r).toFixed(1)})"/>`).join('');
+    const crt = CRT.map(c => `<circle cx="${(c[0] * r).toFixed(1)}" cy="${(c[1] * r).toFixed(1)}" r="${(c[2] * r).toFixed(1)}" fill="#8A7548" fill-opacity=".55"/><path d="M${((c[0] - c[2]) * r).toFixed(1)},${(c[1] * r).toFixed(1)} A${(c[2] * r).toFixed(1)},${(c[2] * r).toFixed(1)} 0 0 1 ${(c[0] * r).toFixed(1)},${((c[1] - c[2]) * r).toFixed(1)}" fill="none" stroke="rgba(255,251,232,.75)" stroke-width="${Math.max(1, r * 0.02).toFixed(1)}" stroke-linecap="round"/>`).join('');
+    const bl = (r * 0.045).toFixed(1), bl2 = (r * 0.016).toFixed(1);
     return `<svg class="${cls || 'moon'}" viewBox="${-size / 2} ${-size / 2} ${size} ${size}" width="${size}" height="${size}" aria-hidden="true">
       <defs>
-        <radialGradient id="${uid}l" cx="${(0.5 + lx * 0.5) * 100}%" cy="36%" r="85%">
-          <stop offset="0%" stop-color="#FFFBEE"/><stop offset="45%" stop-color="#F3E6BE"/><stop offset="82%" stop-color="#DCC791"/><stop offset="100%" stop-color="#C6AF78"/>
-        </radialGradient>
-        <radialGradient id="${uid}d" cx="50%" cy="42%" r="80%">
-          <stop offset="0%" stop-color="#39415C"/><stop offset="100%" stop-color="#1E2740"/>
-        </radialGradient>
+        <radialGradient id="${uid}l" cx="${((0.5 + lx * 0.5) * 100).toFixed(0)}%" cy="36%" r="88%"><stop offset="0%" stop-color="#FFFBEE"/><stop offset="45%" stop-color="#F3E6BE"/><stop offset="82%" stop-color="#DCC791"/><stop offset="100%" stop-color="#C2AA72"/></radialGradient>
+        <radialGradient id="${uid}d" cx="50%" cy="42%" r="80%"><stop offset="0%" stop-color="#39415C"/><stop offset="100%" stop-color="#1E2740"/></radialGradient>
+        <radialGradient id="${uid}v" cx="50%" cy="46%" r="52%"><stop offset="70%" stop-color="rgba(80,62,20,0)"/><stop offset="100%" stop-color="rgba(66,49,12,.4)"/></radialGradient>
         <clipPath id="${uid}c"><path d="${d}"/></clipPath>
+        <filter id="${uid}b" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="${bl}"/></filter>
+        <filter id="${uid}b2" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="${bl2}"/></filter>
       </defs>
       <circle r="${r + 0.5}" fill="none" stroke="rgba(240,216,152,.32)" stroke-width="1"/>
       <circle r="${r}" fill="url(#${uid}d)"/>
-      <g opacity=".5">${crat(0.5)}</g>
+      <g filter="url(#${uid}b)" fill="#8A93AC" opacity=".16">${ell(M1)}${ell(M2)}</g>
       <g clip-path="url(#${uid}c)">
         <circle r="${r}" fill="url(#${uid}l)"/>
-        ${crat(1)}
-        <circle r="${r}" fill="none" stroke="rgba(255,250,230,.5)" stroke-width=".8"/>
+        <g filter="url(#${uid}b)" fill="#95804A" opacity=".38">${ell(M1)}</g>
+        <g filter="url(#${uid}b)" fill="#95804A" opacity=".30">${ell(M2)}</g>
+        <g filter="url(#${uid}b2)">${crt}</g>
+        <circle r="${r}" fill="url(#${uid}v)"/>
+        <circle r="${r}" fill="none" stroke="rgba(255,250,230,.5)" stroke-width="1"/>
       </g>
     </svg>`;
   }
@@ -2699,18 +2708,47 @@ ${parts}
   }
   function electRun() {
     const cfg = electCfg();
-    if (!cfg) { S.elek.results = null; return; }
+    if (!cfg) { S.elek.results = null; S.elek.progress = null; return; }
+    const runId = (electRun._id = (electRun._id || 0) + 1);
     const out = [], evCacheM = {};
-    for (let i = 1; i <= S.elek.span; i++) {
-      const dt = K.addDays(K.dayStart(np.y, np.m, np.d, TZ), i + 0.5);
-      const pp = K.tzParts(dt, TZ);
-      const mk = pp.y + '-' + pp.m;
-      if (!evCacheM[mk]) evCacheM[mk] = monthEvents(pp.y, pp.m);
-      const r = electDay(cfg, pp.y, pp.m, pp.d, evCacheM[mk]);
-      if (r) out.push(r);
-    }
-    out.sort((a, b) => b.sc - a.sc || a.key.localeCompare(b.key));
-    S.elek.results = out.slice(0, 6);
+    const total = S.elek.span;
+    S.elek.results = null; S.elek.progress = 0;
+    let i = 1;
+    const step = () => {
+      if (runId !== electRun._id) return; // spuštěn novější výpočet
+      const t0 = Date.now();
+      while (i <= total && Date.now() - t0 < 34) {
+        const dt = K.addDays(K.dayStart(np.y, np.m, np.d, TZ), i + 0.5);
+        const pp = K.tzParts(dt, TZ);
+        const mk = pp.y + '-' + pp.m;
+        if (!evCacheM[mk]) evCacheM[mk] = monthEvents(pp.y, pp.m);
+        const r = electDay(cfg, pp.y, pp.m, pp.d, evCacheM[mk]);
+        if (r) out.push(r);
+        i++;
+      }
+      if (i <= total) {
+        S.elek.progress = Math.round((i - 1) / total * 100);
+        const el = $('#elekProgress'); if (el) el.textContent = S.elek.progress + ' %';
+        setTimeout(step, 0);
+      } else {
+        out.sort((a, b) => b.sc - a.sc || a.key.localeCompare(b.key));
+        S.elek.results = out.slice(0, 6); S.elek.progress = null;
+        renderCalendar();
+      }
+    };
+    if (total <= 70) { // krátké rozsahy najednou, bez blikání
+      while (i <= total) {
+        const dt = K.addDays(K.dayStart(np.y, np.m, np.d, TZ), i + 0.5);
+        const pp = K.tzParts(dt, TZ);
+        const mk = pp.y + '-' + pp.m;
+        if (!evCacheM[mk]) evCacheM[mk] = monthEvents(pp.y, pp.m);
+        const r = electDay(cfg, pp.y, pp.m, pp.d, evCacheM[mk]);
+        if (r) out.push(r);
+        i++;
+      }
+      out.sort((a, b) => b.sc - a.sc || a.key.localeCompare(b.key));
+      S.elek.results = out.slice(0, 6); S.elek.progress = null;
+    } else step();
   }
   function electHTML() {
     const cat = ELECT_CATS.find(c => c.id === S.elek.cat);
@@ -2719,8 +2757,9 @@ ${parts}
     if (cat) {
       const subOn = (cat.subs.find(x => x[0] === S.elek.sub) || cat.subs[0])[0];
       body += `<div class="row echips sub">${cat.subs.map(x => `<button type="button" class="chip small ${subOn === x[0] ? 'on' : ''}" data-act="elekSub" data-s="${x[0]}">${x[1]}</button>`).join('')}</div>`;
-      body += `<div class="row echips span"><span class="elbl">Rozsah</span>${[14, 30, 60].map(n => `<button type="button" class="chip small ${+S.elek.span === n ? 'on' : ''}" data-act="elekSpan" data-n="${n}">${n} dní</button>`).join('')}</div>`;
+      body += `<div class="row echips span"><span class="elbl">Rozsah</span>${[14, 30, 60, 90].map(n => `<button type="button" class="chip small ${+S.elek.span === n ? 'on' : ''}" data-act="elekSpan" data-n="${n}">${n} dní</button>`).join('')}<label class="chip small elcust ${[14, 30, 60, 90].includes(+S.elek.span) ? '' : 'on'}">vlastní: <input id="elekCustom" type="number" min="7" max="400" step="1" value="${[14, 30, 60, 90].includes(+S.elek.span) ? '' : S.elek.span}" placeholder="365"> dnů</label></div>`;
       const cfg = electCfg();
+      if (S.elek.progress != null) body += `<p class="small muted" style="margin:10px 0 0">Prohledávám nebe… <span id="elekProgress">${S.elek.progress} %</span></p>`;
       if (S.elek.results) {
         body += S.elek.results.length ? `<ul class="elist">${S.elek.results.map(r => `<li><button type="button" data-act="selDay" data-y="${r.y}" data-m="${r.m}" data-d="${r.d}">
           <span class="ed">${K.WEEKDAY_CZ[K.tzParts(r.da.noon, TZ).wd]} ${r.d}. ${K.MONTH_GEN[r.m - 1]}</span>
@@ -3249,6 +3288,13 @@ ${parts}
   (() => { const sp = $('#splash'); if (!sp) return; const off = () => { sp.classList.add('done'); setTimeout(() => sp.remove(), 650); };
     requestAnimationFrame(() => setTimeout(off, 450)); setTimeout(off, 6000); })();
   document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'elekCustom') {
+      let n = Math.round(+e.target.value || 0);
+      if (!n) return;
+      n = Math.max(7, Math.min(400, n));
+      S.elek.span = n; electRun(); renderCalendar();
+      return;
+    }
     if (e.target && e.target.id === 'jFile' && e.target.files && e.target.files[0]) {
       const fr = new FileReader();
       fr.onload = () => {
