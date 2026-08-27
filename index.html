@@ -1792,6 +1792,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     return out;
   }
 
+  const verTapState = { t: 0, n: 0 };
   // ===================== navigace =====================
   function showTab(tab) {
     S.tab = tab;
@@ -1812,6 +1813,12 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     synSel(el) { S.synId = S.synId === el.dataset.id ? null : el.dataset.id; renderNatal(); },
     stripNav(el) { const st = document.querySelector('.strip-wrap .ahead'); if (st) st.scrollBy({ left: (+el.dataset.dir) * st.clientWidth * 0.7, behavior: 'smooth' }); },
     pastToggle() { S.showPast = !S.showPast; renderCalendar(); },
+    verTap() {
+      const t = Date.now();
+      if (!verTapState.t || t - verTapState.t > 2500) verTapState.n = 0;
+      verTapState.t = t; verTapState.n++;
+      if (verTapState.n >= 7) { verTapState.n = 0; const on = !store.get('kairos_plus', false); store.set('kairos_plus', on); toast(on ? 'Kairos Plus aktivní ✧' : 'Kairos Plus vypnut.'); renderSettings(); }
+    },
     hsPrint() {
       const doc = horoscopeDoc(S.natal);
       const wnd = window.open('', '_blank');
@@ -1835,7 +1842,10 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     ephCsv() { downloadCsv(); },
     filter(el) { S.filter = el.dataset.f; renderEvents(); },
     saveProfile() { saveProfileForm(); },
-    newProfile() { const id = 'p' + Date.now().toString(36); profiles.push({ id, name: 'Nový profil', y: 1990, m: 1, d: 1, hh: 12, mm: 0, place: 'Kroměříž', lat: 49.2979, lon: 17.3931, alt: 200, tz: TZ }); activeId = id; persistProfiles(); computeNatal(); renderSettings(); toast('Profil založen – vyplň údaje a ulož.'); },
+    newProfile() {
+      const FREE_PROFILES = 2;
+      if (!store.get('kairos_plus', false) && profiles.length >= FREE_PROFILES) { toast('Dva profily jsou zdarma. Další budou součástí Kairos Plus — připravujeme.'); return; }
+      const id = 'p' + Date.now().toString(36); profiles.push({ id, name: 'Nový profil', y: 1990, m: 1, d: 1, hh: 12, mm: 0, place: 'Kroměříž', lat: 49.2979, lon: 17.3931, alt: 200, tz: TZ }); activeId = id; persistProfiles(); computeNatal(); renderSettings(); toast('Profil založen – vyplň údaje a ulož.'); },
     switchProfile(el) { activeId = el.value; store.set('kairos_active', activeId); computeNatal(); renderSettings(); toast('Profil přepnut: ' + activeProfile().name); },
     deleteProfile() { if (profiles.length < 2) { toast('Poslední profil nejde smazat.'); return; } if (!confirm('Smazat profil ' + activeProfile().name + '?')) return; profiles = profiles.filter(p => p.id !== activeId); activeId = profiles[0].id; persistProfiles(); computeNatal(); renderSettings(); },
     locate(el) {
@@ -3081,7 +3091,7 @@ ${parts}
       <form class="card" id="cometsForm" onsubmit="return false"><textarea class="mono" style="width:100%;min-height:90px;font-size:13px;background:var(--field);color:var(--text);border:1px solid var(--line2);border-radius:9px;padding:9px" placeholder="2026-10-20 | Kometa C/2025 A6 (Lemmon) | nejjasnější, večer nízko na západě">${esc(settings.comets)}</textarea><div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="saveComets">Uložit seznam</button></div><p class="note">Jeden úkaz na řádek: datum | název | poznámka. Zobrazí se v Úkazech i v detailu dne.</p></form>
       <div class="h2">Aplikace</div>
       <div class="card"><div class="row"><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
-      <p class="note">Kairos ${VERSION} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
+      <p class="note" data-act="verTap" style="cursor:default">Kairos ${VERSION}${store.get('kairos_plus', false) ? ' · Plus' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
       <p class="note">Jazyk aplikace je záměrně „tohle je ve hře, tohoto si všímej“. Žádná barva dne není předpověď a nerozhoduje za tebe.</p></div>`;
     const sel = $('#profileSelect', v); sel.addEventListener('change', () => actions.switchProfile(sel));
   }
