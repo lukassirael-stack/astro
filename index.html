@@ -2100,7 +2100,10 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     if (in2.length) out += in2.map(k => hsPara('', `${K.BODY_CZ[k]} v oblasti peněz: ${HS.P_MONEY[k]}`, `${K.BODY_CZ[k]} · 2. dům`)).join('');
     else out += hsPara('', 'Ve 2. domě nemáš žádnou planetu — peníze pro tebe nejsou životní téma samo o sobě. Řídí se tím, jak žiješ ostatní oblasti; základní rukopis ti dává znamení na hrotu.', '');
     const in8 = hsPlanetsIn(n, 8);
-    if (in8.length) out += in8.map(k => hsPara('Sdílené zdroje', `Ve společných penězích, dědictvích a dluzích: ${K.BODY_CZ[k]} — ${HS.P_MONEY[k]}`, `${K.BODY_CZ[k]} · 8. dům`)).join('');
+    if (in8.length) {
+      out += hsPara('Sdílené zdroje', `Osmý dům jsou peníze, které nejsou jen tvoje: společné finance v partnerství, dědictví, hypotéky a dluhy, daně, cizí kapitál — a s nimi hluboké proměny majetku. ${in8.length > 1 ? `U tebe je to silně obsazená oblast (${in8.map(k => K.BODY_CZ[k]).join(', ')}), takže velká finanční témata tvého života se odehrávají spíš tady než ve výplatní pásce.` : 'Máš tu jednu planetu — tahle oblast v tvém životě mluví zřetelně.'}`, `8. dům — ${in8.length} ${in8.length === 1 ? 'planeta' : in8.length < 5 ? 'planety' : 'planet'}`);
+      out += in8.map(k => hsPara('', `${K.BODY_CZ[k]}: ${HS.P_MONEY[k]}`, `${K.BODY_CZ[k]} · 8. dům`)).join('');
+    }
     out += hsPara('Kde ti přeje růst', `Štěstí a příležitosti ti nejsnáz tečou v oblasti ${HS.HOUSE_AREA[n.points.Jupiter.house - 1]}. Tam se vyplácí investovat čas i důvěru.`, `Jupiter · ${n.points.Jupiter.house}. dům`);
     out += hsPara('Kde je pozdní sklizeň', `Disciplínu a trpělivost po tobě život chce v oblasti ${HS.HOUSE_AREA[n.points.Saturn.house - 1]}. Co tam poctivě vybuduješ, drží nejdéle z celé mapy.`, `Saturn · ${n.points.Saturn.house}. dům`);
     return out;
@@ -2138,16 +2141,40 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     out += hsPara('Kde tě život zkouší', `Nejvíc trpělivosti po tobě chce oblast ${HS.HOUSE_AREA[n.points.Saturn.house - 1]}. Pozdě, ale doopravdy — to je saturnský slib.`, `Saturn · ${n.points.Saturn.house}. dům`);
     const NA = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto','Asc','MC'];
     const HEAVY = ['Pluto','Neptune','Uranus','Saturn','Mars'];
+    const N4 = { Sun:'vůli', Moon:'city', Mercury:'mysl', Venus:'lásku a hodnoty', Mars:'sílu', Jupiter:'růst a důvěru', Saturn:'řád', Uranus:'svobodu', Neptune:'citlivost', Pluto:'hloubku', Asc:'to, jak působíš', MC:'tvé směřování' };
+    const TENSE_TXT = {
+      Mars: (l) => `Tvá síla se otírá o ${N4[l]} — netrpělivost, hrany, přepálené starty. Není to vada, je to nevytížený motor: dej mu denní pohyb, sport nebo jasně ohraničený úkol a z tření se stane tah.`,
+      Saturn: (l) => `Vnitřní nárok tlačí na ${N4[l]} — pocit „ještě to nestačí“ znáš dobře. Ta přísnost kdysi chránila; teď ji povyš na řemeslo: malé sliby sobě, důsledně splněné. Z takového napětí časem bývá nejspolehlivější síla celé mapy.`,
+      Uranus: (l) => `Touha po svobodě a změně naráží na ${N4[l]} — dlouho klid, pak náhlý zlom. Uč se dělat změny v malém a dobrovolně; co měníš sám a včas, nemusí přijít výbuchem.`,
+      Neptune: (l) => `Sen a citlivost občas zaplaví ${N4[l]} — hranice mezi ideálem a skutečností měkne, snadno uvěříš tomu, co chceš vidět. Kotvou jsou fakta na papíře, jasné hranice a tělo; citlivost pak slouží jako radar, ne jako záplava.`,
+      Pluto: (l) => `Hlubinný tlak prověřuje ${N4[l]} — všechno, nebo nic, ovládnout, nebo zbořit. Třetí cesta je pustit kontrolu, ne odpovědnost; přesně tam se z tlaku stává tvá odolnost.`,
+    };
     const tens = [];
     for (let i = 0; i < NA.length; i++) for (let j = i + 1; j < NA.length; j++) {
       const a = K.aspectBetween(n.points[NA[i]].lon, n.points[NA[j]].lon, { default: 6, sextile: 4 });
       if (a && a.kind === 'tense') tens.push({ a: NA[i], b: NA[j], ...a });
     }
     tens.sort((x, y) => x.orb - y.orb);
-    for (const t of tens.slice(0, 3)) {
+    const groups = {};
+    for (const t of tens) {
       const heavy = HEAVY.find(h => h === t.b || h === t.a);
-      const adv = (heavy && HS.ADVICE[heavy]) || 'Pomáhá vědomí: pojmenuj, co se děje, a napětí začne pracovat pro tebe.';
-      out += hsPara('', `${HS.NOUN[t.a].charAt(0).toUpperCase() + HS.NOUN[t.a].slice(1)} a ${HS.NOUN[t.b]} se v tobě přetahují — dvě síly, obě tvoje. Napětí nezmizí vítězstvím jedné; zmizí, když obě dostanou úkol. ${adv}`, `${K.BODY_CZ[t.a]} ${t.cz} ${K.BODY_CZ[t.b]} · orbis ${fmtOrb(t.orb)}`);
+      const pairKey = [t.a, t.b].sort().join('|');
+      const pk = ['Sun|Moon', 'Asc|Sun', 'Asc|Moon'].includes(pairKey) ? pairKey : (heavy || 'ostatni');
+      if (!groups[pk]) groups[pk] = [];
+      groups[pk].push({ ...t, heavy });
+    }
+    let cnt = 0;
+    for (const pk of Object.keys(groups)) {
+      if (cnt >= 3) break;
+      const g = groups[pk]; const t = g[0]; cnt++;
+      let txt;
+      if (pk === 'Sun|Moon') txt = HS.PAIR['Sun|Moon'].tense;
+      else if (pk === 'Asc|Sun') txt = HS.PAIR['Sun|Asc'].tense;
+      else if (pk === 'Asc|Moon') txt = HS.PAIR['Moon|Asc'].tense;
+      else if (t.heavy) { const light = t.a === t.heavy ? t.b : t.a; txt = TENSE_TXT[t.heavy](light); }
+      else txt = `${HS.NOUN[t.a].charAt(0).toUpperCase() + HS.NOUN[t.a].slice(1)} a ${HS.NOUN[t.b]} se v tobě přetahují. Napětí zmizí, když obě strany dostanou úkol — pojmenuj je a nech je spolupracovat.`;
+      if (g.length > 1) txt += ` Stejné téma v mapě zesiluje ještě ${g.slice(1).map(x => `${K.BODY_CZ[x.a]} ${x.cz} ${K.BODY_CZ[x.b]}`).join(' a ')}.`;
+      out += hsPara('', txt, g.map(x => `${K.BODY_CZ[x.a]} ${x.cz} ${K.BODY_CZ[x.b]} · ${fmtOrb(x.orb)}`).join(' · '));
     }
     out += hsPara('', 'Překážky v mapě nejsou tresty — jsou to posilovny. Každá má na druhé straně dovednost, kterou jinak nezískáš.', '');
     return out;
