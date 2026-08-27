@@ -342,6 +342,22 @@ details.expl .card p:last-child{margin:0}
 .eltoggle.open+.card{border-top-left-radius:0;border-top-right-radius:0;margin-top:0;border-top:0}
 .elect .elq{margin:0 0 9px;font-size:14px;color:var(--text)}
 .echips{display:flex;flex-wrap:wrap;gap:7px}
+.strip-wrap{position:relative}
+.strip-nav{display:none;position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:34px;height:34px;border-radius:50%;border:1px solid rgba(240,216,152,.45);background:rgba(11,19,40,.85);color:var(--gold);font-size:19px;line-height:1;cursor:pointer;place-items:center;padding:0 0 2px}
+.strip-nav.l{left:-6px}.strip-nav.r{right:-6px}
+.strip-nav:hover{background:rgba(20,30,58,.95)}
+[data-theme="day"] .strip-nav{background:rgba(250,247,238,.9);color:#7A5E1E;border-color:rgba(140,110,50,.5)}
+@media (min-width:900px){.strip-nav{display:grid}}
+.pastbar{display:flex;justify-content:flex-start;margin:2px 0 6px}
+.pastbar .chip{cursor:pointer;color:var(--muted);background:var(--glass)}
+@media (min-width:1024px){
+  #skybg::before{filter:saturate(1.07) contrast(1.05) brightness(1.02)}
+  #skybg::after{content:'';position:absolute;top:0;left:0;right:0;height:var(--photo-h);pointer-events:none;
+    background:
+      radial-gradient(1.1px 1.1px at 31% 22%, rgba(255,252,238,.5) 50%, transparent 51%) 0 0/210px 210px repeat,
+      radial-gradient(.9px .9px at 68% 57%, rgba(240,224,180,.4) 50%, transparent 51%) 0 0/170px 170px repeat,
+      radial-gradient(120% 60% at 50% 0%, transparent 60%, rgba(4,10,24,.18) 100%)}
+}
 #view-nativ .echips .chip{background:rgba(11,19,40,.78);border-color:rgba(212,183,122,.42);color:#E9E2CF;backdrop-filter:blur(3px)}
 #view-nativ .echips .chip.on{background:rgba(20,30,58,.9);border-color:var(--gold);color:var(--gold)}
 [data-theme="day"] #view-nativ .echips .chip{background:rgba(250,247,238,.82);border-color:rgba(140,110,50,.45);color:#2A3350}
@@ -1680,7 +1696,31 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const r = size / 2 - 0.6, p = phase * Math.PI / 180;
     const f = (1 - Math.cos(p)) / 2, wax = phase < 180, rx = Math.abs(Math.cos(p)) * r, big = f > 0.5;
     const d = wax ? `M0,${-r} A${r},${r} 0 0 1 0,${r} A${rx},${r} 0 0 ${big ? 1 : 0} 0,${-r}Z` : `M0,${-r} A${r},${r} 0 0 0 0,${r} A${rx},${r} 0 0 ${big ? 0 : 1} 0,${-r}Z`;
-    return `<svg class="${cls || 'moon'}" viewBox="${-size / 2} ${-size / 2} ${size} ${size}" width="${size}" height="${size}" aria-hidden="true"><circle r="${r}" fill="var(--moon-dark)" stroke="var(--line2)" stroke-width=".6"/><path d="${d}" fill="var(--moon)"/></svg>`;
+    if (size < 28) return `<svg class="${cls || 'moon'}" viewBox="${-size / 2} ${-size / 2} ${size} ${size}" width="${size}" height="${size}" aria-hidden="true"><circle r="${r}" fill="var(--moon-dark)" stroke="var(--line2)" stroke-width=".6"/><path d="${d}" fill="var(--moon)"/></svg>`;
+    // velký medailon: plastická Luna s krátery, světlo ze strany dorůstání
+    const uid = 'mn' + (moonSVG._i = (moonSVG._i || 0) + 1);
+    const lx = wax ? -0.38 : 0.38; // odlesk na osvětlené straně
+    const CR = [[-0.26, -0.3, 0.34, 0.16], [0.16, -0.06, 0.23, 0.13], [-0.06, 0.3, 0.27, 0.15], [0.42, 0.26, 0.08, 0.22], [-0.46, 0.1, 0.07, 0.2], [0.3, -0.44, 0.06, 0.22], [0.06, 0.6, 0.06, 0.24], [-0.2, -0.62, 0.05, 0.2]];
+    const crat = (op) => CR.map(c => `<circle cx="${(c[0] * r).toFixed(1)}" cy="${(c[1] * r).toFixed(1)}" r="${(c[2] * r).toFixed(1)}" fill="#8E7F5C" opacity="${(c[3] * op).toFixed(2)}"/>`).join('');
+    return `<svg class="${cls || 'moon'}" viewBox="${-size / 2} ${-size / 2} ${size} ${size}" width="${size}" height="${size}" aria-hidden="true">
+      <defs>
+        <radialGradient id="${uid}l" cx="${(0.5 + lx * 0.5) * 100}%" cy="36%" r="85%">
+          <stop offset="0%" stop-color="#FFFBEE"/><stop offset="45%" stop-color="#F3E6BE"/><stop offset="82%" stop-color="#DCC791"/><stop offset="100%" stop-color="#C6AF78"/>
+        </radialGradient>
+        <radialGradient id="${uid}d" cx="50%" cy="42%" r="80%">
+          <stop offset="0%" stop-color="#39415C"/><stop offset="100%" stop-color="#1E2740"/>
+        </radialGradient>
+        <clipPath id="${uid}c"><path d="${d}"/></clipPath>
+      </defs>
+      <circle r="${r + 0.5}" fill="none" stroke="rgba(240,216,152,.32)" stroke-width="1"/>
+      <circle r="${r}" fill="url(#${uid}d)"/>
+      <g opacity=".5">${crat(0.5)}</g>
+      <g clip-path="url(#${uid}c)">
+        <circle r="${r}" fill="url(#${uid}l)"/>
+        ${crat(1)}
+        <circle r="${r}" fill="none" stroke="rgba(255,250,230,.5)" stroke-width=".8"/>
+      </g>
+    </svg>`;
   }
   const phaseName = (ph) => ph < 10 || ph > 350 ? 'novoluní' : ph < 80 ? 'dorůstající srpek' : ph < 100 ? 'první čtvrt' : ph < 170 ? 'dorůstající Luna' : ph < 190 ? 'úplněk' : ph < 260 ? 'couvající Luna' : ph < 280 ? 'poslední čtvrt' : 'couvající srpek';
 
@@ -1759,6 +1799,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); },
     hsTheme(el) { S.hsTheme = el.dataset.t; store.set('kairos_hstheme', S.hsTheme); renderNatal(); },
     synSel(el) { S.synId = S.synId === el.dataset.id ? null : el.dataset.id; renderNatal(); },
+    stripNav(el) { const st = document.querySelector('.strip-wrap .ahead'); if (st) st.scrollBy({ left: (+el.dataset.dir) * st.clientWidth * 0.7, behavior: 'smooth' }); },
+    pastToggle() { S.showPast = !S.showPast; renderCalendar(); },
     hsPrint() {
       const doc = horoscopeDoc(S.natal);
       const wnd = window.open('', '_blank');
@@ -1898,8 +1940,9 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const evs = monthEvents(y, m);
     const evByDay = {};
     for (const e of evs) { const k = K.dateKey(e.date, TZ); (evByDay[k] = evByDay[k] || []).push(e); }
+    const cellArr = [];
+    for (let i = 0; i < offset; i++) cellArr.push({ key: null, html: '<div class="cell empty"></div>' });
     let cells = '';
-    for (let i = 0; i < offset; i++) cells += '<div class="cell empty"></div>';
     for (let d = 1; d <= n; d++) {
       const da = analyze(y, m, d);
       const key = K.isoDate(y, m, d);
@@ -1916,10 +1959,23 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       const hasJ = !!jGet(key);
       const hasP = pGet(key).length > 0;
       const isPast = key < TODAY_KEY;
-      cells += `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${isPast ? 'past' : ''} ${hasJ ? 'noted' : ''} ${hasP ? 'planned' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
+      cellArr.push({ key, html: `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${isPast ? 'past' : ''} ${hasJ ? 'noted' : ''} ${hasP ? 'planned' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
         <span class="d">${d}</span><span class="mk">${mk}</span>${hasP || hasJ ? `<span class="marks">${hasP ? `<span class="pc" title="zapsané plány">${pGet(key).length}</span>` : ''}${hasJ ? '<span class="pen" title="zápis dne">✎</span>' : ''}</span>` : ''}${moonSVG(da.phaseAngle, 12, q ? (q.quarter === 2 ? 'moon full' : 'moon new') : 'moon')}
-      </button>`;
+      </button>` });
     }
+    // uplynulé celé týdny aktuálního měsíce sbalit
+    const nowP = K.tzParts(new Date(), TZ);
+    const isCurMonth = y === nowP.y && m === nowP.m;
+    let hiddenDays = 0, pastBar = '';
+    const weeks = [];
+    for (let i = 0; i < cellArr.length; i += 7) weeks.push(cellArr.slice(i, i + 7));
+    for (const wk of weeks) {
+      const real = wk.filter(c => c.key);
+      const wholePast = isCurMonth && real.length && real.every(c => c.key < TODAY_KEY);
+      if (wholePast && !S.showPast) { hiddenDays += real.length; continue; }
+      cells += wk.map(c => c.html).join('');
+    }
+    if (isCurMonth && (hiddenDays || S.showPast)) pastBar = `<div class="pastbar"><button type="button" class="chip small" data-act="pastToggle">${S.showPast ? '▴ skrýt uplynulé dny' : `▾ zobrazit ${hiddenDays} uplynulých dnů`}</button></div>`;
     v.innerHTML = `
       ${todayHeroHTML()}
       ${aheadHTML()}
@@ -1928,6 +1984,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
         <div class="mn">${K.MONTH_CZ[m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[m - 1].slice(1)}<em>${y}</em></div>
         <div class="row"><button type="button" class="btn ghost small" data-act="today">Dnes</button><button class="navbtn" data-act="nextMonth" aria-label="Další měsíc">›</button></div>
       </div>
+      ${pastBar}
       <div class="weekdays"><span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span></div>
       <div class="grid">${cells}</div>
       <div class="legend"><span><i style="background:linear-gradient(90deg,#8FE8BE,#2F9E72)"></i>plyne to</span><span><i style="background:linear-gradient(90deg,#FFB598,#C9563A)"></i>větší tření</span><span>✦ tvá hvězda</span><span>◉ zatmění</span><span>● ○ novoluní / úplněk</span><span style="color:var(--gold)">1</span><span style="margin-left:-8px">zapsané plány</span><span style="color:var(--gold)">✎</span><span style="margin-left:-8px">zápis dne</span></div>
@@ -1977,7 +2034,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       out += `<button class="a ${da.color} ${key === TODAY_KEY ? 'today' : ''} ${sel ? 'sel' : ''}" data-act="selDay" data-y="${p.y}" data-m="${p.m}" data-d="${p.d}">
         <span class="wd">${i === 0 ? 'dnes' : K.WEEKDAY_CZ[p.wd].slice(0, 2)}</span><span class="dd">${p.d}</span><span class="wo">${TX.dayWord(da)}</span></button>`;
     }
-    return `<div class="h3" style="margin-top:14px">Nejbližší dny</div><div class="ahead">${out}</div>`;
+    return `<div class="h3" style="margin-top:14px">Nejbližší dny</div><div class="strip-wrap"><button type="button" class="strip-nav l" data-act="stripNav" data-dir="-1" aria-label="Posunout zpět">‹</button><div class="ahead">${out}</div><button type="button" class="strip-nav r" data-act="stripNav" data-dir="1" aria-label="Posunout dál">›</button></div>`;
   }
 
   function dayDetailHTML(y, m, d, evByDay) {
@@ -3138,6 +3195,10 @@ ${parts}
     }
   });
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); S.installEvt = e; });
+  document.addEventListener('wheel', (e) => {
+    const st = e.target.closest && e.target.closest('.strip-wrap .ahead');
+    if (st && Math.abs(e.deltaY) > Math.abs(e.deltaX)) { st.scrollLeft += e.deltaY; e.preventDefault(); }
+  }, { passive: false });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { const q = K.tzParts(new Date(), TZ); if (K.isoDate(q.y, q.m, q.d) !== TODAY_KEY) location.reload(); else if (S.tab === 'kalendar') renderCalendar(); } });
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => reg.update()).catch(() => { });
