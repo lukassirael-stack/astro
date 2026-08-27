@@ -313,6 +313,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .plist .pn{font-size:14.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 .plist .pg{width:26px;height:26px;border-radius:8px;border:1px solid var(--line2);color:var(--muted);font-size:11px;font-weight:600;display:grid;place-items:center;text-decoration:none}
 .plist .pg:hover{color:var(--gold);border-color:var(--gold)}
+.eltoggle{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;padding:0;text-align:left;cursor:pointer}
+.eltoggle i{font-style:normal;color:var(--gold);font-size:12px}
+.eltoggle:after{content:'';flex:1;height:1px;background:var(--line)}
 .elect .elq{margin:0 0 9px;font-size:14px;color:var(--text)}
 .echips{display:flex;flex-wrap:wrap;gap:7px}
 .echips.sub{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
@@ -1618,7 +1621,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 
   const now = new Date();
   const np = K.tzParts(now, TZ);
-  const S = { tab: 'kalendar', y: np.y, m: np.m, sel: { y: np.y, m: np.m, d: np.d }, natal: null, kpMap: {}, kpUpdated: null, kpError: null, dayCache: {}, evCache: {}, filter: 'vse', eph: { y: np.y, m: np.m }, installEvt: null, elek: { cat: null, sub: null, span: 30, results: null } };
+  const S = { tab: 'kalendar', y: np.y, m: np.m, sel: { y: np.y, m: np.m, d: np.d }, natal: null, kpMap: {}, kpUpdated: null, kpError: null, dayCache: {}, evCache: {}, filter: 'vse', eph: { y: np.y, m: np.m }, installEvt: null, elek: { open: false, cat: null, sub: null, span: 30, results: null } };
 
   // ===================== pomocné =====================
   const $ = (s, r) => (r || document).querySelector(s);
@@ -1720,7 +1723,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   });
 
   const actions = {
-    elekCat(el) { S.elek.cat = el.dataset.c; S.elek.sub = null; electRun(); renderCalendar(); },
+    elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); },
+    elekCat(el) { const c = el.dataset.c; S.elek.cat = S.elek.cat === c ? null : c; S.elek.sub = null; electRun(); renderCalendar(); },
     elekSub(el) { S.elek.sub = el.dataset.s; electRun(); renderCalendar(); },
     elekSpan(el) { S.elek.span = +el.dataset.n; electRun(); renderCalendar(); },
     prevMonth() { S.m--; if (S.m < 1) { S.m = 12; S.y--; } renderCalendar(); },
@@ -2052,7 +2056,9 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
         body += `<p class="note">Nejlepší dny pro: ${cfg.subLabel.toLowerCase()}. Řazeno podle skóre dne s příplatky za to, co dané věci svědčí; vyřazeny dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.venusNoRetro ? ', retrográdní Venuše' : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ' a okolí úplňku' : ''}.${cfg.health ? ' Jen orientačně — termín zákroku se vždy řídí tím, co řekne lékař.' : ''}</p>`;
       }
     }
-    return `<div class="h3">Najít vhodný den</div><div class="card elect">
+    const head = `<button type="button" class="h3 eltoggle ${S.elek.open ? 'open' : ''}" data-act="elekToggle" aria-expanded="${S.elek.open}">Najít vhodný den <i>${S.elek.open ? '▾' : '▸'}</i></button>`;
+    if (!S.elek.open) return head;
+    return `${head}<div class="card elect">
       <p class="elq">Pro co hledám vhodný den?</p>
       ${cats}${body}</div>`;
   }
