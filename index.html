@@ -245,6 +245,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today.tense .ht-word{color:var(--tense-lite)}
 .hero-today .ht-moon{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--inst-text);margin:1px 0 3px;
   --moon:#F0DFAE;--moon-dark:rgba(255,255,255,.13)}
+.ht-sun{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.day-sun{font-size:13px;color:var(--muted);margin:2px 0 10px}
 .hero-today .ht-line{display:flex;gap:8px;font-size:13px;line-height:1.4;color:var(--inst-text);align-items:baseline}
 .hero-today .ht-line b{flex:none;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase}
 .hero-today .ht-go b{color:var(--harm-lite)}
@@ -290,21 +292,35 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .panel.pl{border-color:var(--line2)}
 .panel.pl h4{color:var(--text)}
 .plist{list-style:none;margin:0 0 9px;padding:0}
-.plist li{display:grid;grid-template-columns:52px 1fr 26px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.plist li{display:grid;grid-template-columns:52px 1fr auto 26px;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
 .plist li:first-child{border-top:0}
 .plist .pt{font-family:var(--mono);font-size:13px;color:var(--gold);font-variant-numeric:tabular-nums;padding-right:6px}
-.plist .pn{font-size:14.5px}
+.plist .pn{font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plist .pg{width:22px;height:22px;border-radius:6px;border:1px solid var(--line2);color:var(--muted);font-size:11px;font-weight:600;display:grid;place-items:center;text-decoration:none}
+.plist .pg:hover{color:var(--gold);border-color:var(--gold)}
+.elist{list-style:none;margin:10px 0 0;padding:0}
+.elist li{border-top:1px solid var(--line)}
+.elist li:first-child{border-top:0}
+.elist button{width:100%;display:grid;grid-template-columns:auto auto 1fr;gap:9px;align-items:center;padding:8px 2px;text-align:left;background:none;border:0;color:var(--text)}
+.elist .ed{font-size:14.5px;white-space:nowrap}
+.elist .ew{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:480px){.elist button{grid-template-columns:auto auto;grid-template-rows:auto auto}.elist .ew{grid-column:1/-1;white-space:normal}}
 .plist .px{width:24px;height:24px;border-radius:50%;border:1px solid var(--line2);color:var(--muted);font-size:15px;line-height:1;display:grid;place-items:center}
 .plist .px:hover{color:var(--tense);border-color:var(--tense)}
-.planadd{display:grid;grid-template-columns:112px 1fr auto;gap:7px;align-items:end}
+.planadd{display:grid;grid-template-columns:96px 1fr auto;gap:7px;align-items:center}
 .planadd .pl{display:flex;flex-direction:column;gap:3px;min-width:0}
 .planadd .pl>span{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .planadd .pl>span small{text-transform:none;letter-spacing:0;font-size:10px;opacity:.8}
 .planadd input{font:inherit;font-size:14.5px;color:var(--text);background:var(--bg2);border:1px solid var(--line2);border-radius:9px;padding:8px 10px;min-width:0}
-@media (max-width:420px){.planadd{grid-template-columns:96px 1fr;grid-auto-rows:auto}.planadd .btn{grid-column:1/-1}}
+@media (max-width:420px){.planadd{grid-template-columns:86px 1fr auto}}
 .tl .e.mine .dot{color:var(--text)}
 .tl .e.mine .x{font-weight:500}
-.cell.planned:before{content:'';position:absolute;right:7px;top:8px;width:5px;height:5px;border-radius:1px;background:var(--inst-text);opacity:.7;transform:rotate(45deg)}
+.cell .pc{position:absolute;left:5px;top:5px;min-width:15px;height:15px;border-radius:8px;background:var(--gold);color:#1e1706;font-size:9.5px;line-height:15px;font-weight:700;text-align:center;padding:0 3px;font-family:var(--body)}
+.cell.noted:after{content:'✎';position:absolute;left:6px;bottom:4px;font-size:9.5px;color:var(--gold);opacity:.95}
+.cell .mk .fm,.cell .mk.fm,.cell .mk .st,.cell .mk.st{color:var(--gold)}
+.cell .mk .fm,.cell .mk.fm{text-shadow:0 0 7px rgba(235,200,110,.95)}
+.cell svg.moon.full{filter:drop-shadow(0 0 4px rgba(240,210,130,.95))}
+.cell svg.moon.new{filter:drop-shadow(0 0 3px rgba(150,170,235,.85))}
 /* plán dne */
 .panel.pl{border-color:var(--line2)}
 .plist{list-style:none;margin:0 0 9px;padding:0}
@@ -317,10 +333,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .planadd{display:grid;grid-template-columns:96px 1fr auto;gap:7px}
 .planadd input{font:inherit;font-size:14px;color:var(--text);background:var(--field);border:1px solid var(--line2);border-radius:9px;padding:8px 10px;min-width:0}
 .planadd input::placeholder{color:var(--muted)}
-@media (max-width:400px){.planadd{grid-template-columns:86px 1fr auto}}
+@media (max-width:400px){.planadd{grid-template-columns:80px 1fr auto}}
 .tl .e.mine .dot{color:var(--gold)}
 .tl .e.mine .x{font-weight:600}
-.cell.planned .d:after{content:'◆';font-size:8px;color:var(--gold);vertical-align:6px;margin-left:3px;font-family:var(--body)}
+
 /* text ležící přímo na obraze */
 .h2,.lede,.ev-month,.monthbar .mn,.day-title{text-shadow:var(--halo)}
 .h3,.note,.legend,.weekdays,.striplegend,.day-title small{text-shadow:var(--halo-soft)}
@@ -346,7 +362,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .jitem .jt{min-width:0}
 .jitem .jc{display:block;margin-top:3px;white-space:pre-wrap;word-break:break-word}
 .jitem .n{display:block;color:var(--muted);font-size:11.5px;margin-top:4px}
-.cell.noted .d:before{content:'';position:absolute;left:10px;top:32px;width:12px;height:1px;background:var(--inst-gold);opacity:.85}
+
 /* plán dne */
 .panel.pl h4{color:var(--text)}
 .plist{list-style:none;margin:0 0 9px;padding:0}
@@ -361,8 +377,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .planadd input::placeholder{color:var(--muted)}
 .tl .e.mine .dot{color:var(--text)}
 .tl .e.mine .x{font-weight:600}
-.cell.planned .d:after{content:'◆';font-size:8px;vertical-align:6px;margin-left:3px;color:var(--text);opacity:.75;font-family:var(--body)}
-@media (max-width:420px){.planadd{grid-template-columns:84px 1fr auto}}
+
+@media (max-width:420px){.planadd{grid-template-columns:86px 1fr auto}}
 /* časová osa dne */
 .tl{margin:10px 0 4px;position:relative;padding:10px 14px 10px 4px;background:var(--glass);border:1px solid var(--hairline);border-radius:11px;box-shadow:0 1px 3px var(--glass-shadow)}
 .tl:before{content:'';position:absolute;left:57px;top:18px;bottom:18px;width:1px;background:linear-gradient(180deg,transparent,var(--line2) 12%,var(--line2) 88%,transparent)}
@@ -1451,7 +1467,7 @@ function createKairosTexts(K) {
 
   // ============ shrnutí pro mřížku a přehled dnů ============
   function dayWord(da) {
-    if (da.color === 'harm') return da.score >= 4 ? 'vítr v zádech' : 'jde to dobře';
+    if (da.color === 'harm') return da.score >= 4 ? 'příznivý den' : 'jde to dobře';
     if (da.color === 'tense') return da.score <= -4 ? 'do kopce' : 'chce to víc trpělivosti';
     return 'v klidu';
   }
@@ -1547,6 +1563,15 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   let settings = deepMerge(DEFAULT_SETTINGS, store.get('kairos_settings', {}));
   function deepMerge(a, b) { const o = Object.assign({}, a); for (const k in b) { if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k])) o[k] = deepMerge(a[k] || {}, b[k]); else if (b[k] !== undefined) o[k] = b[k]; } return o; }
 
+  const NAMEDAY_CZ = {"01-02":"Karina","01-03":"Radmila, Radomil","01-04":"Diana","01-05":"Dalimil","01-06":"Kašpar, Melichar, Baltazar","01-07":"Vilma","01-08":"Čestmír","01-09":"Vladan, Valtr","01-10":"Břetislav","01-11":"Bohdana","01-12":"Pravoslav","01-13":"Edita","01-14":"Radovan","01-15":"Alice","01-16":"Ctirad","01-17":"Drahoslav","01-18":"Vladislav, Vladislava","01-19":"Doubravka","01-20":"Ilona, Sebastián","01-21":"Běla","01-22":"Slavomír, Slavomíra","01-23":"Zdeněk","01-24":"Milena","01-25":"Miloš","01-26":"Zora","01-27":"Ingrid","01-28":"Otýlie","01-29":"Zdislava","01-30":"Robin, Erna","01-31":"Marika, Spytihněv","02-01":"Hynek","02-02":"Nela, Hromnice","02-03":"Blažej","02-04":"Jarmila","02-05":"Dobromila","02-06":"Vanda","02-07":"Veronika","02-08":"Milada","02-09":"Apolena","02-10":"Mojmír","02-11":"Božena","02-12":"Slavěna, Slávka","02-13":"Věnceslav, Věnceslava","02-14":"Valentýn, Valentýna","02-15":"Jiřina","02-16":"Ljuba","02-17":"Miloslava","02-18":"Gizela","02-19":"Patrik","02-20":"Oldřich","02-21":"Lenka, Eleonora","02-22":"Petr","02-23":"Svatopluk","02-24":"Matěj, Matyáš","02-25":"Liliana","02-26":"Dorota","02-27":"Alexandr","02-28":"Lumír","02-29":"Horymír","03-01":"Bedřich, Bedřiška","03-02":"Anežka","03-03":"Kamil, Kunhuta","03-04":"Stela","03-05":"Kazimír","03-06":"Miroslav","03-07":"Tomáš","03-08":"Gabriela, Zoltán","03-09":"Františka","03-10":"Viktorie","03-11":"Anděla","03-12":"Řehoř","03-13":"Růžena","03-14":"Rút, Matylda","03-15":"Ida","03-16":"Elena, Herbert","03-17":"Vlastimil, Vlastimila","03-18":"Eduard","03-19":"Josef, Josefa","03-20":"Světlana","03-21":"Radek","03-22":"Leona, Leontina, Lea","03-23":"Ivona","03-24":"Gabriel","03-25":"Marián","03-26":"Emanuel","03-27":"Dita","03-28":"Soňa","03-29":"Taťána","03-30":"Arnošt, Ernest","03-31":"Kvido","04-01":"Hugo","04-02":"Erika","04-03":"Richard","04-04":"Ivana","04-05":"Miroslava, Mirka","04-06":"Vendula, Venuše","04-07":"Heřman, Hermína","04-08":"Ema","04-09":"Dušan","04-10":"Darja","04-11":"Izabela","04-12":"Julius","04-13":"Aleš","04-14":"Vincenc","04-15":"Anastázie","04-16":"Irena, Bernadeta","04-17":"Rudolf","04-18":"Valérie","04-19":"Rostislav","04-20":"Marcela","04-21":"Alexandra","04-22":"Evženie","04-23":"Vojtěch","04-24":"Jiří","04-25":"Marek","04-26":"Oto","04-27":"Jaroslav","04-28":"Vlastislav","04-29":"Robert","04-30":"Blahoslav","05-02":"Zikmund","05-03":"Alexej, Alex","05-04":"Květoslav","05-05":"Klaudie","05-06":"Radoslav","05-07":"Stanislav","05-09":"Ctibor","05-10":"Blažena","05-11":"Svatava","05-12":"Pankrác","05-13":"Servác","05-14":"Bonifác","05-15":"Žofie, Sofie","05-16":"Přemysl","05-17":"Aneta","05-18":"Nataša","05-19":"Ivo","05-20":"Zbyšek","05-21":"Monika","05-22":"Emil","05-23":"Vladimír, Vladimíra","05-24":"Jana, Vanesa","05-25":"Viola","05-26":"Filip","05-27":"Valdemar","05-28":"Vilém","05-29":"Maxmilián, Maxim","05-30":"Ferdinand","05-31":"Kamila","06-01":"Laura","06-02":"Jarmil","06-03":"Tamara, Kevin","06-04":"Dalibor","06-05":"Dobroslav, Dobroslava","06-06":"Norbert","06-07":"Iveta, Slavoj","06-08":"Medard","06-09":"Stanislava","06-10":"Gita, Margita","06-11":"Bruno","06-12":"Antonie","06-13":"Antonín","06-14":"Roland, Herta","06-15":"Vít","06-16":"Zbyněk","06-17":"Adolf","06-18":"Milan, Milana","06-19":"Leoš, Leo","06-20":"Květa, Květuše","06-21":"Alois, Aloisie","06-22":"Pavla","06-23":"Zdeňka","06-24":"Jan","06-25":"Ivan","06-26":"Adriana, Adrian","06-27":"Ladislav, Ladislava","06-28":"Lubomír","06-29":"Petr, Pavel","06-30":"Šárka","07-01":"Jaroslava","07-02":"Patricie","07-03":"Radomír, Radomíra","07-04":"Prokop","07-05":"Cyril, Metoděj","07-07":"Bohuslava","07-08":"Nora","07-09":"Drahoslava, Drahuše","07-10":"Libuše, Amálie","07-11":"Olga, Helga","07-12":"Bořek","07-13":"Markéta","07-14":"Karolína","07-15":"Jindřich","07-16":"Luboš","07-17":"Martina","07-18":"Drahomíra, Drahomír","07-19":"Čeněk","07-20":"Ilja","07-21":"Vítězslav, Vítězslava","07-22":"Magdaléna, Magda","07-23":"Libor","07-24":"Kristýna","07-25":"Jakub","07-26":"Anna, Anita","07-27":"Věroslav","07-28":"Viktor, Alina","07-29":"Marta","07-30":"Bořivoj","07-31":"Ignác","08-01":"Oskar","08-02":"Gustav","08-03":"Miluše","08-04":"Dominik, Dominika","08-05":"Kristián","08-06":"Oldřiška","08-07":"Lada","08-08":"Soběslav","08-09":"Roman","08-10":"Vavřinec","08-11":"Zuzana","08-12":"Klára","08-13":"Alena","08-14":"Alan","08-15":"Hana","08-16":"Jáchym","08-17":"Petra","08-18":"Helena, Jelena","08-19":"Ludvík","08-20":"Bernard","08-21":"Johana","08-22":"Bohuslav","08-23":"Sandra","08-24":"Bartoloměj","08-25":"Radim","08-26":"Luděk","08-27":"Otakar","08-28":"Augustýn","08-29":"Evelína","08-30":"Vladěna","08-31":"Pavlína","09-01":"Linda, Samuel","09-02":"Adéla","09-03":"Bronislav, Bronislava","09-04":"Jindřiška, Rozálie","09-05":"Boris","09-06":"Boleslav","09-07":"Regína","09-08":"Mariana","09-09":"Daniela","09-10":"Irma","09-11":"Denisa, Denis","09-12":"Marie","09-13":"Lubor","09-14":"Radka","09-15":"Jolana","09-16":"Ludmila, Lidmila","09-17":"Naděžda, Naďa","09-18":"Kryštof","09-19":"Zita","09-20":"Oleg","09-21":"Matouš","09-22":"Darina","09-23":"Berta","09-24":"Jaromír, Jaromíra","09-25":"Zlata, Zlatuše","09-26":"Andrea","09-27":"Jonáš","09-28":"Václav, Václava","09-29":"Michal, Michael","09-30":"Jeroným, Ráchel","10-01":"Igor","10-02":"Olívie, Oliver","10-03":"Bohumil","10-04":"František","10-05":"Eliška","10-06":"Hanuš","10-07":"Justýna","10-08":"Věra","10-09":"Štefan, Sára","10-10":"Marina","10-11":"Andrej","10-12":"Marcel","10-13":"Renáta","10-14":"Agáta","10-15":"Tereza, Terezie","10-16":"Havel, Galina","10-17":"Hedvika","10-18":"Lukáš","10-19":"Michaela, Michala","10-20":"Vendelín","10-21":"Brigita","10-22":"Sabina","10-23":"Teodor","10-24":"Nina","10-25":"Beáta","10-26":"Erik","10-27":"Šarlota, Zoe","10-28":"Jidáš, Alfréd","10-29":"Silvie, Sylva","10-30":"Tadeáš","10-31":"Štěpánka","11-01":"Felix","11-02":"Tobiáš","11-03":"Hubert","11-04":"Karel, Karla","11-05":"Miriam","11-06":"Liběna, Leonard","11-07":"Saskie","11-08":"Bohumír, Bohumíra","11-09":"Bohdan","11-10":"Evžen","11-11":"Martin","11-12":"Benedikt","11-13":"Tibor","11-14":"Sáva","11-15":"Leopold","11-16":"Otmar","11-17":"Mahulena, Gertruda","11-18":"Romana","11-19":"Alžběta","11-20":"Nikola","11-21":"Albert","11-22":"Cecílie","11-23":"Klement","11-24":"Emílie","11-25":"Kateřina","11-26":"Artur","11-27":"Xenie","11-28":"René","11-29":"Zina","11-30":"Ondřej","12-01":"Iva","12-02":"Blanka","12-03":"Svatoslav","12-04":"Barbora","12-05":"Jitka","12-06":"Mikuláš","12-07":"Ambrož, Benjamín","12-08":"Květoslava","12-09":"Vratislav","12-10":"Julie","12-11":"Dana, Danuše","12-12":"Simona","12-13":"Lucie","12-14":"Lýdie","12-15":"Radana, Radan","12-16":"Albína","12-17":"Daniel","12-18":"Miloslav","12-19":"Ester","12-20":"Dagmar","12-21":"Natálie","12-22":"Šimon","12-23":"Vlasta","12-24":"Adam, Eva","12-26":"Štěpán","12-27":"Žaneta","12-28":"Bohumila","12-29":"Judita","12-30":"David","12-31":"Silvestr"};
+  const NAMEDAY_SK = {"01-02":"Alexandra, Sandra, Karina","01-03":"Daniela","01-04":"Drahoslav","01-05":"Andrea, Artur","01-06":"Antónia","01-07":"Bohuslava, Atila","01-08":"Severín","01-09":"Alexej, Alex, Alexia","01-10":"Daša","01-11":"Malvína","01-12":"Ernest, Ernestína","01-13":"Rastislav","01-14":"Radovan, Radovana","01-15":"Dobroslav, Dobroslava","01-16":"Kristína","01-17":"Nataša","01-18":"Bohdana","01-19":"Mário, Sára, Zara","01-20":"Dalibor, Sebastián, Fabián","01-21":"Vincent","01-22":"Zora, Zoran, Auróra","01-23":"Miloš","01-24":"Timotej, Timon, Tímea","01-25":"Gejza","01-26":"Tamara","01-27":"Bohuš","01-28":"Alfonz","01-29":"Gašpar","01-30":"Ema","01-31":"Emil","02-01":"Tatiana, Táňa","02-02":"Erich, Erik, Erika","02-03":"Blažej","02-04":"Veronika","02-05":"Agáta","02-06":"Dorota","02-07":"Vanda","02-08":"Zoja","02-09":"Zdeno, Zdenko, Ronald","02-10":"Gabriela","02-11":"Dezider","02-12":"Perla","02-13":"Arpád","02-14":"Valentín","02-15":"Pravoslav","02-16":"Ida, Liana","02-17":"Miloslava","02-18":"Jaromír, Jaromíra","02-19":"Vlasta","02-20":"Lívia, Aladár","02-21":"Eleonóra","02-22":"Etela","02-23":"Roman, Romana","02-24":"Matej, Matiáš, Matias","02-25":"Frederik, Frederika","02-26":"Viktor","02-27":"Alexander","02-28":"Zlatica","02-29":"Radomír","03-01":"Albín","03-02":"Anežka","03-03":"Bohumil, Bohumila","03-04":"Kazimír","03-05":"Fridrich","03-06":"Radoslav, Radoslava","03-07":"Tomáš","03-08":"Alan, Alana","03-09":"Františka","03-10":"Branislav, Bronislav, Bruno","03-11":"Angela, Angelika","03-12":"Gregor","03-13":"Vlastimil, Letícia","03-14":"Matilda","03-15":"Svetlana","03-16":"Boleslav","03-17":"Ľubica","03-18":"Eduard","03-19":"Jozef","03-20":"Víťazoslav","03-21":"Blahoslav","03-22":"Beňadik, Benedikt","03-23":"Adrián","03-24":"Gabriel","03-25":"Marián","03-26":"Emanuel","03-27":"Alena","03-28":"Soňa","03-29":"Miroslav","03-30":"Vieroslava","03-31":"Benjamín","04-01":"Hugo","04-02":"Zita","04-03":"Richard","04-04":"Izidor","04-05":"Miroslava","04-06":"Irena","04-07":"Zoltán","04-08":"Albert","04-09":"Milena","04-10":"Igor","04-11":"Július","04-12":"Estera","04-13":"Aleš","04-14":"Justín, Justína","04-15":"Fedor","04-16":"Dana, Danica","04-17":"Rudolf","04-18":"Valér","04-19":"Jela","04-20":"Marcel","04-21":"Ervín","04-22":"Slavomír","04-23":"Vojtech","04-24":"Juraj","04-25":"Marek, Marko, Markus","04-26":"Jaroslava","04-27":"Jaroslav","04-28":"Jarmila","04-29":"Leo, Lea","04-30":"Anastázia","05-02":"Žigmund","05-03":"Galina","05-04":"Florián","05-05":"Lesana, Lesia","05-06":"Hermína","05-07":"Monika","05-08":"Ingrida","05-09":"Roland","05-10":"Viktória","05-11":"Blažena","05-12":"Pankrác","05-13":"Servác","05-14":"Bonifác","05-15":"Žofia, Sofia","05-16":"Svetozár","05-17":"Gizela","05-18":"Viola","05-19":"Gertrúda","05-20":"Bernard","05-21":"Zina","05-22":"Júlia, Juliána, Rita","05-23":"Želmíra","05-24":"Ela, Vanesa","05-25":"Urban","05-26":"Dušan","05-27":"Iveta","05-28":"Viliam","05-29":"Vilma","05-30":"Ferdinand","05-31":"Petrana, Petronela, Nela","06-01":"Žaneta","06-02":"Oxana, Xénia","06-03":"Karolína, Kevin","06-04":"Lenka","06-05":"Laura","06-06":"Norbert","06-07":"Róbert","06-08":"Medard","06-09":"Stanislava","06-10":"Margaréta, Gréta","06-11":"Jesika","06-12":"Zlatko","06-13":"Anton","06-14":"Vasil","06-15":"Vít","06-16":"Bianka, Blanka","06-17":"Adolf","06-18":"Vratislav","06-19":"Alfréd","06-20":"Valéria","06-21":"Alojz","06-22":"Paulína, Paula, Pavla","06-23":"Sidónia","06-24":"Ján","06-25":"Olívia, Tadeáš","06-26":"Adriána","06-27":"Ladislav, Ladislava","06-28":"Beáta","06-29":"Peter, Pavol, Petra","06-30":"Melánia","07-01":"Diana","07-02":"Berta","07-03":"Miloslav","07-04":"Prokop","07-05":"Cyril, Metod","07-06":"Patrik, Patrícia","07-07":"Oliver","07-08":"Ivan","07-09":"Lujza","07-10":"Amália","07-11":"Milota","07-12":"Nina","07-13":"Margita","07-14":"Kamil, Lara","07-15":"Henrich","07-16":"Drahomír, Drahomíra","07-17":"Bohuslav","07-18":"Kamila","07-19":"Šarlota, Dušana","07-20":"Eliáš, Iľja, Eliána","07-21":"Daniel","07-22":"Magdaléna","07-23":"Oľga","07-24":"Vladimír","07-25":"Jakub","07-26":"Anna, Hana, Aneta","07-27":"Božena","07-28":"Krištof","07-29":"Marta","07-30":"Libuša","07-31":"Ignác","08-01":"Božidara","08-02":"Gustáv","08-03":"Jerguš","08-04":"Dominik, Dominika","08-05":"Hortenzia","08-06":"Jozefína","08-07":"Štefánia","08-08":"Oskar","08-09":"Ľubomíra","08-10":"Vavrinec","08-11":"Zuzana","08-12":"Darina, Dárius, Dária","08-13":"Ľubomír","08-14":"Mojmír","08-15":"Marcela","08-16":"Leonard","08-17":"Milica","08-18":"Elena, Helena","08-19":"Lýdia","08-20":"Anabela, Bela","08-21":"Jana, Johana, Noema","08-22":"Tichomír","08-23":"Filip","08-24":"Bartolomej","08-25":"Ľudovít","08-26":"Samuel","08-27":"Silvia","08-28":"Augustín","08-29":"Nikola, Nikolaj, Nikoleta","08-30":"Ružena","08-31":"Nora","09-01":"Drahoslava","09-02":"Linda, Rebeka","09-03":"Belo","09-04":"Rozália","09-05":"Regína","09-06":"Alica","09-07":"Marianna","09-08":"Miriama","09-09":"Martina","09-10":"Oleg","09-11":"Bystrík","09-12":"Mária, Mia","09-13":"Ctibor, Tobiáš, Tobias","09-14":"Ľudomil, Radka","09-15":"Jolana","09-16":"Ľudmila","09-17":"Olympia, Melisa","09-18":"Eugénia","09-19":"Konštantín","09-20":"Ľuboslav, Ľuboslava","09-21":"Matúš","09-22":"Móric","09-23":"Zdenka","09-24":"Ľubor, Ľuboš","09-25":"Vladislav","09-26":"Edita","09-27":"Cyprián, Damián","09-28":"Václav","09-29":"Michal, Michael, Michaela","09-30":"Jarolím","10-01":"Arnold","10-02":"Levoslav","10-03":"Stela","10-04":"František","10-05":"Viera","10-06":"Natália","10-07":"Eliška, Elisa","10-08":"Brigita","10-09":"Dionýz","10-10":"Slavomíra","10-11":"Valentína","10-12":"Maximilián, Maxim, Max","10-13":"Koloman","10-14":"Boris","10-15":"Terézia, Tereza","10-16":"Vladimíra","10-17":"Hedviga","10-18":"Lukáš","10-19":"Kristián","10-20":"Vendelín","10-21":"Uršuľa","10-22":"Sergej","10-23":"Alojzia","10-24":"Kvetoslava","10-25":"Aurel","10-26":"Demeter","10-27":"Sabína","10-28":"Dobromila","10-29":"Klára, Kiara","10-30":"Šimon, Simon, Simona","10-31":"Aurélia","11-01":"Denis, Denisa","11-03":"Hubert","11-04":"Karol","11-05":"Imrich","11-06":"Renáta","11-07":"René","11-08":"Bohumír","11-09":"Teodor, Teo","11-10":"Tibor","11-11":"Martin, Maroš","11-12":"Svätopluk, Jonáš","11-13":"Stanislav","11-14":"Irma","11-15":"Leopold","11-16":"Agnesa","11-17":"Klaudia","11-18":"Eugen","11-19":"Alžbeta, Liliana","11-20":"Félix","11-21":"Elvíra","11-22":"Cecília","11-23":"Klement","11-24":"Emília","11-25":"Katarína","11-26":"Kornel","11-27":"Milan","11-28":"Henrieta","11-29":"Vratko","11-30":"Andrej, Ondrej, Andreas","12-01":"Edmund","12-02":"Bibiána, Viviána","12-03":"Oldrich","12-04":"Barbora, Barbara","12-05":"Oto","12-06":"Mikuláš, Nikolas","12-07":"Ambróz","12-08":"Marína","12-09":"Izabela","12-10":"Radúz","12-11":"Hilda","12-12":"Otília","12-13":"Lucia","12-14":"Branislava, Bronislava","12-15":"Ivica","12-16":"Albína","12-17":"Kornélia","12-18":"Sláva, Slávka","12-19":"Judita","12-20":"Dagmara","12-21":"Bohdan, Noel","12-22":"Adela","12-23":"Nadežda, Naďa","12-24":"Adam, Eva","12-26":"Štefan","12-27":"Filoména","12-28":"Ivana, Ivona","12-29":"Milada, Nátan","12-30":"Dávid","12-31":"Silvester"};
+  const namedayLine = (m, d) => {
+    const k = String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    const cz = NAMEDAY_CZ[k], sk = NAMEDAY_SK[k];
+    if (!cz && !sk) return '';
+    return (cz ? `svátek ${cz}` : '') + (cz && sk ? ' · ' : '') + (sk ? `SK ${sk}` : '');
+  };
+
   // ---------- diář ----------
   let journal = store.get('kairos_journal', {}) || {};
   const RATES = [
@@ -1554,11 +1579,25 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     { v: -1, label: 'chce to víc trpělivosti', cls: 'tense' },
     { v: 0, label: 'v klidu', cls: '' },
     { v: 1, label: 'jde to dobře', cls: 'harm' },
-    { v: 2, label: 'vítr v zádech', cls: 'harm' },
+    { v: 2, label: 'příznivý den', cls: 'harm' },
   ];
   // plán: { "2026-08-24": [ {id, t:'14:00'|null, name, note} ] }
   let plan = store.get('kairos_plan', {}) || {};
   const pGet = (key) => plan[key] || [];
+  function gcalLink(key, it) {
+    const d = key.replace(/-/g, '');
+    let dates;
+    if (it.t) {
+      const hm = it.t.replace(':', '');
+      const start = d + 'T' + hm + '00';
+      const eh = Math.min(23, +it.t.slice(0, 2) + 1);
+      dates = start + '/' + d + 'T' + String(eh).padStart(2, '0') + it.t.slice(3) + '00';
+    } else {
+      const nx = new Date(key + 'T12:00:00'); nx.setDate(nx.getDate() + 1);
+      dates = d + '/' + nx.toISOString().slice(0, 10).replace(/-/g, '');
+    }
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(it.name) + '&dates=' + dates + (it.t ? '&ctz=' + encodeURIComponent(TZ) : '');
+  }
   function pSave() { store.set('kairos_plan', plan); }
   function pAdd(key, item) { (plan[key] = plan[key] || []).push(item); plan[key].sort(cmpPlan); pSave(); }
   function pDel(key, id) { plan[key] = pGet(key).filter(x => x.id !== id); if (!plan[key].length) delete plan[key]; pSave(); }
@@ -1575,7 +1614,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 
   const now = new Date();
   const np = K.tzParts(now, TZ);
-  const S = { tab: 'kalendar', y: np.y, m: np.m, sel: { y: np.y, m: np.m, d: np.d }, natal: null, kpMap: {}, kpUpdated: null, kpError: null, dayCache: {}, evCache: {}, filter: 'vse', eph: { y: np.y, m: np.m }, installEvt: null };
+  const S = { tab: 'kalendar', y: np.y, m: np.m, sel: { y: np.y, m: np.m, d: np.d }, natal: null, kpMap: {}, kpUpdated: null, kpError: null, dayCache: {}, evCache: {}, filter: 'vse', eph: { y: np.y, m: np.m }, installEvt: null, elek: { intent: 'smlouva', span: 30, results: null } };
 
   // ===================== pomocné =====================
   const $ = (s, r) => (r || document).querySelector(s);
@@ -1677,6 +1716,12 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   });
 
   const actions = {
+    elekRun() {
+      const it = $('#electIntent'), sp = $('#electSpan');
+      if (it) S.elek.intent = it.value;
+      if (sp) S.elek.span = +sp.value;
+      electRun(); renderCalendar();
+    },
     prevMonth() { S.m--; if (S.m < 1) { S.m = 12; S.y--; } renderCalendar(); },
     nextMonth() { S.m++; if (S.m > 12) { S.m = 1; S.y++; } renderCalendar(); },
     today() { S.y = np.y; S.m = np.m; S.sel = { y: np.y, m: np.m, d: np.d }; renderCalendar(); },
@@ -1807,14 +1852,14 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       let mk = '';
       const q = da.quarters.find(q => q.quarter === 0 || q.quarter === 2);
       if (dayEv.some(e => e.eclipse)) mk = '<span class="ec" title="zatmění">◉</span>';
-      else if (da.resonance.length || dayEv.some(e => e.resonance)) mk = '<span title="tvá hvězda">✦</span>';
-      else if (q) mk = `<span title="${q.quarter === 0 ? 'novoluní' : 'úplněk'}">${q.quarter === 0 ? '●' : '○'}</span>`;
+      else if (da.resonance.length || dayEv.some(e => e.resonance)) mk = '<span class="st" title="tvá hvězda">✦</span>';
+      else if (q) mk = `<span class="${q.quarter === 0 ? 'nm' : 'fm'}" title="${q.quarter === 0 ? 'novoluní' : 'úplněk'}">${q.quarter === 0 ? '●' : '○'}</span>`;
       else if (da.kp && da.kp.kp >= 5) mk = '<span class="kp" title="geomagnetická bouře">⚡</span>';
       const hasJ = !!jGet(key);
       const hasP = pGet(key).length > 0;
       const isPast = key < TODAY_KEY;
       cells += `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${isPast ? 'past' : ''} ${hasJ ? 'noted' : ''} ${hasP ? 'planned' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
-        <span class="d">${d}</span><span class="mk">${mk}</span>${moonSVG(da.phaseAngle, 12)}
+        <span class="d">${d}</span><span class="mk">${mk}</span>${hasP ? `<span class="pc" title="zapsané plány">${pGet(key).length}</span>` : ''}${moonSVG(da.phaseAngle, 12, q ? (q.quarter === 2 ? 'moon full' : 'moon new') : 'moon')}
       </button>`;
     }
     v.innerHTML = `
@@ -1827,7 +1872,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       </div>
       <div class="weekdays"><span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span></div>
       <div class="grid">${cells}</div>
-      <div class="legend"><span><i style="background:linear-gradient(90deg,#8FE8BE,#2F9E72)"></i>plyne to</span><span><i style="background:linear-gradient(90deg,#FFB598,#C9563A)"></i>větší tření</span><span>✦ tvá hvězda</span><span>◉ zatmění</span><span>● ○ novoluní / úplněk</span></div>
+      <div class="legend"><span><i style="background:linear-gradient(90deg,#8FE8BE,#2F9E72)"></i>plyne to</span><span><i style="background:linear-gradient(90deg,#FFB598,#C9563A)"></i>větší tření</span><span>✦ tvá hvězda</span><span>◉ zatmění</span><span>● ○ novoluní / úplněk</span><span style="color:var(--gold)">1</span><span style="margin-left:-8px">zapsané plány</span><span style="color:var(--gold)">✎</span><span style="margin-left:-8px">zápis dne</span></div>
+      ${electHTML()}
       <details class="legend-more"><summary><span class="tri" aria-hidden="true"></span>Co značky znamenají?</summary>
         <p><b style="color:#8FE8BE"><i class="lg" style="background:linear-gradient(90deg,#8FE8BE,#2F9E72)"></i>Zelený proužek</b> — den, kdy jsou energie více v souladu s tvým osobním horoskopem. Věci mohou jít přirozeněji a s menším úsilím.</p>
         <p><b style="color:#FFB598"><i class="lg" style="background:linear-gradient(90deg,#FFB598,#C9563A)"></i>Lososový proužek</b> — den s větším odporem nebo napětím. Některé věci mohou vyžadovat více energie, trpělivosti a odpočinku.</p>
@@ -1853,8 +1899,9 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}</span>
       <span class="ht-word">${TX.dayWord(da)}</span>
       <span class="ht-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name} · ${Math.round(da.illum * 100)} %</span>
+      <span class="ht-sun">${(() => { const phh = K.planetaryHours(np.y, np.m, np.d, observer(), TZ); return phh ? `☉ ${K.fmtTime(phh.sunrise, TZ)} – ${K.fmtTime(phh.sunset, TZ)}` : ''; })()}${namedayLine(np.m, np.d) ? ' &nbsp;·&nbsp; ' + namedayLine(np.m, np.d) : ''}</span>
       ${go.length ? `<span class="ht-line ht-go"><b>Podporuje</b>${esc(go[0].text)}</span>` : ''}
-      ${cost.length ? `<span class="ht-line ht-cost"><b>Pozor na</b>${esc(cost[0].text)}</span>` : ''}
+      ${cost.length ? `<span class="ht-line ht-cost"><b>Obtížné pro</b>${esc(cost[0].text)}</span>` : ''}
     </button>`;
   }
 
@@ -1897,6 +1944,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
         <div><span class="badge ${da.color}">${TX.dayWord(da)}</span></div>
       </div>
       <p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name} · ${Math.round(da.illum * 100)} % osvětlení</p>
+      <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>
       <p class="lede">${esc(TX.dayLede(da, dayEv))}</p>
       ${planPanel(K.isoDate(y, m, d))}
       <div class="panel go"><h4>Co dnes jde</h4><ul>${go.map(bullet).join('')}</ul></div>
@@ -1923,16 +1971,80 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <p class="note">Nic z toho není předpověď ani pokyn. Je to mapa terénu — kudy dnes půjde snáz a kde budeš potřebovat víc trpělivosti. Rozhoduješ pořád ty.</p>`;
   }
 
+  // ===================== najít vhodný den (elekce) =====================
+  const ELECT_INTENTS = [
+    { id: 'smlouva', label: 'Podpis smlouvy · úřad · důležitá domluva', noRetro: true, wax: .5, vocPlus: true },
+    { id: 'penize', label: 'Investice · větší nákup · finance', noRetro: true, wax: 1 },
+    { id: 'zacatek', label: 'Zahájení projektu · otevření · spuštění', newMoon: true, vocPlus: true },
+    { id: 'cesta', label: 'Cesta · přesun · dovolená', noKp: true, retroMinus: 1 },
+    { id: 'setkani', label: 'Setkání · rande · návštěva', wax: .5, venusSign: true },
+    { id: 'stehovani', label: 'Stěhování · změna bydlení', wax: .5, noKp: true, retroMinus: .5 },
+    { id: 'zakrok', label: 'Plánovaný zákrok · zubař (orientačně)', wane: true, avoidFull: true, noKp: true, health: true },
+  ];
+  function electDay(cfg, y, m, d, evs) {
+    const da = analyze(y, m, d);
+    const key = K.isoDate(y, m, d);
+    if (evs.some(e => e.eclipse && K.dateKey(e.date, TZ) === key)) return null;
+    if (cfg.noRetro && da.mercuryRetro) return null;
+    if (cfg.noKp && da.kp && da.kp.kp >= 5) return null;
+    const phA = da.phaseAngle;
+    if (cfg.avoidFull && phA >= 160 && phA <= 200) return null;
+    let sc = da.score, why = [];
+    if (cfg.wax && phA < 175) { sc += cfg.wax; why.push('dorůstající Luna'); }
+    if (cfg.wane && phA >= 195 && phA < 350) { sc += 1; why.push('couvající Luna'); }
+    if (cfg.newMoon && phA >= 5 && phA < 95) { sc += 1; why.push('Luna mezi novem a první čtvrtí'); }
+    if (cfg.venusSign && (da.moonSign === 1 || da.moonSign === 6)) { sc += .5; why.push('Luna ve znamení Venuše'); }
+    if (cfg.vocPlus && !da.voc.length) { sc += .5; why.push('Luna celý den v kurzu'); }
+    if (cfg.retroMinus && da.mercuryRetro) { sc -= cfg.retroMinus; why.push('Merkur retrográdní'); }
+    if (da.color === 'harm') why.unshift('celkově příznivý den');
+    return { key, y, m, d, sc, da, why };
+  }
+  function electRun() {
+    const cfg = ELECT_INTENTS.find(i => i.id === S.elek.intent) || ELECT_INTENTS[0];
+    const out = [], evCacheM = {};
+    for (let i = 1; i <= S.elek.span; i++) {
+      const dt = K.addDays(K.dayStart(np.y, np.m, np.d, TZ), i + 0.5);
+      const pp = K.tzParts(dt, TZ);
+      const mk = pp.y + '-' + pp.m;
+      if (!evCacheM[mk]) evCacheM[mk] = monthEvents(pp.y, pp.m);
+      const r = electDay(cfg, pp.y, pp.m, pp.d, evCacheM[mk]);
+      if (r) out.push(r);
+    }
+    out.sort((a, b) => b.sc - a.sc || a.key.localeCompare(b.key));
+    S.elek.results = out.slice(0, 6);
+  }
+  function electHTML() {
+    const opts = ELECT_INTENTS.map(i => `<option value="${i.id}" ${S.elek.intent === i.id ? 'selected' : ''}>${i.label}</option>`).join('');
+    const spans = [14, 30, 60].map(n => `<option value="${n}" ${+S.elek.span === n ? 'selected' : ''}>${n} dní</option>`).join('');
+    const cfg = ELECT_INTENTS.find(i => i.id === S.elek.intent);
+    let res = '';
+    if (S.elek.results) {
+      res = S.elek.results.length ? `<ul class="elist">${S.elek.results.map(r => `<li><button type="button" data-act="selDay" data-y="${r.y}" data-m="${r.m}" data-d="${r.d}">
+        <span class="ed">${K.WEEKDAY_CZ[K.tzParts(r.da.noon, TZ).wd]} ${r.d}. ${K.MONTH_GEN[r.m - 1]}</span>
+        <span class="badge ${r.da.color}">${TX.dayWord(r.da)}</span>
+        <span class="ew">${esc(r.why.join(' · ') || 'bez zvláštních výhrad')}</span>
+      </button></li>`).join('')}</ul>` : '<p class="small muted" style="margin:8px 0 0">V tomhle rozmezí žádný vyloženě vhodný den nevychází — zkus delší rozsah.</p>';
+      res += `<p class="note">Řazeno podle skóre dne s příplatky za to, co dané věci svědčí. Vyřazeny jsou dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ' a okolí úplňku' : ''}.${cfg.health ? ' U zákroků je tohle jen orientační vodítko — termín se řídí tím, co řekne lékař.' : ''}</p>`;
+    }
+    return `<div class="h3">Najít vhodný den</div><div class="card">
+      <div class="row" style="gap:7px;flex-wrap:wrap">
+        <select class="btn" id="electIntent" aria-label="Co plánuješ" style="max-width:100%;text-transform:none;letter-spacing:0;font-size:13px">${opts}</select>
+        <select class="btn" id="electSpan" aria-label="Rozsah" style="text-transform:none;letter-spacing:0;font-size:13px">${spans}</select>
+        <button type="button" class="btn small" data-act="elekRun">Najít</button>
+      </div>${res}</div>`;
+  }
+
   function planPanel(key) {
     const items = pGet(key);
     const list = items.map(it => `<li><span class="pt">${it.t ? esc(it.t) : '—'}</span><span class="pn">${esc(it.name)}</span>
+      <a class="pg" target="_blank" rel="noopener" href="${gcalLink(key, it)}" title="Přidat do Google kalendáře" aria-label="Přidat do Google kalendáře">G</a>
       <button type="button" class="px" data-act="delPlan" data-k="${key}" data-id="${it.id}" aria-label="Smazat">×</button></li>`).join('');
     return `<div class="panel pl">
       <h4>Co mě čeká</h4>
       ${items.length ? `<ul class="plist">${list}</ul>` : '<p class="small muted" style="margin:0 0 8px">Zatím nic zapsaného.</p>'}
       <div class="planadd">
-        <label class="pl"><span>Čas <small>(nepovinný)</small></span><input type="time" name="ptime" aria-label="Čas"></label>
-        <label class="pl"><span>Co tě čeká</span><input type="text" name="pname" placeholder="Schůzka, zubař, cesta…" aria-label="Co"></label>
+        <input type="time" name="ptime" aria-label="Čas (nepovinný)" title="Čas (nepovinný)">
+        <input type="text" name="pname" placeholder="Co tě čeká — schůzka, zubař, cesta…" aria-label="Co tě čeká">
         <button type="button" class="btn small" data-act="addPlan" data-k="${key}">Přidat</button>
       </div>
     </div>`;
