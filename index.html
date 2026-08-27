@@ -297,6 +297,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .panel li{padding:5px 0;display:flex;gap:8px;align-items:flex-start}
 .panel li::before{content:'·';color:var(--gold);flex:none;line-height:1.4}
 .panel .plist li::before{content:none}
+.panel.go li,.panel.cost li{align-items:flex-start;padding:8px 0}
+.panel.go li+li,.panel.cost li+li{border-top:1px solid var(--line)}
+.bic{flex:none;width:26px;height:26px;border-radius:50%;border:1px solid var(--line2);display:grid;place-items:center;font-size:13px;font-style:normal;color:var(--muted);margin:0 2px 0 1px}
+.panel li.mine .bic{color:var(--gold);border-color:var(--gold-soft)}
+.ctxchips{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 10px}
+.ctxchips span{border:1px solid var(--line2);border-radius:999px;padding:5px 11px;font-size:12.5px;color:var(--text);background:var(--field)}
 .panel li .n{display:block;color:var(--muted);font-size:12px;margin-top:1px}
 .panel li.mine::before{content:'✦'}
 .tag{display:inline-block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line2);border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:1px}
@@ -1411,19 +1417,19 @@ function createKairosTexts(K) {
     const go = [], cost = [];
     const el = K.ELEMENT[da.moonSign];
     const ph = phaseText(da.phaseAngle);
-    go.push({ text: MOON_EL[el].go, note: `Luna ${K.SIGN_LOC_V[da.moonSign]} — ${MOON_SIGN[da.moonSign]}` });
-    go.push({ text: ph.go, note: `${ph.name}, ${Math.round(da.illum * 100)} % osvětlení` });
-    cost.push({ text: MOON_EL[el].cost, note: `dnešní živel je ${el}, tohle jde proti němu` });
+    go.push({ icon: '☽', text: MOON_EL[el].go, note: `Luna ${K.SIGN_LOC_V[da.moonSign]} — ${MOON_SIGN[da.moonSign]}` });
+    go.push({ icon: '○', text: ph.go, note: `${ph.name}, ${Math.round(da.illum * 100)} % osvětlení` });
+    cost.push({ icon: '≈', text: MOON_EL[el].cost, note: `dnešní živel je ${el}, tohle jde proti němu` });
     for (const v of da.voc) {
       const konec = v.toClip === da.dayEnd.getTime() ? 'půlnoci' : K.fmtTime(new Date(v.toClip), TZfrom(da));
-      cost.push({ text: `od ${K.fmtTime(new Date(v.fromClip), TZfrom(da))} do ${konec} je lepší nic důležitého nerozjíždět`, note: 'Luna je bez kurzu — nové věci se mohou hůř chytat, ale na dokončování, běžné věci a odpočinek je to dobrý čas.' });
+      cost.push({ icon: '◷', text: `od ${K.fmtTime(new Date(v.fromClip), TZfrom(da))} do ${konec} je lepší nic důležitého nerozjíždět`, note: 'Luna je bez kurzu — nové věci se mohou hůř chytat, ale na dokončování, běžné věci a odpočinek je to dobrý čas.' });
     }
-    if (da.mercuryRetro) cost.push({ text: 'buď pečlivější u smluv, důležitých zpráv a nákupů techniky', note: 'Merkur je retrográdní — víc se hodí vracet k rozdělaným věcem, opravovat a kontrolovat než bezhlavě rozjíždět nové.' });
-    if (da.kp && da.kp.kp >= 5) cost.push({ text: 'můžeš být citlivější, hůř spát nebo cítit větší neklid', note: 'geomagnetická aktivita je zvýšená a citlivější lidé ji někdy vnímají' });
-    if (da.kp && da.kp.kp <= 3) go.push({ text: 'dnes je geomagnetická aktivita klidná', note: `Kp ${da.kp.kp} — bez výraznějšího rušení` });
+    if (da.mercuryRetro) cost.push({ icon: '☿', text: 'buď pečlivější u smluv, důležitých zpráv a nákupů techniky', note: 'Merkur je retrográdní — víc se hodí vracet k rozdělaným věcem, opravovat a kontrolovat než bezhlavě rozjíždět nové.' });
+    if (da.kp && da.kp.kp >= 5) cost.push({ icon: '≋', text: 'můžeš být citlivější, hůř spát nebo cítit větší neklid', note: 'geomagnetická aktivita je zvýšená a citlivější lidé ji někdy vnímají' });
+    if (da.kp && da.kp.kp <= 3) go.push({ icon: '≋', text: 'dnes je geomagnetická aktivita klidná', note: `Kp ${da.kp.kp} — bez výraznějšího rušení` });
     for (const e of (ctxEvents || [])) {
-      if (e.cat === 'roje') go.push({ text: 'vyjít se večer podívat na nebe', note: `${e.title} — ${e.note}` });
-      if (e.ingress && e.slow) go.push({ text: 'všímat si, co se v tomhle tématu mění', note: `${e.title} — ${e.note}` });
+      if (e.cat === 'roje') go.push({ icon: '✷', text: 'vyjít se večer podívat na nebe', note: `${e.title} — ${e.note}` });
+      if (e.ingress && e.slow) go.push({ icon: '✧', text: 'všímat si, co se v tomhle tématu mění', note: `${e.title} — ${e.note}` });
     }
     return { go, cost };
   }
@@ -1446,15 +1452,16 @@ function createKairosTexts(K) {
     }
     const finish = (map) => Object.keys(map).map(k => {
       const it = map[k];
-      return { text: it.text, note: `${K.BODY_CZ[it.transit]} · ${it.doms.slice(0, 3).join(', ')} · ${it.applying ? 'sílí' : 'odeznívá'}`, n: it.doms.length };
+      const GLYPH = { Sun: '☉', Moon: '☽', Mercury: '☿', Venus: '♀', Mars: '♂', Jupiter: '♃', Saturn: '♄', Uranus: '♅', Neptune: '♆', Pluto: '♇' };
+      return { icon: GLYPH[it.transit] || '✧', text: it.text, note: `${K.BODY_CZ[it.transit]} · ${it.doms.slice(0, 3).join(', ')} · ${it.applying ? 'sílí' : 'odeznívá'}`, n: it.doms.length };
     }).sort((a, b) => b.n - a.n).slice(0, 4);
     const go = finish(goM), cost = finish(costM);
-    if (da.elementHarmony) go.push({ text: 'dnešní nálada ti obecně sedí', note: `živel Luny (${K.ELEMENT[da.moonSign]}) ladí s tvým Sluncem` });
-    for (const r of da.resonance) go.push({ text: r.text, note: 'tvá hvězda — dny, kdy se jí něco dotkne, stojí za pozornost', star: true });
+    if (da.elementHarmony) go.push({ icon: '≈', text: 'dnešní nálada ti obecně sedí', note: `živel Luny (${K.ELEMENT[da.moonSign]}) ladí s tvým Sluncem` });
+    for (const r of da.resonance) go.push({ icon: '✦', text: r.text, note: 'tvá hvězda — dny, kdy se jí něco dotkne, stojí za pozornost', star: true });
     const t2 = (list) => list.map(e => K.fmtTime(new Date(e.ms), 'Europe/Prague')).join(', ');
     const hm = da.moonToNatal.filter(e => e.kind === 'harm'), tm = da.moonToNatal.filter(e => e.kind === 'tense');
-    if (hm.length) go.push({ text: 'vstřícné chvíle: ' + t2(hm), note: 'Luna se dotkne tvých bodů v dobrém úhlu' });
-    if (tm.length) cost.push({ text: 'citlivější chvíle: ' + t2(tm), note: 'krátké, do hodiny je po tom — nerozhoduj zrovna tehdy' });
+    if (hm.length) go.push({ icon: '◷', text: 'vstřícné chvíle: ' + t2(hm), note: 'Luna se dotkne tvých bodů v dobrém úhlu' });
+    if (tm.length) cost.push({ icon: '◷', text: 'citlivější chvíle: ' + t2(tm), note: 'krátké, do hodiny je po tom — nerozhoduj zrovna tehdy' });
     return { go, cost };
   }
 
@@ -1955,7 +1962,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const gen = TX.generalItems(da, dayEv, rules());
     const per = TX.personalItems(da, rules());
     const wins = TX.windows(da, ph, TZ);
-    const bullet = (it) => `<li class="${it.star ? 'mine' : ''}"><span>${esc(it.text)}${it.tag ? `<span class="tag">${it.tag}</span>` : ''}${it.note ? `<span class="n">${esc(it.note)}</span>` : ''}</span></li>`;
+    const bullet = (it) => `<li class="${it.star ? 'mine' : ''}">${it.icon ? `<i class="bic">${it.icon}</i>` : ''}<span>${esc(it.text)}${it.tag ? `<span class="tag">${it.tag}</span>` : ''}${it.note ? `<span class="n">${esc(it.note)}</span>` : ''}</span></li>`;
     const go = gen.go.concat(per.go), cost = gen.cost.concat(per.cost);
 
     return `
@@ -1967,7 +1974,9 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>
       <p class="lede">${esc(TX.dayLede(da, dayEv))}</p>
       ${planPanel(K.isoDate(y, m, d))}
-      <div class="panel go"><h4>Co dnes jde</h4><ul>${go.map(bullet).join('')}</ul></div>
+      <div class="panel go"><h4>Co dnes jde</h4>
+      <div class="ctxchips"><span>☽ Luna ${K.SIGN_LOC_V[da.moonSign]}</span><span>○ ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} ${Math.round(da.illum * 100)}&nbsp;%</span>${da.kp ? `<span>≋ Kp ${da.kp.kp} ${da.kp.kp >= 5 ? 'zvýšená' : 'klidná'}</span>` : ''}</div>
+      <ul>${go.map(bullet).join('')}</ul></div>
       ${cost.length ? `<div class="panel cost"><h4>Co bude stát víc sil</h4><ul>${cost.map(bullet).join('')}</ul></div>` : ''}
       <div class="h3">Průběh dne</div>
       ${timelineHTML(da, ph, wins, ld, moonrise, moonset, dayEv, isToday)}
