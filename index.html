@@ -1810,7 +1810,26 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   const actions = {
     elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); },
     hsTheme(el) { S.hsTheme = el.dataset.t; store.set('kairos_hstheme', S.hsTheme); renderNatal(); },
-    synSel(el) { S.synId = S.synId === el.dataset.id ? null : el.dataset.id; renderNatal(); },
+    synSel(el) { S.synId = S.synId === el.dataset.id ? null : el.dataset.id; S.synForm = null; renderNatal(); },
+    synAdd() { S.synForm = { mode: 'new' }; renderNatal(); setTimeout(() => { const f = $('#synForm [name=name]'); if (f) f.focus(); }, 40); },
+    synEdit() { if (S.synId) { S.synForm = { mode: 'edit' }; renderNatal(); } },
+    synCancel() { S.synForm = null; renderNatal(); },
+    synDel() {
+      const rec = S.synId && synPartners().find(q => q.id === S.synId);
+      if (!rec || !confirm(`Odebrat ${rec.name || 'osobu'} ze srovnání?`)) return;
+      store.set('kairos_partners', synPartners().filter(q => q.id !== S.synId)); S.synId = null; renderNatal();
+    },
+    synSave() {
+      const f = $('#synForm'); if (!f) return;
+      const date = $('[name=date]', f).value, time = $('[name=time]', f).value;
+      if (!date || !time) { toast('Vyplň datum i čas.'); return; }
+      const [y, m, d] = date.split('-').map(Number), [hh, mm] = time.split(':').map(Number);
+      const rec = { name: $('[name=name]', f).value.trim() || 'Bez jména', y, m, d, hh, mm, place: $('[name=place]', f).value.trim(), lat: +$('[name=lat]', f).value, lon: +$('[name=lon]', f).value, tz: TZ };
+      const list = synPartners();
+      if (S.synForm.mode === 'edit' && S.synId) { const i = list.findIndex(q => q.id === S.synId); if (i >= 0) { rec.id = S.synId; list[i] = rec; } }
+      else { rec.id = 'x' + Date.now().toString(36); list.push(rec); S.synId = rec.id; }
+      store.set('kairos_partners', list); S.synForm = null; renderNatal(); toast('Uloženo.');
+    },
     stripNav(el) { const st = document.querySelector('.strip-wrap .ahead'); if (st) st.scrollBy({ left: (+el.dataset.dir) * st.clientWidth * 0.7, behavior: 'smooth' }); },
     pastToggle() { S.showPast = !S.showPast; renderCalendar(); },
     verTap() {
@@ -2509,6 +2528,42 @@ ${parts}
     'Mars|Mars': { conj: 'Stejné tempo, stejný zápal — spolu jste síla. Jen se nehádejte o volant.', harm: 'Vaše energie spolupracují — akce vás spojuje, ne rozděluje.', tense: 'Dva berani na lávce — síly se srážejí čelně. Sport, práce a jasná pravidla hádek z toho udělají motor místo bojiště.' },
     'Asc|Asc': { conj: 'Vstupujete do světa stejným krokem — lidé vás vnímají jako jeden celek.', harm: 'Vaše naladění se doplňuje — spolu se dobře vychází i vchází.', tense: 'Každý jiný styl — jeden zpříma, druhý oklikou. Kontrast, který může bavit, když se z něj neudělá spor o „správně“.' },
   };
+  function synPartners() { return store.get('kairos_partners', []); }
+  function synFind(id) { return profiles.find(q => q.id === id) || synPartners().find(q => q.id === id); }
+  function synSectionHTML(n) {
+    const partners = synPartners();
+    const others = profiles.filter(q => q.id !== activeId);
+    const selRec = S.synId ? synFind(S.synId) : null;
+    const isPartner = selRec && String(S.synId).startsWith('x');
+    const chip = (q) => `<button type="button" class="chip ${S.synId === q.id ? 'on' : ''}" data-act="synSel" data-id="${q.id}">${esc(q.name)}</button>`;
+    let form = '';
+    if (S.synForm) {
+      const e = S.synForm.mode === 'edit' && selRec ? selRec : { name: '', y: 1990, m: 1, d: 1, hh: 12, mm: 0, place: activeProfile().place, lat: activeProfile().lat, lon: activeProfile().lon };
+      form = `<form class="form card" id="synForm" onsubmit="return false" style="margin-bottom:10px">
+        <label class="wide">Jméno<input name="name" value="${esc(e.name)}" placeholder="Jméno osoby"></label>
+        <label>Datum narození<input name="date" type="date" value="${e.y}-${pad(e.m)}-${pad(e.d)}"></label>
+        <label>Čas narození<input name="time" type="time" value="${pad(e.hh)}:${pad(e.mm)}"></label>
+        <label class="wide">Místo<input name="place" value="${esc(e.place || '')}"></label>
+        <label>Šířka (N)<input name="lat" type="number" step="0.0001" value="${e.lat}"></label>
+        <label>Délka (E)<input name="lon" type="number" step="0.0001" value="${e.lon}"></label>
+        <div class="wide row"><button type="button" class="btn primary" data-act="synSave">${S.synForm.mode === 'edit' ? 'Uložit změny' : 'Přidat a porovnat'}</button><button type="button" class="btn ghost" data-act="synCancel">Zrušit</button></div>
+        <p class="note wide">Neznáš-li čas narození, nech 12:00 — srovnání planet platí, jen Ascendent bude orientační. Osoby pro porovnání nezabírají profily.</p>
+      </form>`;
+    }
+    let card = '';
+    if (selRec && !S.synForm) {
+      try {
+        const nb = K.natalChart({ ...selRec, lat: +selRec.lat, lon: +selRec.lon, alt: +selRec.alt || 200, y: +selRec.y, m: +selRec.m, d: +selRec.d, hh: +selRec.hh, mm: +selRec.mm, tz: selRec.tz || TZ }, new Date());
+        card = `<div class="card hs">${synastry(n, nb, (activeProfile().name || 'A').split(' ')[0], (selRec.name || 'B').split(' ')[0])}</div>`;
+      } catch (e) { card = '<div class="card hs"><div class="hsp"><p>Mapu se nepodařilo spočítat — zkontroluj zadané údaje.</p></div></div>'; }
+    }
+    return `<div class="h3">Partnerský horoskop</div>
+      <div class="row echips" style="margin-bottom:8px"><span class="elbl">${esc(activeProfile().name)} ×</span>${others.map(chip).join('')}${partners.map(chip).join('')}<button type="button" class="chip" data-act="synAdd">＋ přidat osobu</button>${isPartner && !S.synForm ? `<button type="button" class="chip" data-act="synEdit" title="Upravit údaje">✎</button><button type="button" class="chip" data-act="synDel" title="Odebrat osobu">×</button>` : ''}</div>
+      ${form}
+      ${!S.synForm && !selRec ? `<p class="note">Vyber, s kým mapu porovnat, nebo přidej osobu — jen pro srovnání, bez zakládání profilu.</p>` : ''}
+      ${card}`;
+  }
+
   function synastry(nA, nB, nameA, nameB) {
     const BODS = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Asc', 'Saturn'];
     const found = [];
@@ -2958,9 +3013,7 @@ ${parts}
       <div class="h3">Tvůj horoskop</div>
       <div class="row echips" style="margin-bottom:8px">${HS_THEMES.map(t => `<button type="button" class="chip ${(S.hsTheme || 'osobnost') === t[0] ? 'on' : ''}" data-act="hsTheme" data-t="${t[0]}">${t[1]}</button>`).join('')}<button type="button" class="chip gold" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení">⎙ Uložit · tisk</button></div>
       <div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'osobnost')) || HS_THEMES[0])[2](n)}</div>
-      ${profiles.length > 1 ? `<div class="h3">Partnerský horoskop</div>
-      <div class="row echips" style="margin-bottom:8px"><span class="elbl">${esc(activeProfile().name)} ×</span>${profiles.filter(q => q.id !== activeId).map(q => `<button type="button" class="chip ${S.synId === q.id ? 'on' : ''}" data-act="synSel" data-id="${q.id}">${esc(q.name)}</button>`).join('')}</div>
-      ${S.synId && profiles.find(q => q.id === S.synId) ? `<div class="card hs">${(() => { try { const pb = profiles.find(q => q.id === S.synId); const nb = K.natalChart({ ...pb, lat: +pb.lat, lon: +pb.lon, alt: +pb.alt || 200, y: +pb.y, m: +pb.m, d: +pb.d, hh: +pb.hh, mm: +pb.mm, tz: pb.tz || TZ }, new Date()); return synastry(n, nb, (activeProfile().name || 'A').split(' ')[0], (pb.name || 'B').split(' ')[0]); } catch (e) { return '<div class="hsp"><p>Partnerovu mapu se nepodařilo spočítat — zkontroluj jeho data v Nastavení.</p></div>'; } })()}</div>` : `<p class="note">Vyber, s kým mapu porovnat. Dalšího člověka přidáš v Nastavení jako profil.</p>`}` : ''}
+      ${synSectionHTML(n)}
       <div class="h3">Body nativu</div>
       <table class="pts">${pts}</table>
       <details class="expl"><summary>Co ty body znamenají?</summary><div class="card small">
