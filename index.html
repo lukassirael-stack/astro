@@ -346,6 +346,7 @@ details.expl .card p:last-child{margin:0}
 .echips.span{margin-top:10px;align-items:center}
 .echips .elbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-right:2px}
 .chip.small{font-size:12px;padding:5px 10px}
+.chip.gold{border-color:var(--gold2);color:var(--gold)}
 .elist{list-style:none;margin:10px 0 0;padding:0}
 .elist li{border-top:1px solid var(--line)}
 .elist li:first-child{border-top:0}
@@ -1752,6 +1753,17 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   const actions = {
     elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); },
     hsTheme(el) { S.hsTheme = el.dataset.t; renderNatal(); },
+    hsPrint() {
+      const doc = horoscopeDoc(S.natal);
+      const wnd = window.open('', '_blank');
+      if (wnd) { wnd.document.write(doc); wnd.document.close(); }
+      else {
+        const url = URL.createObjectURL(new Blob([doc], { type: 'text/html' }));
+        const a = document.createElement('a'); a.href = url; a.download = 'horoskop.html'; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        toast('Horoskop stažen jako soubor — otevři ho a vytiskni.');
+      }
+    },
     elekCat(el) { const c = el.dataset.c; S.elek.cat = S.elek.cat === c ? null : c; S.elek.sub = null; electRun(); renderCalendar(); },
     elekSub(el) { S.elek.sub = el.dataset.s; electRun(); renderCalendar(); },
     elekSpan(el) { S.elek.span = +el.dataset.n; electRun(); renderCalendar(); },
@@ -2240,6 +2252,40 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     return out;
   }
 
+  function horoscopeDoc(n) {
+    const prof = activeProfile();
+    const parts = HS_THEMES.map(t => `<section><h2>${t[1]}</h2>${t[2](n)}</section>`).join('');
+    const meta = `${prof.d}. ${prof.m}. ${prof.y} v ${prof.hh}:${String(prof.mm).padStart(2, '0')} · ${esc(prof.place)}`;
+    return `<!DOCTYPE html><html lang="cs"><head><meta charset="utf-8"><title>Horoskop — ${esc(prof.name)}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{font-family:Georgia,'Times New Roman',serif;color:#1B2436;background:#FDFBF6;margin:0;padding:34px 22px;line-height:1.6}
+  .wrap{max-width:680px;margin:0 auto}
+  header{text-align:center;border-bottom:1px solid #D8CBA8;padding-bottom:18px;margin-bottom:8px}
+  header .brand{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#9A7B33}
+  header h1{margin:10px 0 4px;font-weight:500;font-size:30px}
+  header .meta{font-size:13.5px;color:#5A6478}
+  section{page-break-inside:auto;margin-top:26px}
+  h2{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:#9A7B33;border-bottom:1px solid #E7DDC4;padding-bottom:7px;font-weight:600;page-break-after:avoid}
+  .hsp{padding:11px 0;border-bottom:1px solid #EFE8D6;page-break-inside:avoid}
+  .hsp:last-child{border-bottom:0}
+  .hsp h4{margin:0 0 5px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#9A7B33;font-weight:600}
+  .hsh{margin:14px 0 0;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#9A7B33;font-weight:600}
+  .hsp p{margin:0;font-size:15px}
+  .hstag{display:block;margin-top:5px;font-size:11px;color:#8A93A6;font-family:'Courier New',monospace}
+  footer{margin-top:34px;padding-top:14px;border-top:1px solid #D8CBA8;font-size:11.5px;color:#8A93A6;text-align:center}
+  .noprint{position:fixed;right:16px;top:16px;display:flex;gap:8px}
+  .noprint button{font:inherit;font-size:13px;padding:9px 16px;border-radius:999px;border:1px solid #9A7B33;background:#14213C;color:#F2E9D4;cursor:pointer}
+  @media print{.noprint{display:none}body{padding:0;background:#fff}}
+</style></head><body>
+<div class="noprint"><button onclick="window.print()">Vytisknout / uložit PDF</button></div>
+<div class="wrap">
+<header><div class="brand">Nebeský kalendář</div><h1>${esc(prof.name)}</h1><div class="meta">${meta} · domy Placidus · tropický zvěrokruh</div></header>
+${parts}
+<footer>Sestaveno ${new Date().toLocaleDateString('cs-CZ')} · Oáza Adamanthea · oaza-adamanthea.cz<br>Mapa není rozsudek — je to popis nástrojů, se kterými jsi přišel.</footer>
+</div></body></html>`;
+  }
+
   const HS_THEMES = [['osobnost', 'Osobnostní', (n) => horoscopePersonal(n)], ['penize', 'Peníze', horoscopeMoney], ['vztahy', 'Vztahy a láska', horoscopeLove], ['rodina', 'Rodina a kořeny', horoscopeFamily], ['duch', 'Duchovní cesta', horoscopeSpirit], ['vyzvy', 'Překážky a výzvy', horoscopeChallenge], ['prace', 'Práce a poslání', horoscopeWork], ['zdravi', 'Zdraví a vitalita', horoscopeHealth], ['radost', 'Tvořivost a radost', horoscopeJoy], ['mysl', 'Komunikace a mysl', horoscopeMind], ['hvezdy', 'Tvé hvězdy', horoscopeStars]];
 
   function horoscopePersonal(n) {
@@ -2650,7 +2696,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       </div>
       ${wheelSVG(n)}
       <div class="h3">Tvůj horoskop</div>
-      <div class="row echips" style="margin-bottom:8px">${HS_THEMES.map(t => `<button type="button" class="chip ${(S.hsTheme || 'osobnost') === t[0] ? 'on' : ''}" data-act="hsTheme" data-t="${t[0]}">${t[1]}</button>`).join('')}</div>
+      <div class="row echips" style="margin-bottom:8px">${HS_THEMES.map(t => `<button type="button" class="chip ${(S.hsTheme || 'osobnost') === t[0] ? 'on' : ''}" data-act="hsTheme" data-t="${t[0]}">${t[1]}</button>`).join('')}<button type="button" class="chip gold" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení">⎙ Uložit · tisk</button></div>
       <div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'osobnost')) || HS_THEMES[0])[2](n)}</div>
       <div class="h3">Body nativu</div>
       <table class="pts">${pts}</table>
