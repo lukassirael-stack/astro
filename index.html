@@ -1714,13 +1714,12 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     // velký medailon: fotorealistická Luna (textura), fáze přes výřez terminátoru
     const uid = 'mn' + (moonSVG._i = (moonSVG._i || 0) + 1);
     return `<svg class="${cls || 'moon'}" viewBox="${-size / 2} ${-size / 2} ${size} ${size}" width="${size}" height="${size}" aria-hidden="true">
-      <defs><clipPath id="${uid}c"><path d="${d}"/></clipPath></defs>
+      <defs><clipPath id="${uid}c"><path d="${d}"/></clipPath><filter id="${uid}t"><feComponentTransfer><feFuncR type="linear" slope=".70" intercept=".145"/><feFuncG type="linear" slope=".70" intercept=".135"/><feFuncB type="linear" slope=".70" intercept=".115"/></feComponentTransfer></filter></defs>
       <circle r="${r + 0.5}" fill="none" stroke="rgba(240,216,152,.32)" stroke-width="1"/>
       <image href="moon-tex.png?v=1" x="${-r}" y="${-r}" width="${2 * r}" height="${2 * r}" opacity=".3"/>
       <circle r="${r}" fill="rgba(18,26,50,.5)"/>
       <g clip-path="url(#${uid}c)">
-        <image href="moon-tex.png?v=1" x="${-r}" y="${-r}" width="${2 * r}" height="${2 * r}"/>
-        <circle r="${r}" fill="rgba(16,24,46,.3)"/>
+        <image href="moon-tex.png?v=1" filter="url(#${uid}t)" x="${-r}" y="${-r}" width="${2 * r}" height="${2 * r}"/>
         <circle r="${r}" fill="none" stroke="rgba(255,250,230,.25)" stroke-width=".8"/>
       </g>
     </svg>`;
