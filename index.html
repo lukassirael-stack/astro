@@ -233,24 +233,36 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .legend-more[open] summary .tri::before{content:'▾'}
 .legend-close{display:block;margin:10px 0 2px;padding:7px 14px;border:1px solid var(--line2);border-radius:8px;color:var(--gold);font-size:12px;letter-spacing:.06em;background:none}
 /* dnešní shrnutí */
-.hero-today{display:flex;flex-direction:column;gap:5px;width:100%;text-align:left;margin:16px 0 4px;padding:15px 16px 13px;
+.hero-today{display:flex;flex-direction:column;gap:7px;width:100%;text-align:left;margin:16px 0 4px;padding:17px 17px 15px;
   border:1px solid var(--inst-line-soft);border-radius:var(--r);background:var(--inst);color:var(--inst-text);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 4px 16px rgba(2,8,24,.35);transition:border-color .15s ease}
 .hero-today:hover{border-color:var(--inst-line)}
 .hero-today.harm{border-color:rgba(127,224,180,.4)}
 .hero-today.tense{border-color:rgba(255,161,132,.4)}
-.hero-today .ht-date{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--inst-muted)}
-.hero-today .ht-word{font-family:var(--display);font-size:27px;font-weight:500;line-height:1.1;color:var(--inst-gold)}
+.hero-today .ht-date{display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--inst-muted)}
+.hero-today .ht-date:after{content:'';flex:1;height:1px;background:var(--inst-line-soft)}
+.hero-today .ht-head{display:flex;align-items:center;gap:14px}
+.hero-today .ht-word{flex:1;font-family:var(--display);font-size:clamp(31px,8.6vw,44px);font-weight:500;line-height:1.06;color:var(--inst-gold);text-shadow:0 0 16px rgba(190,235,210,.22)}
 .hero-today.harm .ht-word{color:var(--harm-lite)}
 .hero-today.tense .ht-word{color:var(--tense-lite)}
-.hero-today .ht-moon{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--inst-text);margin:1px 0 3px;
+.hero-today .ht-medal{flex:none;width:64px;height:64px;border:1px solid rgba(240,216,152,.42);border-radius:50%;display:grid;place-items:center;position:relative;
+  --moon:#F0DFAE;--moon-dark:rgba(255,255,255,.12);box-shadow:0 0 14px rgba(240,210,130,.18),inset 0 0 10px rgba(240,210,130,.1)}
+.hero-today .ht-medal:after{content:'';position:absolute;inset:-5px;border:1px dashed rgba(240,216,152,.18);border-radius:50%}
+.hero-today .ht-moon{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--inst-text);margin:2px 0 0;
   --moon:#F0DFAE;--moon-dark:rgba(255,255,255,.13)}
-.ht-sun{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
-.day-sun{font-size:13px;color:var(--muted);margin:2px 0 10px}
-.hero-today .ht-line{display:flex;gap:8px;font-size:13px;line-height:1.4;color:var(--inst-text);align-items:baseline}
-.hero-today .ht-line b{flex:none;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase}
+.hero-today .ht-div{height:1px;background:var(--inst-line-soft);margin:4px 0}
+.hero-today .ht-row{display:flex;align-items:center;gap:10px;font-size:14px;line-height:1.45;color:var(--inst-text);padding:2px 0}
+.hero-today .ht-row .ht-time{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:14px}
+.hero-today .ht-row .tx{flex:1;min-width:0;border-left:1px solid var(--inst-line-soft);padding-left:10px}
+.hero-today .ht-row b{flex:none;width:94px;font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase}
+.hero-today .ht-ic{flex:none;width:27px;height:27px;border-radius:50%;border:1px solid;display:grid;place-items:center;font-style:normal;font-size:13px;line-height:1}
+.hero-today .ht-ic.sun{color:var(--inst-gold);border-color:rgba(240,216,152,.45)}
+.hero-today .ht-ic.go{color:var(--harm-lite);border-color:rgba(127,224,180,.45)}
+.hero-today .ht-ic.cost{color:var(--tense-lite);border-color:rgba(255,161,132,.45)}
 .hero-today .ht-go b{color:var(--harm-lite)}
 .hero-today .ht-cost b{color:var(--tense-lite)}
+@media (max-width:400px){.hero-today .ht-medal{width:52px;height:52px}.hero-today .ht-medal svg{width:38px;height:38px}.hero-today .ht-row b{width:80px}}
+.day-sun{font-size:13px;color:var(--muted);margin:2px 0 10px}
 /* nejbližší dny */
 .ahead{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;margin:0 -14px;padding-left:14px;padding-right:14px;scrollbar-width:none}
 .ahead::-webkit-scrollbar{display:none}
@@ -1882,13 +1894,15 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const per = TX.personalItems(da, rules());
     const go = gen.go.concat(per.go), cost = gen.cost.concat(per.cost);
     const ph = TX.phaseText(da.phaseAngle);
+    const phh = K.planetaryHours(np.y, np.m, np.d, observer(), TZ);
+    const nd = namedayLine(np.m, np.d);
     return `<button type="button" class="hero-today ${da.color}" data-act="jumpDay" data-y="${np.y}" data-m="${np.m}" data-d="${np.d}" aria-label="Otevřít dnešek">
-      <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}</span>
-      <span class="ht-word">${TX.dayWord(da)}</span>
-      <span class="ht-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name} · ${Math.round(da.illum * 100)} %</span>
-      <span class="ht-sun">${(() => { const phh = K.planetaryHours(np.y, np.m, np.d, observer(), TZ); return phh ? `☉ ${K.fmtTime(phh.sunrise, TZ)} – ${K.fmtTime(phh.sunset, TZ)}` : ''; })()}${namedayLine(np.m, np.d) ? ' &nbsp;·&nbsp; ' + namedayLine(np.m, np.d) : ''}</span>
-      ${go.length ? `<span class="ht-line ht-go"><b>Podporuje</b>${esc(go[0].text)}</span>` : ''}
-      ${cost.length ? `<span class="ht-line ht-cost"><b>Obtížné pro</b>${esc(cost[0].text)}</span>` : ''}
+      <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}${phh ? ` · ${K.fmtTime(phh.sunrise, TZ)} – ${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + nd : ''}</span>
+      <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}</span><span class="ht-medal">${moonSVG(da.phaseAngle, 46, 'moon hm')}</span></span>
+      <span class="ht-moon">${moonSVG(da.phaseAngle, 18)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name} · ${Math.round(da.illum * 100)} %</span>
+      <span class="ht-div"></span>
+      ${go.length ? `<span class="ht-row ht-go"><i class="ht-ic go">✦</i><b>Podporuje</b><span class="tx">${esc(go[0].text)}</span></span>` : ''}
+      ${cost.length ? `<span class="ht-div"></span><span class="ht-row ht-cost"><i class="ht-ic cost">✳</i><b>Obtížné pro</b><span class="tx">${esc(cost[0].text)}</span></span>` : ''}
     </button>`;
   }
 
