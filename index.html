@@ -325,6 +325,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .eltoggle{display:flex;align-items:center;gap:10px;width:100%;background:var(--glass);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;margin:18px 0 9px;text-align:left;cursor:pointer;box-shadow:0 1px 3px var(--glass-shadow);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:500;color:var(--text);text-shadow:none}
 .eltoggle:before{content:'✧';color:var(--gold);font-size:14px}
 .eltoggle i{font-style:normal;color:var(--gold);font-size:12px;margin-left:auto}
+.natal-meta{color:var(--text);text-shadow:0 1px 8px rgba(2,8,24,.85),0 0 2px rgba(2,8,24,.9)}
+details.expl{margin:-2px 0 14px}
+details.expl summary{font-size:13px;color:var(--gold);cursor:pointer;text-shadow:var(--halo)}
+details.expl .card{margin-top:8px}
+details.expl .card p{margin:0 0 8px}
+details.expl .card p:last-child{margin:0}
 .eltoggle.open{border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0}
 .eltoggle.open+.card{border-top-left-radius:0;border-top-right-radius:0;margin-top:0;border-top:0}
 .elect .elq{margin:0 0 9px;font-size:14px;color:var(--text)}
@@ -2346,7 +2352,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     </div></div>`;
     const natalHTML = `
       <div class="h2">${esc(p.name)}</div>
-      <p class="note">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p>
+      <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p>
       <div class="natal-sum">
         <div class="ns"><span class="g">${K.BODY_GLYPH.Sun}</span><span class="k">Slunce</span><span class="v">${K.SIGNS[n.sunSign]}</span></div>
         <div class="ns"><span class="g">${K.BODY_GLYPH.Moon}</span><span class="k">Luna</span><span class="v">${K.SIGNS[n.moonSign]}</span></div>
@@ -2355,8 +2361,20 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       ${wheelSVG(n)}
       <div class="h3">Body nativu</div>
       <table class="pts">${pts}</table>
+      <details class="expl"><summary>Co ty body znamenají?</summary><div class="card small">
+        <p><b>☉ Slunce</b> — jádro osobnosti, vůle a životní směr · <b>☽ Luna</b> — pocity, potřeby a vnitřní svět · <b>☿ Merkur</b> — myšlení, řeč a domluva · <b>♀ Venuše</b> — láska, vztahy a hodnoty · <b>♂ Mars</b> — energie, odvaha a prosazení · <b>♃ Jupiter</b> — růst, štěstí a příležitosti · <b>♄ Saturn</b> — řád, hranice a životní lekce · <b>♅ Uran</b> — svoboda, změny a originalita · <b>♆ Neptun</b> — intuice, sny a citlivost · <b>♇ Pluto</b> — hloubka a proměna · <b>☊ Uzel</b> — směr, kterým duše roste · <b>Asc</b> — jak působíš navenek · <b>MC</b> — povolání a veřejná role.</p>
+        <p class="note">Znamení říká, v jakém ladění bod pracuje. Stupeň je přesná poloha ve znamení. Dům říká, ve které oblasti života se projevuje nejvíc.</p>
+      </div></details>
       <div class="h3">Hroty domů</div><div class="card small">${houses}</div>
+      <details class="expl"><summary>Co jsou domy?</summary><div class="card small">
+        <p>Nebe se dělí na 12 domů — 12 oblastí života. <b>1</b> já a tělo · <b>2</b> peníze a jistoty · <b>3</b> komunikace a blízké okolí · <b>4</b> domov a rodina · <b>5</b> tvořivost, radost a děti · <b>6</b> každodenní práce a zdraví · <b>7</b> partnerství · <b>8</b> sdílené zdroje a hluboké proměny · <b>9</b> cesty, víra a vzdělání · <b>10</b> povolání a směřování · <b>11</b> přátelé a vize · <b>12</b> nitro, klid a ústraní.</p>
+        <p class="note">Hrot je stupeň, kde dům začíná. Který dům čím žiješ, poznáš podle toho, kde stojí tvé planety — viz sloupec „dům" v tabulce výše.</p>
+      </div></details>
       <div class="h3">Aspekty v nativu</div><ul class="list">${aspHtml}</ul>
+      <details class="expl"><summary>Co znamenají aspekty?</summary><div class="card small">
+        <p>Aspekt je úhel mezi dvěma body — rozhovor, který spolu vedou. <b>☌ konjunkce (0°)</b> — síly se spojují v jedno silné téma · <b>✶ sextil (60°)</b> — příležitost, které stačí vyjít vstříc · <b>△ trigon (120°)</b> — přirozený dar, plyne to samo · <b>□ kvadratura (90°)</b> — tření, které nutí růst · <b>☍ opozice (180°)</b> — dva protipóly hledající rovnováhu.</p>
+        <p class="note">Číslo vpravo je orbis — o kolik stupňů se aspekt liší od přesného úhlu. Čím menší číslo, tím silněji téma působí. Seznam je řazený od nejpřesnějších.</p>
+      </div></details>
       <div class="h2">Tvé hvězdy</div>
       <p class="note">Hvězdy systémů z Hvězdného kvízu a královské hvězdy jako body v tvém nativu. Hlavní = hvězda stojí na tvém bodě (orbis 1°), byla na úhlu v okamžiku narození, nebo tvoří paran se Sluncem či Lunou. Vedlejší = parany s ostatními planetami v den narození. Rod z kvízu se do výpočtu nepočítá – tohle je čisté nebe.</p>
       ${mine.length ? mine.map(s => starBlock(s, true)).join('') : '<p class="muted">Žádná hlavní hvězda – neobvyklé, ověř čas narození.</p>'}
