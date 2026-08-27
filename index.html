@@ -1649,7 +1649,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 
   const now = new Date();
   const np = K.tzParts(now, TZ);
-  const S = { tab: 'kalendar', y: np.y, m: np.m, sel: { y: np.y, m: np.m, d: np.d }, natal: null, kpMap: {}, kpUpdated: null, kpError: null, dayCache: {}, evCache: {}, filter: 'vse', eph: { y: np.y, m: np.m }, installEvt: null, elek: { open: false, cat: null, sub: null, span: 30, results: null } };
+  const S = { tab: 'kalendar', y: np.y, m: np.m, sel: { y: np.y, m: np.m, d: np.d }, natal: null, kpMap: {}, kpUpdated: null, kpError: null, dayCache: {}, evCache: {}, filter: 'vse', eph: { y: np.y, m: np.m }, installEvt: null, elek: { open: false, cat: null, sub: null, span: 30, results: null }, hsTheme: store.get('kairos_hstheme', 'osobnost') };
 
   // ===================== pomocné =====================
   const $ = (s, r) => (r || document).querySelector(s);
@@ -1740,6 +1740,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   // ===================== navigace =====================
   function showTab(tab) {
     S.tab = tab;
+    store.set('kairos_tab', tab);
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + tab));
     window.scrollTo({ top: 0 });
@@ -1752,7 +1753,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 
   const actions = {
     elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); },
-    hsTheme(el) { S.hsTheme = el.dataset.t; renderNatal(); },
+    hsTheme(el) { S.hsTheme = el.dataset.t; store.set('kairos_hstheme', S.hsTheme); renderNatal(); },
     hsPrint() {
       const doc = horoscopeDoc(S.natal);
       const wnd = window.open('', '_blank');
@@ -2920,7 +2921,7 @@ ${parts}
   applyTheme();
   computeNatal();
   setInterval(applyTheme, 240000);
-  showTab('kalendar');
+  showTab(['kalendar', 'ukazy', 'diar', 'nativ', 'nastaveni'].includes(store.get('kairos_tab', 'kalendar')) ? store.get('kairos_tab', 'kalendar') : 'kalendar');
   loadKp(false);
   document.addEventListener('change', (e) => {
     if (e.target && e.target.id === 'jFile' && e.target.files && e.target.files[0]) {
@@ -2949,8 +2950,12 @@ ${parts}
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => reg.update()).catch(() => { });
     let hadCtrl = !!navigator.serviceWorker.controller, reloaded = false;
+    const bootT = Date.now();
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (hadCtrl && !reloaded) { reloaded = true; location.reload(); }
+      if (hadCtrl && !reloaded) {
+        if (Date.now() - bootT < 4000) { reloaded = true; location.reload(); }
+        else toast('Je připravená nová verze — projeví se při příštím otevření.');
+      }
       hadCtrl = true;
     });
   }
