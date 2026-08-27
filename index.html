@@ -2912,7 +2912,15 @@ ${parts}
         <label>Orbis pro tvé hvězdy (°)<input name="starOrb" type="number" step="0.5" value="${settings.rules.starOrb}"></label>
         <label class="wide" style="flex-direction:row;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--text)"><input type="checkbox" name="showKp" ${settings.showKp ? 'checked' : ''}> Započítávat kosmické počasí (Kp) do skóre</label>
         <div class="wide row"><button type="button" class="btn" data-act="saveRules">Uložit pravidla</button></div>
-        <p class="note wide">Váhy: trigon +1, sextil +0,5, kvadratura/opozice −1, konjunkce podle planety (Venuše, Jupiter, Slunce +1 · Mars, Saturn, Pluto −1 · Uran, Neptun −0,5). Násobí se váhou bodu (Slunce, Luna, Asc, MC ×2). Luna přesné aspekty ±0,25, živel Luny +0,5, Merkur retro −0,5, Kp ≤ 3 +0,5, Kp 5 −1, Kp ≥ 6 −2. Jupiter až Pluto tvoří pozadí období, barvu dne neurčují.</p>
+        <details class="expl"><summary>Co ta čísla znamenají? (polopatě)</summary><div class="card">
+          <p><b>Jak appka barví dny.</b> Každý den se podívá, jak putující Luna svítí na tvou osobní mapu. Když ladí, den dostává plusové body; když dře, minusové. Součet je skóre dne — vidíš ho v detailu dne.</p>
+          <p><b>Harmonický od / Napjatý od</b> — odkdy se den barví. S hodnotami 2 a −2 se zlatě obarví den, který nasbírá aspoň 2 body, červeně den s −2 a míň. Zbytek zůstane bez barvy. Chceš míň barevných dnů (jen ty opravdu výrazné)? Zvětši čísla na 3 a −3. Chceš jich víc? Zmenši na 1 a −1.</p>
+          <p><b>Luna bez kurzu</b> — pár hodin před tím, než Luna přejde do dalšího znamení, „nikam nemíří" — tradičně se nehodí začínat nové věci. Číslo 6 znamená: aby to dnu srazilo skóre, musí tenhle stav zabrat aspoň 6 hodin z bdělého dne (8–22). Krátká chvilka, nebo když to proběhne v noci, ti den nepokazí.</p>
+          <p><b>Orbis pro tvé hvězdy</b> — jak přesně musí planeta stát na některé z tvých hvězd, aby den dostal značku ✦. 1° = přísné, takové dny jsou vzácné a silné. 2° = volnější, bude jich víc.</p>
+          <p><b>Kosmické počasí (Kp)</b> — síla magnetických bouří. Klidné dny malinko přidají, bouřlivé uberou. Když zaškrtnutí zrušíš, bouřky se dál zobrazují, ale barvu dne neovlivní.</p>
+          <p>Nevíš-li, nech to, jak to je — výchozí hodnoty jsou vyladěný střed.</p>
+        </div></details>
+        <details class="expl"><summary>Přesné váhy (pro zvídavé)</summary><div class="card"><p>Trigon +1, sextil +0,5, kvadratura/opozice −1, konjunkce podle planety (Venuše, Jupiter, Slunce +1 · Mars, Saturn, Pluto −1 · Uran, Neptun −0,5). Násobí se váhou bodu (Slunce, Luna, Asc, MC ×2). Luna přesné aspekty ±0,25, živel Luny +0,5, Merkur retro −0,5, Kp ≤ 3 +0,5, Kp 5 −1, Kp ≥ 6 −2. Jupiter až Pluto tvoří pozadí období, barvu dne neurčují.</p></div></details>
       </form>
       <div class="h2">Obloha</div>
       <div class="card">
