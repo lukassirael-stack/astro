@@ -1751,6 +1751,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 
   const actions = {
     elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); },
+    hsTheme(el) { S.hsTheme = el.dataset.t; renderNatal(); },
     elekCat(el) { const c = el.dataset.c; S.elek.cat = S.elek.cat === c ? null : c; S.elek.sub = null; electRun(); renderCalendar(); },
     elekSub(el) { S.elek.sub = el.dataset.s; electRun(); renderCalendar(); },
     elekSpan(el) { S.elek.span = +el.dataset.n; electRun(); renderCalendar(); },
@@ -2077,6 +2078,82 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       'Moon|Asc': { conj: 'Tvé pocity jsou vidět — vstupuješ do místnosti i s náladou. Je to poctivé a lidi to sbližuje; jen ne každý den musí být veřejný.', harm: 'Nitro a vystupování si u tebe rozumí: působíš tak, jak ti opravdu je, a lidem je s tebou přirozeně dobře.', tense: 'Navenek držíš jiný tón, než jaký zní uvnitř — okolí tě má za klidnějšího či tvrdšího, než se cítíš. Blízkým pomáhej krátkou zprávou o tom, jak ti doopravdy je.' },
     },
   };
+  HS.D2 = ['K penězům jdeš přímo a rychle — vyděláváš akcí a odvahou. Rychlý start, kratší dech: nauč se držet, co získáš.','Peníze u tebe chtějí růst pomalu a jistě — máš přirozený cit pro hodnotu a majetek. Jistota je tvůj styl; jen ať nezamrzne.','Vyděláváš hlavou a slovem, klidně z více zdrojů naráz. Pružnost je výhoda — roztěkanost daň, kterou hlídej.','Peníze pro tebe znamenají bezpečí pro tebe a tvé lidi; šetříš citem, utrácíš pro blízké. Finanční klid ti dělá i klid vnitřní.','Vyděláváš tím, čím záříš, a umíš utratit se stylem. Velkorysost ti sluší — rozpočet jí dá královskou míru.','Přesnost, užitečnost, poctivá práce — tvé příjmy stojí na kvalitě. Umíš počítat; nezapomeň se z vydělaného i radovat.','Peníze přichází přes spolupráci, vkus a lidi. Férovost je tvůj kapitál. Rozhoduj i sám — čekání na shodu něco stojí.','Máš instinkt pro skryté zdroje a velké proměny financí. Umíš z mála vybudovat hodně — a chceš mít věci pod kontrolou. Sdílej ji.','Vyděláváš rozhledem, vírou a švihem; peníze bereš jako palivo, ne cíl. Optimismus ano — s rezervou pro horší počasí.','Stavíš majetek trpělivě jako zeď — kámen po kameni. Dlouhodobě málokdo obstojí líp. Dovol si užívat už cestou.','Netradiční zdroje, technologie, společenství — tvé finance nejdou vyšlapanou cestou. Systém a automatizace jsou tví spojenci.','Peníze k tobě tečou i odtékají intuitivně; vyděláváš citem, tvorbou, pomocí. Průhledná evidence tvou intuici podrží.'];
+  HS.D7 = ['Přitahují tě přímí, odvážní, samostatní — vztah má mít jiskru a pohyb. Hádka pročistí; jen ať je fér.','Hledáš stálost, věrnost a smyslové teplo. Partner má být opora, ne drama. Dej vztahu čas růst.','Hledáš parťáka do řeči — vztah žije rozhovorem, humorem, zvědavostí. Nuda je jediný skutečný nepřítel.','Hledáš citový domov: partnera, u kterého je bezpečno. Pečuješ a chceš péči zpět — říkej si o ni nahlas.','Hledáš vztah, na který můžeš být hrdý — vřelost, věrnost, trocha lesku. Obdiv dávej i přijímej.','Přitahují tě spolehliví a skromní; láska se u tebe projevuje činem a péčí o všední den. Nároky měj — perfekcionismus krot.','Partnerství je pro tebe přirozený stav — hledáš rovného, se kterým to ladí. Uč se unést i nesouhlas; rovnováha není bezkonflikt.','Hledáš hloubku a úplnou pravdivost — buď celý, nebo nic. Důvěra se u tebe buduje pomalu a je vším.','Hledáš spolucestovatele — vztah má růst, smát se a mířit někam. Svoboda obou je podmínka lásky.','Vztah bereš jako závazek a stavbu na roky; často zraje s věkem. Spolehlivost je tvá řeč lásky.','Hledáš především přítele — rovnost, volnost, jinakost. Vztah podle šablony ti nesedne; tvořte si vlastní.','Hledáš duši, ne jen člověka — vztah jako splynutí a útočiště. Miluj s otevřenýma očima; soucit není sebeobětování.'];
+  HS.VEN = ['rychle, přímo a naplno — dobývání tě baví','smysly a stálostí — dotek, jídlo, věrnost','slovy a hrou — láska u tebe musí mluvit','péčí a pamětí srdce — kdo je tvůj, je tvůj','velkoryse a s gestem — láska má zářit','činem a všímavostí — malými věcmi každý den','souladem a krásou — uměním být ve dvou','hluboko a bezezbytku — polovičatost neumíš','svobodně a s humorem — láska je cesta','vážně a věrně — činy víc než slova','přátelstvím a volností — blízkost bez pout','oddaně a bezpodmínečně — s citem pro duši druhého'];
+  HS.MARS = ['jdeš si za tím rovnou — přitažlivost je u tebe akce','pomalý tah a smyslnost — co rozehřeješ, dlouho hřeje','svádíš slovem a hrou','touha jde přes cit a bezpečí','vášeň s velkým gestem — chceš i být viděn','jiskra v detailu a péči; touha roste s důvěrou','přitahuje tě soulad — svádění je tanec','magnetická intenzita — vše, nebo nic','vášeň dobrodružství — společný pohyb spojuje','touha vytrvalá a věrná; roste časem','jiskří jinakost a mysl','touha splynout — něha je tvůj jazyk'];
+  HS.D4 = ['Kořeny v pohybu a boji — domov, kde se muselo jednat. Svůj domov stavíš činem a chráníš ho odvážně.','Kořeny v zemi a stálosti — domov má být pevný, hezký a navždy. Zahrada, jídlo, klid: tvé rodinné svátosti.','Domov plný slov a pohybu; možná víc míst než jedno. Rodina je pro tebe rozhovor, který nekončí.','Hluboké rodové pouto — domov a rodina jsou tvůj střed. Tradice neseš dál; vybírej vědomě které.','Domov jako srdce a jeviště rodiny — potřebuješ v něm teplo a hrdost. Rád hostíš a dáváš.','Domov v řádu a péči — fungující zázemí je tvůj základ klidu. Služba rodině je tvá tichá láska.','Domov má být krásný a smírný; rodinné vztahy stojí na dohodě. Uč se doma i zdravému sporu.','Rodové hlubiny a tajemství; domov intenzivní, ne vlažný. Co v kořenech uzdravíš, osvobodí i další.','Kořeny s širokým obzorem — domov u cesty, rodina víry a názorů. Doma potřebuješ vzduch a smysl.','Kořeny s tíhou a řádem; brzy jsi nesl odpovědnost. Tvůj vlastní domov je stavba na skále.','Netradiční kořeny či rodina „jiná než ostatní“. Domov si definuješ sám — a smí to být svobodně.','Kořeny v citu a mlze; domov jako útočiště duše. Jasnost o rodinné minulosti ti vrací pevnou zem.'];
+  HS.NODE = ['Tvůj růst vede k samostatnosti a odvaze — od ohlížení na druhé k vlastnímu kroku.','Tvůj růst vede ke klidu, jednoduchosti a vlastní hodnotě — od dramat k pevné zemi.','Tvůj růst vede ke zvědavosti a naslouchání — od hotových pravd k otázkám.','Tvůj růst vede k citu a domovu — od výkonu k péči o vnitřní svět.','Tvůj růst vede k odvaze zazářit — od schovávání v davu k vlastnímu srdci.','Tvůj růst vede k řádu, službě a přítomnosti — od snění k poctivé práci dne.','Tvůj růst vede ke spolupráci — od „já sám“ k umění být ve dvou.','Tvůj růst vede do hloubky a proměny — od hromadění jistot k odvaze pustit.','Tvůj růst vede ke smyslu a víře — od sbírání informací k vlastní pravdě.','Tvůj růst vede k zodpovědnosti a cíli — od citových vln k pevné stavbě.','Tvůj růst vede ke svobodě a službě celku — od vlastního jeviště ke společnému dílu.','Tvůj růst vede k důvěře a odevzdání — od kontroly detailů k proudu života.'];
+  HS.SAT = ['Lekce: jednat za sebe. Učíš se odvaze a zdravé razanci — strach ze začátku se láme jen začátkem.','Lekce: jistota zevnitř. Učíš se, že hodnota není v majetku — pak ti majetek slouží.','Lekce: důvěra vlastní hlavě a slovu. Uč se mluvit, i když hlas přeskočí.','Lekce: dovolit si cit a blízkost. Zeď kolem srdce stavěná v dětství se dá přestavět na dům.','Lekce: dovolit si zářit. Učíš se, že tvá tvořivost má právo na svět i bez záruky potlesku.','Lekce: dost dobré je dost. Učíš se sloužit bez sebetrestání a pracovat bez sebezničení.','Lekce: závazek a rovnost. Učíš se vztahům jako řemeslu — a časem v něm býváš mistr.','Lekce: důvěra a odevzdání kontroly. Učíš se, že zranitelnost není smrt — je to brána.','Lekce: vlastní pravda. Učíš se věřit — ne převzatě, ale ověřeně životem.','Lekce: nést odpovědnost lehčeji. Stavět umíš; uč se u toho i žít.','Lekce: patřit a zůstat svůj. Učíš se, že společenství není ztráta svobody.','Lekce: hranice v soucitu. Učíš se pomáhat, aniž se rozpustíš.'];
+  HS.P_MONEY = { Sun:'vlastní hodnota a příjem jsou u tebe jedno téma: potřebuješ vydělávat tím, kým jsi. Cizí kolej tě neuživí dlouho.', Moon:'finanční pocit kolísá s náladou a jistota peněz je i jistota citová. Stabilní rezerva ti léčí nervy víc než výnos.', Mercury:'vyděláváš hlavou, slovem a obchodem; příjmů může být víc naráz. Pozor jen na roztříštěnost.', Venus:'peníze přichází přes krásu, vztahy a to, co lidem dělá dobře. Umíš je i užívat; hlídej rovnováhu mezi dopřát si a rozpustit.', Mars:'vyděláváš tahem a odvahou; rychle vydělané umí rychle odejít. Energie do vlastních projektů se ti vrací nejvíc.', Jupiter:'přirozená důvěra v dostatek a štěstí na příležitosti. Riziko: přestřelené výdaje. Růst ano, s rozpočtem.', Saturn:'peníze jsou pro tebe vážná věc; stavíš pomalu, ale trvale. Strach z nedostatku časem vystřídá mistrovství správce.', Uranus:'příjmy skoky, nečekané zdroje, netradiční cesty. Stabilitu hledej v systému, ne v jednom zaměstnavateli.', Neptune:'peníze protékají; skvělé pro tvorbu a pomoc, zrádné pro evidenci. Průhledné účty jsou tvůj ochranný kruh.', Pluto:'velké proměny majetku a síla obnovit se z nuly. Téma moci a peněz chce čistotu záměru.' };
+  HS.P_REL = { Sun:'partnerství je pro tebe osou života; skrze protějšek poznáváš sám sebe. Hledej rovnost, ne dokončení sebe.', Moon:'potřebuješ partnera-domov: bezpečí a citovou blízkost. Nálada vztahu je nálada tvého dne.', Mercury:'vztah pro tebe stojí na rozhovoru; partner má být i parťák do řeči. Mlčení tě vzdaluje.', Venus:'dar harmonických vztahů — přitahuješ náklonnost. Hlídej, ať kvůli klidu nemlčíš.', Mars:'do vztahů vnášíš jiskru i třecí plochy; přitahují tě silní partneři. Hádka není konec, je to kontakt — uč se ji vést čistě.', Jupiter:'vztahy tě rozšiřují; partner často přináší růst, víru či svět. Velkorysost oplácej mírou.', Saturn:'vztahy bereš vážně a nastálo; často zrají později a s věkem se lepší. Závazek je pro tebe brána, ne past.', Uranus:'potřebuješ vztah se vzduchem: blízkost i volnost zároveň. Netradiční forma může být tvoje forma.', Neptune:'hledáš spřízněnou duši a umíš bezpodmínečně milovat. Dívej se, kdo partner je — ne kým by mohl být.', Pluto:'vztahy tě proměňují od základů; povrchní svazek tě nenaplní. Intenzita ano, vlastnění ne.' };
+  HS.P_FAM = { Sun:'domov je tvé jeviště i kotva; potřebuješ v něm být sám sebou. Rodinné téma je součást tvé identity.', Moon:'hluboké pouto s rodinou a minulostí; domov je tvá nabíječka. Rodové vzorce v tobě žijí silně — vybírej, které poneseš dál.', Mercury:'domov plný slov, knih a pohybu; rodina, se kterou se mluví. Kořen nosíš v hlavě, stěhování tě neláme.', Venus:'potřebuješ hezký, laskavý domov; umíš z místa udělat útočiště. Smír v rodině je tvá práce i dar.', Mars:'v rodině se kalila tvá bojovnost; doma potřebuješ i akci, ne jen klid. Starou zlobu přetav v ochranu svých.', Jupiter:'velkorysé kořeny nebo široká rodina; domov, který roste a hostí. Štěstí ti přeje víc, když má kde bydlet.', Saturn:'kořeny nesou tíhu: povinnost, řád, možná chlad. Svůj domov stavíš sám — a právě proto bude pevný.', Uranus:'kořeny v pohybu: stěhování, zlomy, jinakost rodu. Tvůj domov nemusí vypadat jako ostatní; musí být tvůj.', Neptune:'domov jako útočiště duše, ale i mlhy v rodinné historii. Pravda o kořenech osvobozuje.', Pluto:'rodové téma síly a tajemství; proměna, která začíná u kořenů. Co v rodu uzdravíš, už se nedědí dál.' };
+  HS.P_SPIRIT = { Sun:'část tvé podstaty pracuje ve skrytu; potřebuješ ústraní, aby ses našel. Tvé světlo sílí v tichu.', Moon:'city zrají v samotě a nasáváš i kolektivní nálady. Pravidelné ticho je pro tebe hygiena duše.', Mercury:'myšlení napojené na hlubinu; nápady chodí z ticha, snů a meditace. Zapisuj si je.', Venus:'tichá, oddaná láska a cit pro posvátné umění. Dávej lásku i viditelně, ne jen ve skrytu.', Mars:'síla pracující vskrytu; bojuješ spíš za druhé než na veřejnosti. Hněv nezametej dovnitř — dej mu tichou práci: pohyb, službu, rituál.', Jupiter:'tichý ochránce: víra, která tě podrží, i když nevíš jak. Samota tě nezmenšuje — rozšiřuje.', Saturn:'vnitřní klášter: disciplína ducha a práce se strachy. Co si v tichu srovnáš, venku už neřešíš.', Uranus:'záblesky poznání z nevědomí; probuzení přichází skokem. Vhledu důvěřuj — a ověř ho životem.', Neptune:'přirozený mystik: tenká hranice k jemným světům. Kotva v těle a řádu ti dovolí jít hluboko bezpečně.', Pluto:'hlubinná proměna ve skrytu; sestupuješ a vracíš se silnější. Stín je tvůj učitel, ne nepřítel.' };
+  HS.NOUN = { Sun:'vůle', Moon:'city', Mercury:'mysl', Venus:'láska a hodnoty', Mars:'síla', Jupiter:'růst', Saturn:'řád', Uranus:'svoboda', Neptune:'citlivost', Pluto:'hloubka', Asc:'vystupování', MC:'směřování' };
+  HS.ADVICE = { Saturn:'Pomáhá trpělivost a malé sliby, které dodržíš.', Pluto:'Pomáhá pustit kontrolu dřív, než ji život vezme sám.', Uranus:'Pomáhá dělat změny dobrovolně a včas.', Neptune:'Pomáhá jasnost: fakta, hranice, střízlivé oči.', Mars:'Pomáhá dát síle pravidelný ventil.' };
+  const hsPara = (title, text, tg) => `<div class="hsp">${title ? `<h4>${title}</h4>` : ''}<p>${text}</p>${tg ? `<span class="hstag">${tg}</span>` : ''}</div>`;
+  const hsPlanetsIn = (n, h) => ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'].filter(k => n.points[k].house === h);
+  function horoscopeMoney(n) {
+    const si = K.signOf(n.cusps[2]);
+    let out = hsPara('Tvůj rukopis s penězi', HS.D2[si], `2. dům ${K.SIGN_LOC_V[si]}`);
+    const in2 = hsPlanetsIn(n, 2);
+    if (in2.length) out += in2.map(k => hsPara('', `${K.BODY_CZ[k]} v oblasti peněz: ${HS.P_MONEY[k]}`, `${K.BODY_CZ[k]} · 2. dům`)).join('');
+    else out += hsPara('', 'Ve 2. domě nemáš žádnou planetu — peníze pro tebe nejsou životní téma samo o sobě. Řídí se tím, jak žiješ ostatní oblasti; základní rukopis ti dává znamení na hrotu.', '');
+    const in8 = hsPlanetsIn(n, 8);
+    if (in8.length) out += in8.map(k => hsPara('Sdílené zdroje', `Ve společných penězích, dědictvích a dluzích: ${K.BODY_CZ[k]} — ${HS.P_MONEY[k]}`, `${K.BODY_CZ[k]} · 8. dům`)).join('');
+    out += hsPara('Kde ti přeje růst', `Štěstí a příležitosti ti nejsnáz tečou v oblasti ${HS.HOUSE_AREA[n.points.Jupiter.house - 1]}. Tam se vyplácí investovat čas i důvěru.`, `Jupiter · ${n.points.Jupiter.house}. dům`);
+    out += hsPara('Kde je pozdní sklizeň', `Disciplínu a trpělivost po tobě život chce v oblasti ${HS.HOUSE_AREA[n.points.Saturn.house - 1]}. Co tam poctivě vybuduješ, drží nejdéle z celé mapy.`, `Saturn · ${n.points.Saturn.house}. dům`);
+    return out;
+  }
+  function horoscopeLove(n) {
+    const si = K.signOf(n.cusps[7]), v = K.signOf(n.points.Venus.lon), ma = K.signOf(n.points.Mars.lon);
+    let out = hsPara('Co hledáš v partnerství', HS.D7[si], `7. dům ${K.SIGN_LOC_V[si]}`);
+    out += hsPara('Jak miluješ', `Miluješ ${HS.VEN[v]}. Tvá jiskra: ${HS.MARS[ma]}.`, `Venuše ${K.SIGN_LOC_V[v]} · Mars ${K.SIGN_LOC_V[ma]}`);
+    const in7 = hsPlanetsIn(n, 7);
+    if (in7.length) out += in7.map(k => hsPara('', `${K.BODY_CZ[k]} v domě partnerství: ${HS.P_REL[k]}`, `${K.BODY_CZ[k]} · 7. dům`)).join('');
+    out += hsPara('', 'Tvé citové potřeby ve vztahu čti z Luny — viz Tvůj vnitřní svět v Osobnostním tématu. Partner, který je zná, má klíč.', '');
+    return out;
+  }
+  function horoscopeFamily(n) {
+    const si = K.signOf(n.cusps[4]);
+    let out = hsPara('Tvé kořeny', HS.D4[si], `4. dům ${K.SIGN_LOC_V[si]}`);
+    const in4 = hsPlanetsIn(n, 4);
+    if (in4.length) out += in4.map(k => hsPara('', `${K.BODY_CZ[k]} u kořenů: ${HS.P_FAM[k]}`, `${K.BODY_CZ[k]} · 4. dům`)).join('');
+    else out += hsPara('', 'Ve 4. domě nemáš planetu — rodina není tvé osudové bojiště. Rukopis kořenů čti ze znamení hrotu; svůj vlastní domov tvoříš svobodněji než většina.', '');
+    out += hsPara('', 'Domov je místo, odkud se vychází i kam se vrací. Ať mu dáš jakoukoli podobu, měř ho jediným: dá se v něm vydechnout.', '');
+    return out;
+  }
+  function horoscopeSpirit(n) {
+    const ns = K.signOf(n.points.Node.lon);
+    let out = hsPara('Směr růstu', `${HS.NODE[ns]} Tahle cesta se odehrává hlavně v oblasti ${HS.HOUSE_AREA[n.points.Node.house - 1]}.`, `Uzel ${K.SIGN_LOC_V[ns]} · ${n.points.Node.house}. dům`);
+    out += hsPara('Kde se dotýkáš přesahu', `Hranice mezi tebou a něčím větším je nejtenčí v oblasti ${HS.HOUSE_AREA[n.points.Neptune.house - 1]}. Tam přichází inspirace — a tam je i potřeba střízlivosti.`, `Neptun · ${n.points.Neptune.house}. dům`);
+    const in12 = hsPlanetsIn(n, 12).filter(k => k !== 'Neptune');
+    if (in12.length) out += in12.map(k => hsPara('Ve vnitřním tichu', `${K.BODY_CZ[k]}: ${HS.P_SPIRIT[k]}`, `${K.BODY_CZ[k]} · 12. dům`)).join('');
+    else out += hsPara('', 'Dvanáctý dům máš prázdný — tvá duchovní cesta se neděje v ústraní, ale přímo uprostřed života: ve vztazích, práci a všedním dni.', '');
+    return out;
+  }
+  function horoscopeChallenge(n) {
+    const ss = K.signOf(n.points.Saturn.lon);
+    let out = hsPara('Hlavní lekce', HS.SAT[ss], `Saturn ${K.SIGN_LOC_V[ss]}`);
+    out += hsPara('Kde tě život zkouší', `Nejvíc trpělivosti po tobě chce oblast ${HS.HOUSE_AREA[n.points.Saturn.house - 1]}. Pozdě, ale doopravdy — to je saturnský slib.`, `Saturn · ${n.points.Saturn.house}. dům`);
+    const NA = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto','Asc','MC'];
+    const HEAVY = ['Pluto','Neptune','Uranus','Saturn','Mars'];
+    const tens = [];
+    for (let i = 0; i < NA.length; i++) for (let j = i + 1; j < NA.length; j++) {
+      const a = K.aspectBetween(n.points[NA[i]].lon, n.points[NA[j]].lon, { default: 6, sextile: 4 });
+      if (a && a.kind === 'tense') tens.push({ a: NA[i], b: NA[j], ...a });
+    }
+    tens.sort((x, y) => x.orb - y.orb);
+    for (const t of tens.slice(0, 3)) {
+      const heavy = HEAVY.find(h => h === t.b || h === t.a);
+      const adv = (heavy && HS.ADVICE[heavy]) || 'Pomáhá vědomí: pojmenuj, co se děje, a napětí začne pracovat pro tebe.';
+      out += hsPara('', `${HS.NOUN[t.a].charAt(0).toUpperCase() + HS.NOUN[t.a].slice(1)} a ${HS.NOUN[t.b]} se v tobě přetahují — dvě síly, obě tvoje. Napětí nezmizí vítězstvím jedné; zmizí, když obě dostanou úkol. ${adv}`, `${K.BODY_CZ[t.a]} ${t.cz} ${K.BODY_CZ[t.b]} · orbis ${fmtOrb(t.orb)}`);
+    }
+    out += hsPara('', 'Překážky v mapě nejsou tresty — jsou to posilovny. Každá má na druhé straně dovednost, kterou jinak nezískáš.', '');
+    return out;
+  }
+  const HS_THEMES = [['osobnost', 'Osobnostní', (n) => horoscopePersonal(n)], ['penize', 'Peníze', horoscopeMoney], ['vztahy', 'Vztahy a láska', horoscopeLove], ['rodina', 'Rodina a kořeny', horoscopeFamily], ['duch', 'Duchovní cesta', horoscopeSpirit], ['vyzvy', 'Překážky a výzvy', horoscopeChallenge]];
+
   function horoscopePersonal(n) {
     const sgn = (k) => K.signOf(n.points[k].lon);
     const el = (si) => K.ELEMENT[si];
@@ -2485,8 +2562,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       </div>
       ${wheelSVG(n)}
       <div class="h3">Tvůj horoskop</div>
-      <div class="row echips" style="margin-bottom:8px"><button type="button" class="chip on">Osobnostní</button><span class="note" style="margin:0">další témata připravuji — peníze, vztahy, rodina, duchovní cesta…</span></div>
-      <div class="card hs">${horoscopePersonal(n)}</div>
+      <div class="row echips" style="margin-bottom:8px">${HS_THEMES.map(t => `<button type="button" class="chip ${(S.hsTheme || 'osobnost') === t[0] ? 'on' : ''}" data-act="hsTheme" data-t="${t[0]}">${t[1]}</button>`).join('')}</div>
+      <div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'osobnost')) || HS_THEMES[0])[2](n)}</div>
       <div class="h3">Body nativu</div>
       <table class="pts">${pts}</table>
       <details class="expl"><summary>Co ty body znamenají?</summary><div class="card small">
