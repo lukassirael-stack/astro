@@ -313,6 +313,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .plist .pn{font-size:14.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 .plist .pg{width:26px;height:26px;border-radius:8px;border:1px solid var(--line2);color:var(--muted);font-size:11px;font-weight:600;display:grid;place-items:center;text-decoration:none}
 .plist .pg:hover{color:var(--gold);border-color:var(--gold)}
+.elect .elq{margin:0 0 9px;font-size:14px;color:var(--text)}
+.echips{display:flex;flex-wrap:wrap;gap:7px}
+.echips.sub{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.echips.span{margin-top:10px;align-items:center}
+.echips .elbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.chip.small{font-size:12px;padding:5px 10px}
 .elist{list-style:none;margin:10px 0 0;padding:0}
 .elist li{border-top:1px solid var(--line)}
 .elist li:first-child{border-top:0}
@@ -1612,7 +1618,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 
   const now = new Date();
   const np = K.tzParts(now, TZ);
-  const S = { tab: 'kalendar', y: np.y, m: np.m, sel: { y: np.y, m: np.m, d: np.d }, natal: null, kpMap: {}, kpUpdated: null, kpError: null, dayCache: {}, evCache: {}, filter: 'vse', eph: { y: np.y, m: np.m }, installEvt: null, elek: { intent: 'smlouva', span: 30, results: null } };
+  const S = { tab: 'kalendar', y: np.y, m: np.m, sel: { y: np.y, m: np.m, d: np.d }, natal: null, kpMap: {}, kpUpdated: null, kpError: null, dayCache: {}, evCache: {}, filter: 'vse', eph: { y: np.y, m: np.m }, installEvt: null, elek: { cat: null, sub: null, span: 30, results: null } };
 
   // ===================== pomocné =====================
   const $ = (s, r) => (r || document).querySelector(s);
@@ -1714,12 +1720,9 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   });
 
   const actions = {
-    elekRun() {
-      const it = $('#electIntent'), sp = $('#electSpan');
-      if (it) S.elek.intent = it.value;
-      if (sp) S.elek.span = +sp.value;
-      electRun(); renderCalendar();
-    },
+    elekCat(el) { S.elek.cat = el.dataset.c; S.elek.sub = null; electRun(); renderCalendar(); },
+    elekSub(el) { S.elek.sub = el.dataset.s; electRun(); renderCalendar(); },
+    elekSpan(el) { S.elek.span = +el.dataset.n; electRun(); renderCalendar(); },
     prevMonth() { S.m--; if (S.m < 1) { S.m = 12; S.y--; } renderCalendar(); },
     nextMonth() { S.m++; if (S.m > 12) { S.m = 1; S.y++; } renderCalendar(); },
     today() { S.y = np.y; S.m = np.m; S.sel = { y: np.y, m: np.m, d: np.d }; renderCalendar(); },
@@ -1979,20 +1982,29 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
 
   // ===================== najít vhodný den (elekce) =====================
-  const ELECT_INTENTS = [
-    { id: 'smlouva', label: 'Podpis smlouvy · úřad · důležitá domluva', noRetro: true, wax: .5, vocPlus: true },
-    { id: 'penize', label: 'Investice · větší nákup · finance', noRetro: true, wax: 1 },
-    { id: 'zacatek', label: 'Zahájení projektu · otevření · spuštění', newMoon: true, vocPlus: true },
-    { id: 'cesta', label: 'Cesta · přesun · dovolená', noKp: true, retroMinus: 1 },
-    { id: 'setkani', label: 'Setkání · rande · návštěva', wax: .5, venusSign: true },
-    { id: 'stehovani', label: 'Stěhování · změna bydlení', wax: .5, noKp: true, retroMinus: .5 },
-    { id: 'zakrok', label: 'Plánovaný zákrok · zubař (orientačně)', wane: true, avoidFull: true, noKp: true, health: true },
+  const ELECT_CATS = [
+    { id: 'smlouva', label: 'Smlouva a dohoda', rules: { noRetro: 1, vocPlus: 1, wax: .5 }, subs: [['podpis', 'Podpis smlouvy'], ['urad', 'Úřad · žádost'], ['dohoda', 'Důležitá dohoda']] },
+    { id: 'penize', label: 'Peníze a větší nákup', rules: { noRetro: 1, wax: 1 }, subs: [['nakup', 'Větší nákup'], ['investice', 'Investice'], ['uver', 'Úvěr · financování'], ['koupe', 'Koupě auta · nemovitosti']] },
+    { id: 'projekt', label: 'Projekt a podnikání', rules: { newMoon: 1, vocPlus: 1 }, subs: [['zacit', 'Začít projekt'], ['web', 'Spustit web'], ['provoz', 'Otevřít provoz'], ['produkt', 'Představit produkt']] },
+    { id: 'prace', label: 'Práce a kariéra', rules: { noRetro: 1, wax: .5 }, subs: [['pohovor', 'Pohovor'], ['nastup', 'Nástup'], ['zvyseni', 'Žádost o zvýšení'], ['prezentace', 'Prezentace · vystoupení'], ['zkouska', 'Zkouška · přihláška']] },
+    { id: 'laska', label: 'Láska a vztahy', rules: { wax: .5, venusSign: 1, venusNoRetro: 1 }, subs: [['rande', 'Rande'], ['setkani', 'Důležité setkání'], ['zasnuby', 'Zásnuby'], ['svatba', 'Svatba', { vocPlus: 1 }]] },
+    { id: 'bydleni', label: 'Stěhování a bydlení', rules: { wax: .5, noKp: 1, retroMinus: .5 }, subs: [['stehovani', 'Stěhování'], ['najem', 'Nové bydlení · nájem']] },
+    { id: 'cesta', label: 'Cesta a dovolená', rules: { noKp: 1, retroMinus: 1 }, subs: [['odjezd', 'Odjezd na cestu'], ['dovolena', 'Dovolená'], ['presun', 'Přesun · logistika']] },
+    { id: 'rozhovor', label: 'Důležitý rozhovor', rules: { noRetro: 1, vocPlus: 1, airSign: 1 }, subs: [['vyjednavani', 'Vyjednávání'], ['citlive', 'Citlivé téma'], ['zadost', 'Žádost · prosba']] },
+    { id: 'zakrok', label: 'Plánovaný zákrok', rules: { wane: 1, avoidFull: 1, noKp: 1, health: 1 }, subs: [['operace', 'Zákrok · operace'], ['zubar', 'Zubař']] },
   ];
+  function electCfg() {
+    const cat = ELECT_CATS.find(c => c.id === S.elek.cat);
+    if (!cat) return null;
+    const sub = cat.subs.find(x => x[0] === S.elek.sub) || cat.subs[0];
+    return { ...cat.rules, ...(sub[2] || {}), catLabel: cat.label, subLabel: sub[1], health: cat.rules.health };
+  }
   function electDay(cfg, y, m, d, evs) {
     const da = analyze(y, m, d);
     const key = K.isoDate(y, m, d);
     if (evs.some(e => e.eclipse && K.dateKey(e.date, TZ) === key)) return null;
     if (cfg.noRetro && da.mercuryRetro) return null;
+    if (cfg.venusNoRetro && da.pos.Venus.retro) return null;
     if (cfg.noKp && da.kp && da.kp.kp >= 5) return null;
     const phA = da.phaseAngle;
     if (cfg.avoidFull && phA >= 160 && phA <= 200) return null;
@@ -2001,13 +2013,15 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     if (cfg.wane && phA >= 195 && phA < 350) { sc += 1; why.push('couvající Luna'); }
     if (cfg.newMoon && phA >= 5 && phA < 95) { sc += 1; why.push('Luna mezi novem a první čtvrtí'); }
     if (cfg.venusSign && (da.moonSign === 1 || da.moonSign === 6)) { sc += .5; why.push('Luna ve znamení Venuše'); }
+    if (cfg.airSign && (da.moonSign === 2 || da.moonSign === 6 || da.moonSign === 10)) { sc += .5; why.push('Luna ve vzdušném znamení'); }
     if (cfg.vocPlus && !da.voc.length) { sc += .5; why.push('Luna celý den v kurzu'); }
     if (cfg.retroMinus && da.mercuryRetro) { sc -= cfg.retroMinus; why.push('Merkur retrográdní'); }
     if (da.color === 'harm') why.unshift('celkově příznivý den');
     return { key, y, m, d, sc, da, why };
   }
   function electRun() {
-    const cfg = ELECT_INTENTS.find(i => i.id === S.elek.intent) || ELECT_INTENTS[0];
+    const cfg = electCfg();
+    if (!cfg) { S.elek.results = null; return; }
     const out = [], evCacheM = {};
     for (let i = 1; i <= S.elek.span; i++) {
       const dt = K.addDays(K.dayStart(np.y, np.m, np.d, TZ), i + 0.5);
@@ -2021,24 +2035,26 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     S.elek.results = out.slice(0, 6);
   }
   function electHTML() {
-    const opts = ELECT_INTENTS.map(i => `<option value="${i.id}" ${S.elek.intent === i.id ? 'selected' : ''}>${i.label}</option>`).join('');
-    const spans = [14, 30, 60].map(n => `<option value="${n}" ${+S.elek.span === n ? 'selected' : ''}>${n} dní</option>`).join('');
-    const cfg = ELECT_INTENTS.find(i => i.id === S.elek.intent);
-    let res = '';
-    if (S.elek.results) {
-      res = S.elek.results.length ? `<ul class="elist">${S.elek.results.map(r => `<li><button type="button" data-act="selDay" data-y="${r.y}" data-m="${r.m}" data-d="${r.d}">
-        <span class="ed">${K.WEEKDAY_CZ[K.tzParts(r.da.noon, TZ).wd]} ${r.d}. ${K.MONTH_GEN[r.m - 1]}</span>
-        <span class="badge ${r.da.color}">${TX.dayWord(r.da)}</span>
-        <span class="ew">${esc(r.why.join(' · ') || 'bez zvláštních výhrad')}</span>
-      </button></li>`).join('')}</ul>` : '<p class="small muted" style="margin:8px 0 0">V tomhle rozmezí žádný vyloženě vhodný den nevychází — zkus delší rozsah.</p>';
-      res += `<p class="note">Řazeno podle skóre dne s příplatky za to, co dané věci svědčí. Vyřazeny jsou dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ' a okolí úplňku' : ''}.${cfg.health ? ' U zákroků je tohle jen orientační vodítko — termín se řídí tím, co řekne lékař.' : ''}</p>`;
+    const cat = ELECT_CATS.find(c => c.id === S.elek.cat);
+    const cats = `<div class="row echips">${ELECT_CATS.map(c => `<button type="button" class="chip ${S.elek.cat === c.id ? 'on' : ''}" data-act="elekCat" data-c="${c.id}">${c.label}</button>`).join('')}</div>`;
+    let body = '';
+    if (cat) {
+      const subOn = (cat.subs.find(x => x[0] === S.elek.sub) || cat.subs[0])[0];
+      body += `<div class="row echips sub">${cat.subs.map(x => `<button type="button" class="chip small ${subOn === x[0] ? 'on' : ''}" data-act="elekSub" data-s="${x[0]}">${x[1]}</button>`).join('')}</div>`;
+      body += `<div class="row echips span"><span class="elbl">Rozsah</span>${[14, 30, 60].map(n => `<button type="button" class="chip small ${+S.elek.span === n ? 'on' : ''}" data-act="elekSpan" data-n="${n}">${n} dní</button>`).join('')}</div>`;
+      const cfg = electCfg();
+      if (S.elek.results) {
+        body += S.elek.results.length ? `<ul class="elist">${S.elek.results.map(r => `<li><button type="button" data-act="selDay" data-y="${r.y}" data-m="${r.m}" data-d="${r.d}">
+          <span class="ed">${K.WEEKDAY_CZ[K.tzParts(r.da.noon, TZ).wd]} ${r.d}. ${K.MONTH_GEN[r.m - 1]}</span>
+          <span class="badge ${r.da.color}">${TX.dayWord(r.da)}</span>
+          <span class="ew">${esc(r.why.join(' · ') || 'bez zvláštních výhrad')}</span>
+        </button></li>`).join('')}</ul>` : '<p class="small muted" style="margin:8px 0 0">V tomhle rozmezí žádný vyloženě vhodný den nevychází — zkus delší rozsah.</p>';
+        body += `<p class="note">Nejlepší dny pro: ${cfg.subLabel.toLowerCase()}. Řazeno podle skóre dne s příplatky za to, co dané věci svědčí; vyřazeny dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.venusNoRetro ? ', retrográdní Venuše' : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ' a okolí úplňku' : ''}.${cfg.health ? ' Jen orientačně — termín zákroku se vždy řídí tím, co řekne lékař.' : ''}</p>`;
+      }
     }
-    return `<div class="h3">Najít vhodný den</div><div class="card">
-      <div class="row" style="gap:7px;flex-wrap:wrap">
-        <select class="btn" id="electIntent" aria-label="Co plánuješ" style="max-width:100%;text-transform:none;letter-spacing:0;font-size:13px">${opts}</select>
-        <select class="btn" id="electSpan" aria-label="Rozsah" style="text-transform:none;letter-spacing:0;font-size:13px">${spans}</select>
-        <button type="button" class="btn small" data-act="elekRun">Najít</button>
-      </div>${res}</div>`;
+    return `<div class="h3">Najít vhodný den</div><div class="card elect">
+      <p class="elq">Pro co hledám vhodný den?</p>
+      ${cats}${body}</div>`;
   }
 
   function planPanel(key) {
