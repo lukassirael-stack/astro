@@ -2287,7 +2287,101 @@ ${parts}
 </div></body></html>`;
   }
 
-  const HS_THEMES = [['osobnost', 'Osobnostní', (n) => horoscopePersonal(n)], ['penize', 'Peníze', horoscopeMoney], ['vztahy', 'Vztahy a láska', horoscopeLove], ['rodina', 'Rodina a kořeny', horoscopeFamily], ['duch', 'Duchovní cesta', horoscopeSpirit], ['vyzvy', 'Překážky a výzvy', horoscopeChallenge], ['prace', 'Práce a poslání', horoscopeWork], ['zdravi', 'Zdraví a vitalita', horoscopeHealth], ['radost', 'Tvořivost a radost', horoscopeJoy], ['mysl', 'Komunikace a mysl', horoscopeMind], ['hvezdy', 'Tvé hvězdy', horoscopeStars]];
+  // ===================== roční výhled =====================
+  HS.TGT_Y = { Sun: 'tvé Slunce (jádro, vůle a směr)', Moon: 'tvou Lunu (city, potřeby, domov)', Mercury: 'tvůj Merkur (myšlení a komunikaci)', Venus: 'tvou Venuši (lásku, vztahy a hodnoty)', Mars: 'tvůj Mars (sílu a akceschopnost)', Asc: 'tvůj Ascendent (tebe a tvé vystupování)', MC: 'tvé MC (povolání a směřování)' };
+  HS.TR_Y = {
+    Jupiter: { conj: 'Jupiter se postaví přímo na {T}. Období otevřených dveří: co v téhle oblasti začneš, má vítr v plachtách. Řekni si o víc — teď se dává.', harm: 'Jupiter podpoří {T} z dobrého úhlu. Klidnější štěstí: příležitosti chodí samy, stačí je nepromeškat skromností.', tense: 'Jupiter tlačí na {T} — chuť přestřelit: víc slíbit, víc utratit, víc si naložit. Růst ano, ale s rozpočtem a kalendářem.' },
+    Saturn: { conj: 'Saturn dolehne na {T}. Velká inventura: co je postavené poctivě, potvrdí; co stálo na písku, nechá spadnout. Náročné a zásadní období — z těch, na která se po letech vzpomíná s vděčností.', harm: 'Saturn podrží {T} pevným úhlem: disciplína v tomhle období nese viditelné plody. Dobrý čas stavět věci nadlouho.', tense: 'Saturn brzdí {T} — pocit zdi nebo zpomalení. Není to trest, je to kontrola základů: zpomal dobrovolně, oprav, co skřípe, a zeď se promění ve schod.' },
+    Uranus: { conj: 'Uran zasáhne {T} — období zlomů a osvobození: co bylo těsné, praskne. Dělej změny sám a dřív, než je udělá život za tebe.', harm: 'Uran osvěží {T} — chuť na změnu přijde lehce a vyplatí se: nové cesty, nová řešení, čerstvý vzduch.', tense: 'Uran rozechvěje {T} — nečekané zvraty a neklid. Drž kotvu v podstatném a experimentuj v malém, ať se velké nemusí lámat samo.' },
+    Neptune: { conj: 'Neptun obestře {T} mlhou i inspirací. Skvělé období pro tvorbu a duchovní práci, ošidné pro smlouvy a velká rozhodnutí — na ta si ber svědky a fakta.', harm: 'Neptun zjemní {T} — silnější intuice, sny a soucit. Dobré období pro vnitřní i uměleckou práci.', tense: 'Neptun rozmlžuje {T} — únava, iluze, nejasno. Rozhoduj s odstupem, ověřuj, spi. Mlha se zvedne; nedělej v ní trvalé kroky.' },
+    Pluto: { conj: 'Pluto přeorává {T} — pomalu a od základů. Staré struktury odchází; drž jen to, co má kořeny. Z takového období vycházíš jiný — a silnější.', harm: 'Pluto prohlubuje {T}: tiché, vytrvalé posilování. Co teď vybuduješ v hloubce, ponese roky.', tense: 'Pluto tlačí na {T} — kontrola, mocenské tahanice, nutnost pustit. Když něco končí, uvolňuje místo; nedrž dveře, kterými už prošel průvan.' },
+  };
+  HS.JUP_H = ['rok osobního růstu — víc sebevědomí, energie a viditelnosti; dobré období začít něco sám za sebe', 'přeje financím a vlastní hodnotě — příjmy mohou růst, stejně jako chuť utrácet', 'přeje učení, psaní, jednáním a blízkému okolí — rok plný kontaktů a nápadů', 'přeje domovu a rodině — dobré období pro bydlení, kořeny a usmíření', 'přeje tvorbě, radosti, lásce a dětem — rok, kdy si máš hrát ve velkém', 'přeje práci a zdraví — víc zakázek i chuti pečovat o tělo; jen si toho nenaber přespříliš', 'přeje partnerství — vztahy rostou, uzavírají se svazky i spojenectví', 'přeje společným financím a hlubokým proměnám — investice, dědictví, terapie', 'přeje cestám, studiu a víře — rok rozšířených obzorů', 'přeje kariéře — postup, uznání, viditelnost; řekni si o víc', 'přeje přátelstvím, komunitě a vizím — správní lidé přichází sami', 'přeje nitru — rok tichého zrání a duchovní práce; úroda bude vidět později'];
+  HS.SAT_H = ['zkouší tebe samotného — tělo, identitu, hranice; rok převzetí odpovědnosti za sebe', 'zkouší finance — rozpočet, dluhy, vlastní hodnotu; co srovnáš, drží roky', 'zkouší komunikaci a závazky slova — mluv méně a přesněji', 'zkouší domov a kořeny — rodinné povinnosti a dospělé srovnání s minulostí', 'zkouší radost — uč se tvořit a milovat i s odpovědností, ne místo ní', 'zkouší práci a tělo — režim, zdraví, poctivé řemeslo; skvělý rok na disciplínu', 'zkouší vztahy — co je vážné, se prohloubí; co je vyčpělé, dostane termín', 'zkouší sdílené zdroje — dluhy, dědictví, důvěru; velká inventura závazků', 'zkouší přesvědčení — víra dostane zkoušku praxí; studuj do hloubky', 'zkouší kariéru — víc odpovědnosti, méně potlesku; stavíš základy pozice na příští roky', 'zkouší přátelství a plány — zůstanou ti ti praví a cíle, které unesou tíhu', 'zkouší nitro — únava starých vzorců; rok úklidu v pozadí, spánku a odpuštění'];
+  function horoscopeYear(n) {
+    const ck = activeId + '|' + TODAY_KEY;
+    if (S._year && S._year.k === ck) return S._year.html;
+    const now = new Date();
+    const fmtD = (d) => { const q = K.tzParts(d, TZ); return `${q.d}. ${K.MONTH_GEN[q.m - 1]}` + (q.y !== K.tzParts(now, TZ).y ? ` ${q.y}` : ''); };
+    const TRP = ['Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
+    const TGT = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Asc', 'MC'];
+    const STEP = 5, NPTS = 74;
+    const samples = [];
+    for (let i = 0; i <= NPTS; i++) {
+      const d = new Date(now.getTime() + i * STEP * 86400000);
+      const pos = K.positions(d);
+      samples.push({ d, lon: Object.fromEntries(TRP.map(b => [b, pos[b].lon])) });
+    }
+    const dif = (a, b) => { let x = Math.abs(((a - b) % 360 + 360) % 360); return x > 180 ? 360 - x : x; };
+    const ASP = [[0, 'konjunkce', 'conj'], [90, 'kvadratura', 'tense'], [120, 'trigon', 'harm'], [180, 'opozice', 'tense']];
+    const items = [];
+    for (const tr of TRP) for (const tg of TGT) for (const [ang, cz, tone] of ASP) {
+      const wins = []; let cur = null, best = 99;
+      for (const sm of samples) {
+        const err = Math.abs(dif(sm.lon[tr], n.points[tg].lon) - ang);
+        if (err <= 3) { if (!cur) cur = { from: sm.d, to: sm.d }; cur.to = sm.d; if (err < best) best = err; }
+        else if (cur) { wins.push(cur); cur = null; }
+      }
+      if (cur) wins.push(cur);
+      if (wins.length) items.push({ tr, tg, ang, cz, tone, wins, best });
+    }
+    const W = { Pluto: 5, Neptune: 4, Uranus: 3, Saturn: 2, Jupiter: 1 };
+    items.sort((a, b) => W[b.tr] - W[a.tr] || a.best - b.best);
+    const rangeTxt = (wins) => wins.map(w => (w.from.getTime() - now.getTime() < 6 * 86400000 ? `právě běží, do ${fmtD(w.to)}` : `${fmtD(w.from)} – ${fmtD(w.to)}`)).join(', potom ');
+    // domy Jupitera a Saturnu během roku
+    const houseRanges = (body) => {
+      const out = [];
+      for (let i = 0; i <= 12; i++) {
+        const d = new Date(now.getTime() + i * 30.4 * 86400000);
+        const h = K.houseOf(K.positions(d)[body].lon, n.cusps);
+        if (!out.length || out[out.length - 1].h !== h) out.push({ h, from: d });
+      }
+      return out;
+    };
+    const jh = houseRanges('Jupiter'), sh = houseRanges('Saturn');
+    let html = hsPara('', `Tohle není o tom, kdo jsi — to čte nativní horoskop. Roční výhled čte počasí: kudy v příštích dvanácti měsících (od ${fmtD(now)}) půjdou pomalé planety vůči tvé mapě, kdy a o čem ta období budou.`, '');
+    const houseStory = (name, intro, rs, bank) => rs.map((r, i) => i === 0
+      ? `${name} — ${intro} — ${rs.length > 1 ? `do ${fmtD(rs[1].from)}` : 'letos'} prochází tvým ${r.h}. domem: ${bank[r.h - 1]}.`
+      : `Od ${fmtD(r.from)} přejde do tvého ${r.h}. domu: ${bank[r.h - 1]}.`).join(' ');
+    html += hsPara('Kde ti roste štěstí', houseStory('Jupiter', 'planeta růstu a příležitostí', jh, HS.JUP_H), `Jupiter · ${jh.map(r => r.h + '. dům').join(' → ')}`);
+    html += hsPara('Co letos stavíš', houseStory('Saturn', 'planeta řádu a zrání', sh, HS.SAT_H), `Saturn · ${sh.map(r => r.h + '. dům').join(' → ')}`);
+    const top = items.slice(0, 6);
+    if (top.length) {
+      html += `<h4 class="hsh">Velká témata roku</h4>`;
+      for (const it of top) {
+        const txt = HS.TR_Y[it.tr][it.tone].replace('{T}', HS.TGT_Y[it.tg]);
+        html += hsPara('', `${txt} Okno: ${rangeTxt(it.wins)}.`, `${K.BODY_CZ[it.tr]} ${it.cz} ${K.BODY_CZ[it.tg]} · orbis do 3°`);
+      }
+    } else html += hsPara('', 'Pomalé planety letos tvou mapu míjejí bez přesných úhlů — klidnější rok bez velkých vnějších témat. O rytmu rozhodují rychlé vlivy: sleduj kalendář.', '');
+    // zatmění
+    const ecl = [];
+    let qy = K.tzParts(now, TZ).y, qm = K.tzParts(now, TZ).m;
+    for (let i = 0; i < 12; i++) {
+      for (const e of monthEvents(qy, qm)) if (e.eclipse && e.date > now) {
+        const pos = K.positions(e.date);
+        const solar = (e.title || '').includes('Slunce');
+        const lon = solar ? pos.Sun.lon : pos.Moon.lon;
+        ecl.push({ date: e.date, solar, house: K.houseOf(lon, n.cusps) });
+      }
+      qm++; if (qm > 12) { qm = 1; qy++; }
+    }
+    const eSeen = new Set();
+    const eFin = ecl.filter(e => { const k = e.date.toISOString().slice(0, 10); if (eSeen.has(k)) return false; eSeen.add(k); return true; }).slice(0, 4);
+    if (eFin.length) {
+      html += `<h4 class="hsh">Zatmění roku</h4>`;
+      for (const e of eFin) {
+        html += hsPara('', e.solar
+          ? `Zatmění Slunce ${fmtD(e.date)} otevře novou kapitolu v oblasti ${HS.HOUSE_AREA[e.house - 1]} — začátky z tohoto období mívají neobvyklou váhu.`
+          : `Zatmění Měsíce ${fmtD(e.date)} osvětlí a uzavře téma v oblasti ${HS.HOUSE_AREA[e.house - 1]} — něco dozraje k viditelnosti, nebo ke konci.`,
+          `${e.solar ? 'sluneční' : 'měsíční'} zatmění · ${e.house}. dům`);
+      }
+    }
+    html += hsPara('', 'Tranzity nejsou příkazy — jsou to termíny témat. Když víš, o čem období je, přestáváš s ním bojovat a začínáš ho používat.', '');
+    S._year = { k: ck, html };
+    return html;
+  }
+
+  const HS_THEMES = [['osobnost', 'Osobnostní', (n) => horoscopePersonal(n)], ['penize', 'Peníze', horoscopeMoney], ['vztahy', 'Vztahy a láska', horoscopeLove], ['rodina', 'Rodina a kořeny', horoscopeFamily], ['duch', 'Duchovní cesta', horoscopeSpirit], ['vyzvy', 'Překážky a výzvy', horoscopeChallenge], ['prace', 'Práce a poslání', horoscopeWork], ['zdravi', 'Zdraví a vitalita', horoscopeHealth], ['radost', 'Tvořivost a radost', horoscopeJoy], ['mysl', 'Komunikace a mysl', horoscopeMind], ['hvezdy', 'Tvé hvězdy', horoscopeStars], ['rok', 'Tvůj rok', horoscopeYear]];
 
   function horoscopePersonal(n) {
     const sgn = (k) => K.signOf(n.points[k].lon);
