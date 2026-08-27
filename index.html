@@ -1762,10 +1762,17 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     addPlan(el) {
       const key = el.dataset.k;
       const wrap = el.closest('.planadd');
-      const t = $('[name=ptime]', wrap).value.trim();
+      const raw = $('[name=ptime]', wrap).value.trim();
+      let t = null;
+      if (raw) {
+        const mt = raw.match(/^(\d{1,2})[:.,h ]?(\d{2})?$/);
+        const hh = mt ? +mt[1] : -1, mm = mt && mt[2] ? +mt[2] : 0;
+        if (!mt || hh > 23 || mm > 59) { toast('Čas zadej jako 14:30 (nebo nech prázdné).'); return; }
+        t = String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+      }
       const name = $('[name=pname]', wrap).value.trim();
       if (!name) { toast('Napiš, co tě čeká.'); return; }
-      pAdd(key, { id: 'p' + Date.now().toString(36), t: t || null, name });
+      pAdd(key, { id: 'p' + Date.now().toString(36), t, name });
       $('[name=pname]', wrap).value = ''; $('[name=ptime]', wrap).value = '';
       if (S.tab === 'diar') renderJournal(); else renderCalendar();
     },
@@ -2043,7 +2050,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <h4>Co mě čeká</h4>
       ${items.length ? `<ul class="plist">${list}</ul>` : '<p class="small muted" style="margin:0 0 8px">Zatím nic zapsaného.</p>'}
       <div class="planadd">
-        <input type="time" name="ptime" aria-label="Čas (nepovinný)" title="Čas (nepovinný)">
+        <input type="text" name="ptime" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="čas" aria-label="Čas (nepovinný), např. 14:30" title="Čas (nepovinný), např. 14:30">
         <input type="text" name="pname" placeholder="Co tě čeká — schůzka, zubař, cesta…" aria-label="Co tě čeká">
         <button type="button" class="btn small" data-act="addPlan" data-k="${key}">Přidat</button>
       </div>
