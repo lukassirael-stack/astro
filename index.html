@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Nebeský kalendář</title>
+<title>Nebeský kalendář — tvůj hvězdný kompas</title>
 <meta name="description" content="Nebeský kalendář – osobní kalendář složený z postavení planet, Luny, stálic a kosmického počasí. Tohle je dnes ve hře.">
 <meta name="theme-color" content="#111832">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -345,10 +345,17 @@ details.expl .card p:last-child{margin:0}
 .eltoggle.open{border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0}
 .eltoggle.open+.card{border-top-left-radius:0;border-top-right-radius:0;margin-top:0;border-top:0}
 .elect .elq{margin:0 0 9px;font-size:14px;color:var(--text)}
+.claim{display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.30em;text-transform:uppercase;white-space:nowrap}
+.claim i{font-style:normal;background:linear-gradient(180deg,#FFF6D8 0%,#F2DA9C 38%,#CDa75E 72%,#A8813B 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 7px rgba(240,200,116,.38));padding-bottom:2px}
+.claim:before,.claim:after{content:'';width:30px;height:1px;background:linear-gradient(90deg,transparent,#D9B96E);opacity:.85}
+.claim:after{background:linear-gradient(90deg,#D9B96E,transparent)}
+.brand-claim{margin:-2px auto 0;transform:translateY(-6px)}
+.brand-claim i{font-size:12px}
+@media (max-width:420px){.claim{font-size:11px;letter-spacing:.24em}.claim:before,.claim:after{width:20px}}
 #splash{position:fixed;inset:0;z-index:999;display:grid;place-items:center;align-content:center;gap:18px;
   background:linear-gradient(180deg,#0A1B33 0%,#081527 55%,#050E1C 100%);transition:opacity .55s ease}
 #splash img{width:min(310px,66vw);height:auto;animation:spIn 1.1s ease both}
-#splash .sp-tag{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:rgba(240,216,152,.72);animation:spIn 1.1s .15s ease both}
+#splash .sp-claim{animation:spIn 1.1s .15s ease both}
 #splash.done{opacity:0;pointer-events:none}
 @keyframes spIn{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
 .echips{display:flex;flex-wrap:wrap;gap:7px}
@@ -537,11 +544,11 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 </style>
 </head>
 <body>
-<div id="splash" aria-hidden="true"><img src="logo2.webp?v=1" alt=""><span class="sp-tag">v souladu s rytmem nebes</span></div>
+<div id="splash" aria-hidden="true"><img src="logo2.webp?v=1" alt=""><span class="claim sp-claim"><i>tvůj hvězdný kompas</i></span></div>
 <div id="skybg" aria-hidden="true"></div>
 <div class="app" id="app">
   <header class="top">
-    <h1 class="brand"><img class="logo" src="logo2.webp?v=1" alt="Nebeský kalendář — v souladu s rytmem nebes" width="820" height="945"></h1>
+    <h1 class="brand"><img class="logo" src="logo2.webp?v=1" alt="Nebeský kalendář — tvůj hvězdný kompas" width="820" height="945"><span class="claim brand-claim"><i>tvůj hvězdný kompas</i></span></h1>
     <button class="profile-pill" id="profilePill" data-tab="nastaveni" title="Aktivní profil">—</button>
   </header>
   <main>
@@ -2374,7 +2381,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 </style></head><body>
 <div class="noprint"><button onclick="window.print()">Vytisknout / uložit PDF</button></div>
 <div class="wrap">
-<header><div class="brand">Nebeský kalendář</div><h1>${esc(prof.name)}</h1><div class="meta">${meta} · domy Placidus · tropický zvěrokruh</div></header>
+<header><div class="brand">Nebeský kalendář · tvůj hvězdný kompas</div><h1>${esc(prof.name)}</h1><div class="meta">${meta} · domy Placidus · tropický zvěrokruh</div></header>
 ${parts}
 <footer>Sestaveno ${new Date().toLocaleDateString('cs-CZ')} · Oáza Adamanthea · oaza-adamanthea.cz<br>Mapa není rozsudek — je to popis nástrojů, se kterými jsi přišel.</footer>
 </div></body></html>`;
