@@ -1758,6 +1758,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   const actions = {
     elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); },
     hsTheme(el) { S.hsTheme = el.dataset.t; store.set('kairos_hstheme', S.hsTheme); renderNatal(); },
+    synSel(el) { S.synId = S.synId === el.dataset.id ? null : el.dataset.id; renderNatal(); },
     hsPrint() {
       const doc = horoscopeDoc(S.natal);
       const wnd = window.open('', '_blank');
@@ -2406,6 +2407,67 @@ ${parts}
     return html;
   }
 
+  // ===================== partnerský horoskop =====================
+  HS.NEED = ['upřímnost, pohyb a možnost řešit věci hned', 'klid, stálost a smyslové bezpečí', 'rozhovor, pojmenování a rozptýlení', 'blízkost, domov a věrnou paměť srdce', 'pozornost, radost a prostor zazářit', 'řád, užitečnost a klid v uklizeném', 'harmonii, krásu a společnost', 'hloubku, pravdivost a pomalu budovanou důvěru', 'prostor, smysl a naději', 'spolehlivost, respekt a čas', 'vzduch, svobodu a rozumový odstup', 'ticho, jemnost a čas o samotě'];
+  HS.SYN = {
+    'Sun|Sun': { conj: 'Dvě slunce na stejném místě — rozumíte si beze slov, ale soupeříte o stejné jeviště. Střídejte se v hlavní roli.', harm: 'Vaše podstaty táhnou stejným směrem — je vám spolu přirozeně dobře a posilujete si sebevědomí.', tense: 'Dvě vůle, dva směry. Respekt k odlišné cestě toho druhého je tu podmínka — a zároveň největší dar, který si můžete dát.' },
+    'Moon|Sun': { conj: 'Vůle jednoho a city druhého splývají — hluboké porozumění, pocit „ty mě znáš“. Klasický znak dlouhých svazků.', harm: 'Jeden svítí, druhý hřeje — vůle a cit se u vás doplňují bez námahy. Vzácný základ každodenní pohody.', tense: 'Co jeden chce, druhého citově dře. Neznamená to nesoulad povah — jen nutnost víc říkat nahlas, co se děje uvnitř.' },
+    'Moon|Moon': { conj: 'Vaše nitra mluví stejným jazykem — náladu druhého poznáte dřív, než promluví. Pozor jen na společné propady: kdo dnes drží hladinu?', harm: 'Citové rytmy si rozumí — doma je vám spolu dobře, potřeby se potkávají. Základ, na kterém se dá stavět všechno ostatní.', tense: 'Každý potřebujete jiné bezpečí — co jednoho uklidňuje, druhého dusí. Řešení není splynout, ale znát návod toho druhého.' },
+    'Mercury|Mercury': { conj: 'Myslíte podobně — rozhovor u vás teče sám. Riziko jediné: mluvit o všem, jen ne o tom podstatném.', harm: 'Domluvíte se snadno a rádi — slova jsou u vás most, ne zbraň.', tense: 'Dva různé jazyky: jeden mluví fakty, druhý dojmy. Nedorozumění tu nejsou zlá vůle — ptejte se „jak to myslíš?“ dřív, než se urazíte.' },
+    'Sun|Venus': { conj: 'Náklonnost na první pohled — jeden v druhém vidí krásu a rád ji ukazuje světu. Vztah, který zkrášluje oba.', harm: 'Máte se rádi snadno — obdiv, vkus a radost ze společných věcí. Vztah s přirozeným půvabem.', tense: 'Přitažlivost je, ale vkus a hodnoty se rozchází — co jeden miluje, druhý nechápe. Kupujte si zážitky odděleně a lásku společně.' },
+    'Moon|Venus': { conj: 'Něha potkává potřebu — umíte se navzájem opečovat přesně tak, jak to ten druhý potřebuje. Jeden z nejsladších kontaktů vůbec.', harm: 'Cit a láska si rozumí — vztah, ve kterém je měkko. Chraňte si to před provozem všedního dne.', tense: 'Projev lásky jednoho míjí potřebu druhého — dává se, ale nedochází to. Naučte se navzájem svůj jazyk lásky; je jiný, ne horší.' },
+    'Mars|Sun': { conj: 'Energie na druhou — spolu hory přenesete, nebo se o ně pohádáte. Dejte té síle společný projekt, jinak si najde vás.', harm: 'Akce a vůle spolupracují — jeden druhého uvádí do pohybu. Skvělé pro společné podnikání i sport.', tense: 'Jiskří to — přitažlivost i třenice ze stejného zdroje. Hádky budou; učte se je vést fér a krátce, bez ran pod pás.' },
+    'Mars|Moon': { conj: 'Vášeň a cit v jednom bodě — silná přitažlivost, rychlé emoce. Krásné a hořlavé: zacházejte s ohněm vědomě.', harm: 'Touha a něha v rovnováze — vztah, kde se cit umí projevit i tělem. Živé a zdravé spojení.', tense: 'Jeden svou razancí nechtěně zraňuje citlivá místa druhého. Klíč: brzdit první reakci a říkat „tohle mi ubližuje“ dřív, než se střílí zpátky.' },
+    'Venus|Venus': { conj: 'Stejný vkus, stejné potěšení — víte, co druhého těší, protože to těší i vás.', harm: 'Vaše představy o lásce a kráse ladí — snadno se domluvíte, co je „hezky spolu“.', tense: 'Jiný vkus, jiné projevy lásky. Nic vážného — jen nechtějte, aby druhý miloval vaším způsobem.' },
+    'Mars|Venus': { conj: 'Učebnicová přitažlivost — magnetismus, který nestárne. Držte ho živý pozorností, ne jen zvykem.', harm: 'Touha a láska si jdou naproti — fyzická i citová rovina se doplňují přirozeně.', tense: 'Přitahujete se a míjíte v rytmu — jeden chce teď, druhý jinak či jindy. Mluvte o tom beze studu; sladit se dá jen nahlas.' },
+    'Asc|Sun': { conj: 'Jeden ztělesňuje to, čím druhý je — okolí vás čte jako přirozený pár.', harm: 'Vystupujete v souladu — na veřejnosti i doma jste čitelní jeden pro druhého.', tense: 'První dojem klame — každý působíte jinak, než ten druhý čeká. Dejte si čas poznat, co je pod slupkou.' },
+    'Asc|Moon': { conj: 'Doma i navenek jedno — s tímhle člověkem se dá bydlet: jeho projev uklidňuje tvé nitro.', harm: 'Přirozenost jednoho konejší city druhého — je vám spolu snadno.', tense: 'Způsoby jednoho dráždí citlivá místa druhého — drobnosti, ale denně. Pomáhá říct si, které maličkosti bolí, a pár jich vědomě změnit.' },
+    'Asc|Venus': { conj: 'Líbíte se — jeden je pro druhého prostě hezký na pohled i na bytí. Nepodceňuj, jak to nese vztah v čase.', harm: 'Estetika a projev ladí — rádi se spolu ukazujete.', tense: 'Styl jednoho není šálek druhého — víc otázka vkusu než citu. Neber si to osobně.' },
+    'Asc|Mars': { conj: 'Přítomnost druhého tě nabíjí — akce, přitažlivost, netrpělivost. Vztah s tempem.', harm: 'Uvádíte se navzájem do pohybu — spolu toho stihnete víc než každý zvlášť.', tense: 'Samotné vystupování druhého umí vyprovokovat — semtam bez důvodu. Když to víš, přestane to být osobní útok a začne to být počasí.' },
+    'Saturn|Sun': { conj: 'Vztah s páteří — jeden druhému dává řád a vážnost. Může tížit, ale drží; svazky s tímhle kontaktem vydrží desetiletí.', harm: 'Spolehlivost a věrnost — jeden je druhému pevnou zdí, o kterou se dá opřít. Málo ohňostrojů, hodně jistoty.', tense: 'Jeden na druhého působí jako přísný soudce — kritika, brzdy, pocit „nejsem dost“. Lék: oceňovat nahlas. Tenhle kontakt umí být nejpevnější pouto, když se přísnost promění v péči.' },
+    'Moon|Saturn': { conj: 'Vážné pouto — city tu nejsou lehké, ale jsou opravdové a trvalé. Dovolte si i hravost; závazek už máte.', harm: 'Citová spolehlivost — druhý tu bude i v úterý ve tři ráno. Tichá, pevná forma lásky.', tense: 'Jeden se vedle druhého bojí projevit city — chlad, který ve skutečnosti bývá ostych a strach ze zamítnutí. Prolomí ho jen opakované bezpečné přijetí.' },
+    'Saturn|Venus': { conj: 'Láska se závazkem v základech — vztah, který se nebere na zkoušku. Hlídejte, ať povinnost neudusí radost.', harm: 'Věrnost a stálost v lásce — cit, který zraje jako víno.', tense: 'Láska tu naráží na zdrženlivost — jeden čeká projevy, druhý je dávkuje. Neznamená to málo lásky; znamená to jiné tempo. Trpělivost se tu úročí.' },
+    'Mars|Saturn': { conj: 'Síla pod kontrolou — spolu dokážete systematicky budovat. Občas to skřípe mezi „hned“ a „pořádně“; obojí je potřeba.', harm: 'Výkon a vytrvalost — pracovní dvojka snů. Nezapomeňte, že vztah není jen projekt.', tense: 'Brzda a plyn — jeden startuje, druhý zpomaluje, oba se tím vzájemně unavují. Rozdělte role vědomě: kdo zapaluje, kdo hlídá, a je z toho tým.' },
+    'Mars|Mars': { conj: 'Stejné tempo, stejný zápal — spolu jste síla. Jen se nehádejte o volant.', harm: 'Vaše energie spolupracují — akce vás spojuje, ne rozděluje.', tense: 'Dva berani na lávce — síly se srážejí čelně. Sport, práce a jasná pravidla hádek z toho udělají motor místo bojiště.' },
+    'Asc|Asc': { conj: 'Vstupujete do světa stejným krokem — lidé vás vnímají jako jeden celek.', harm: 'Vaše naladění se doplňuje — spolu se dobře vychází i vchází.', tense: 'Každý jiný styl — jeden zpříma, druhý oklikou. Kontrast, který může bavit, když se z něj neudělá spor o „správně“.' },
+  };
+  function synastry(nA, nB, nameA, nameB) {
+    const BODS = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Asc', 'Saturn'];
+    const found = [];
+    for (const a of BODS) for (const b of BODS) {
+      const asp = K.aspectBetween(nA.points[a].lon, nB.points[b].lon, { default: 5, sextile: 3 });
+      if (!asp) continue;
+      const key = [a, b].sort().join('|');
+      if (!HS.SYN[key]) continue;
+      found.push({ ...asp, a, b, key, tone: asp.cz === 'konjunkce' ? 'conj' : (asp.kind === 'harm' ? 'harm' : 'tense') });
+    }
+    // sloučit stejné téma (A.Venuše–B.Mars i A.Mars–B.Venuše)
+    const seen = {};
+    for (const f of found) { const gk = f.key + '|' + f.tone; if (!seen[gk] || f.orb < seen[gk].orb) { f.all = (seen[gk] ? seen[gk].all : []); f.all.push(f); seen[gk] = f; } else seen[gk].all.push(f); }
+    const list = Object.values(seen).sort((x, y) => x.orb - y.orb);
+    const tagOf = (f) => f.all.map(x => `${K.BODY_CZ[x.a]} (${nameA}) ${x.cz} ${K.BODY_CZ[x.b]} (${nameB}) · ${fmtOrb(x.orb)}`).join(' · ');
+    const mA = K.signOf(nA.points.Moon.lon), mB = K.signOf(nB.points.Moon.lon);
+    const eA = K.ELEMENT[K.signOf(nA.points.Sun.lon)], eB = K.ELEMENT[K.signOf(nB.points.Sun.lon)];
+    const REL = { 'oheň|vzduch': 1, 'vzduch|oheň': 1, 'země|voda': 1, 'voda|země': 1 };
+    const elTxt = eA === eB ? `Obě vaše slunce hoří stejným živlem (${eA}) — základní životní tempo máte společné.` : (REL[eA + '|' + eB] ? `Vaše živly (${eA} a ${eB}) se přirozeně doplňují — každý umí, co druhému chybí.` : `Vaše živly (${eA} a ${eB}) mluví každý jinak — vztah, který víc učí, než hladí. Co si vysvětlíte, to vás spojí pevněji než samozřejmost.`);
+    let out = hsPara('', `Partnerský horoskop čte, jak si vaše dvě mapy rozumí: kde se potkávají samy a kde potřebují překladatele. ${elTxt}`, `${nameA} × ${nameB}`);
+    out += hsPara('Vaše vnitřní světy', `${nameA} uvnitř potřebuje ${HS.NEED[mA]}. ${nameB} potřebuje ${HS.NEED[mB]}. Kdo zná návod toho druhého, drží klíč ke klidnému domovu.`, `Luna ${K.SIGN_LOC_V[mA]} × Luna ${K.SIGN_LOC_V[mB]}`);
+    const sat = list.filter(f => f.key.includes('Saturn'));
+    const rest = list.filter(f => !f.key.includes('Saturn'));
+    if (rest.length) {
+      out += `<h4 class="hsh">Klíčové kontakty vašich map</h4>`;
+      for (const f of rest.slice(0, 6)) out += hsPara('', HS.SYN[f.key][f.tone], tagOf(f));
+    }
+    if (sat.length) {
+      out += `<h4 class="hsh">Co drží — a co umí tížit</h4>`;
+      out += hsPara('', 'Saturnové kontakty jsou lepidlo dlouhých vztahů: dávají závazek a trvání, ale umí i tlačit. Tady jsou ty vaše:', '');
+      for (const f of sat.slice(0, 3)) out += hsPara('', HS.SYN[f.key][f.tone], tagOf(f));
+    }
+    if (!list.length) out += hsPara('', 'Vaše mapy spolu nemluví přes přesné úhly — vztah se pak řídí víc svobodnou volbou než osudovým tahem. To není málo: je to vztah, který si každý den vybíráte.', '');
+    out += hsPara('', 'Žádný kontakt map není rozsudek — harmonie se dá prospat a napětí proměnit v tah. Mapy říkají, s čím pracujete; jak, to je na vás dvou.', '');
+    return out;
+  }
+
   const HS_THEMES = [['osobnost', 'Osobnostní', (n) => horoscopePersonal(n)], ['penize', 'Peníze', horoscopeMoney], ['vztahy', 'Vztahy a láska', horoscopeLove], ['rodina', 'Rodina a kořeny', horoscopeFamily], ['duch', 'Duchovní cesta', horoscopeSpirit], ['vyzvy', 'Překážky a výzvy', horoscopeChallenge], ['prace', 'Práce a poslání', horoscopeWork], ['zdravi', 'Zdraví a vitalita', horoscopeHealth], ['radost', 'Tvořivost a radost', horoscopeJoy], ['mysl', 'Komunikace a mysl', horoscopeMind], ['hvezdy', 'Tvé hvězdy', horoscopeStars], ['rok', 'Tvůj rok', horoscopeYear]];
 
   function horoscopePersonal(n) {
@@ -2818,6 +2880,9 @@ ${parts}
       <div class="h3">Tvůj horoskop</div>
       <div class="row echips" style="margin-bottom:8px">${HS_THEMES.map(t => `<button type="button" class="chip ${(S.hsTheme || 'osobnost') === t[0] ? 'on' : ''}" data-act="hsTheme" data-t="${t[0]}">${t[1]}</button>`).join('')}<button type="button" class="chip gold" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení">⎙ Uložit · tisk</button></div>
       <div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'osobnost')) || HS_THEMES[0])[2](n)}</div>
+      ${profiles.length > 1 ? `<div class="h3">Partnerský horoskop</div>
+      <div class="row echips" style="margin-bottom:8px"><span class="elbl">${esc(activeProfile().name)} ×</span>${profiles.filter(q => q.id !== activeId).map(q => `<button type="button" class="chip ${S.synId === q.id ? 'on' : ''}" data-act="synSel" data-id="${q.id}">${esc(q.name)}</button>`).join('')}</div>
+      ${S.synId && profiles.find(q => q.id === S.synId) ? `<div class="card hs">${(() => { try { const pb = profiles.find(q => q.id === S.synId); const nb = K.natalChart({ ...pb, lat: +pb.lat, lon: +pb.lon, alt: +pb.alt || 200, y: +pb.y, m: +pb.m, d: +pb.d, hh: +pb.hh, mm: +pb.mm, tz: pb.tz || TZ }, new Date()); return synastry(n, nb, (activeProfile().name || 'A').split(' ')[0], (pb.name || 'B').split(' ')[0]); } catch (e) { return '<div class="hsp"><p>Partnerovu mapu se nepodařilo spočítat — zkontroluj jeho data v Nastavení.</p></div>'; } })()}</div>` : `<p class="note">Vyber, s kým mapu porovnat. Dalšího člověka přidáš v Nastavení jako profil.</p>`}` : ''}
       <div class="h3">Body nativu</div>
       <table class="pts">${pts}</table>
       <details class="expl"><summary>Co ty body znamenají?</summary><div class="card small">
