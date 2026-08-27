@@ -331,6 +331,13 @@ details.expl summary{font-size:13px;color:var(--gold);cursor:pointer;text-shadow
 details.expl .card{margin-top:8px}
 details.expl .card p{margin:0 0 8px}
 details.expl .card p:last-child{margin:0}
+.card.hs .hsp{padding:10px 0;border-bottom:1px solid var(--line)}
+.card.hs .hsp:last-child{border-bottom:0}
+.card.hs .hsp:first-child{padding-top:2px}
+.card.hs h4{margin:0 0 5px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.card.hs .hsh{margin:12px 0 0;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.card.hs p{margin:0;font-size:14.5px;line-height:1.55}
+.card.hs .hstag{display:block;margin-top:6px;font-size:11.5px;color:var(--muted);font-family:var(--mono)}
 .eltoggle.open{border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0}
 .eltoggle.open+.card{border-top-left-radius:0;border-top-right-radius:0;margin-top:0;border-top:0}
 .elect .elq{margin:0 0 9px;font-size:14px;color:var(--text)}
@@ -2007,6 +2014,123 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <p class="note">Nic z toho není předpověď ani pokyn. Je to mapa terénu — kudy dnes půjde snáz a kde budeš potřebovat víc trpělivosti. Rozhoduješ pořád ty.</p>`;
   }
 
+  // ===================== horoskop podle nativu =====================
+  const HS = {
+    ELEM_CZ: { oheň: 'oheň', země: 'země', vzduch: 'vzduch', voda: 'voda' },
+    ASC: [
+      'Vstupuješ rovnou a beze zbytku. Lidé z tebe čtou energii a přímost dřív, než cokoli řekneš — a čekají, že věci uvedeš do pohybu. Síla je v odvaze začít; úkol je vydržet i tam, kde se hned nic neděje.',
+      'Působíš klidně a spolehlivě, jako někdo, o koho se dá opřít. Nespěcháš — a právě proto ti lidé věří. Hlídej jen, aby se z pevnosti nestala neochota cokoli měnit.',
+      'Působíš živě, zvědavě a v kontaktu. Snadno navazuješ, ptáš se, propojuješ. Tvůj úkol je nezůstat jen u lehkosti — dotáhnout i to, co začalo jako hra.',
+      'Lidé u tebe rychle cítí, že je vnímáš. Vstupuješ citem, oklikou, přes atmosféru. Chrání tě to — jen ať se z ochrany nestane zeď, přes kterou se k tobě nikdo nedostane.',
+      'Vcházíš s přirozenou vahou — je tě vidět, i když nic neděláš. Lidé od tebe čekají jistotu a velkorysost. Úkol: nést tu pozornost, aniž by ses pro ni musel hrát.',
+      'Působíš pozorně a přesně; věci kolem tebe dostávají řád. Lidé ti svěřují, co potřebuje spolehlivost. Hlídej, ať služba druhým nesklouzne v neviditelnost tebe samotného.',
+      'Vstupuješ s taktem a smyslem pro druhé; umíš vyladit atmosféru. Přitahuješ spolupráci. Tvůj růst vede přes odvahu říct i to, co rovnováhu na chvíli rozhodí.',
+      'Působíš intenzivně, i mlčky. Lidé cítí, že vidíš pod povrch, a buď je to přitáhne, nebo znejistí. Tvá síla je pravdivost; úkol je nedržet vše jen pod kontrolou.',
+      'Vcházíš otevřeně, s nadhledem a tahem někam dál. Zvedáš druhým horizont. Hlídej jen, ať velké směry nepřeskočí malé kroky, které k nim vedou.',
+      'Působíš zdrženlivě a vážně; důvěru si u tebe člověk vyslouží — a pak platí. Neseš přirozenou autoritu. Úkol: dovolit si měkkost dřív, než ji vynutí únava.',
+      'Působíš svobodně a jinak — lidé u tebe čekají nečekané. Vidíš věci zvenku a dopředu. Tvůj úkol je zůstat ve spojení i s tím, co je obyčejné a pomalé.',
+      'Vstupuješ tiše a prostupně; lidé se u tebe uvolní, aniž ví proč. Vnímáš víc, než se říká. Chraň si hranice — tvá otevřenost je dar, ne povinnost.',
+    ],
+    SUN: [
+      'V jádru jsi ten, kdo začíná. Potřebuješ výzvu, pohyb a možnost jít první — tam žiješ naplno. Zralost tvého ohně je v tom, že už nemusí vyhrát každý souboj.',
+      'V jádru stojíš o skutečné, hmatatelné a trvalé. Buduješ pomalu a pořádně; co vytvoříš, drží. Růst přichází, když pustíš i něco jistého, co už dosloužilo.',
+      'Tvé jádro je zvědavost. Žiješ výměnou — slov, myšlenek, dojmů — a potřebuješ víc než jednu kolej. Hloubka pro tebe není opak lehkosti; je to lehkost, která vydržela.',
+      'V jádru jsi pečující a věrný — domov, blízcí a bezpečí nejsou kulisa, ale osa tvého života. Síla je v citu; úkol je nenechat minulost rozhodovat o přítomnosti.',
+      'V jádru potřebuješ tvořit a být u toho celý. Máš přirozenou velkorysost a potřebu, aby tvůj život měl srdce. Zraje to ve chvíli, kdy záře slouží něčemu většímu než potlesku.',
+      'V jádru jsi ten, kdo věci umí udělat pořádně. Vidíš detail, sloužíš smyslu, zlepšuješ. Tvá lekce: dokonalost je směr, ne podmínka tvé hodnoty.',
+      'V jádru hledáš rovnováhu, krásu a férovost. Rozhoduješ se s ohledem na celek a druhé. Růst je v odvaze zvolit — i když každá volba něco vychýlí.',
+      'Tvé jádro je hloubka. Nezajímá tě povrch; jdeš tam, kde se věci opravdu rozhodují, a uneseš i to, co jiní odvracejí. Síla zraje, když proměnu nevynucuješ, ale doprovázíš.',
+      'V jádru potřebuješ smysl a dálku — věřit něčemu, rozumět celku, mít kam růst. Jsi od přírody učitel i poutník. Lekce: pravda druhého může být jiná než tvoje, a přesto pravá.',
+      'V jádru jsi stavitel. Cíl, kázeň a odpovědnost ti nejsou tíha, ale páteř. Co slíbíš, platí. Dovol si ale i úspěch užít — ne jen hned stavět další patro.',
+      'V jádru jsi svobodný duch s citem pro celek. Vidíš dál a jinak; táhne tě to k lidem, ideám a budoucnosti. Lekce: patřit někam neznamená přestat být sám sebou.',
+      'V jádru jsi propojený s něčím větším — cit, představivost a soucit jsou tvůj základní materiál. Umíš dát druhým útěchu i vizi. Úkol: mít břehy, aby řeka někam tekla.',
+    ],
+    MOON: [
+      'Uvnitř reaguješ rychle a rovnou — cit u tebe rovná se impulz. Potřebuješ pohyb a upřímnost; dusno tě ničí. Klid nacházíš, když smíš věci řešit hned.',
+      'Uvnitř potřebuješ klid, stálost a smyslové bezpečí — dobré jídlo, dotek, známé místo. Emoce zpracováváš pomalu a důkladně. Jistota je tvůj lék; jen ať není klecí.',
+      'Uvnitř zpracováváš pocity slovy a myšlenkou — potřebuješ si věci říct, přečíst, pojmenovat. Rozptýlení je tvá první pomoc, rozhovor tvá terapie.',
+      'Tvé nitro je doma samo v sobě: hluboké, věrné, s výbornou pamětí na dobré i zlé. Potřebuješ své lidi a své hnízdo. Péče o druhé ti jde sama — nezapomínej v ní na sebe.',
+      'Uvnitř potřebuješ být viděn a mít z čeho se radovat — cit u tebe chce výraz. Když tvé srdce nemá jeviště, hasne. Dovol si hrát, tvořit a přijímat pozornost bez viny.',
+      'Uvnitř hledáš klid v pořádku — když je uklizeno, je uklizeno i v tobě. Pečuješ prakticky: činem, ne řečmi. Hlídej vnitřního kritika; užitečný je jen do určité míry.',
+      'Uvnitř potřebuješ harmonii a hezké prostředí; konflikt tě stojí víc než druhé. Zklidňuje tě krása a společnost. Lekce: řečený nesouhlas vztah pročistí, neshodí.',
+      'Tvé nitro je hluboké a nic nezapomíná. Cítíš naplno — a proto si vybíráš, komu se otevřeš. Důvěra je u tebe vzácná měna; kde ji dáš, tam jdeš až na dno.',
+      'Uvnitř potřebuješ prostor, smysl a naději — stísněnost tě dusí víc než cokoli. Zvedá tě příroda, cesty a velké myšlenky. Tvůj cit je optimista; dej mu i kořeny.',
+      'Uvnitř jsi zdrženlivý — cit si necháváš pro sebe a projevuješ ho spolehlivostí. Emoce bereš jako odpovědnost. Dovol si i potřebovat druhé; není to slabost.',
+      'Uvnitř potřebuješ vzduch a svobodu — cit zpracováváš s odstupem, hlavou. Blízkost ano, ale bez pout. Lekce: odstup je dobrý sluha; nenech ho rozhodovat za srdce.',
+      'Tvé nitro je propustné — nasáváš nálady místa i lidí a někdy neseš, co není tvoje. Potřebuješ ticho, vodu, hudbu a čas o samotě, aby ses vrátil k sobě.',
+    ],
+    HOUSE_AREA: ['tebe samotného, tvého těla a toho, jak vstupuješ do světa', 'peněz, jistot a vlastní hodnoty', 'komunikace, učení a nejbližšího okolí', 'domova, rodiny a kořenů', 'tvořivosti, radosti a dětí', 'každodenní práce, služby a zdraví', 'partnerství a blízkých vztahů', 'hlubokých proměn, sdílených zdrojů a témat, kterým se jiní vyhýbají', 'cest, víry, vzdělání a hledání smyslu', 'povolání, směřování a veřejné role', 'přátel, společenství a vizí do budoucna', 'nitra, ústraní a toho, co zraje ve skrytu'],
+    ANCH: { Sun: ['tvou vůli a směr', 'tvé vůle'], Moon: ['tvé pocity a potřeby', 'tvých pocitů'], Asc: ['to, jak působíš', 'tvého vystupování'] },
+    ASP: {
+      Mercury: { conj: 'Myšlení a řeč jsou od {A} neoddělitelné — co žiješ, potřebuješ i pojmenovat. Slovo je tvůj nástroj; važ ho, má u tebe váhu činu.', harm: 'Hlava a {A2} táhnou za jeden provaz: snadno pojmenováváš, co se v tobě děje, a domluva ti otvírá dveře.', tense: 'Hlava a {A2} si občas skáčou do řeči — co cítíš a co říkáš, nemusí být totéž. Pomáhá zpomalit a dopovědět; nedorozumění tu bývá častější než zlá vůle.' },
+      Venus: { conj: 'Láska, krása a hodnoty prorůstají {A3} — vztahy a vkus nejsou doplněk, ale součást tvé podstaty. Umíš mít rád; hlídej jen, ať harmonie nekupuje tvé mlčení.', harm: 'Vztahovost a {A2} se podporují: umíš získat lidi, vyladit atmosféru a dopřát si dobré věci bez boje.', tense: 'Mezi {A3} a potřebou lásky či pohody bývá tichý spor — buď já, nebo klid. Zralé řešení: laskavost, která umí říct ne.' },
+      Mars: { conj: 'Energie a tah na branku jsou přímo v {A3} — máš sílu, kterou nejde schovat. Když má úkol, hory přenáší; bez úkolu se obrací dovnitř. Dej jí denně kus práce.', harm: 'Vůle k činu podporuje {A4}: umíš se rozhodnout, začít a vydržet. Odvaha je u tebe praktická, ne teatrální.', tense: 'Síla se s {A5} občas sráží — netrpělivost, hrany, přepálený start. Je to motor, ne vada; chce jen řízení: pohyb, sport, jasné cíle.' },
+      Jupiter: { conj: 'Růst, důvěra a velkorysost jsou vepsané přímo do {A3}. Lidé u tebe cítí naději a šíři. Hlídej míru — tvé „hodně“ je pro jiné „příliš“.', harm: 'Důvěra a nadhled podporují {A4} — máš přirozené štěstí na dveře, které se otvírají. Stačí do nich vejít.', tense: 'Sklon přestřelit: víc slíbit, víc si naložit, víc věřit, než je zdrávo. Tvůj optimismus je dar — jen mu dej rozpočet.' },
+      Saturn: { conj: 'Řád, nárok a odpovědnost stojí přímo v {A3}. Bereš život vážně a rosteš pomalu, ale doopravdy. Přísnost na sebe měj — jen ať není jediným hlasem.', harm: 'Kázeň podporuje {A4}: co si předsevezmeš, doneseš. Umíš stavět na dlouho a lidé se o tebe opírají.', tense: 'Vnitřní kritik mluví do {A5} — pocit „ještě to nestačí“ znáš dobře. Je to brzda i motor: nauč se ho brát jako poradce, ne soudce. Časem z toho bývá největší síla mapy.' },
+      Uranus: { conj: 'Svoboda a jinakost jsou přímo v {A3} — nejde tě zaškatulkovat a rutina tě dusí. Tvá originalita je poslání; jen jí dej i řád, ať může něco dokončit.', harm: 'Otevřenost změně podporuje {A4}: umíš se odrazit z místa, kde jiní zamrznou, a vidět řešení z boku.', tense: 'V {A5} to občas zajiskří — náhlé zvraty, potřeba utéct, když je těsno. Změna je tvůj vzduch; uč se ji dělat dřív, než musí přijít výbuchem.' },
+      Neptune: { conj: 'Citlivost, představivost a přesah prostupují {A3} — vnímáš vrstvy, které jiní neregistrují. Je to dar vize i riziko mlhy: kotvi se v těle a v konkrétních krocích.', harm: 'Intuice podporuje {A4} — umíš vycítit správný okamžik a lidem u tebe měkne obrana. Tvá empatie léčí.', tense: 'Mlha občas padá na {A5} — ideál se plete se skutečností, hranice se rozpouští. Pomáhá jednoduchost: fakta, tělo, termíny. Tvá citlivost pak slouží, místo aby zaplavovala.' },
+      Pluto: { conj: 'Hloubka a intenzita jsou přímo v {A3} — nic neděláš napůl a lidé to cítí. Procházíš proměnami, po kterých nejsi stejný. Síla je obrovská; užívej ji k osvobození, ne kontrole.', harm: 'Vnitřní síla podporuje {A4}: v krizi rosteš a uneseš, co by jiné složilo. Regenerace je tvá přirozenost.', tense: 'V {A5} se občas ozve tlak všechno uřídit nebo vše zbořit a začít znovu. Uprostřed je třetí cesta: pustit kontrolu, ne odpovědnost.' },
+    },
+    PAIR: {
+      'Sun|Moon': { conj: 'Vůle a pocity jedou u tebe v jednom proudu — co chceš, to i cítíš. Dává ti to celistvost a tah; slabší místo je odstup od sebe. Občas se na sebe podívej cizíma očima.', harm: 'Vůle a pocity se u tebe domlouvají snadno — rozhodnutí nebolí, protože hlava i srdce míří podobně. Vzácná výbava; stav na ní.', tense: 'Co chceš a co potřebuješ, u tebe často nejde stejným směrem — den chce jedno, nitro druhé. Není to vada, je to vnitřní dialog. Rozhodnutí, které vyslechne obě strany, u tebe drží nejdéle.' },
+      'Sun|Asc': { conj: 'Jsi navenek přesně tím, kým jsi uvnitř — bez masky. Lidé vidí, co dostanou. Síla v pravdivosti; jen pozor, prostor sdílíš i s jinými.', harm: 'To, jak působíš, přirozeně ladí s tím, kdo jsi — nemusíš se přehrávat ani schovávat. Lidé ti věří, protože obraz sedí.', tense: 'To, jak působíš, a to, kým uvnitř jsi, se liší — lidé tě často čtou jinak, než se cítíš. Chce to trpělivost: dávej okolí čas poznat obě vrstvy.' },
+      'Moon|Asc': { conj: 'Tvé pocity jsou vidět — vstupuješ do místnosti i s náladou. Je to poctivé a lidi to sbližuje; jen ne každý den musí být veřejný.', harm: 'Nitro a vystupování si u tebe rozumí: působíš tak, jak ti opravdu je, a lidem je s tebou přirozeně dobře.', tense: 'Navenek držíš jiný tón, než jaký zní uvnitř — okolí tě má za klidnějšího či tvrdšího, než se cítíš. Blízkým pomáhej krátkou zprávou o tom, jak ti doopravdy je.' },
+    },
+  };
+  function horoscopePersonal(n) {
+    const sgn = (k) => K.signOf(n.points[k].lon);
+    const el = (si) => K.ELEMENT[si];
+    const sunS = sgn('Sun'), moonS = sgn('Moon'), ascS = sgn('Asc');
+    const tag = (t) => `<span class="hstag">${t}</span>`;
+    const para = (title, text, tg) => `<div class="hsp">${title ? `<h4>${title}</h4>` : ''}<p>${text}</p>${tg ? tag(tg) : ''}</div>`;
+    // úvodní syntéza živlů
+    const e1 = el(sunS), e2 = el(moonS);
+    const REL = { 'oheň|vzduch': 1, 'vzduch|oheň': 1, 'země|voda': 1, 'voda|země': 1 };
+    let mix;
+    if (e1 === e2) mix = `Vůle i pocity u tebe mluví stejnou řečí — živlem ${e1}. Dává ti to vnitřní jednotu: co chceš, to i cítíš, a lidé z tebe čtou jeden jasný tón.`;
+    else if (REL[e1 + '|' + e2]) mix = `Vůle (${e1}) a pocity (${e2}) se u tebe doplňují — dvě různé řeči, které si rozumí. Umíš čerpat z obou stran, aniž se přetahují.`;
+    else mix = `Vůle (${e1}) a pocity (${e2}) u tebe mluví každá jinou řečí. Není to porucha — je to vnitřní rozhovor, který tě celý život prohlubuje. Zralost je nechat mluvit obě.`;
+    const intro = `Tvá mapa stojí na třech tónech: Slunce ${K.SIGN_LOC_V[sunS]} (kdo jsi v jádru), Luna ${K.SIGN_LOC_V[moonS]} (co potřebuješ uvnitř) a Ascendent v ${K.SIGNS[ascS] === 'Beran' ? 'Beranu' : K.SIGN_LOC_V[ascS].replace('ve ', '').replace('v ', '')} (jak působíš). ${mix}`;
+    // aspekty ke Slunci, Luně a Ascendentu
+    const OTH = ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
+    const AN = ['Sun', 'Moon', 'Asc'];
+    const found = [];
+    for (let i = 0; i < AN.length; i++) for (let j = i + 1; j < AN.length; j++) {
+      const a = K.aspectBetween(n.points[AN[i]].lon, n.points[AN[j]].lon, { default: 6, sextile: 4 });
+      if (a) found.push({ pair: AN[i] + '|' + AN[j], a: AN[i], b: AN[j], ...a });
+    }
+    for (const an of AN) for (const o of OTH) {
+      const a = K.aspectBetween(n.points[an].lon, n.points[o].lon, { default: 6, sextile: 4 });
+      if (a) found.push({ a: an, b: o, ...a });
+    }
+    found.sort((x, y) => x.orb - y.orb);
+    const tone = (a) => a.cz === 'konjunkce' ? 'conj' : (a.kind === 'harm' ? 'harm' : 'tense');
+    const seen = new Set();
+    const aspParas = [];
+    for (const a of found) {
+      if (aspParas.length >= 4) break;
+      const kk = a.pair || (a.b + '|' + tone(a));
+      if (seen.has(kk)) continue; seen.add(kk);
+      let txt;
+      if (a.pair) txt = HS.PAIR[a.pair] && HS.PAIR[a.pair][tone(a)];
+      else {
+        const t = HS.ASP[a.b] && HS.ASP[a.b][tone(a)];
+        if (t) {
+          const A = HS.ANCH[a.a];
+          txt = t.replaceAll('{A}', A[0]).replaceAll('{A2}', A[0]).replaceAll('{A3}', A[1]).replaceAll('{A4}', A[0]).replaceAll('{A5}', A[1]);
+        }
+      }
+      if (txt) aspParas.push(para('', txt, `${K.BODY_CZ[a.a]} ${a.cz} ${K.BODY_CZ[a.b]} · orbis ${fmtOrb(a.orb)}`));
+    }
+    return `
+      ${para('', intro, '')}
+      ${para('Jak působíš', HS.ASC[ascS], `Ascendent — ${K.SIGNS[ascS]}`)}
+      ${para('Tvé jádro', HS.SUN[sunS] + ' Nejvíc se to odehrává v oblasti ' + HS.HOUSE_AREA[n.points.Sun.house - 1] + '.', `Slunce ${K.SIGN_LOC_V[sunS]} · ${n.points.Sun.house}. dům`)}
+      ${para('Tvůj vnitřní svět', HS.MOON[moonS] + ' Nejvíc to žiješ v oblasti ' + HS.HOUSE_AREA[n.points.Moon.house - 1] + '.', `Luna ${K.SIGN_LOC_V[moonS]} · ${n.points.Moon.house}. dům`)}
+      ${aspParas.length ? `<h4 class="hsh">Silná témata tvé osobnosti</h4>${aspParas.join('')}` : ''}
+      ${para('', 'Mapa není rozsudek — je to popis nástrojů, se kterými jsi přišel. Silné stránky chtějí užívat, napětí chtějí vědomí. Obojí je tvoje.', '')}`;
+  }
+
   // ===================== najít vhodný den (elekce) =====================
   const ELECT_CATS = [
     { id: 'smlouva', label: 'Smlouva a dohoda', rules: { noRetro: 1, vocPlus: 1, wax: .5 }, subs: [['podpis', 'Podpis smlouvy'], ['urad', 'Úřad · žádost'], ['dohoda', 'Důležitá dohoda']] },
@@ -2360,6 +2484,9 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
         <div class="ns"><span class="g">${K.BODY_GLYPH.Asc || 'Asc'}</span><span class="k">Ascendent</span><span class="v">${K.SIGNS[K.signOf(n.points.Asc.lon)]}</span></div>
       </div>
       ${wheelSVG(n)}
+      <div class="h3">Tvůj horoskop</div>
+      <div class="row echips" style="margin-bottom:8px"><button type="button" class="chip on">Osobnostní</button><span class="note" style="margin:0">další témata připravuji — peníze, vztahy, rodina, duchovní cesta…</span></div>
+      <div class="card hs">${horoscopePersonal(n)}</div>
       <div class="h3">Body nativu</div>
       <table class="pts">${pts}</table>
       <details class="expl"><summary>Co ty body znamenají?</summary><div class="card small">
