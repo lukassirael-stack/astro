@@ -172,6 +172,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .badge.harm{color:rgb(var(--harm-ink,var(--harm-rgb)));border-color:rgba(var(--harm-rgb),.5)}
 .badge.tense{color:rgb(var(--tense-ink,var(--tense-rgb)));border-color:rgba(var(--tense-rgb),.5)}
 .badge.neutral{color:var(--muted)}
+.day-head .badge.harm{color:var(--harm-lite);border-color:rgba(var(--harm-rgb),.55)}
+.day-head .badge.tense{color:var(--tense-lite);border-color:rgba(var(--tense-rgb),.55)}
+.day-head .badge.neutral{color:var(--inst-muted);border-color:var(--inst-line-soft)}
 .tone-harm{color:var(--harm)}.tone-tense{color:var(--tense)}.tone-gold{color:var(--gold)}
 .list{list-style:none;margin:8px 0;padding:8px 14px;background:var(--glass);border:1px solid var(--hairline);border-radius:var(--r);box-shadow:0 1px 3px var(--glass-shadow)}
 .list li{padding:7px 0;border-top:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
@@ -313,9 +316,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .plist .pn{font-size:14.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 .plist .pg{width:26px;height:26px;border-radius:8px;border:1px solid var(--line2);color:var(--muted);font-size:11px;font-weight:600;display:grid;place-items:center;text-decoration:none}
 .plist .pg:hover{color:var(--gold);border-color:var(--gold)}
-.eltoggle{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;padding:0;text-align:left;cursor:pointer}
-.eltoggle i{font-style:normal;color:var(--gold);font-size:12px}
-.eltoggle:after{content:'';flex:1;height:1px;background:var(--line)}
+.eltoggle{display:flex;align-items:center;gap:10px;width:100%;background:var(--glass);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;text-align:left;cursor:pointer;box-shadow:0 1px 3px var(--glass-shadow)}
+.eltoggle:before{content:'✧';color:var(--gold);font-size:14px}
+.eltoggle i{font-style:normal;color:var(--gold);font-size:12px;margin-left:auto}
+.eltoggle.open{border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0}
+.eltoggle.open+.card{border-top-left-radius:0;border-top-right-radius:0;margin-top:0;border-top:0}
 .elect .elq{margin:0 0 9px;font-size:14px;color:var(--text)}
 .echips{display:flex;flex-wrap:wrap;gap:7px}
 .echips.sub{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
