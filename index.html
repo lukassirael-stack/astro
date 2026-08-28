@@ -258,10 +258,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today .ht-date{display:block;font-size:11px;letter-spacing:.14em;line-height:1.7;text-transform:uppercase;color:var(--inst-muted)}
 
 .hero-today{position:relative}
-.hero-today .ht-wx{position:absolute;top:13px;right:16px;display:flex;flex-direction:column;align-items:flex-end;gap:1px;font-size:17px;font-weight:600;letter-spacing:.02em;color:#F6F3E9;text-shadow:0 1px 6px rgba(3,8,22,.65)}
-.hero-today .ht-wx small{font-size:11px;font-weight:500;color:var(--inst-muted);letter-spacing:.05em;text-shadow:none}
-[data-theme="day"] .hero-today .ht-wx{color:#1D2A4A;text-shadow:none}
-.hero-today .ht-date{padding-right:96px}
+.hero-today .ht-wx{position:absolute;top:11px;right:16px;display:flex;flex-direction:column;align-items:center;gap:0}
+.hero-today .ht-wx i{font-style:normal;font-size:21px;line-height:1.1}
+.hero-today .ht-wx b{font-size:18px;font-weight:700;letter-spacing:.01em;color:#F8F5EB;text-shadow:0 1px 6px rgba(3,8,22,.7);line-height:1.15}
+[data-theme="day"] .hero-today .ht-wx b{color:#1D2A4A;text-shadow:none}
+.hero-today .ht-date{padding-right:60px}
 .hero-today .ht-head{display:flex;align-items:center;gap:14px}
 .hero-today .ht-word{flex:1;font-family:var(--display);font-size:clamp(31px,8.6vw,44px);font-weight:500;line-height:1.06;color:var(--inst-gold);text-shadow:0 0 16px rgba(190,235,210,.22)}
 .hero-today.harm .ht-word{color:var(--harm-lite)}
@@ -1720,7 +1721,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   function wxLine() {
     const w = wxGet();
     if (!w || Date.now() - w.when > 3 * 3600 * 1000) return '';
-    return `<span class="ht-wx" title="venku teď">${WX_EMO(w.c)} ${w.t}&nbsp;°C</span>`;
+    return `<span class="ht-wx" title="venku teď"><i>${WX_EMO(w.c)}</i><b>${w.t}°</b></span>`;
   }
   async function reconcileMedia() {
     const db = await MDB.open(); if (!db) return;
