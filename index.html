@@ -259,6 +259,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 .hero-today{position:relative}
 .hero-today .ht-wx{position:absolute;top:11px;right:16px;display:flex;flex-direction:column;align-items:center;gap:0}
+.hero-today .ht-tatva{display:flex;align-items:center;gap:6px;margin:8px 0 2px;font-size:13px;letter-spacing:.02em;color:var(--inst-muted)}
+.hero-today .ht-tatva b{color:var(--inst-gold);font-weight:600}
+.hero-today .ht-tatva svg{flex:none;transform:translateY(1px)}
 .hero-today .ht-sd{display:block;margin-top:7px;font-size:13.5px;letter-spacing:.03em;color:var(--inst-gold);text-shadow:0 0 10px rgba(239,200,120,.35);animation:sdGlow 1.6s ease 2}
 @keyframes sdGlow{0%,100%{opacity:1}50%{opacity:.55}}
 .sdline{margin:2px 0 8px;font-size:13.5px;color:var(--gold)}
@@ -1714,6 +1717,38 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   let recState = null;
   const WX_EMO = (c) => c == null ? '' : c === 0 ? '☀️' : c <= 2 ? '🌤' : c === 3 ? '☁️' : c <= 48 ? '🌫' : c <= 57 ? '🌦' : c <= 67 ? '🌧' : c <= 77 ? '🌨' : c <= 82 ? '🌧' : c <= 86 ? '🌨' : '⛈';
   function wxGet() { return store.get('kairos_wx', null); }
+  const TATVY = [
+    { n: 'Akáša', el: 'éter', tip: 'ticho, meditace a vhled', sym: '<svg viewBox="0 0 14 14" width="13" height="13"><ellipse cx="7" cy="7" rx="4.2" ry="5.6" fill="#2E2440" stroke="#8F7BC0" stroke-width="1"/></svg>' },
+    { n: 'Váju', el: 'vzduch', tip: 'myšlenky, rozhovory a pohyb', sym: '<svg viewBox="0 0 14 14" width="13" height="13"><circle cx="7" cy="7" r="5" fill="#274A66" stroke="#7FB6DD" stroke-width="1"/></svg>' },
+    { n: 'Tédžas', el: 'oheň', tip: 'vůli, akci a rozhodnutí', sym: '<svg viewBox="0 0 14 14" width="13" height="13"><path d="M7 1.6 12.6 12H1.4Z" fill="#6E2B1C" stroke="#E8865C" stroke-width="1"/></svg>' },
+    { n: 'Ápas', el: 'voda', tip: 'cit, plynutí a doplnění sil', sym: '<svg viewBox="0 0 14 14" width="13" height="13"><path d="M1.8 8.2a5.4 5.4 0 0 0 10.4 0 5.4 5.4 0 0 1-10.4 0Z" fill="#2B4C5C" stroke="#9ED4E4" stroke-width="1"/><path d="M2.6 7.4a4.6 4.6 0 0 0 8.8 0" fill="none" stroke="#C9E9F2" stroke-width=".8"/></svg>' },
+    { n: 'Prithví', el: 'země', tip: 'tělo, práci rukama a stabilitu', sym: '<svg viewBox="0 0 14 14" width="13" height="13"><rect x="2.4" y="2.4" width="9.2" height="9.2" fill="#5C4A1E" stroke="#D9B96E" stroke-width="1"/></svg>' },
+  ];
+  function tattvaNow() {
+    try {
+      const now = new Date();
+      const q = K.tzParts(now, TZ);
+      let ph = K.planetaryHours(q.y, q.m, q.d, observer(), TZ);
+      if (!ph || !ph.sunrise) return null;
+      let sr = ph.sunrise;
+      if (now < sr) {
+        const yd = K.tzParts(K.addDays(K.dayStart(q.y, q.m, q.d, TZ), -0.5), TZ);
+        const ph2 = K.planetaryHours(yd.y, yd.m, yd.d, observer(), TZ);
+        if (ph2 && ph2.sunrise) sr = ph2.sunrise;
+      }
+      const min = (now - sr) / 60000;
+      if (min < 0) return null;
+      const idx = Math.floor(min / 24) % 5;
+      const left = 24 - (min % 24);
+      const end = new Date(now.getTime() + left * 60000);
+      return { t: TATVY[idx], end, left: Math.ceil(left) };
+    } catch (e) { return null; }
+  }
+  function tattvaHTML() {
+    const x = tattvaNow();
+    if (!x) return '';
+    return `${x.t.sym} <b>${x.t.n}</b> (${x.t.el}) · přeje ${x.t.tip} · do ${K.fmtTime(x.end, TZ)}`;
+  }
   const sdAll = () => store.get('kairos_days', []);
   const SD_EMO = { narozeniny: '🎂', vyroci: '💍', jine: '✦' };
   function sdForDay(m, d) { return sdAll().filter(x => +x.m === +m && +x.d === +d); }
@@ -2332,6 +2367,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}${phh ? ` · ${K.fmtTime(phh.sunrise, TZ)} – ${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + nd : ''}</span>${wxLine()}${(() => { const sd = sdForDay(np.m, np.d); return sd.length ? `<span class="ht-sd">${sd.map(x => sdLabel(x, np.y)).join(' · ')}</span>` : ''; })()}
       <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}</span><span class="ht-medal">${moonSVG(da.phaseAngle, 46, 'moon hm')}</span></span>
       <span class="ht-moon">${moonSVG(da.phaseAngle, 18)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
+      ${tattvaHTML() ? `<span class="ht-tatva" id="tatvaLine">${tattvaHTML()}</span>` : ''}
       <span class="ht-div"></span>
       ${go.length ? `<span class="ht-row ht-go"><i class="ht-ic go">✦</i><b>Podporuje</b><span class="tx">${esc(go[0].text)}</span></span>` : ''}
       ${cost.length ? `<span class="ht-div"></span><span class="ht-row ht-cost"><i class="ht-ic cost">✳</i><b>Nepříznivé</b><span class="tx">${esc(cost[0].text)}</span></span>` : ''}
@@ -3603,6 +3639,7 @@ ${parts}
   showTab(['kalendar', 'ukazy', 'diar', 'nativ', 'nastaveni'].includes(store.get('kairos_tab', 'kalendar')) ? store.get('kairos_tab', 'kalendar') : 'kalendar');
   setTimeout(reconcileMedia, 1200);
   setTimeout(() => { const w = wxGet(); if (!w || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); }, 800);
+  setInterval(() => { const el = $('#tatvaLine'); if (el) { const h = tattvaHTML(); if (h) el.innerHTML = h; } }, 30000);
   setTimeout(() => { const c = gEv(); if (store.get('kairos_ics', '') && (!c || Date.now() - c.when > 6 * 3600 * 1000)) icsRefresh(true); }, 2500);
   loadKp(false);
   (() => { const sp = $('#splash'); if (!sp) return; const off = () => { sp.classList.add('done'); setTimeout(() => sp.remove(), 650); };
