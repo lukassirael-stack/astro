@@ -360,7 +360,9 @@ details.expl .card p:last-child{margin:0}
 .claim i.big{font-size:1.34em;letter-spacing:.38em;text-indent:.38em}
 .claim:before,.claim:after{content:'';width:56px;height:1px;background:linear-gradient(90deg,transparent,#D9B96E 30%,#D9B96E 70%,transparent);opacity:.8;margin:4px 0}
 .bstars{display:block;margin:2px auto -2px;width:min(180px,40%);height:auto;filter:var(--logo-filter)}
-.brand-claim{margin:2px auto 0}
+.brand-claim{margin:24px auto 0}
+[data-theme="day"] .brand-claim{margin:6px auto 0}
+[data-theme="day"] .claim i{background:linear-gradient(180deg,#FFF3CC 0%,#EACb7E 45%,#B08a38 78%,#8A6822 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 1px 2px rgba(8,16,36,.95)) drop-shadow(0 2px 7px rgba(8,16,36,.55)) drop-shadow(0 0 6px rgba(240,200,116,.22))}
 .brand-claim{font-size:11px}
 @media (max-width:420px){.claim{font-size:10.5px;letter-spacing:.26em}.claim:before,.claim:after{width:44px}}
 #splash{position:fixed;inset:0;z-index:999;display:grid;place-items:center;align-content:center;gap:18px;
