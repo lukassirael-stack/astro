@@ -258,11 +258,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today .ht-date{display:block;font-size:11px;letter-spacing:.14em;line-height:1.7;text-transform:uppercase;color:var(--inst-muted)}
 
 .hero-today{position:relative}
+.hero-today:before,.hero-today:after{content:'✦';position:absolute;left:50%;transform:translateX(-50%);color:rgba(239,200,120,.85);font-size:12px;text-shadow:0 0 8px rgba(239,200,120,.5);pointer-events:none}
+.hero-today:before{top:-8px}
+.hero-today:after{bottom:-8px}
+.hero-today .ht-medal{overflow:visible}
+.hero-today .mring{position:absolute;inset:-11px;width:calc(100% + 22px);height:calc(100% + 22px);pointer-events:none}
+.hero-today .ht-word{position:relative;padding-bottom:8px}
+.hero-today .wflo{position:absolute;left:2px;bottom:-4px;width:min(180px,86%);height:14px;color:currentColor}
 .hero-today .ht-wx{position:absolute;top:11px;right:16px;display:flex;flex-direction:column;align-items:center;gap:0}
 .hero-today .sri{font-style:normal;color:var(--inst-gold);opacity:.85;display:inline-block;transform:translateY(1.5px)}
-.hero-today .ht-tv .ht-ic.tv{width:33px;height:33px;background:rgba(255,255,255,.04)}
-.hero-today .ht-tv .ht-ic.tv svg{width:16px;height:16px}
-.hero-today .ht-tv .tvn{flex:none;display:flex;flex-direction:column;gap:1px;width:auto;min-width:112px;font-size:15px;font-weight:600;letter-spacing:.01em;text-transform:none;color:var(--inst-gold);font-family:var(--display);white-space:nowrap}
+.hero-today .ht-tv .ht-ic.tv{width:40px;height:40px}
+.hero-today .ht-tv .ht-ic.tv svg{width:19px;height:19px}
+.hero-today .ht-tv .tvn{flex:none;display:flex;flex-direction:column;gap:1px;width:auto;min-width:112px;font-size:17.5px;font-weight:600;letter-spacing:.01em;text-transform:none;color:var(--inst-gold);font-family:var(--display);white-space:nowrap}
 .hero-today .ht-tv .tvn em{font-style:normal;font-weight:500;font-size:13px}
 .hero-today .ht-tv .tvn small{font-size:10.5px;font-weight:500;color:var(--inst-muted);font-family:var(--body);letter-spacing:.06em}
 .hero-today .ht-sd{display:block;margin-top:7px;font-size:13.5px;letter-spacing:.03em;color:var(--inst-gold);text-shadow:0 0 10px rgba(239,200,120,.35);animation:sdGlow 1.6s ease 2}
@@ -273,7 +280,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .sdlist li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--hairline)}
 .sdask p{font-size:14px}
 .hero-today .ht-wx i{font-style:normal;font-size:21px;line-height:1.1}
-.hero-today .ht-wx b{font-size:15px;font-weight:700;letter-spacing:.01em;color:#F8F5EB;text-shadow:0 1px 6px rgba(3,8,22,.7);line-height:1.15}
+.hero-today .ht-wx b{font-family:var(--display);font-size:21px;font-weight:600;letter-spacing:.01em;color:#F8F5EB;text-shadow:0 1px 6px rgba(3,8,22,.7);line-height:1.15}
 .hero-today .ht-date{padding-right:60px}
 .hero-today .ht-head{display:flex;align-items:center;gap:14px}
 .hero-today .ht-word{flex:1;font-family:var(--display);font-size:clamp(31px,8.6vw,44px);font-weight:500;line-height:1.06;color:var(--inst-gold);text-shadow:0 0 16px rgba(190,235,210,.22)}
@@ -289,7 +296,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today .ht-row .ht-time{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:14px}
 .hero-today .ht-row .tx{flex:1;min-width:0;border-left:1px solid var(--inst-line-soft);padding-left:10px}
 .hero-today .ht-row b{flex:none;width:94px;font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;white-space:nowrap}
-.hero-today .ht-ic{flex:none;width:27px;height:27px;border-radius:50%;border:1px solid;display:grid;place-items:center;font-style:normal;font-size:13px;line-height:1}
+.hero-today .ht-ic{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid;display:grid;place-items:center;font-style:normal;font-size:15px;line-height:1;background:radial-gradient(circle at 50% 42%, rgba(255,255,255,.07), transparent 72%)}
 .hero-today .ht-ic.sun{color:var(--inst-gold);border-color:rgba(240,216,152,.45)}
 .hero-today .ht-ic.go{color:var(--harm-lite);border-color:rgba(127,224,180,.45)}
 .hero-today .ht-ic.cost{color:var(--tense-lite);border-color:rgba(255,161,132,.45)}
@@ -2370,7 +2377,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const nd = namedayLine(np.m, np.d);
     return `<button type="button" class="hero-today ${da.color}" data-act="jumpDay" data-y="${np.y}" data-m="${np.m}" data-d="${np.d}" aria-label="Otevřít dnešek">
       <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}${phh ? ` · <i class="sri">${SUNRISE_I}</i>&nbsp;${K.fmtTime(phh.sunrise, TZ)} – <i class="sri">${SUNSET_I}</i>&nbsp;${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + nd : ''}</span>${wxLine()}${(() => { const sd = sdForDay(np.m, np.d); return sd.length ? `<span class="ht-sd">${sd.map(x => sdLabel(x, np.y)).join(' · ')}</span>` : ''; })()}
-      <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}</span><span class="ht-medal">${moonSVG(da.phaseAngle, 38, 'moon hm')}</span></span>
+      <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}<svg class="wflo" viewBox="0 0 180 14" aria-hidden="true"><path d="M4 8 C 50 2, 80 12, 176 6" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M88 4.6 90.6 7.2 88 9.8 85.4 7.2Z" fill="currentColor" opacity=".8"/></svg></span><span class="ht-medal"><svg class="mring" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(240,216,152,.5)" stroke-width="1" stroke-dasharray="1.5 4"/><g fill="#EFC878"><path d="M50 1.5 53 7h-6Z"/><path d="M50 98.5 47 93h6Z"/><path d="M1.5 50 7 47v6Z"/><path d="M98.5 50 93 53v-6Z"/></g><g stroke="rgba(239,200,120,.55)" stroke-width="1"><line x1="50" y1="8" x2="50" y2="15"/><line x1="50" y1="85" x2="50" y2="92"/><line x1="8" y1="50" x2="15" y2="50"/><line x1="85" y1="50" x2="92" y2="50"/></g></svg>${moonSVG(da.phaseAngle, 38, 'moon hm')}</span></span>
       <span class="ht-moon">${moonSVG(da.phaseAngle, 18)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>` : ''}
       <span class="ht-div"></span>
