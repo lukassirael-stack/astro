@@ -1955,6 +1955,36 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       if (S.tab === 'diar') renderJournal(); else renderCalendar();
     },
     noteBlur(el) { jSet(el.dataset.k, { note: el.value.trim() }); },
+    async bkExport() {
+      toast('Připravuji zálohu…');
+      const data = { app: 'kairos', v: 1, when: new Date().toISOString(), ls: {}, media: [] };
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('kairos')) data.ls[k] = localStorage.getItem(k);
+      }
+      const db = await MDB.open();
+      if (db) {
+        const [keys, vals] = await new Promise((res) => {
+          const st = db.transaction('m').objectStore('m');
+          const rq1 = st.getAllKeys(), rq2 = st.getAll();
+          let done = 0, out = [null, null];
+          rq1.onsuccess = () => { out[0] = rq1.result; if (++done === 2) res(out); };
+          rq2.onsuccess = () => { out[1] = rq2.result; if (++done === 2) res(out); };
+          rq1.onerror = rq2.onerror = () => res([[], []]);
+        });
+        for (let i = 0; i < (keys || []).length; i++) {
+          const b64 = await new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(null); fr.readAsDataURL(vals[i]); });
+          if (b64) data.media.push({ id: keys[i], d: b64 });
+        }
+      }
+      const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'kairos-zaloha-' + K.isoDate(...Object.values(K.tzParts(new Date(), TZ)).slice(0, 3)) + '.json';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 8000);
+      toast(`Záloha stažena (${data.media.length} příloh).`);
+    },
     async jmDel(el) {
       if (!confirm('Smazat přílohu?')) return;
       const k = el.dataset.k, id = el.dataset.id;
@@ -3259,6 +3289,11 @@ ${parts}
       <p class="note">Zdroje: naměřený Kp (posledních 7 dní), třídenní předpověď a 27denní výhled. Do kalendáře se bere nejvyšší hodnota dne.</p></div>
       <div class="h2">Komety a vlastní úkazy</div>
       <form class="card" id="cometsForm" onsubmit="return false"><textarea class="mono" style="width:100%;min-height:90px;font-size:13px;background:var(--field);color:var(--text);border:1px solid var(--line2);border-radius:9px;padding:9px" placeholder="2026-10-20 | Kometa C/2025 A6 (Lemmon) | nejjasnější, večer nízko na západě">${esc(settings.comets)}</textarea><div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="saveComets">Uložit seznam</button></div><p class="note">Jeden úkaz na řádek: datum | název | poznámka. Zobrazí se v Úkazech i v detailu dne.</p></form>
+      <div class="h2">Záloha a přenos dat</div>
+      <div class="card">
+        <div class="row"><button type="button" class="btn" data-act="bkExport">Stáhnout kompletní zálohu</button><label class="btn ghost" style="cursor:pointer">Obnovit ze zálohy<input type="file" id="bkFile" accept="application/json,.json" hidden></label></div>
+        <p class="note">Záloha obsahuje všechno: profily, diář, plány, nastavení, osoby pro srovnání i fotky a hlasové poznámky. Při výměně telefonu: tady stáhni soubor, pošli si ho do nového zařízení (mail, Disk…) a tam ho načti přes „Obnovit ze zálohy“. Obnova přepíše stávající data v appce.</p>
+      </div>
       <div class="h2">Aplikace</div>
       <div class="card"><div class="row"><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
       <p class="note" data-act="verTap" style="cursor:default">Kairos ${VERSION}${store.get('kairos_plus', false) ? ' · Plus' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
@@ -3366,6 +3401,28 @@ ${parts}
   (() => { const sp = $('#splash'); if (!sp) return; const off = () => { sp.classList.add('done'); setTimeout(() => sp.remove(), 650); };
     requestAnimationFrame(() => setTimeout(off, 450)); setTimeout(off, 6000); })();
   document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'bkFile' && e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]; e.target.value = '';
+      const fr = new FileReader();
+      fr.onload = async () => {
+        try {
+          const data = JSON.parse(fr.result);
+          if (!data || data.app !== 'kairos' || !data.ls) { toast('Tohle není záloha Nebeského kalendáře.'); return; }
+          if (!confirm(`Obnovit zálohu z ${data.when ? data.when.slice(0, 10) : '?'}? Přepíše stávající data v appce.`)) return;
+          for (const [k, v] of Object.entries(data.ls)) localStorage.setItem(k, v);
+          const db = await MDB.open();
+          if (db && data.media && data.media.length) {
+            for (const m of data.media) {
+              try { const blob = await (await fetch(m.d)).blob(); await MDB.put(m.id, blob); } catch (err) { }
+            }
+          }
+          toast('Záloha obnovena — appka se znovu načte.');
+          setTimeout(() => location.reload(), 900);
+        } catch (err) { toast('Soubor se nepodařilo přečíst.'); }
+      };
+      fr.readAsText(file);
+      return;
+    }
     if (e.target && e.target.classList && e.target.classList.contains('jphoto') && e.target.files && e.target.files[0]) {
       const key = e.target.dataset.k, file = e.target.files[0];
       const img = new Image();
