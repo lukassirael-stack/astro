@@ -359,7 +359,8 @@ details.expl .card p:last-child{margin:0}
 .claim i.mid{font-size:1.14em}
 .claim i.big{font-size:1.34em;letter-spacing:.38em;text-indent:.38em}
 .claim:before,.claim:after{content:'';width:56px;height:1px;background:linear-gradient(90deg,transparent,#D9B96E 30%,#D9B96E 70%,transparent);opacity:.8;margin:4px 0}
-.brand-claim{margin:4px auto 0}
+.bstars{display:block;margin:2px auto -2px;width:min(180px,40%);height:auto;filter:var(--logo-filter)}
+.brand-claim{margin:2px auto 0}
 .brand-claim{font-size:11px}
 @media (max-width:420px){.claim{font-size:10.5px;letter-spacing:.26em}.claim:before,.claim:after{width:44px}}
 #splash{position:fixed;inset:0;z-index:999;display:grid;place-items:center;align-content:center;gap:18px;
@@ -566,7 +567,7 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 <div id="skybg" aria-hidden="true"></div>
 <div class="app" id="app">
   <header class="top">
-    <h1 class="brand"><img class="logo" src="logo-emblem.webp?v=1" alt="Nebeský kompas — tvůj hvězdný kalendář" width="560" height="448"><span class="bname"><i class="l1"><b>NEBESKÝ</b></i><i class="l2"><b>KOMPAS</b></i></span><span class="claim brand-claim"><i>tvůj</i><i class="mid">hvězdný</i><i class="big">kalendář</i></span></h1>
+    <h1 class="brand"><img class="logo" src="logo-emblem.webp?v=1" alt="Nebeský kompas — tvůj hvězdný kalendář" width="560" height="448"><span class="bname"><i class="l1"><b>NEBESKÝ</b></i><i class="l2"><b>KOMPAS</b></i></span><img class="bstars" src="logo-stars.webp?v=1" alt="" width="500" height="217"><span class="claim brand-claim"><i>tvůj</i><i class="mid">hvězdný</i><i class="big">kalendář</i></span></h1>
     <button class="profile-pill" id="profilePill" data-tab="nastaveni" title="Aktivní profil">—</button>
   </header>
   <main>
