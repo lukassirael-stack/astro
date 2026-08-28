@@ -280,6 +280,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .sdlist{list-style:none;margin:0 0 10px;padding:0}
 .sdlist li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--hairline)}
 .sdask p{font-size:14px}
+.hero-today .tvq{flex:none;align-self:center;margin-left:4px;width:21px;height:21px;border-radius:50%;border:1px solid var(--inst-line-soft);display:grid;place-items:center;font-size:12px;font-style:normal;color:var(--inst-muted)}
+.hero-today .tvexp{display:block;margin:0 0 4px;padding:9px 12px;font-size:13px;line-height:1.55;color:var(--inst-muted);border:1px dashed var(--inst-line-soft);border-radius:10px}
 .tvinfo{margin:6px 4px 0}
 .tvinfo summary{cursor:pointer;font-size:12.5px;letter-spacing:.06em;color:var(--muted);list-style:none;display:inline-flex;align-items:center;gap:6px}
 .tvinfo summary::-webkit-details-marker{display:none}
@@ -1772,7 +1774,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   function tattvaHTML() {
     const x = tattvaNow();
     if (!x) return '';
-    return `<i class="ht-ic tv" style="border-color:${x.t.col};color:${x.t.col}">${x.t.sym}</i><b class="tvn"><span>${x.t.n} <em style="color:${x.t.col}">(${x.t.el})</em></span><small>do ${K.fmtTime(x.end, TZ)}</small></b><span class="tx">přeje ${x.t.tip}</span>`;
+    return `<i class="ht-ic tv" style="border-color:${x.t.col};color:${x.t.col}">${x.t.sym}</i><b class="tvn"><span>${x.t.n} <em style="color:${x.t.col}">(${x.t.el})</em></span><small>do ${K.fmtTime(x.end, TZ)}</small></b><span class="tx">přeje ${x.t.tip}</span><i class="tvq" data-act="tvHelp" role="button" aria-label="Co jsou tatvy?">?</i>`;
   }
   const sdAll = () => store.get('kairos_days', []);
   const SD_EMO = { narozeniny: '🎂', vyroci: '💍', jine: '✦' };
@@ -2176,6 +2178,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       store.set('kairos_days', list); renderSettings(); toast('Přidáno — uvidíš ho ráno v kartě Dnes.');
     },
     sdDel(el) { store.set('kairos_days', sdAll().filter(x => x.id !== el.dataset.id)); renderSettings(); },
+    tvHelp() { S.tvHelp = !S.tvHelp; renderCalendar(); },
     sdLater() { store.set('kairos_days_seen', true); renderCalendar(); },
     sdGo() { store.set('kairos_days_seen', true); showTab('nastaveni'); setTimeout(() => { const el = $('#sdName'); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 60); },
     icsSave() { const v = $('#icsUrl'); if (!v || !v.value.trim()) { toast('Vlož adresu.'); return; } store.set('kairos_ics', v.value.trim()); icsRefresh(false); },
@@ -2393,7 +2396,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <span class="ht-date ht-date2">${phh ? `<i class="sri">${SUNRISE_I}</i>&nbsp;${K.fmtTime(phh.sunrise, TZ)}&nbsp;&nbsp;–&nbsp;&nbsp;<i class="sri">${SUNSET_I}</i>&nbsp;${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + String(nd).replace(/\s*·\s*SK.*$/i, '') : ''}</span>${wxLine()}${(() => { const sd = sdForDay(np.m, np.d); return sd.length ? `<span class="ht-sd">${sd.map(x => sdLabel(x, np.y)).join(' · ')}</span>` : ''; })()}
       <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}<svg class="wflo" viewBox="0 0 180 14" aria-hidden="true"><path d="M4 8 C 50 2, 80 12, 176 6" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M88 4.6 90.6 7.2 88 9.8 85.4 7.2Z" fill="currentColor" opacity=".8"/></svg></span></span>
       <span class="ht-moon"><span class="ht-medal"><svg class="mring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="39" fill="none" stroke="rgba(239,200,120,.7)" stroke-width=".9"/><circle cx="60" cy="60" r="45" fill="none" stroke="rgba(239,200,120,.42)" stroke-width=".8"/></svg>${moonSVG(da.phaseAngle, 40, 'moon hm')}</span> Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
-      ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>` : ''}
+      ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
       <span class="ht-div"></span>
       ${go.length ? `<span class="ht-row ht-go"><i class="ht-ic go">✦</i><b>Podporuje</b><span class="tx">${esc(go[0].text)}</span></span>` : ''}
       ${cost.length ? `<span class="ht-div"></span><span class="ht-row ht-cost"><i class="ht-ic cost">✳</i><b>Nepříznivé</b><span class="tx">${esc(cost[0].text)}</span></span>` : ''}
@@ -2412,7 +2415,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       out += `<button class="a ${da.color} ${key === TODAY_KEY ? 'today' : ''} ${sel ? 'sel' : ''}" data-act="selDay" data-y="${p.y}" data-m="${p.m}" data-d="${p.d}">
         <span class="wd">${i === 0 ? 'dnes' : K.WEEKDAY_CZ[p.wd].slice(0, 2)}</span><span class="dd">${p.d}</span><span class="wo">${TX.dayWord(da)}</span></button>`;
     }
-    return `${tattvaNow() ? `<details class="tvinfo"><summary>Co jsou tatvy?</summary><p>Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a celý kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Karta ukazuje živel, který právě běží, a dokdy — když můžeš, slaď s ním důležité kroky: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</p></details>` : ''}<div class="h3" style="margin-top:14px">Nejbližší dny</div><div class="strip-wrap"><button type="button" class="strip-nav l" data-act="stripNav" data-dir="-1" aria-label="Posunout zpět">‹</button><div class="ahead">${out}</div><button type="button" class="strip-nav r" data-act="stripNav" data-dir="1" aria-label="Posunout dál">›</button></div>`;
+    return `<div class="h3" style="margin-top:14px">Nejbližší dny</div><div class="strip-wrap"><button type="button" class="strip-nav l" data-act="stripNav" data-dir="-1" aria-label="Posunout zpět">‹</button><div class="ahead">${out}</div><button type="button" class="strip-nav r" data-act="stripNav" data-dir="1" aria-label="Posunout dál">›</button></div>`;
   }
 
   function dayDetailHTML(y, m, d, evByDay) {
