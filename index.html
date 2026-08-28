@@ -1700,6 +1700,23 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     async del(id) { const db = await MDB.open(); if (!db) return; return new Promise((res) => { const tx = db.transaction('m', 'readwrite'); tx.objectStore('m').delete(id); tx.oncomplete = () => res(); tx.onerror = () => res(); }); },
   };
   let recState = null;
+  const WX_EMO = (c) => c == null ? '' : c === 0 ? '☀️' : c <= 2 ? '🌤' : c === 3 ? '☁️' : c <= 48 ? '🌫' : c <= 57 ? '🌦' : c <= 67 ? '🌧' : c <= 77 ? '🌨' : c <= 82 ? '🌧' : c <= 86 ? '🌨' : '⛈';
+  function wxGet() { return store.get('kairos_wx', null); }
+  async function wxRefresh() {
+    try {
+      const pr = activeProfile(); if (!pr || pr.lat == null) return;
+      const u = `https://api.open-meteo.com/v1/forecast?latitude=${+pr.lat}&longitude=${+pr.lon}&current=temperature_2m,weather_code&daily=temperature_2m_min,temperature_2m_max&forecast_days=1&timezone=${encodeURIComponent(TZ)}`;
+      const r = await fetch(u); if (!r.ok) return;
+      const j = await r.json();
+      store.set('kairos_wx', { when: Date.now(), t: Math.round(j.current.temperature_2m), c: j.current.weather_code, tmin: Math.round(j.daily.temperature_2m_min[0]), tmax: Math.round(j.daily.temperature_2m_max[0]) });
+      if (S.tab === 'kalendar') renderCalendar();
+    } catch (e) { }
+  }
+  function wxLine() {
+    const w = wxGet();
+    if (!w || Date.now() - w.when > 3 * 3600 * 1000) return '';
+    return ` · ${WX_EMO(w.c)} ${w.t} °C (${w.tmin}–${w.tmax})`;
+  }
   async function reconcileMedia() {
     const db = await MDB.open(); if (!db) return;
     const keys = await new Promise((res) => { const rq = db.transaction('m').objectStore('m').getAllKeys(); rq.onsuccess = () => res(rq.result || []); rq.onerror = () => res([]); });
@@ -2280,7 +2297,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const phh = K.planetaryHours(np.y, np.m, np.d, observer(), TZ);
     const nd = namedayLine(np.m, np.d);
     return `<button type="button" class="hero-today ${da.color}" data-act="jumpDay" data-y="${np.y}" data-m="${np.m}" data-d="${np.d}" aria-label="Otevřít dnešek">
-      <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}${phh ? ` · ${K.fmtTime(phh.sunrise, TZ)} – ${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + nd : ''}</span>
+      <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}${phh ? ` · ${K.fmtTime(phh.sunrise, TZ)} – ${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + nd : ''}${wxLine()}</span>
       <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}</span><span class="ht-medal">${moonSVG(da.phaseAngle, 46, 'moon hm')}</span></span>
       <span class="ht-moon">${moonSVG(da.phaseAngle, 18)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
       <span class="ht-div"></span>
@@ -3538,6 +3555,7 @@ ${parts}
   setInterval(applyTheme, 240000);
   showTab(['kalendar', 'ukazy', 'diar', 'nativ', 'nastaveni'].includes(store.get('kairos_tab', 'kalendar')) ? store.get('kairos_tab', 'kalendar') : 'kalendar');
   setTimeout(reconcileMedia, 1200);
+  setTimeout(() => { const w = wxGet(); if (!w || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); }, 800);
   setTimeout(() => { const c = gEv(); if (store.get('kairos_ics', '') && (!c || Date.now() - c.when > 6 * 3600 * 1000)) icsRefresh(true); }, 2500);
   loadKp(false);
   (() => { const sp = $('#splash'); if (!sp) return; const off = () => { sp.classList.add('done'); setTimeout(() => sp.remove(), 650); };
