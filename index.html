@@ -262,7 +262,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today:before{top:-8px}
 .hero-today:after{bottom:-8px}
 .hero-today .ht-medal{overflow:visible}
-.hero-today .mring{position:absolute;inset:-16px;width:calc(100% + 32px);height:calc(100% + 32px);pointer-events:none;filter:drop-shadow(0 0 5px rgba(242,206,130,.55))}
+.hero-today .mring{position:absolute;inset:-11px;width:calc(100% + 22px);height:calc(100% + 22px);pointer-events:none;filter:drop-shadow(0 0 4px rgba(242,206,130,.5))}
 .hero-today .ht-medal>svg.moon{filter:drop-shadow(0 0 14px rgba(239,200,120,.5)) drop-shadow(0 0 30px rgba(239,200,120,.25))}
 .hero-today .ht-word{position:relative;padding-bottom:8px}
 .hero-today .wflo{position:absolute;left:2px;bottom:-4px;width:min(180px,86%);height:14px;color:#D9B96E;opacity:.8}
@@ -285,14 +285,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today .ht-wx b{font-family:var(--display);font-size:21px;font-weight:600;letter-spacing:.01em;color:#F8F5EB;text-shadow:0 1px 6px rgba(3,8,22,.7);line-height:1.15}
 .hero-today .ht-date{padding-right:50px}
 .hero-today .ht-head{display:flex;align-items:center;gap:8px;margin:16px 0 12px}
-.hero-today .ht-medal{margin:6px 10px 8px 0}
+.hero-today .ht-medal{margin:6px 14px 8px 0}
 .hero-today .ht-lead{transform:translateY(3px)}
 .hero-today .ht-word{flex:1;font-family:var(--display);font-size:clamp(27px,7.2vw,40px);font-weight:500;line-height:1.06;white-space:nowrap;color:var(--inst-gold);text-shadow:0 0 16px rgba(190,235,210,.22)}
 .hero-today.harm .ht-word{color:var(--harm-lite)}
 .hero-today.tense .ht-word{color:var(--tense-lite)}
 .hero-today .ht-lead{flex:0 1 60px;align-self:center;height:1px;margin:0 5px 0 8px;border-top:1px dotted rgba(240,216,152,.55);position:relative;min-width:12px}
 .hero-today .ht-lead{margin-right:14px}
-.hero-today .ht-medal{flex:none;width:66px;height:66px;border:none;border-radius:50%;display:grid;place-items:center;position:relative;
+.hero-today .ht-medal{flex:none;width:44px;height:44px;border:none;border-radius:50%;display:grid;place-items:center;position:relative;
   --moon:#F0DFAE;--moon-dark:rgba(255,255,255,.12);box-shadow:0 0 14px rgba(240,210,130,.18),inset 0 0 10px rgba(240,210,130,.1)}
 .hero-today .ht-medal:after{content:'';position:absolute;inset:-5px;border:1px dashed rgba(240,216,152,.18);border-radius:50%}
 .hero-today .ht-moon{display:flex;align-items:center;gap:12px;font-size:16.5px;line-height:1.4;color:var(--inst-text);margin:2px 0 0;
@@ -310,7 +310,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today .ht-ic.cost{color:var(--tense-lite);border-color:rgba(255,161,132,.45)}
 .hero-today .ht-go b{color:var(--harm-lite)}
 .hero-today .ht-cost b{color:var(--tense-lite)}
-@media (max-width:400px){.hero-today .ht-medal{width:56px;height:56px}.hero-today .ht-row b{width:88px}.hero-today .ht-ic{width:36px;height:36px}}
+@media (max-width:400px){.hero-today .ht-medal{width:40px;height:40px}.hero-today .ht-row b{width:88px}.hero-today .ht-ic{width:36px;height:36px}}
 .day-sun{font-size:13px;color:var(--muted);margin:2px 0 10px}
 /* nejbližší dny */
 .ahead{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;margin:0 -14px;padding-left:14px;padding-right:14px;scrollbar-width:none}
@@ -2389,11 +2389,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}<svg class="wflo" viewBox="0 0 180 14" aria-hidden="true"><path d="M4 8 C 50 2, 80 12, 176 6" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M88 4.6 90.6 7.2 88 9.8 85.4 7.2Z" fill="currentColor" opacity=".8"/></svg></span><span class="ht-lead" aria-hidden="true"></span><span class="ht-medal"><svg class="mring" viewBox="0 0 120 120" aria-hidden="true">
   <circle cx="60" cy="60" r="39" fill="none" stroke="rgba(239,200,120,.7)" stroke-width=".9"/>
   <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(239,200,120,.42)" stroke-width=".8"/>
-  <path d="M60 4 L62.2 11.8 L70 14 L62.2 16.2 L60 24 L57.8 16.2 L50 14 L57.8 11.8 Z" fill="#F2CE82"/><path d="M106 52 L107.76 58.24 L114 60 L107.76 61.76 L106 68 L104.24 61.76 L98 60 L104.24 58.24 Z" fill="#F2CE82"/><path d="M60 98 L61.76 104.24 L68 106 L61.76 107.76 L60 114 L58.24 107.76 L52 106 L58.24 104.24 Z" fill="#F2CE82"/><path d="M14 52 L15.76 58.24 L22 60 L15.76 61.76 L14 68 L12.24 61.76 L6 60 L12.24 58.24 Z" fill="#F2CE82"/>
-  <circle cx="88" cy="26" r="1.3" fill="#F2CE82" opacity=".8"/>
-  <circle cx="30" cy="90" r="1.1" fill="#F2CE82" opacity=".7"/>
-  <circle cx="97" cy="88" r="1.2" fill="#F2CE82" opacity=".75"/>
-</svg>${moonSVG(da.phaseAngle, 58, 'moon hm')}</span></span>
+</svg>${moonSVG(da.phaseAngle, 40, 'moon hm')}</span></span>
       <span class="ht-moon">${moonSVG(da.phaseAngle, 18)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>` : ''}
       <span class="ht-div"></span>
