@@ -380,6 +380,7 @@ details.expl .card p:last-child{margin:0}
 .strip-nav:hover{background:rgba(20,30,58,.95)}
 [data-theme="day"] .strip-nav{background:rgba(250,247,238,.9);color:#7A5E1E;border-color:rgba(140,110,50,.5)}
 @media (min-width:900px){.strip-nav{display:grid}}
+.estars{font-style:normal;color:var(--gold);letter-spacing:2px;margin-left:6px;font-size:.85em}
 .plist.gcal{list-style:none;margin:0 0 6px;padding:0}
 .plist.gcal li{display:flex;align-items:center;gap:8px;padding:3px 0;border-bottom:1px dashed var(--hairline)}
 .plist.gcal .gsrc{margin-left:auto;font-size:10px;font-weight:700;color:var(--muted);border:1px solid var(--hairline);border-radius:5px;padding:1px 5px}
@@ -2978,12 +2979,14 @@ ${parts}
       const cfg = electCfg();
       if (S.elek.progress != null) body += `<p class="small muted" style="margin:10px 0 0">Prohledávám nebe… <span id="elekProgress">${S.elek.progress} %</span></p>`;
       if (S.elek.results) {
+        const scs = S.elek.results.map(r => r.sc), smin = Math.min(...scs), smax = Math.max(...scs);
+        const tier = (sc) => smax === smin ? 2 : (sc - smin) / (smax - smin) >= 0.67 ? 3 : (sc - smin) / (smax - smin) >= 0.34 ? 2 : 1;
         body += S.elek.results.length ? `<ul class="elist">${S.elek.results.map(r => `<li><button type="button" data-act="selDay" data-y="${r.y}" data-m="${r.m}" data-d="${r.d}">
-          <span class="ed">${K.WEEKDAY_CZ[K.tzParts(r.da.noon, TZ).wd]} ${r.d}. ${K.MONTH_GEN[r.m - 1]}</span>
+          <span class="ed">${K.WEEKDAY_CZ[K.tzParts(r.da.noon, TZ).wd]} ${r.d}. ${K.MONTH_GEN[r.m - 1]} <i class="estars" title="síla dne v rámci výběru">${'✦'.repeat(tier(r.sc))}</i></span>
           <span class="badge ${r.da.color}">${TX.dayWord(r.da)}</span>
           <span class="ew">${esc(r.why.join(' · ') || 'bez zvláštních výhrad')}</span>
         </button></li>`).join('')}</ul>` : '<p class="small muted" style="margin:8px 0 0">V tomhle rozmezí žádný vyloženě vhodný den nevychází — zkus delší rozsah.</p>';
-        body += `<p class="note">Nejlepší dny pro: ${cfg.subLabel.toLowerCase()}. Řazeno podle skóre dne s příplatky za to, co dané věci svědčí; vyřazeny dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.venusNoRetro ? ', retrográdní Venuše' : ''}${cfg.marsNoRetro ? ', retrográdního Marsu' : ''}${cfg.avoidMoonSigns ? ', Luny ve znamení operované části těla (Beran/Váhy)' : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ' a okolí úplňku' : ''}.${cfg.health ? ' Jen orientačně — termín zákroku se vždy řídí tím, co řekne lékař.' : ''}</p>`;
+        body += `<p class="note">Nejlepší dny pro: ${cfg.subLabel.toLowerCase()} — seřazeno podle data; ✦✦✦ značí nejsilnější dny z výběru. Vybráno podle skóre dne s příplatky za to, co dané věci svědčí; vyřazeny dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.venusNoRetro ? ', retrográdní Venuše' : ''}${cfg.marsNoRetro ? ', retrográdního Marsu' : ''}${cfg.avoidMoonSigns ? ', Luny ve znamení operované části těla (Beran/Váhy)' : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ' a okolí úplňku' : ''}.${cfg.health ? ' Jen orientačně — termín zákroku se vždy řídí tím, co řekne lékař.' : ''}</p>`;
       }
     }
     const head = `<button type="button" class="eltoggle ${S.elek.open ? 'open' : ''}" data-act="elekToggle" aria-expanded="${S.elek.open}">Najít vhodný den <i>${S.elek.open ? '▾' : '▸'}</i></button>`;
