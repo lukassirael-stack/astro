@@ -1720,7 +1720,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   function wxLine() {
     const w = wxGet();
     if (!w || Date.now() - w.when > 3 * 3600 * 1000) return '';
-    return `<span class="ht-wx" title="venku teď · rozpětí dne">${WX_EMO(w.c)} ${w.t}&nbsp;°C<small>${w.tmin}–${w.tmax}&nbsp;°C</small></span>`;
+    return `<span class="ht-wx" title="venku teď">${WX_EMO(w.c)} ${w.t}&nbsp;°C</span>`;
   }
   async function reconcileMedia() {
     const db = await MDB.open(); if (!db) return;
