@@ -2949,7 +2949,7 @@ ${parts}
         setTimeout(step, 0);
       } else {
         out.sort((a, b) => b.sc - a.sc || a.key.localeCompare(b.key));
-        S.elek.results = out.slice(0, 6); S.elek.progress = null;
+        S.elek.results = out.slice(0, 6).sort((a, b) => a.key.localeCompare(b.key)); S.elek.progress = null;
         renderCalendar();
       }
     };
@@ -2964,7 +2964,7 @@ ${parts}
         i++;
       }
       out.sort((a, b) => b.sc - a.sc || a.key.localeCompare(b.key));
-      S.elek.results = out.slice(0, 6); S.elek.progress = null;
+      S.elek.results = out.slice(0, 6).sort((a, b) => a.key.localeCompare(b.key)); S.elek.progress = null;
     } else step();
   }
   function electHTML() {
