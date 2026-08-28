@@ -280,6 +280,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .sdlist{list-style:none;margin:0 0 10px;padding:0}
 .sdlist li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--hairline)}
 .sdask p{font-size:14px}
+.tvinfo{margin:6px 4px 0}
+.tvinfo summary{cursor:pointer;font-size:12.5px;letter-spacing:.06em;color:var(--muted);list-style:none;display:inline-flex;align-items:center;gap:6px}
+.tvinfo summary::-webkit-details-marker{display:none}
+.tvinfo summary:before{content:'✧';color:var(--gold)}
+.tvinfo[open] summary:before{content:'✦'}
+.tvinfo p{margin:8px 2px 0;font-size:13.5px;line-height:1.55;color:var(--muted)}
 .hero-today .ht-wx i{font-style:normal;font-size:21px;line-height:1.1}
 .hero-today .ht-wx b{font-family:var(--display);font-size:21px;font-weight:600;letter-spacing:.01em;color:#F8F5EB;text-shadow:0 1px 6px rgba(3,8,22,.7);line-height:1.15}
 .hero-today .ht-date{padding-right:50px}
@@ -2406,7 +2412,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       out += `<button class="a ${da.color} ${key === TODAY_KEY ? 'today' : ''} ${sel ? 'sel' : ''}" data-act="selDay" data-y="${p.y}" data-m="${p.m}" data-d="${p.d}">
         <span class="wd">${i === 0 ? 'dnes' : K.WEEKDAY_CZ[p.wd].slice(0, 2)}</span><span class="dd">${p.d}</span><span class="wo">${TX.dayWord(da)}</span></button>`;
     }
-    return `<div class="h3" style="margin-top:14px">Nejbližší dny</div><div class="strip-wrap"><button type="button" class="strip-nav l" data-act="stripNav" data-dir="-1" aria-label="Posunout zpět">‹</button><div class="ahead">${out}</div><button type="button" class="strip-nav r" data-act="stripNav" data-dir="1" aria-label="Posunout dál">›</button></div>`;
+    return `${tattvaNow() ? `<details class="tvinfo"><summary>Co jsou tatvy?</summary><p>Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a celý kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Karta ukazuje živel, který právě běží, a dokdy — když můžeš, slaď s ním důležité kroky: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</p></details>` : ''}<div class="h3" style="margin-top:14px">Nejbližší dny</div><div class="strip-wrap"><button type="button" class="strip-nav l" data-act="stripNav" data-dir="-1" aria-label="Posunout zpět">‹</button><div class="ahead">${out}</div><button type="button" class="strip-nav r" data-act="stripNav" data-dir="1" aria-label="Posunout dál">›</button></div>`;
   }
 
   function dayDetailHTML(y, m, d, evByDay) {
