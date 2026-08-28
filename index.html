@@ -284,13 +284,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today .ht-wx b{font-family:var(--display);font-size:21px;font-weight:600;letter-spacing:.01em;color:#F8F5EB;text-shadow:0 1px 6px rgba(3,8,22,.7);line-height:1.15}
 .hero-today .ht-date{padding-right:50px}
 .hero-today .ht-head{display:flex;align-items:center;gap:8px;margin:16px 0 12px}
-.hero-today .ht-medal{margin:6px 3px 8px 0}
-.hero-today .ht-lead{transform:translateY(3px)}
-.hero-today .ht-word{flex:1;font-family:var(--display);font-size:clamp(27px,7.2vw,40px);font-weight:500;line-height:1.06;white-space:nowrap;color:var(--inst-gold);text-shadow:0 0 16px rgba(190,235,210,.22)}
+.hero-today .ht-moon .ht-medal{margin:6px 8px 6px 3px}
+
+.hero-today .ht-word{flex:1;font-family:var(--display);font-size:clamp(30px,8vw,43px);font-weight:500;line-height:1.06;white-space:nowrap;color:var(--inst-gold);text-shadow:0 0 16px rgba(190,235,210,.22)}
 .hero-today.harm .ht-word{color:var(--harm-lite)}
 .hero-today.tense .ht-word{color:var(--tense-lite)}
-.hero-today .ht-lead{flex:1 1 auto;align-self:center;height:1px;margin:0 8px 0 12px;border-top:1px dotted rgba(240,216,152,.5);position:relative;min-width:16px}
-.hero-today .ht-lead{margin-right:14px}
+
+
 .hero-today .ht-medal{flex:none;width:44px;height:44px;border:none;border-radius:50%;display:grid;place-items:center;position:relative;
   --moon:#F0DFAE;--moon-dark:rgba(255,255,255,.12);box-shadow:0 0 14px rgba(240,210,130,.18),inset 0 0 10px rgba(240,210,130,.1)}
 .hero-today .ht-medal:after{content:'';position:absolute;inset:-5px;border:1px dashed rgba(240,216,152,.18);border-radius:50%}
@@ -2385,11 +2385,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     return `<button type="button" class="hero-today ${da.color}" data-act="jumpDay" data-y="${np.y}" data-m="${np.m}" data-d="${np.d}" aria-label="Otevřít dnešek">
       <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}</span>
       <span class="ht-date ht-date2">${phh ? `<i class="sri">${SUNRISE_I}</i>&nbsp;${K.fmtTime(phh.sunrise, TZ)}&nbsp;&nbsp;–&nbsp;&nbsp;<i class="sri">${SUNSET_I}</i>&nbsp;${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + String(nd).replace(/\s*·\s*SK.*$/i, '') : ''}</span>${wxLine()}${(() => { const sd = sdForDay(np.m, np.d); return sd.length ? `<span class="ht-sd">${sd.map(x => sdLabel(x, np.y)).join(' · ')}</span>` : ''; })()}
-      <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}<svg class="wflo" viewBox="0 0 180 14" aria-hidden="true"><path d="M4 8 C 50 2, 80 12, 176 6" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M88 4.6 90.6 7.2 88 9.8 85.4 7.2Z" fill="currentColor" opacity=".8"/></svg></span><span class="ht-lead" aria-hidden="true"></span><span class="ht-medal"><svg class="mring" viewBox="0 0 120 120" aria-hidden="true">
-  <circle cx="60" cy="60" r="39" fill="none" stroke="rgba(239,200,120,.7)" stroke-width=".9"/>
-  <circle cx="60" cy="60" r="45" fill="none" stroke="rgba(239,200,120,.42)" stroke-width=".8"/>
-</svg>${moonSVG(da.phaseAngle, 40, 'moon hm')}</span></span>
-      <span class="ht-moon">${moonSVG(da.phaseAngle, 18)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
+      <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}<svg class="wflo" viewBox="0 0 180 14" aria-hidden="true"><path d="M4 8 C 50 2, 80 12, 176 6" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M88 4.6 90.6 7.2 88 9.8 85.4 7.2Z" fill="currentColor" opacity=".8"/></svg></span></span>
+      <span class="ht-moon"><span class="ht-medal"><svg class="mring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="39" fill="none" stroke="rgba(239,200,120,.7)" stroke-width=".9"/><circle cx="60" cy="60" r="45" fill="none" stroke="rgba(239,200,120,.42)" stroke-width=".8"/></svg>${moonSVG(da.phaseAngle, 40, 'moon hm')}</span> Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>` : ''}
       <span class="ht-div"></span>
       ${go.length ? `<span class="ht-row ht-go"><i class="ht-ic go">✦</i><b>Podporuje</b><span class="tx">${esc(go[0].text)}</span></span>` : ''}
