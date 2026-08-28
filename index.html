@@ -290,7 +290,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today.harm .ht-word{color:var(--harm-lite)}
 .hero-today.tense .ht-word{color:var(--tense-lite)}
 .hero-today .ht-lead{flex:0 1 60px;align-self:center;height:1px;margin:0 5px 0 8px;border-top:1px dotted rgba(240,216,152,.55);position:relative;min-width:12px}
-.hero-today .ht-lead:after{content:'';position:absolute;right:-4px;top:-3.5px;width:6px;height:6px;border:1px solid rgba(240,216,152,.8);border-radius:50%}
+.hero-today .ht-lead:after{content:'';position:absolute;right:-5px;top:-4.5px;width:8px;height:8px;border:1.2px solid rgba(240,216,152,.85);border-radius:50%}
+.hero-today .ht-lead:before{content:'';position:absolute;right:6px;top:-2px;width:3.5px;height:3.5px;background:#EFC878;border-radius:50%}
 .hero-today .ht-medal{flex:none;width:66px;height:66px;border:none;border-radius:50%;display:grid;place-items:center;position:relative;
   --moon:#F0DFAE;--moon-dark:rgba(255,255,255,.12);box-shadow:0 0 14px rgba(240,210,130,.18),inset 0 0 10px rgba(240,210,130,.1)}
 .hero-today .ht-medal:after{content:'';position:absolute;inset:-5px;border:1px dashed rgba(240,216,152,.18);border-radius:50%}
@@ -2386,17 +2387,16 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}</span>
       <span class="ht-date ht-date2">${phh ? `<i class="sri">${SUNRISE_I}</i>&nbsp;${K.fmtTime(phh.sunrise, TZ)}&nbsp;&nbsp;–&nbsp;&nbsp;<i class="sri">${SUNSET_I}</i>&nbsp;${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + String(nd).replace(/\s*·\s*SK.*$/i, '') : ''}</span>${wxLine()}${(() => { const sd = sdForDay(np.m, np.d); return sd.length ? `<span class="ht-sd">${sd.map(x => sdLabel(x, np.y)).join(' · ')}</span>` : ''; })()}
       <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}<svg class="wflo" viewBox="0 0 180 14" aria-hidden="true"><path d="M4 8 C 50 2, 80 12, 176 6" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M88 4.6 90.6 7.2 88 9.8 85.4 7.2Z" fill="currentColor" opacity=".8"/></svg></span><span class="ht-lead" aria-hidden="true"></span><span class="ht-medal"><svg class="mring" viewBox="0 0 120 120" aria-hidden="true">
-  <circle cx="60" cy="60" r="34" fill="none" stroke="rgba(240,216,152,.75)" stroke-width="1"/>
-  <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(240,216,152,.45)" stroke-width="1" stroke-dasharray="1.4 4.4"/>
-  <line x1="60" y1="2" x2="60" y2="22" stroke="rgba(239,200,120,.5)" stroke-width="1" stroke-dasharray="1.4 3.4"/>
-  <line x1="60" y1="98" x2="60" y2="118" stroke="rgba(239,200,120,.5)" stroke-width="1" stroke-dasharray="1.4 3.4"/>
-  <line x1="2" y1="60" x2="22" y2="60" stroke="rgba(239,200,120,.5)" stroke-width="1" stroke-dasharray="1.4 3.4"/>
-  <line x1="98" y1="60" x2="118" y2="60" stroke="rgba(239,200,120,.5)" stroke-width="1" stroke-dasharray="1.4 3.4"/>
-  <path d="M60 0l2 4.6L66.6 6 62 8l-2 4.6L58 8l-4.6-2L58 4.6Z" fill="#EFC878" opacity=".95"/>
-  <path d="M60 112l2.4 3-2.4 3-2.4-3Z" fill="#EFC878" opacity=".85"/>
-  <circle cx="3" cy="60" r="1.6" fill="#EFC878" opacity=".8"/>
-  <circle cx="117" cy="60" r="1.6" fill="#EFC878" opacity=".8"/>
-</svg>${moonSVG(da.phaseAngle, 52, 'moon hm')}</span></span>
+  <circle cx="60" cy="60" r="38" fill="none" stroke="rgba(215,205,180,.6)" stroke-width="1.1"/>
+  <circle cx="60" cy="60" r="49" fill="none" stroke="rgba(185,196,214,.5)" stroke-width="1.6" stroke-dasharray="4.2 4.6"/>
+  <line x1="60" y1="51" x2="60" y2="57" stroke="rgba(185,196,214,.55)" stroke-width="1.2" stroke-dasharray="1.6 3"/>
+  <line x1="60" y1="102" x2="60" y2="109" stroke="rgba(185,196,214,.55)" stroke-width="1.2" stroke-dasharray="1.6 3"/>
+  <line x1="51" y1="60" x2="57" y2="60" stroke="rgba(185,196,214,.55)" stroke-width="1.2" stroke-dasharray="1.6 3"/>
+  <line x1="102" y1="60" x2="112" y2="60" stroke="rgba(185,196,214,.55)" stroke-width="1.2" stroke-dasharray="1.6 3"/>
+  <path d="M60 1l2.6 6.4L69 10l-6.4 2.6L60 19l-2.6-6.4L51 10l6.4-2.6Z" fill="#EFC878"/>
+  <path d="M60 111l3 3.8-3 3.8-3-3.8Z" fill="#EFC878" opacity=".95"/>
+  <circle cx="116" cy="60" r="2.2" fill="#EFC878" opacity=".9"/>
+</svg>${moonSVG(da.phaseAngle, 58, 'moon hm')}</span></span>
       <span class="ht-moon">${moonSVG(da.phaseAngle, 18)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>` : ''}
       <span class="ht-div"></span>
