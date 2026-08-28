@@ -259,6 +259,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 .hero-today{position:relative}
 .hero-today .ht-wx{position:absolute;top:11px;right:16px;display:flex;flex-direction:column;align-items:center;gap:0}
+.hero-today .ht-sd{display:block;margin-top:7px;font-size:13.5px;letter-spacing:.03em;color:var(--inst-gold);text-shadow:0 0 10px rgba(239,200,120,.35);animation:sdGlow 1.6s ease 2}
+@keyframes sdGlow{0%,100%{opacity:1}50%{opacity:.55}}
+.sdline{margin:2px 0 8px;font-size:13.5px;color:var(--gold)}
+.cell .sdmark{position:absolute;top:4px;right:5px;font-size:10px;line-height:1}
+.sdlist{list-style:none;margin:0 0 10px;padding:0}
+.sdlist li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--hairline)}
+.sdask p{font-size:14px}
 .hero-today .ht-wx i{font-style:normal;font-size:21px;line-height:1.1}
 .hero-today .ht-wx b{font-size:15px;font-weight:700;letter-spacing:.01em;color:#F8F5EB;text-shadow:0 1px 6px rgba(3,8,22,.7);line-height:1.15}
 .hero-today .ht-date{padding-right:60px}
@@ -1707,6 +1714,14 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   let recState = null;
   const WX_EMO = (c) => c == null ? '' : c === 0 ? '☀️' : c <= 2 ? '🌤' : c === 3 ? '☁️' : c <= 48 ? '🌫' : c <= 57 ? '🌦' : c <= 67 ? '🌧' : c <= 77 ? '🌨' : c <= 82 ? '🌧' : c <= 86 ? '🌨' : '⛈';
   function wxGet() { return store.get('kairos_wx', null); }
+  const sdAll = () => store.get('kairos_days', []);
+  const SD_EMO = { narozeniny: '🎂', vyroci: '💍', jine: '✦' };
+  function sdForDay(m, d) { return sdAll().filter(x => +x.m === +m && +x.d === +d); }
+  function sdLabel(x, y) {
+    const yrs = x.y ? y - (+x.y) : null;
+    const base = x.t === 'narozeniny' ? 'narozeniny' : x.t === 'vyroci' ? 'výročí' : '';
+    return `${SD_EMO[x.t] || '✦'} ${esc(x.name)}${base ? ' — ' + base : ''}${yrs != null && yrs > 0 ? ` (${yrs})` : ''}`;
+  }
   async function wxRefresh() {
     try {
       const pr = activeProfile(); if (!pr || pr.lat == null) return;
@@ -2092,6 +2107,17 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       if (S.tab === 'diar') renderJournal(); else renderCalendar();
     },
     noteBlur(el) { jSet(el.dataset.k, { note: el.value.trim() }); },
+    sdAdd() {
+      const name = $('#sdName').value.trim(), date = $('#sdDate').value;
+      if (!name || !date) { toast('Vyplň jméno i datum.'); return; }
+      const [y, m, d] = date.split('-').map(Number);
+      const list = sdAll();
+      list.push({ id: 's' + Date.now().toString(36), name, d, m, y: y > 1902 && y < np.y ? y : (y === np.y ? null : y), t: $('#sdType').value });
+      store.set('kairos_days', list); renderSettings(); toast('Přidáno — uvidíš ho ráno v kartě Dnes.');
+    },
+    sdDel(el) { store.set('kairos_days', sdAll().filter(x => x.id !== el.dataset.id)); renderSettings(); },
+    sdLater() { store.set('kairos_days_seen', true); renderCalendar(); },
+    sdGo() { store.set('kairos_days_seen', true); showTab('nastaveni'); setTimeout(() => { const el = $('#sdName'); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 60); },
     icsSave() { const v = $('#icsUrl'); if (!v || !v.value.trim()) { toast('Vlož adresu.'); return; } store.set('kairos_ics', v.value.trim()); icsRefresh(false); },
     icsOff() { store.set('kairos_ics', ''); store.set('kairos_icsev', null); renderSettings(); toast('Google kalendář odpojen.'); },
     async bkExport() {
@@ -2249,7 +2275,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       const hasP = pGet(key).length > 0;
       const isPast = key < TODAY_KEY;
       cellArr.push({ key, html: `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${isPast ? 'past' : ''} ${hasJ ? 'noted' : ''} ${hasP ? 'planned' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
-        <span class="d">${d}</span><span class="mk">${mk}</span>${gEvByDay(key).length ? '<span class="gdot" title="událost z Google kalendáře"></span>' : ''}${hasP || hasJ ? `<span class="marks">${hasP ? `<span class="pc" title="zapsané plány">${pGet(key).length}</span>` : ''}${hasJ ? '<span class="pen" title="zápis dne">✎</span>' : ''}</span>` : ''}${moonSVG(da.phaseAngle, 12, q ? (q.quarter === 2 ? 'moon full' : 'moon new') : 'moon')}
+        <span class="d">${d}</span><span class="mk">${mk}</span>${sdForDay(m, d).length ? '<span class="sdmark" title="významný den">🎂</span>' : ''}${gEvByDay(key).length ? '<span class="gdot" title="událost z Google kalendáře"></span>' : ''}${hasP || hasJ ? `<span class="marks">${hasP ? `<span class="pc" title="zapsané plány">${pGet(key).length}</span>` : ''}${hasJ ? '<span class="pen" title="zápis dne">✎</span>' : ''}</span>` : ''}${moonSVG(da.phaseAngle, 12, q ? (q.quarter === 2 ? 'moon full' : 'moon new') : 'moon')}
       </button>` });
     }
     // uplynulé celé týdny aktuálního měsíce sbalit
@@ -2273,6 +2299,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
         <div class="mn">${K.MONTH_CZ[m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[m - 1].slice(1)}<em>${y}</em></div>
         <div class="row"><button type="button" class="btn ghost small" data-act="today">Dnes</button><button class="navbtn" data-act="nextMonth" aria-label="Další měsíc">›</button></div>
       </div>
+      ${!store.get('kairos_days_seen', false) && !sdAll().length ? `<div class="card sdask"><p style="margin:2px 0 8px">Chceš si zapsat <b>významné dny</b> — narozeniny, výročí, důležitá data? Ráno ti pak zlatě zasvítí v kartě Dnes.</p><div class="row"><button type="button" class="btn primary small" data-act="sdGo">Přidat dny</button><button type="button" class="btn ghost small" data-act="sdLater">Teď ne</button></div></div>` : ''}
       ${pastBar}
       <div class="weekdays"><span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span></div>
       <div class="grid">${cells}</div>
@@ -2302,7 +2329,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const phh = K.planetaryHours(np.y, np.m, np.d, observer(), TZ);
     const nd = namedayLine(np.m, np.d);
     return `<button type="button" class="hero-today ${da.color}" data-act="jumpDay" data-y="${np.y}" data-m="${np.m}" data-d="${np.d}" aria-label="Otevřít dnešek">
-      <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}${phh ? ` · ${K.fmtTime(phh.sunrise, TZ)} – ${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + nd : ''}</span>${wxLine()}
+      <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}${phh ? ` · ${K.fmtTime(phh.sunrise, TZ)} – ${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + nd : ''}</span>${wxLine()}${(() => { const sd = sdForDay(np.m, np.d); return sd.length ? `<span class="ht-sd">${sd.map(x => sdLabel(x, np.y)).join(' · ')}</span>` : ''; })()}
       <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}</span><span class="ht-medal">${moonSVG(da.phaseAngle, 46, 'moon hm')}</span></span>
       <span class="ht-moon">${moonSVG(da.phaseAngle, 18)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
       <span class="ht-div"></span>
@@ -3021,12 +3048,16 @@ ${parts}
 
   function planPanel(key) {
     const items = pGet(key);
+    const [ky, km, kd] = key.split('-').map(Number);
+    const sd = sdForDay(km, kd);
+    const sdList = sd.length ? `<div class="sdline">${sd.map(x => sdLabel(x, ky)).join(' · ')}</div>` : '';
     const gv = gEvByDay(key);
     const gList = gv.length ? `<ul class="plist gcal">${gv.map(e => `<li><span class="pt">${e.t ? esc(e.t) : '—'}</span><span class="pn">${esc(e.name)}</span><span class="gsrc" title="Z Google kalendáře">G</span></li>`).join('')}</ul>` : '';
     const list = items.map(it => `<li><button type="button" class="px" data-act="delPlan" data-k="${key}" data-id="${it.id}" aria-label="Smazat">×</button><span class="pt">${it.t ? esc(it.t) : '—'}</span><span class="pn">${esc(it.name)}</span>
       <a class="pg" target="_blank" rel="noopener" href="${gcalLink(key, it)}" title="Přidat do Google kalendáře" aria-label="Přidat do Google kalendáře">G</a></li>`).join('');
     return `<div class="panel pl">
       <h4><i class="hstar">✧</i> Co mě čeká</h4>
+      ${sdList}
       ${gList}
       ${items.length ? `<ul class="plist">${list}</ul>` : '<p class="small muted" style="margin:0 0 8px">Zatím nic zapsaného.</p>'}
       <div class="planadd">
@@ -3443,6 +3474,17 @@ ${parts}
       <p class="note">Zdroje: naměřený Kp (posledních 7 dní), třídenní předpověď a 27denní výhled. Do kalendáře se bere nejvyšší hodnota dne.</p></div>
       <div class="h2">Komety a vlastní úkazy</div>
       <form class="card" id="cometsForm" onsubmit="return false"><textarea class="mono" style="width:100%;min-height:90px;font-size:13px;background:var(--field);color:var(--text);border:1px solid var(--line2);border-radius:9px;padding:9px" placeholder="2026-10-20 | Kometa C/2025 A6 (Lemmon) | nejjasnější, večer nízko na západě">${esc(settings.comets)}</textarea><div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="saveComets">Uložit seznam</button></div><p class="note">Jeden úkaz na řádek: datum | název | poznámka. Zobrazí se v Úkazech i v detailu dne.</p></form>
+      <div class="h2">Významné dny</div>
+      <div class="card">
+        ${sdAll().length ? `<ul class="sdlist">${sdAll().sort((a, b) => (+a.m) - (+b.m) || (+a.d) - (+b.d)).map(x => `<li><span>${SD_EMO[x.t] || '✦'} <b>${esc(x.name)}</b> · ${x.d}. ${K.MONTH_GEN[x.m - 1]}${x.y ? ' ' + x.y : ''}</span><button type="button" class="chip small" data-act="sdDel" data-id="${x.id}">×</button></li>`).join('')}</ul>` : ''}
+        <form class="form" onsubmit="return false">
+          <label class="wide">Jméno / název<input id="sdName" placeholder="Martina, výročí Oázy…"></label>
+          <label>Datum<input id="sdDate" type="date"></label>
+          <label>Typ<select id="sdType"><option value="narozeniny">🎂 narozeniny</option><option value="vyroci">💍 výročí</option><option value="jine">✦ jiné</option></select></label>
+          <div class="wide row"><button type="button" class="btn primary" data-act="sdAdd">Přidat den</button></div>
+          <p class="note wide">Významné dny se ráno ukážou zlatě v kartě Dnes (u narozenin s věkem, pokud vyplníš rok) a v mřížce mají značku. Opakují se každý rok.</p>
+        </form>
+      </div>
       <div class="h2">Google kalendář</div>
       <div class="card">
         <form class="form" onsubmit="return false">
