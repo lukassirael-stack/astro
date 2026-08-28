@@ -1,7 +1,7 @@
 {
-  "name": "Nebeský kalendář",
-  "short_name": "Nebe",
-  "description": "Co je dnes ve hře — kalendář z postavení planet, Luny a tvých hvězd.",
+  "name": "Nebeský kompas",
+  "short_name": "Kompas",
+  "description": "Tvůj hvězdný kalendář — co je dnes ve hře podle postavení planet, Luny a tvých hvězd.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

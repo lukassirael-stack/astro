@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Nebeský kalendář — tvůj hvězdný kompas</title>
-<meta name="description" content="Nebeský kalendář – osobní kalendář složený z postavení planet, Luny, stálic a kosmického počasí. Tohle je dnes ve hře.">
+<title>Nebeský kompas — tvůj hvězdný kalendář</title>
+<meta name="description" content="Nebeský kompas – tvůj hvězdný kalendář z postavení planet, Luny, stálic a kosmického počasí. Tohle je dnes ve hře.">
 <meta name="theme-color" content="#111832">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Nebeský kalendář">
+<meta name="apple-mobile-web-app-title" content="Nebeský kompas">
 <meta name="robots" content="noindex">
 <script>(function(){try{var st=JSON.parse(localStorage.getItem('kairos_settings')||'{}'),t=st.theme||'auto';
 if(t==='auto'||t==='dawn'||t==='dusk'){var h=new Date().getHours();t=h>=6&&h<20?'day':'night';}
@@ -140,7 +140,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .top{position:relative;display:flex;flex-direction:column;align-items:center;padding:20px 0 16px;border-bottom:1px solid var(--line)}
 .top .profile-pill{position:absolute;top:10px;right:0}
 .brand{margin:0;line-height:0;color:var(--gold);display:block;width:100%;font-size:0;text-align:center}
-.brand .logo{display:block;margin:0 auto;width:min(340px,64%);height:auto;filter:var(--logo-filter)}
+.brand .logo{display:block;margin:0 auto;width:min(230px,46%);height:auto;filter:var(--logo-filter)}
+.bname{display:flex;flex-direction:column;align-items:center;gap:1px;font-family:var(--display);margin-top:-6px}
+.bname i{font-style:normal;background:linear-gradient(180deg,#FFFAE8 0%,#F6E2A8 42%,#D4AE64 74%,#AD8640 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 2px rgba(5,12,28,.85)) drop-shadow(0 0 8px rgba(240,200,116,.3))}
+.bname .l1{font-size:clamp(34px,9vw,46px);font-weight:600;letter-spacing:.05em;line-height:1.05}
+.bname .l2{font-size:clamp(15px,4vw,19px);font-weight:600;letter-spacing:.52em;text-indent:.52em;display:flex;align-items:center;gap:10px}
+.bname .l2:before,.bname .l2:after{content:'';width:34px;height:1px;background:linear-gradient(90deg,transparent,#D9B96E);opacity:.85;filter:none}
+.bname .l2:after{background:linear-gradient(90deg,#D9B96E,transparent)}
 @media (max-width:640px){.top{padding:16px 0 13px}.brand .logo{width:80%}}
 @media (max-width:420px){.top{padding:14px 0 11px}.brand .logo{width:84%}}
 .profile-pill{font-size:12px;color:var(--muted);letter-spacing:.04em;padding:6px 10px;border:1px solid var(--line2);border-radius:999px;white-space:nowrap}
@@ -357,8 +363,7 @@ details.expl .card p:last-child{margin:0}
 @media (max-width:420px){.claim{font-size:10.5px;letter-spacing:.26em}.claim:before,.claim:after{width:44px}}
 #splash{position:fixed;inset:0;z-index:999;display:grid;place-items:center;align-content:center;gap:18px;
   background:linear-gradient(180deg,#0A1B33 0%,#081527 55%,#050E1C 100%);transition:opacity .55s ease}
-#splash img{width:min(310px,66vw);height:auto;animation:spIn 1.1s ease both}
-#splash .sp-claim{animation:spIn 1.1s .15s ease both}
+#splash .sp-art{width:100%;height:100%;object-fit:cover;object-position:center;animation:spIn 1.1s ease both}
 #splash.done{opacity:0;pointer-events:none}
 @keyframes spIn{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
 .echips{display:flex;flex-wrap:wrap;gap:7px}
@@ -556,11 +561,11 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 </style>
 </head>
 <body>
-<div id="splash" aria-hidden="true"><img src="logo2.webp?v=1" alt=""><span class="claim sp-claim"><i>tvůj</i><i class="mid">hvězdný</i><i class="big">kompas</i></span></div>
+<div id="splash" aria-hidden="true"><img class="sp-art" src="splash.webp?v=1" alt=""></div>
 <div id="skybg" aria-hidden="true"></div>
 <div class="app" id="app">
   <header class="top">
-    <h1 class="brand"><img class="logo" src="logo2.webp?v=1" alt="Nebeský kalendář — tvůj hvězdný kompas" width="820" height="945"><span class="claim brand-claim"><i>tvůj</i><i class="mid">hvězdný</i><i class="big">kompas</i></span></h1>
+    <h1 class="brand"><img class="logo" src="logo-emblem.webp?v=1" alt="Nebeský kompas — tvůj hvězdný kalendář" width="560" height="448"><span class="bname"><i class="l1">NEBESKÝ</i><i class="l2">KOMPAS</i></span><span class="claim brand-claim"><i>tvůj</i><i class="mid">hvězdný</i><i class="big">kalendář</i></span></h1>
     <button class="profile-pill" id="profilePill" data-tab="nastaveni" title="Aktivní profil">—</button>
   </header>
   <main>
@@ -2512,7 +2517,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 </style></head><body>
 <div class="noprint"><button onclick="window.print()">Vytisknout / uložit PDF</button></div>
 <div class="wrap">
-<header><div class="brand">Nebeský kalendář · tvůj hvězdný kompas</div><h1>${esc(prof.name)}</h1><div class="meta">${meta} · domy Placidus · tropický zvěrokruh</div></header>
+<header><div class="brand">Nebeský kompas · tvůj hvězdný kalendář</div><h1>${esc(prof.name)}</h1><div class="meta">${meta} · domy Placidus · tropický zvěrokruh</div></header>
 ${parts}
 <footer>Sestaveno ${new Date().toLocaleDateString('cs-CZ')} · Oáza Adamanthea · oaza-adamanthea.cz<br>Mapa není rozsudek — je to popis nástrojů, se kterými jsi přišel.</footer>
 </div></body></html>`;
@@ -3435,7 +3440,7 @@ ${parts}
       fr.onload = async () => {
         try {
           const data = JSON.parse(fr.result);
-          if (!data || data.app !== 'kairos' || !data.ls) { toast('Tohle není záloha Nebeského kalendáře.'); return; }
+          if (!data || data.app !== 'kairos' || !data.ls) { toast('Tohle není záloha Nebeského kompasu.'); return; }
           if (!confirm(`Obnovit zálohu z ${data.when ? data.when.slice(0, 10) : '?'}? Přepíše stávající data v appce.`)) return;
           for (const [k, v] of Object.entries(data.ls)) localStorage.setItem(k, v);
           const db = await MDB.open();
