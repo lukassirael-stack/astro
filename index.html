@@ -573,6 +573,7 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 </head>
 <body>
 <div id="splash" aria-hidden="true"><img class="sp-em" src="logo-emblem.webp?v=1" alt=""><span class="bname"><i class="l1"><b>NEBESKÝ</b></i><i class="l2"><b>KOMPAS</b></i></span><img class="sp-st" src="logo-stars.webp?v=1" alt=""><span class="claim sp-cl"><i>tvůj</i><i class="mid">hvězdný</i><i class="big">kalendář</i></span></div>
+<script>try{if(sessionStorage.getItem('kNoSp')){sessionStorage.removeItem('kNoSp');document.getElementById('splash').style.display='none'}}catch(e){}</script>
 <div id="skybg" aria-hidden="true"></div>
 <div class="app" id="app">
   <header class="top">
@@ -3626,7 +3627,7 @@ ${parts}
     const bootT = Date.now();
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (hadCtrl && !reloaded) {
-        if (Date.now() - bootT < 4000) { reloaded = true; location.reload(); }
+        if (Date.now() - bootT < 4000) { reloaded = true; try { sessionStorage.setItem('kNoSp', '1'); } catch (e) { } location.reload(); }
         else toast('Je připravená nová verze — projeví se při příštím otevření.');
       }
       hadCtrl = true;
