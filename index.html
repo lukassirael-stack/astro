@@ -1681,6 +1681,24 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     async del(id) { const db = await MDB.open(); if (!db) return; return new Promise((res) => { const tx = db.transaction('m', 'readwrite'); tx.objectStore('m').delete(id); tx.oncomplete = () => res(); tx.onerror = () => res(); }); },
   };
   let recState = null;
+  async function reconcileMedia() {
+    const db = await MDB.open(); if (!db) return;
+    const keys = await new Promise((res) => { const rq = db.transaction('m').objectStore('m').getAllKeys(); rq.onsuccess = () => res(rq.result || []); rq.onerror = () => res([]); });
+    const used = new Set();
+    for (const k of Object.keys(journal)) for (const m of (journal[k].media || [])) used.add(m.id);
+    let saved = 0;
+    for (const id of keys) {
+      if (used.has(id) || !/^[ai][0-9a-z]+$/.test(id)) continue;
+      const ts = parseInt(id.slice(1), 36);
+      if (!ts || ts < 1500000000000) continue;
+      const q = K.tzParts(new Date(ts), TZ);
+      const dayKey = K.isoDate(q.y, q.m, q.d);
+      const e = jGet(dayKey) || {};
+      jSet(dayKey, { media: [...(e.media || []), { id, t: id[0] === 'a' ? 'a' : 'i' }] });
+      saved++;
+    }
+    if (saved) { toast(`Obnoveno ${saved} ${saved === 1 ? 'ztracená příloha' : saved < 5 ? 'ztracené přílohy' : 'ztracených příloh'} v diáři.`); if (S.tab === 'diar') renderJournal(); if (S.tab === 'kalendar') renderCalendar(); }
+  }
   async function jMediaHydrate(root) {
     for (const el of (root || document).querySelectorAll('[data-mid]')) {
       const blob = await MDB.get(el.dataset.mid);
@@ -1723,7 +1741,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   function jSet(key, patch) {
     const cur = journal[key] || {};
     const next = Object.assign({}, cur, patch);
-    if (!next.note && next.rate == null) delete journal[key]; else journal[key] = next;
+    if (!next.note && next.rate == null && !(next.media && next.media.length)) delete journal[key]; else journal[key] = next;
     store.set('kairos_journal', journal);
   }
 
@@ -1991,7 +2009,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       await MDB.del(id);
       const e = jGet(k) || {};
       jSet(k, { media: (e.media || []).filter(m => m.id !== id) });
-      renderCalendar();
+      if (S.tab === 'diar') renderJournal(); else renderCalendar();
     },
     jmView(el) {
       const src = el.src; if (!src) return;
@@ -2019,11 +2037,11 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
             jSet(key, { media: [...(e.media || []), { id, t: 'a' }] });
             toast('Nahrávka uložena.');
           } else toast('Uložení se nepovedlo.');
-          renderCalendar(); jMediaHydrate();
+          if (S.tab === 'diar') renderJournal(); else renderCalendar();
         };
         rec.start();
         recState = { rec, key, tm: setTimeout(() => rec.stop(), 5 * 60 * 1000) };
-        renderCalendar();
+        if (S.tab === 'diar') renderJournal(); else renderCalendar();
         toast('Nahrávám… (max 5 minut)');
       } catch (e) { toast('Mikrofon se nepodařilo otevřít.'); }
     },
@@ -2919,10 +2937,11 @@ ${parts}
     const keys = [...new Set([...jk, ...pk])].sort().reverse();
     if (!keys.length) {
       v.innerHTML = `<div class="h2">Diář</div>
-        <div class="card"><p style="margin-top:2px">Zatím tu není žádný záznam. Začni tím, že si otevřeš dnešek a zapíšeš, co tě čeká — večer pak jedním klikem, jak den šel.</p>
-        <div class="row"><button type="button" class="btn primary" data-act="jumpDay" data-y="${np.y}" data-m="${np.m}" data-d="${np.d}">Otevřít dnešek</button></div>
-        <p class="note" style="margin-bottom:2px">Časem se tu ukáže, jak moc se tvoje hodnocení potkává s tím, co appka spočítala.</p></div>
+        <div class="h3" style="margin-top:6px">Dnes — ${np.d}. ${K.MONTH_GEN[np.m - 1]}</div>
+        ${journalPanel(TODAY_KEY, analyze(np.y, np.m, np.d))}
+        <p class="note" style="margin-bottom:2px">Zapiš, jak den šel, přidej fotku či hlasovou poznámku — časem se tu ukáže, jak se tvá hodnocení potkávají s výpočtem.</p>
         ${journalIO()}`;
+      setTimeout(() => jMediaHydrate($('#view-diar')), 30);
       return;
     }
     // shoda hodnocení se spočítaným skóre
@@ -2947,7 +2966,11 @@ ${parts}
     } else {
       stat = `<p class="note">Na porovnání s výpočtem je potřeba aspoň pět ohodnocených dnů. Máš ${rated.length}.</p>`;
     }
-    let html = `<div class="h2">Diář</div><p class="note">${keys.length} ${keys.length === 1 ? 'zápis' : keys.length < 5 ? 'zápisy' : 'zápisů'} · vše zůstává jen v tomto zařízení</p>${stat}`;
+    const tk = TODAY_KEY, [ty, tm, td] = tk.split('-').map(Number);
+    let html = `<div class="h2">Diář</div>
+      <div class="h3" style="margin-top:6px">Dnes — ${td}. ${K.MONTH_GEN[tm - 1]}</div>
+      ${journalPanel(tk, analyze(ty, tm, td))}
+      <div class="h3">Historie</div><p class="note">${keys.length} ${keys.length === 1 ? 'zápis' : keys.length < 5 ? 'zápisy' : 'zápisů'} · vše zůstává jen v tomto zařízení</p>${stat}`;
     let curMonth = '';
     for (const k of keys) {
       const [y, m, d] = k.split('-').map(Number);
@@ -2957,13 +2980,16 @@ ${parts}
       const r = RATES.find(x => x.v === e.rate);
       const pls = pGet(k);
       const plHtml = pls.length ? `<span class="jc" style="color:var(--gold)">${pls.map(x => (x.t ? x.t + ' ' : '') + esc(x.name)).join(' · ')}</span>` : '';
+      const med = e.media || [];
+      const medHtml = med.length ? `<span class="jc muted">${med.filter(x => x.t === 'i').length ? '📷 ' + med.filter(x => x.t === 'i').length : ''} ${med.filter(x => x.t === 'a').length ? '🎙 ' + med.filter(x => x.t === 'a').length : ''}</span>` : '';
       const p = K.tzParts(K.dayStart(y, m, d, TZ), TZ);
       html += `<button type="button" class="jitem ${da.color}" data-act="jumpDay" data-y="${y}" data-m="${m}" data-d="${d}">
         <span class="jd"><b>${d}.</b>${K.WEEKDAY_CZ[p.wd].slice(0, 2)}</span>
-        <span class="jt">${r ? `<span class="badge ${r.cls}">${r.label}</span>` : ''}${plHtml}${e.note ? `<span class="jc">${esc(e.note)}</span>` : ''}
+        <span class="jt">${r ? `<span class="badge ${r.cls}">${r.label}</span>` : ''}${plHtml}${medHtml}${e.note ? `<span class="jc">${esc(e.note)}</span>` : ''}
         <span class="n">appka: ${TX.dayWord(da)}${r && ((r.v > 0 && da.color === 'tense') || (r.v < 0 && da.color === 'harm')) ? ' · rozchází se' : ''}</span></span></button>`;
     }
     v.innerHTML = html + journalIO();
+    setTimeout(() => jMediaHydrate($('#view-diar')), 30);
   }
   function journalIO() {
     return `<div class="h3">Správa dat</div><div class="card">
@@ -3397,6 +3423,7 @@ ${parts}
   computeNatal();
   setInterval(applyTheme, 240000);
   showTab(['kalendar', 'ukazy', 'diar', 'nativ', 'nastaveni'].includes(store.get('kairos_tab', 'kalendar')) ? store.get('kairos_tab', 'kalendar') : 'kalendar');
+  setTimeout(reconcileMedia, 1200);
   loadKp(false);
   (() => { const sp = $('#splash'); if (!sp) return; const off = () => { sp.classList.add('done'); setTimeout(() => sp.remove(), 650); };
     requestAnimationFrame(() => setTimeout(off, 450)); setTimeout(off, 6000); })();
@@ -3441,7 +3468,7 @@ ${parts}
             jSet(key, { media: [...(en.media || []), { id, t: 'i' }] });
             toast('Fotka uložena ke dni.');
           } else toast('Uložení se nepovedlo — úložiště nemusí být dostupné.');
-          renderCalendar(); jMediaHydrate();
+          if (S.tab === 'diar') renderJournal(); else renderCalendar();
         }, 'image/jpeg', 0.82);
       };
       img.onerror = () => toast('Tenhle soubor nejde načíst.');
