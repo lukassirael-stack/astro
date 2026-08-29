@@ -337,6 +337,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today .ht-cost b{color:var(--tense-lite)}
 @media (max-width:400px){.hero-today .ht-medal{width:38px;height:38px}.hero-today .ht-row b{width:88px}.hero-today .ht-ic{width:36px;height:36px}}
 .day-sun{font-size:13px;color:var(--muted);margin:2px 0 10px}
+[data-theme="day"] .legend, [data-theme="day"] .legend-more summary, [data-theme="day"] .day-sun,
+[data-theme="day"] .day-head, [data-theme="day"] .day-head + .muted, [data-theme="day"] .dayline{
+  text-shadow:0 1px 2px rgba(255,255,255,.85), 0 0 10px rgba(255,255,255,.65), 0 0 22px rgba(255,255,255,.4)}
+[data-theme="day"] .legend span{color:#123252}
+[data-theme="day"] .legend-more summary{color:#123252}
+[data-theme="day"] .day-sun{color:#173B5E}
+[data-theme="day"] .day-moon{color:#173B5E;text-shadow:0 1px 2px rgba(255,255,255,.85), 0 0 10px rgba(255,255,255,.6)}
+[data-theme="day"] .day-lede{text-shadow:0 1px 2px rgba(255,255,255,.8), 0 0 12px rgba(255,255,255,.55)}
 /* nejbližší dny */
 .ahead{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;margin:0 -14px;padding-left:14px;padding-right:14px;scrollbar-width:none}
 .ahead::-webkit-scrollbar{display:none}
