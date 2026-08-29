@@ -283,6 +283,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .sdask p{font-size:14px}
 .hero-today .tvq{flex:none;align-self:center;margin-left:6px;width:30px;height:30px;border-radius:50%;border:1px solid var(--inst-line-soft);display:grid;place-items:center;font-size:16px;font-style:normal;color:var(--inst-muted)}
 .hero-today .tvexp{display:block;margin:0 0 4px;padding:9px 12px;font-size:13px;line-height:1.55;color:var(--inst-muted);border:1px dashed var(--inst-line-soft);border-radius:10px}
+.hsintro{margin:2px 2px 12px}
+.hsintro summary{cursor:pointer;font-size:12.5px;letter-spacing:.06em;color:var(--muted);list-style:none;display:inline-flex;align-items:center;gap:6px}
+.hsintro summary::-webkit-details-marker{display:none}
+.hsintro summary:before{content:'✧';color:var(--gold)}
+.hsintro[open] summary:before{content:'✦'}
+.hsintro p{margin:8px 2px 0;font-size:13.5px;line-height:1.55;color:var(--muted)}
 .tvinfo{margin:6px 4px 0}
 .tvinfo summary{cursor:pointer;font-size:12.5px;letter-spacing:.06em;color:var(--muted);list-style:none;display:inline-flex;align-items:center;gap:6px}
 .tvinfo summary::-webkit-details-marker{display:none}
@@ -2729,7 +2735,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 <div class="noprint"><button onclick="window.print()">Vytisknout / uložit PDF</button></div>
 <div class="wrap">
 <header><div class="brand">Nebeský kompas · tvůj hvězdný kalendář</div><h1>${esc(prof.name)}</h1><div class="meta">${meta} · domy Placidus · tropický zvěrokruh</div></header>
-<section><h2>Tři sudičky</h2><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></section>
+<section><h2>Jak číst tento horoskop</h2><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></section>
 ${parts}
 <footer>Sestaveno ${new Date().toLocaleDateString('cs-CZ')} · Oáza Adamanthea · oaza-adamanthea.cz<br>Mapa je zrcadlo — popis nástrojů, se kterými jsi přišel.</footer>
 </div></body></html>`;
@@ -3414,7 +3420,7 @@ ${parts}
       </div>
       ${wheelSVG(n)}
       <div class="h3">Tvůj horoskop</div>
-      <div class="card hs sud"><div class="hsp"><h4>Tři sudičky</h4><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></div></div>
+      <details class="hsintro"><summary>Jak číst svůj horoskop</summary><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></details>
       <div class="row echips" style="margin-bottom:8px">${HS_THEMES.map(t => `<button type="button" class="chip ${(S.hsTheme || 'osobnost') === t[0] ? 'on' : ''}" data-act="hsTheme" data-t="${t[0]}">${t[1]}</button>`).join('')}<button type="button" class="chip gold" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení">⎙ Uložit · tisk</button></div>
       <div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'osobnost')) || HS_THEMES[0])[2](n)}</div>
       ${synSectionHTML(n)}
