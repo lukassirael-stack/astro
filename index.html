@@ -271,6 +271,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today .ht-wx .dg{font-size:.62em;vertical-align:.3em;margin-left:1px}
 .hero-today .sri{font-style:normal;color:var(--inst-gold);opacity:.85;display:inline-block;transform:translateY(1.5px)}
 .hero-today .ht-tv .ht-ic.tv svg{width:16px;height:16px}
+.hero-today .ht-task{display:flex;flex-direction:column;gap:3px;margin-top:1px}
+.hero-today .ht-task b{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--inst-gold)}
+.hero-today .ht-task .tt{font-size:15.5px;font-weight:600;line-height:1.45;color:var(--inst-text)}
+.hero-today .ht-task small{font-size:11.5px;letter-spacing:.03em;color:var(--inst-muted)}
 .hero-today .ht-tv .tvn{flex:none;display:flex;flex-direction:column;gap:1px;width:auto;min-width:96px;max-width:44%;font-size:19px;font-weight:600;letter-spacing:.01em;text-transform:none;color:var(--inst-gold);font-family:var(--display);white-space:nowrap}
 .hero-today .ht-tv .tvn em{font-style:normal;font-weight:500;font-size:13px}
 .hero-today .ht-tv .tvn small{font-size:10.5px;font-weight:500;color:var(--inst-muted);font-family:var(--body);letter-spacing:.06em}
@@ -1785,6 +1789,29 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     if (!x) return '';
     return `<i class="ht-ic tv" style="border-color:${x.t.col};color:${x.t.col}">${x.t.sym}</i><b class="tvn"><span>${x.t.n} <em style="color:${x.t.col}">(${x.t.el})</em></span><small>do ${K.fmtTime(x.end, TZ)}</small></b><span class="tx">přeje ${x.t.tip}</span><i class="tvq" data-act="tvHelp" role="button" aria-label="Co jsou tatvy?">?</i>`;
   }
+  const DAY_TASKS = [
+    ['Udělej dnes první krok v tom, co odkládáš — pět minut stačí.', 'Uzavři dnes jednu rozdělanou věc: dokonči ji, nebo ji vědomě polož.'],
+    ['Dej dnes rukám práci: uvař, oprav nebo zasaď jednu věc.', 'Spotřebuj dnes něco, co doma čeká — dojez, dopij, dober.'],
+    ['Ozvi se dnes jednomu člověku, na kterého myslíš.', 'Odpověz dnes na zprávy, které čekají — udělej v nich čisto.'],
+    ['Udělej dnes doma jedno místo hezčí.', 'Věnuj dnes večer hodinu domovu a lidem v něm.'],
+    ['Ukaž dnes jednu věc, kterou jsi vytvořil — někomu konkrétnímu.', 'Poděkuj dnes nahlas jednomu člověku.'],
+    ['Udělej dnes pořádek na jednom malém místě — šuplík stačí.', 'Vyber dnes ze seznamu tři věci: dvě udělej, jednu vyřaď.'],
+    ['Domluv dnes jedno setkání, které odkládáš.', 'Urovnej dnes jeden vztah: napiš, poděkuj, usmiř se.'],
+    ['Pojmenuj dnes jednu věc pravým jménem — v duchu, nebo nahlas.', 'Pusť dnes jednu věc, kterou už dlouho neseš nerad.'],
+    ['Nauč se dnes deset minut něco nového.', 'Naplánuj dnes první krok cesty, o které mluvíš.'],
+    ['Posuň dnes o jeden krok svůj dlouhodobý cíl.', 'Dokonči dnes povinnost, která visí nejdéle.'],
+    ['Udělej dnes jednu obvyklou věc jinak.', 'Uvolni dnes v kalendáři jednu věc, která ti bere čas.'],
+    ['Dopřej si dnes třicet minut ticha jen pro sebe.', 'Dokonči dnes jednu věc jemně a beze spěchu.'],
+  ];
+  function taskOfDay(da) {
+    const pa = da.phaseAngle;
+    const sig0 = `Luna ${K.SIGN_LOC_V[da.moonSign]}`;
+    if (pa < 18 || pa > 342) return { t: 'Zapiš dnes jednou větou jeden záměr na příští měsíc.', sig: sig0 + ' · nov — čas záměrů' };
+    if (Math.abs(pa - 180) < 18) return { t: 'Dokonči dnes jednu věc, která dozrála, a poděkuj za ni.', sig: sig0 + ' · úplněk — čas sklizně' };
+    if (da.color === 'tense' && da.score <= -4) return { t: 'Vyber si dnes tři podstatné věci; ostatní nech klidně na jindy.', sig: sig0 + ' · náročný den — méně je víc' };
+    const grow = pa < 180;
+    return { t: DAY_TASKS[da.moonSign][grow ? 0 : 1], sig: sig0 + (grow ? ' · dorůstá — čas přidávat' : ' · couvá — čas dokončovat') };
+  }
   const sdAll = () => store.get('kairos_days', []);
   const SD_EMO = { narozeniny: '🎂', vyroci: '💍', jine: '✦' };
   function sdForDay(y, m, d) { return sdAll().filter(x => +x.m === +m && +x.d === +d && (x.r === 0 ? +x.y === +y : true)); }
@@ -2412,6 +2439,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <span class="ht-div"></span>
       ${go.length ? `<span class="ht-row ht-go"><i class="ht-ic go">✦</i><b>Podporuje</b><span class="tx">${esc(go[0].text)}</span></span>` : ''}
       ${cost.length ? `<span class="ht-div"></span><span class="ht-row ht-cost"><i class="ht-ic cost">✳</i><b>Nepříznivé</b><span class="tx">${esc(cost[0].text)}</span></span>` : ''}
+      ${(() => { const u = taskOfDay(da); return `<span class="ht-div"></span><span class="ht-task"><b>Úkol dne</b><span class="tt">${esc(u.t)}</span><small>${esc(u.sig)}</small></span>`; })()}
     </button>`;
   }
 
