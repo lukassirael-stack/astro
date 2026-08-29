@@ -2729,9 +2729,9 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 <div class="noprint"><button onclick="window.print()">Vytisknout / uložit PDF</button></div>
 <div class="wrap">
 <header><div class="brand">Nebeský kompas · tvůj hvězdný kalendář</div><h1>${esc(prof.name)}</h1><div class="meta">${meta} · domy Placidus · tropický zvěrokruh</div></header>
-<section><h2>Tři sudičky</h2><p>Mapa neříká, jaký byl tvůj porod — ten je příběhem těla a rodiny, ne hvězd. Říká, co ten změřitelný okamžik vnesl: <b>co ti bylo dáno do vínku</b>. Jako sudičky nepřicházejí ke kontrakcím, ale ke kolébce, čte se mapa od prvního nádechu — od chvíle, kdy tu byl někdo, komu se dalo něco vložit. Dary i úkoly zároveň; mapa je zrcadlo, ne rozsudek.</p></section>
+<section><h2>Tři sudičky</h2><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></section>
 ${parts}
-<footer>Sestaveno ${new Date().toLocaleDateString('cs-CZ')} · Oáza Adamanthea · oaza-adamanthea.cz<br>Mapa není rozsudek — je to popis nástrojů, se kterými jsi přišel.</footer>
+<footer>Sestaveno ${new Date().toLocaleDateString('cs-CZ')} · Oáza Adamanthea · oaza-adamanthea.cz<br>Mapa je zrcadlo — popis nástrojů, se kterými jsi přišel.</footer>
 </div></body></html>`;
   }
 
@@ -3000,7 +3000,7 @@ ${parts}
       ${para('Tvé jádro', HS.SUN[sunS] + ' Nejvíc se to odehrává v oblasti ' + HS.HOUSE_AREA[n.points.Sun.house - 1] + '.', `Slunce ${K.SIGN_LOC_V[sunS]} · ${n.points.Sun.house}. dům`)}
       ${para('Tvůj vnitřní svět', HS.MOON[moonS] + ' Nejvíc to žiješ v oblasti ' + HS.HOUSE_AREA[n.points.Moon.house - 1] + '.', `Luna ${K.SIGN_LOC_V[moonS]} · ${n.points.Moon.house}. dům`)}
       ${aspParas.length ? `<h4 class="hsh">Silná témata tvé osobnosti</h4>${aspParas.join('')}` : ''}
-      ${para('', 'Mapa není rozsudek — je to popis nástrojů, se kterými jsi přišel. Silné stránky chtějí užívat, napětí chtějí vědomí. Obojí je tvoje.', '')}`;
+      ${para('', 'Mapa je zrcadlo — popis nástrojů, se kterými jsi přišel. Silné stránky chtějí užívat, napětí chtějí vědomí. Obojí je tvoje.', '')}`;
   }
 
   // ===================== najít vhodný den (elekce) =====================
@@ -3414,7 +3414,7 @@ ${parts}
       </div>
       ${wheelSVG(n)}
       <div class="h3">Tvůj horoskop</div>
-      <div class="card hs sud"><div class="hsp"><h4>Tři sudičky</h4><p>Mapa neříká, jaký byl tvůj porod — ten je příběhem těla a rodiny, ne hvězd. Říká, co ten změřitelný okamžik vnesl: <b>co ti bylo dáno do vínku</b>. Jako sudičky nepřicházejí ke kontrakcím, ale ke kolébce, čte se mapa od prvního nádechu — od chvíle, kdy tu byl někdo, komu se dalo něco vložit. Dary i úkoly zároveň; mapa je zrcadlo, ne rozsudek.</p></div></div>
+      <div class="card hs sud"><div class="hsp"><h4>Tři sudičky</h4><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></div></div>
       <div class="row echips" style="margin-bottom:8px">${HS_THEMES.map(t => `<button type="button" class="chip ${(S.hsTheme || 'osobnost') === t[0] ? 'on' : ''}" data-act="hsTheme" data-t="${t[0]}">${t[1]}</button>`).join('')}<button type="button" class="chip gold" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení">⎙ Uložit · tisk</button></div>
       <div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'osobnost')) || HS_THEMES[0])[2](n)}</div>
       ${synSectionHTML(n)}
