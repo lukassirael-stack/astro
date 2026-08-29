@@ -271,10 +271,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today .ht-wx .dg{font-size:.62em;vertical-align:.3em;margin-left:1px}
 .hero-today .sri{font-style:normal;color:var(--inst-gold);opacity:.85;display:inline-block;transform:translateY(1.5px)}
 .hero-today .ht-tv .ht-ic.tv svg{width:16px;height:16px}
-.hero-today .ht-task{display:flex;flex-direction:column;gap:3px;margin-top:1px}
-.hero-today .ht-task b{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--inst-gold)}
-.hero-today .ht-task .tt{font-size:15.5px;font-weight:600;line-height:1.45;color:var(--inst-text)}
-.hero-today .ht-task small{font-size:11.5px;letter-spacing:.03em;color:var(--inst-muted)}
+.hero-today .ht-invite{display:flex;align-items:center;gap:14px;margin-top:10px;padding:13px 14px;border:1px solid rgba(240,216,152,.45);border-radius:14px;background:rgba(255,255,255,.035)}
+.hero-today .inv-orn{flex:none;width:54px;height:54px;color:#EFC878;opacity:.92}
+.hero-today .inv-body{display:flex;flex-direction:column;gap:2px;min-width:0}
+.hero-today .inv-body b{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--inst-gold)}
+.hero-today .inv-body .q{font-style:normal;font-family:var(--display);font-size:18.5px;font-weight:600;line-height:1.28;color:var(--inst-text)}
+.hero-today .inv-body .a{font-style:normal;font-family:var(--display);font-size:16.5px;line-height:1.3;color:var(--inst-text);opacity:.95}
+.hero-today .inv-body small{margin-top:3px;font-size:12px;letter-spacing:.03em;color:var(--harm-lite)}
+.hero-today .inv-go{flex:none;margin-left:auto;align-self:center;width:38px;height:38px;border:1px solid rgba(240,216,152,.6);border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:17px;color:#EFC878}
+@media (max-width:400px){.hero-today .inv-orn{width:44px;height:44px}.hero-today .ht-invite{gap:10px;padding:11px 11px}}
 .hero-today .ht-tv .tvn{flex:none;display:flex;flex-direction:column;gap:1px;width:auto;min-width:96px;max-width:44%;font-size:19px;font-weight:600;letter-spacing:.01em;text-transform:none;color:var(--inst-gold);font-family:var(--display);white-space:nowrap}
 .hero-today .ht-tv .tvn em{font-style:normal;font-weight:500;font-size:13px}
 .hero-today .ht-tv .tvn small{font-size:10.5px;font-weight:500;color:var(--inst-muted);font-family:var(--body);letter-spacing:.06em}
@@ -1787,7 +1792,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   function tattvaHTML() {
     const x = tattvaNow();
     if (!x) return '';
-    return `<i class="ht-ic tv" style="border-color:${x.t.col};color:${x.t.col}">${x.t.sym}</i><b class="tvn"><span>${x.t.n} <em style="color:${x.t.col}">(${x.t.el})</em></span><small>do ${K.fmtTime(x.end, TZ)}</small></b><span class="tx">přeje ${x.t.tip}</span><i class="tvq" data-act="tvHelp" role="button" aria-label="Co jsou tatvy?">?</i>`;
+    return `<i class="ht-ic tv" style="border-color:${x.t.col};color:${x.t.col}">${x.t.sym}</i><b class="tvn"><span style="color:${x.t.col}">${x.t.n} <em>(${x.t.el})</em></span><small>do ${K.fmtTime(x.end, TZ)}</small></b><span class="tx">přeje ${x.t.tip}</span><i class="tvq" data-act="tvHelp" role="button" aria-label="Co jsou tatvy?">?</i>`;
   }
   const DAY_TASKS = [
     ['Odkládáš první krok? Dnes je den ho udělat — pět minut stačí.', 'Neseš rozdělanou věc? Dnes je den ji uzavřít: dokonči ji, nebo ji vědomě polož.'],
@@ -2216,6 +2221,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     },
     sdDel(el) { store.set('kairos_days', sdAll().filter(x => x.id !== el.dataset.id)); renderSettings(); },
     tvHelp() { S.tvHelp = !S.tvHelp; renderCalendar(); },
+    inviteGo() { showTab('diar'); },
     evAll() { S.evAll = true; renderEvents(); },
     evLess() { S.evAll = false; renderEvents(); },
     sdLater() { store.set('kairos_days_seen', true); renderCalendar(); },
@@ -2439,7 +2445,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <span class="ht-div"></span>
       ${go.length ? `<span class="ht-row ht-go"><i class="ht-ic go">✦</i><b>Podporuje</b><span class="tx">${esc(go[0].text)}</span></span>` : ''}
       ${cost.length ? `<span class="ht-div"></span><span class="ht-row ht-cost"><i class="ht-ic cost">✳</i><b>Nepříznivé</b><span class="tx">${esc(cost[0].text)}</span></span>` : ''}
-      ${(() => { const u = taskOfDay(da); return `<span class="ht-div"></span><span class="ht-task"><b>Pozvání dne</b><span class="tt">${esc(u.t)}</span><small>${esc(u.sig)}</small></span>`; })()}
+      ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="32" cy="30" r="9"/><line x1="32" y1="12" x2="32" y2="17"/><line x1="18" y1="17" x2="21.5" y2="20.5"/><line x1="46" y1="17" x2="42.5" y2="20.5"/><line x1="12" y1="30" x2="17" y2="30"/><line x1="47" y1="30" x2="52" y2="30"/><path d="M14 43c4 2.6 8 2.6 12 0s8-2.6 12 0 8 2.6 12 0"/><path d="M18 50c3.4 2.2 6.8 2.2 10.2 0s6.8-2.2 10.2 0 6.8 2.2 10.2 0" opacity=".7"/></svg><span class="inv-body"><b>Pozvánka dne</b><i class="q">${esc(q)}</i>${a ? `<i class="a">${esc(a)}</i>` : ''}<small>${esc(u.sig)}</small></span><i class="inv-go" data-act="inviteGo" role="button" aria-label="Otevřít diář">→</i></span>`; })()}
     </button>`;
   }
 
