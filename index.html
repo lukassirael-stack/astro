@@ -1790,25 +1790,25 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     return `<i class="ht-ic tv" style="border-color:${x.t.col};color:${x.t.col}">${x.t.sym}</i><b class="tvn"><span>${x.t.n} <em style="color:${x.t.col}">(${x.t.el})</em></span><small>do ${K.fmtTime(x.end, TZ)}</small></b><span class="tx">přeje ${x.t.tip}</span><i class="tvq" data-act="tvHelp" role="button" aria-label="Co jsou tatvy?">?</i>`;
   }
   const DAY_TASKS = [
-    ['Udělej dnes první krok v tom, co odkládáš — pět minut stačí.', 'Uzavři dnes jednu rozdělanou věc: dokonči ji, nebo ji vědomě polož.'],
-    ['Dej dnes rukám práci: uvař, oprav nebo zasaď jednu věc.', 'Spotřebuj dnes něco, co doma čeká — dojez, dopij, dober.'],
-    ['Ozvi se dnes jednomu člověku, na kterého myslíš.', 'Odpověz dnes na zprávy, které čekají — udělej v nich čisto.'],
-    ['Udělej dnes doma jedno místo hezčí.', 'Věnuj dnes večer hodinu domovu a lidem v něm.'],
-    ['Ukaž dnes jednu věc, kterou jsi vytvořil — někomu konkrétnímu.', 'Poděkuj dnes nahlas jednomu člověku.'],
-    ['Udělej dnes pořádek na jednom malém místě — šuplík stačí.', 'Vyber dnes ze seznamu tři věci: dvě udělej, jednu vyřaď.'],
-    ['Domluv dnes jedno setkání, které odkládáš.', 'Urovnej dnes jeden vztah: napiš, poděkuj, usmiř se.'],
-    ['Pojmenuj dnes jednu věc pravým jménem — v duchu, nebo nahlas.', 'Pusť dnes jednu věc, kterou už dlouho neseš nerad.'],
-    ['Nauč se dnes deset minut něco nového.', 'Naplánuj dnes první krok cesty, o které mluvíš.'],
-    ['Posuň dnes o jeden krok svůj dlouhodobý cíl.', 'Dokonči dnes povinnost, která visí nejdéle.'],
-    ['Udělej dnes jednu obvyklou věc jinak.', 'Uvolni dnes v kalendáři jednu věc, která ti bere čas.'],
-    ['Dopřej si dnes třicet minut ticha jen pro sebe.', 'Dokonči dnes jednu věc jemně a beze spěchu.'],
+    ['Odkládáš první krok? Dnes je den ho udělat — pět minut stačí.', 'Neseš rozdělanou věc? Dnes je den ji uzavřít: dokonči ji, nebo ji vědomě polož.'],
+    ['Chtějí tvé ruce tvořit? Dnes je den pro hmatatelnou práci — uvař, oprav, zasaď.', 'Hromadí se doma věci? Dnes je den něco spotřebovat a udělat místo.'],
+    ['Myslíš na někoho? Dnes je den se ozvat — zavolej nebo napiš.', 'Čekají na tebe zprávy? Dnes je den v nich udělat čisto.'],
+    ['Volá tě domov? Dnes je den udělat jedno místo hezčí.', 'Máš doma své lidi? Dnes je den jim věnovat večer.'],
+    ['Vytvořil jsi něco, co svět ještě neviděl? Dnes je den to ukázat.', 'Drží tě někdo dlouho a věrně? Dnes je den mu nahlas poděkovat.'],
+    ['Ruší tě jedno neuklizené místo? Dnes je den ho srovnat — šuplík stačí.', 'Přetéká ti seznam? Dnes je den vybrat tři věci: dvě udělej, jednu vyřaď.'],
+    ['Odkládáš setkání? Dnes je den ho domluvit.', 'Máš něco na srdci? Dnes je den to říct — napiš, poděkuj, usmiř se.'],
+    ['Nosíš v sobě něco nevysloveného? Dnes je den to pojmenovat pravým jménem.', 'Neseš něco, co už dávno netěší? Dnes je den to pustit.'],
+    ['Láká tě něco nového? Dnes je den si na to vzít deset minut.', 'Mluvíš o cestě? Dnes je den naplánovat její první krok.'],
+    ['Stavíš něco velkého? Dnes je den to posunout o jeden krok.', 'Která povinnost visí nejdéle? Dnes je den ji dokončit.'],
+    ['Jedeš v zajetých kolejích? Dnes je den udělat jednu věc jinak.', 'Bere ti něco čas bez užitku? Dnes je den si ho vzít zpět.'],
+    ['Kdy jsi byl naposled v tichu? Dnes je den si dopřát půl hodiny jen pro sebe.', 'Spěcháš na dokončení? Dnes je den to udělat jemně a beze spěchu.'],
   ];
   function taskOfDay(da) {
     const pa = da.phaseAngle;
     const sig0 = `Luna ${K.SIGN_LOC_V[da.moonSign]}`;
-    if (pa < 18 || pa > 342) return { t: 'Zapiš dnes jednou větou jeden záměr na příští měsíc.', sig: sig0 + ' · nov — čas záměrů' };
-    if (Math.abs(pa - 180) < 18) return { t: 'Dokonči dnes jednu věc, která dozrála, a poděkuj za ni.', sig: sig0 + ' · úplněk — čas sklizně' };
-    if (da.color === 'tense' && da.score <= -4) return { t: 'Vyber si dnes tři podstatné věci; ostatní nech klidně na jindy.', sig: sig0 + ' · náročný den — méně je víc' };
+    if (pa < 18 || pa > 342) return { t: 'Co chceš, aby v příštím měsíci rostlo? Dnes je den zapsat jeden záměr — jednou větou.', sig: sig0 + ' · nov — čas záměrů' };
+    if (Math.abs(pa - 180) < 18) return { t: 'Co ve tvém životě dozrálo? Dnes je den to dokončit a poděkovat.', sig: sig0 + ' · úplněk — čas sklizně' };
+    if (da.color === 'tense' && da.score <= -4) return { t: 'Tlačí se toho moc? Dnes je den vybrat tři podstatné věci a zbytek nechat na jindy.', sig: sig0 + ' · náročný den — méně je víc' };
     const grow = pa < 180;
     return { t: DAY_TASKS[da.moonSign][grow ? 0 : 1], sig: sig0 + (grow ? ' · dorůstá — čas přidávat' : ' · couvá — čas dokončovat') };
   }
