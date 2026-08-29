@@ -2439,7 +2439,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <span class="ht-div"></span>
       ${go.length ? `<span class="ht-row ht-go"><i class="ht-ic go">✦</i><b>Podporuje</b><span class="tx">${esc(go[0].text)}</span></span>` : ''}
       ${cost.length ? `<span class="ht-div"></span><span class="ht-row ht-cost"><i class="ht-ic cost">✳</i><b>Nepříznivé</b><span class="tx">${esc(cost[0].text)}</span></span>` : ''}
-      ${(() => { const u = taskOfDay(da); return `<span class="ht-div"></span><span class="ht-task"><b>Úkol dne</b><span class="tt">${esc(u.t)}</span><small>${esc(u.sig)}</small></span>`; })()}
+      ${(() => { const u = taskOfDay(da); return `<span class="ht-div"></span><span class="ht-task"><b>Pozvání dne</b><span class="tt">${esc(u.t)}</span><small>${esc(u.sig)}</small></span>`; })()}
     </button>`;
   }
 
