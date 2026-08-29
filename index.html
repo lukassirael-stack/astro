@@ -344,6 +344,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 [data-theme="day"] .legend span{color:#123252}
 [data-theme="day"] .legend-more summary{color:#123252}
 [data-theme="day"] .day-sun{color:#173B5E}
+.day-hero{border-radius:14px;padding:12px 14px 10px;margin:0 -4px 12px;background:rgba(8,16,36,.34);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);border:1px solid rgba(236,232,220,.14)}
+[data-theme="day"] .day-hero{background:rgba(250,252,255,.6);border-color:rgba(255,255,255,.8)}
+[data-theme="day"] .day-hero .day-title h2, [data-theme="day"] .day-hero .day-title small{color:#0E3556;text-shadow:none}
 [data-theme="day"] .day-moon{color:#173B5E;text-shadow:0 1px 2px rgba(255,255,255,.85), 0 0 10px rgba(255,255,255,.6)}
 [data-theme="day"] .lede{text-shadow:0 1px 2px rgba(255,255,255,.8), 0 0 12px rgba(255,255,255,.55)}
 /* nejbližší dny */
@@ -2492,6 +2495,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const go = gen.go.concat(per.go), cost = gen.cost.concat(per.cost);
 
     return `
+      <div class="day-hero">
       <div class="day-head">
         <div class="day-title"><small>${isToday ? 'dnes · ' : ''}${K.WEEKDAY_CZ[K.tzParts(da.noon, TZ).wd]}</small>${d}. ${K.MONTH_GEN[m - 1]} ${y}</div>
         <div><span class="badge ${da.color}">${TX.dayWord(da)}</span></div>
@@ -2499,6 +2503,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;% osvětlení</p>
       <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>
       <p class="lede">${esc(TX.dayLede(da, dayEv))}</p>
+      </div>
       ${planPanel(K.isoDate(y, m, d))}
       <div class="panel go"><h4>Co dnes jde</h4>
       <div class="ctxchips"><span>☽ Luna ${K.SIGN_LOC_V[da.moonSign]}</span><span>○ ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} ${Math.round(da.illum * 100)}&nbsp;%</span>${da.kp ? `<span>≋ Kp ${da.kp.kp} ${da.kp.kp >= 5 ? 'zvýšená' : 'klidná'}</span>` : ''}</div>
