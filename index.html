@@ -177,6 +177,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .btn{padding:9px 15px;border-radius:8px;border:1px solid var(--line2);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;background:transparent;color:var(--text)}
 .btn.primary{background:var(--gold);color:var(--on-gold);border-color:var(--gold);font-weight:500}
+[data-theme="day"] .btn.primary{background:#39716F;border-color:#39716F;color:#F4FAF9}
 .btn.ghost{background:transparent}
 .btn:disabled{opacity:.5;cursor:default}
 .chip{padding:6px 11px;border-radius:8px;border:1px solid var(--hairline);font-size:11px;letter-spacing:.06em;color:var(--muted)}
@@ -450,7 +451,7 @@ details.expl .card p:last-child{margin:0}
 #view-nativ .echips .chip{background:rgba(11,19,40,.78);border-color:rgba(212,183,122,.42);color:#E9E2CF;backdrop-filter:blur(3px)}
 #view-nativ .echips .chip.on{background:rgba(20,30,58,.9);border-color:var(--gold);color:var(--gold)}
 [data-theme="day"] #view-nativ .echips .chip{background:rgba(250,247,238,.82);border-color:rgba(140,110,50,.45);color:#2A3350}
-[data-theme="day"] #view-nativ .echips .chip.on{background:rgba(255,252,244,.94);border-color:#9A7B33;color:#7A5E1E}
+[data-theme="day"] #view-nativ .echips .chip.on{background:#E3F0EE;border-color:#3F7C7A;color:#2A5A58}
 .echips.sub{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
 .echips.span{margin-top:10px;align-items:center}
 .echips .elbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-right:2px}
@@ -3501,6 +3502,21 @@ ${parts}
         <p class="note wide">Podle tohoto místa se počítá východ a západ Slunce a Luny, planetární hodiny, lunární den, viditelnost zatmění a úkazů, heliakické východy tvých hvězd a přepínání oblohy podle denní doby. Polohy planet, aspekty a tranzity k nativu na místě nezávisí — ty jsou stejné pro celou Zemi. Místo narození v profilu neměň, to je snímek nebe nad místem, kde jsi se narodil.</p>
         <p class="note wide">Časy se zobrazují v českém čase (Europe/Prague) i pro vzdálená místa.</p>
       </form>
+      <div class="h2">Obloha</div>
+      <div class="card">
+        <div class="row" style="gap:6px" id="themeRow">
+          ${['auto', 'day', 'night'].map(t => `<button type="button" class="chip ${settings.theme === t ? 'on' : ''}" data-act="pickTheme" data-t="${t}">${t === 'auto' ? 'podle denní doby' : THEMES[t]}</button>`).join('')}
+        </div>
+        ${settings.theme === 'auto' ? '' : `<div class="row" style="gap:6px;margin-top:8px">
+          ${[['stay', 'nechat napořád'], ['once', 'do nejbližší změny']].map(([h, lbl]) => `<button type="button" class="chip ${(settings.themeHold || 'stay') === h ? 'on' : ''}" data-act="pickHold" data-h="${h}">${lbl}</button>`).join('')}
+        </div>`}
+        <label class="row" style="gap:8px;margin-top:10px;font-size:14px;cursor:pointer"><input type="checkbox" data-act="toggleClouds" ${settings.clouds === false ? '' : 'checked'}> Mraky ve světlých paletách</label>
+        <div class="row" style="gap:6px;margin-top:10px">
+          <button type="button" class="chip ${settings.bg !== 'plain' ? 'on' : ''}" data-act="pickBg" data-b="photo">s obrazem nebe</button>
+          <button type="button" class="chip ${settings.bg === 'plain' ? 'on' : ''}" data-act="pickBg" data-b="plain">jen barvy</button>
+        </div>
+        <p class="note">Na automatiku se obloha mění podle skutečného východu a západu Slunce v ${esc(settings.loc.name)} — od svítání do soumraku denní, jinak noční. Teď je ${THEMES[applyTheme()]}.${settings.theme === 'auto' ? '' : (settings.themeHold === 'once' ? ' Ruční volba se sama vrátí do automatiky při nejbližším východu nebo západu Slunce.' : ' Ruční volba drží, dokud ji nezměníš.')}</p>
+      </div>
       <div class="h2">Pravidla barvení dne</div>
       <form class="form card" id="rulesForm" onsubmit="return false">
         <label>Harmonický od<input name="harm" type="number" step="0.5" value="${settings.rules.harm}"></label>
@@ -3519,21 +3535,6 @@ ${parts}
         </div></details>
         <details class="expl"><summary>Přesné váhy (pro zvídavé)</summary><div class="card"><p>Trigon +1, sextil +0,5, kvadratura/opozice −1, konjunkce podle planety (Venuše, Jupiter, Slunce +1 · Mars, Saturn, Pluto −1 · Uran, Neptun −0,5). Násobí se váhou bodu (Slunce, Luna, Asc, MC ×2). Luna přesné aspekty ±0,25, živel Luny +0,5, Merkur retro −0,5, Kp ≤ 3 +0,5, Kp 5 −1, Kp ≥ 6 −2. Jupiter až Pluto tvoří pozadí období, barvu dne neurčují.</p></div></details>
       </form>
-      <div class="h2">Obloha</div>
-      <div class="card">
-        <div class="row" style="gap:6px" id="themeRow">
-          ${['auto', 'day', 'night'].map(t => `<button type="button" class="chip ${settings.theme === t ? 'on' : ''}" data-act="pickTheme" data-t="${t}">${t === 'auto' ? 'podle denní doby' : THEMES[t]}</button>`).join('')}
-        </div>
-        ${settings.theme === 'auto' ? '' : `<div class="row" style="gap:6px;margin-top:8px">
-          ${[['stay', 'nechat napořád'], ['once', 'do nejbližší změny']].map(([h, lbl]) => `<button type="button" class="chip ${(settings.themeHold || 'stay') === h ? 'on' : ''}" data-act="pickHold" data-h="${h}">${lbl}</button>`).join('')}
-        </div>`}
-        <label class="row" style="gap:8px;margin-top:10px;font-size:14px;cursor:pointer"><input type="checkbox" data-act="toggleClouds" ${settings.clouds === false ? '' : 'checked'}> Mraky ve světlých paletách</label>
-        <div class="row" style="gap:6px;margin-top:10px">
-          <button type="button" class="chip ${settings.bg !== 'plain' ? 'on' : ''}" data-act="pickBg" data-b="photo">s obrazem nebe</button>
-          <button type="button" class="chip ${settings.bg === 'plain' ? 'on' : ''}" data-act="pickBg" data-b="plain">jen barvy</button>
-        </div>
-        <p class="note">Na automatiku se obloha mění podle skutečného východu a západu Slunce v ${esc(settings.loc.name)} — od svítání do soumraku denní, jinak noční. Teď je ${THEMES[applyTheme()]}.${settings.theme === 'auto' ? '' : (settings.themeHold === 'once' ? ' Ruční volba se sama vrátí do automatiky při nejbližším východu nebo západu Slunce.' : ' Ruční volba drží, dokud ji nezměníš.')}</p>
-      </div>
       <div class="h2">Kosmické počasí · NOAA SWPC</div>
       <div class="card"><div class="small">${kpTxt}</div>${S.kpError ? `<div class="small tone-tense">${esc(S.kpError)}</div><p class="note">Pokud prohlížeč blokuje přímé stažení (CORS), aplikace zkouší záložní cestu <span class="mono">/api/noaa</span> – na Vercelu je součástí balíčku.</p>` : ''}<div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="refreshKp">Stáhnout znovu</button></div>
       <p class="note">Zdroje: naměřený Kp (posledních 7 dní), třídenní předpověď a 27denní výhled. Do kalendáře se bere nejvyšší hodnota dne.</p></div>
