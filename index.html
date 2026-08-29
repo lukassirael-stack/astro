@@ -2124,7 +2124,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       const t = Date.now();
       if (!verTapState.t || t - verTapState.t > 2500) verTapState.n = 0;
       verTapState.t = t; verTapState.n++;
-      if (verTapState.n >= 7) { verTapState.n = 0; const on = !store.get('kairos_plus', false); store.set('kairos_plus', on); toast(on ? 'Kairos Plus aktivní ✧' : 'Kairos Plus vypnut.'); renderSettings(); }
+      if (verTapState.n >= 7) { verTapState.n = 0; const on = !store.get('kairos_plus', false); store.set('kairos_plus', on); toast(on ? 'Plná verze aktivní ✧' : 'Základní verze.'); renderSettings(); }
     },
     hsPrint() {
       const doc = horoscopeDoc(S.natal);
@@ -2151,7 +2151,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     saveProfile() { saveProfileForm(); },
     newProfile() {
       const FREE_PROFILES = 2;
-      if (!store.get('kairos_plus', false) && profiles.length >= FREE_PROFILES) { toast('Dva profily jsou zdarma. Další budou součástí Kairos Plus — připravujeme.'); return; }
+      if (!store.get('kairos_plus', false) && profiles.length >= FREE_PROFILES) { toast('Dvě osoby jsou v základu. Další přinese plná verze — připravujeme.'); return; }
       const id = 'p' + Date.now().toString(36); profiles.push({ id, name: 'Nový profil', y: 1990, m: 1, d: 1, hh: 12, mm: 0, place: 'Kroměříž', lat: 49.2979, lon: 17.3931, alt: 200, tz: TZ }); activeId = id; persistProfiles(); computeNatal(); renderSettings(); toast('Profil založen – vyplň údaje a ulož.'); },
     switchProfile(el) { activeId = el.value; store.set('kairos_active', activeId); computeNatal(); renderSettings(); toast('Profil přepnut: ' + activeProfile().name); },
     deleteProfile() { if (profiles.length < 2) { toast('Poslední profil nejde smazat.'); return; } if (!confirm('Smazat profil ' + activeProfile().name + '?')) return; profiles = profiles.filter(p => p.id !== activeId); activeId = profiles[0].id; persistProfiles(); computeNatal(); renderSettings(); },
@@ -3609,7 +3609,7 @@ ${parts}
       </div>
       <div class="h2">Aplikace</div>
       <div class="card"><div class="row"><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
-      <p class="note" data-act="verTap" style="cursor:default">Kairos ${VERSION}${store.get('kairos_plus', false) ? ' · Plus' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
+      <p class="note" data-act="verTap" style="cursor:default">Nebeský kompas ${VERSION}${store.get('kairos_plus', false) ? ' · plná verze' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
       <p class="note">Jazyk aplikace je záměrně „tohle je ve hře, tohoto si všímej“. Žádná barva dne není předpověď a nerozhoduje za tebe.</p></div>`;
     const sel = $('#profileSelect', v); sel.addEventListener('change', () => actions.switchProfile(sel));
   }
