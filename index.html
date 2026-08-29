@@ -1613,9 +1613,9 @@ function createKairosTexts(K) {
 
   // ============ shrnutí pro mřížku a přehled dnů ============
   function dayWord(da) {
-    if (da.color === 'harm') return da.score >= 4 ? 'příznivý den' : 'jde to dobře';
-    if (da.color === 'tense') return da.score <= -4 ? 'do kopce' : 'chce to víc trpělivosti';
-    return 'v klidu';
+    if (da.color === 'harm') return da.score >= 4 ? 'příznivý den' : 'vlídný den';
+    if (da.color === 'tense') return da.score <= -4 ? 'náročný den' : 'pomalejší den';
+    return 'klidný den';
   }
 
   // ============ časová osa dne ============
@@ -1826,10 +1826,10 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     }
   }
   const RATES = [
-    { v: -2, label: 'do kopce', cls: 'tense' },
-    { v: -1, label: 'chce to víc trpělivosti', cls: 'tense' },
-    { v: 0, label: 'v klidu', cls: '' },
-    { v: 1, label: 'jde to dobře', cls: 'harm' },
+    { v: -2, label: 'náročný den', cls: 'tense' },
+    { v: -1, label: 'pomalejší den', cls: 'tense' },
+    { v: 0, label: 'klidný den', cls: '' },
+    { v: 1, label: 'vlídný den', cls: 'harm' },
     { v: 2, label: 'příznivý den', cls: 'harm' },
   ];
   // plán: { "2026-08-24": [ {id, t:'14:00'|null, name, note} ] }
