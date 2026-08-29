@@ -3493,7 +3493,7 @@ ${parts}
     const kpTxt = S.kpUpdated ? `aktualizováno ${K.fmtDateCz(new Date(S.kpUpdated), TZ)} ${K.fmtTime(new Date(S.kpUpdated), TZ)} · ${Object.keys(S.kpMap).length} dní` : 'zatím nestaženo';
     v.innerHTML = `
       <div class="h2">Profil</div>
-      <div class="row"><select class="btn profsel" id="profileSelect" aria-label="Aktivní profil">${opts}</select><button type="button" class="btn ghost" data-act="newProfile">Nový profil</button>${profiles.length > 1 ? '<button type="button" class="btn ghost" data-act="deleteProfile">Smazat</button>' : ''}</div>
+      <div class="row">${profiles.length > 1 ? `<select class="btn profsel" id="profileSelect" aria-label="Aktivní profil">${opts}</select>` : ''}<button type="button" class="btn ghost" data-act="newProfile">Přidat osobu</button>${profiles.length > 1 ? '<button type="button" class="btn ghost" data-act="deleteProfile">Smazat</button>' : ''}</div>
       <form class="form card" id="profileForm" onsubmit="return false">
         <label class="wide">Jméno<input name="name" value="${esc(p.name)}"></label>
         <label>Datum narození<input name="date" type="date" value="${p.y}-${pad(p.m)}-${pad(p.d)}"></label>
