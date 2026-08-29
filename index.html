@@ -2181,6 +2181,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     },
     sdDel(el) { store.set('kairos_days', sdAll().filter(x => x.id !== el.dataset.id)); renderSettings(); },
     tvHelp() { S.tvHelp = !S.tvHelp; renderCalendar(); },
+    evAll() { S.evAll = true; renderEvents(); },
+    evLess() { S.evAll = false; renderEvents(); },
     sdLater() { store.set('kairos_days_seen', true); renderCalendar(); },
     sdGo() { store.set('kairos_days_seen', true); showTab('nastaveni'); setTimeout(() => { const el = $('#sdName'); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 60); },
     icsSave() { const v = $('#icsUrl'); if (!v || !v.value.trim()) { toast('Vlož adresu.'); return; } store.set('kairos_ics', v.value.trim()); icsRefresh(false); },
@@ -3317,8 +3319,9 @@ ${parts}
       const months = {};
       for (const e of list) { const p = K.tzParts(e.date, TZ); const k = `${p.y}-${pad(p.m)}`; (months[k] = months[k] || { y: p.y, m: p.m, items: [] }).items.push(e); }
       const chips = ['vse', 'zatmeni', 'luna', 'planety', 'hvezdy', 'roje', 'slunce', 'komety'].map(c => `<button type="button" class="chip ${S.filter === c ? 'on' : ''}" data-act="filter" data-f="${c}">${CAT_CZ[c]}</button>`).join('');
-      let html = `<div class="h2">Úkazy · ${esc(settings.loc.name)}</div><p class="note">Rok dopředu od tohoto měsíce. Časy jsou v našem čase, viditelnost počítaná pro ${esc(settings.loc.name)} (${fmtNum(settings.loc.lat, 3)} N, ${fmtNum(settings.loc.lon, 3)} E).</p><div class="row" style="gap:6px">${chips}</div>`;
-      const keys = Object.keys(months).sort();
+      let html = `<div class="h2">Úkazy · ${esc(settings.loc.name)}</div><p class="note">${S.evAll ? 'Rok dopředu od tohoto měsíce.' : 'Nejbližší tři měsíce.'} Časy jsou v našem čase, viditelnost počítaná pro ${esc(settings.loc.name)} (${fmtNum(settings.loc.lat, 3)} N, ${fmtNum(settings.loc.lon, 3)} E).</p><div class="row" style="gap:6px">${chips}</div>`;
+      const allKeys = Object.keys(months).sort();
+      const keys = S.evAll ? allKeys : allKeys.slice(0, 3);
       if (!keys.length) html += '<p class="muted">V této kategorii nic není.</p>';
       for (const k of keys) {
         const mo = months[k];
@@ -3329,6 +3332,8 @@ ${parts}
         }
       }
       html += `<p class="note" style="margin-top:18px">Komety, novy a podobné jednorázové úkazy se spočítat nedají – přidáš si je v Nastavení (řádek: datum | název | poznámka).</p>`;
+      if (!S.evAll && allKeys.length > 3) html += `<div class="row" style="justify-content:center;margin:12px 0 4px"><button type="button" class="btn ghost" data-act="evAll">Zobrazit celý rok</button></div>`;
+      else if (S.evAll && allKeys.length > 3) html += `<div class="row" style="justify-content:center;margin:12px 0 4px"><button type="button" class="btn ghost" data-act="evLess">Zobrazit jen tři měsíce</button></div>`;
       v.innerHTML = html;
     }, 30);
   }
