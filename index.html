@@ -372,6 +372,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .ahead .a .wo{display:block;font-size:9.5px;color:var(--inst-muted);line-height:1.2;margin-top:1px;hyphens:auto}
 .ahead .a.today .dd{color:var(--inst-gold)}
 /* praktické bloky */
+.lede-sig{margin:6px 0 2px;font-size:12.5px;letter-spacing:.03em;color:var(--harm-lite)}
+[data-theme="day"] .day-hero .lede-sig{color:#2A6A5E}
 .lede{font-family:var(--display);font-size:20px;line-height:1.35;margin:12px 0 4px;color:var(--text);text-shadow:var(--halo)}
 .panel{border:1px solid var(--hairline);border-radius:var(--r);padding:13px 15px;margin:10px 0;background:var(--glass);box-shadow:0 1px 3px var(--glass-shadow)}
 .panel.go{border-color:rgba(var(--harm-rgb),.35);background:linear-gradient(180deg,rgba(var(--harm-rgb),.13),rgba(var(--harm-rgb),.03)),var(--glass)}
@@ -1555,6 +1557,41 @@ function createKairosTexts(K) {
 
   const strip = (s) => s.charAt(0).toLowerCase() + s.slice(1);
 
+  const DAY_READ = [
+    [["Dnes je do věcí chuť pustit se rovnou, bez dlouhých příprav. Co se odloží na potom, ztratí půl své síly — a naopak i malý první krok dnes otevře dveře. Občas se přitom šlápne vedle; nevadí, dá se to zítra srovnat. Dopoledne má nejvíc tahu.","den chuti, odvahy a začátků"],["Dnes je znát, kde se dlouho tlačilo silou. Věci, které stály na samém úsilí, si říkají o jiný přístup — někdy stačí přestat tlačit a ono se to pohne samo. Je to den spíš na dokončení než na rozjezd. K večeru se napětí uvolní.","den doražení a uvolnění sevření"]],
+    [["Dnes je dobré držet se toho, co se dá chytit rukama. Věci jdou pomaleji, ale to, co se dnes udělá, drží. Chuť na dobré jídlo, pohodlí a klid je větší než obvykle a není důvod jí odporovat. Odpoledne bývá nejpříjemnější část dne.","den těla, klidu a pevných věcí"],["Dnes se ukáže, čeho je doma i v hlavě víc, než je třeba. Je to den na dojídání, dokončování a uklízení — nic velkého se nezačíná, zato se hodně dozavírá. Tělo si říká o pomalejší tempo. Podvečer bývá měkčí než zbytek dne.","den zjednodušení a spotřebování"]],
+    [["Dnes je vzduch plný nápadů a informací a všechno se rychle propojuje. Je to den, kdy se dobře domlouvá, píše a zjišťuje. Občas se toho nabere víc, než kolik se dá zpracovat — stačí si vybrat dvě věci a ty dotáhnout. Dopoledne je nejrychlejší.","den nápadů, hovorů a spojení"],["Dnes se hlavou honí víc věcí, než kolik jich stihne dosednout. Není to den na nové sliby — spíš na dořečení toho, co zůstalo viset v půli věty. Rozhovory jdou snadno a ledacos se vyjasní samo, jen tím, že se to konečně vysloví. Podvečer bývá klidnější než zbytek dne.","den dořečení a vyjasnění"]],
+    [["Dnes je blízko k domovu a k lidem, se kterými je člověku dobře. Věci se dělají líp v malém kruhu než na veřejnosti, a co se dnes zaseje v rodině, drží dlouho. Nálada kolísá po vlnách, ale žádná netrvá dlouho. Večer je nejteplejší část dne.","den domova, péče a blízkosti"],["Dnes se ozývá to, co se dlouho drželo uvnitř. Je to den, kdy se dobře odpouští — sobě i druhým — a kdy je v pořádku ubrat a být chvíli sám se sebou. Staré vzpomínky chodí blíž než jindy. K večeru se to usadí.","den měkkosti, odpuštění a klidu"]],
+    [["Dnes je chuť být vidět a dělat věci naplno. Co se dnes začne s radostí, má tah — a bývá znát i na lidech kolem. Občas se do toho přimíchá potřeba mít pravdu; když se povolí, zbyde jen ta radost. Odpoledne a večer je den nejštědřejší.","den odvahy, tvoření a velkorysosti"],["Dnes je dobré ukázat to, co už je hotové, místo slibování dalšího. Uznání a poděkování mají dnes velkou váhu — vyslovené i přijaté. Chuť po pozornosti může být větší než obvykle a stačí ji vzít na vědomí. Podvečer bývá vřelý.","den vděčnosti a doznění"]],
+    [["Dnes se dobře třídí, opravuje a dává do pořádku. Drobnosti, na které jindy nezbývá čas, jdou dnes samy od ruky a je z nich vidět víc, než by se čekalo. Kritického oka je víc než obvykle; hodí se ho obrátit spíš na věci než na lidi. Dopoledne je nejsoustředěnější.","den pořádku, práce a detailů"],["Dnes se ukazuje, co už je hotové a co se jen zbytečně přepilovává. Je to den na dodělání rozdělaného a na vyřazení toho, co se přežilo. Tělo si říká o obyčejnou péči — jídlo, spánek, pohyb. Podvečer je klidnější.","den dokončení a úlevy"]],
+    [["Dnes se lépe hledá společná řeč a věci se dají srovnat po dobrém. Je to den na domluvu, na krásu kolem sebe a na to, co se dělá ve dvou. Rozhodování může trvat déle, než by se chtělo — a je v pořádku dát mu čas. Odpoledne bývá nejsmířlivější.","den souladu, dohody a krásy"],["Dnes je znát, kde se ustupovalo víc, než bylo zdravé. Je to den, kdy se dobře narovnává, co se dlouho drželo v rovnováze jen naoko. Věci se dají doříct v klidu, bez zvedání hlasu. K večeru se atmosféra pročistí.","den narovnání a upřímnosti"]],
+    [["Dnes jde všechno do hloubky a povrchní věci nebaví. Je to den, kdy se dá dostat na dřeň — v práci, ve vztahu i sám u sebe — a kdy se pozná, co je opravdové. Emoce jsou silnější než obvykle a chtějí spíš prožít než vysvětlit. Večer je nejsilnější.","den hloubky, pravdy a proměny"],["Dnes se dobře pouští to, co už dlouho tíží. Je to den, kdy se ledacos uzavírá samo, jen tím, že se to přestane držet. Věci vyplouvají na povrch bez ptaní. K ránu bývá nejtíž, večer nejvolněji.","den puštění a očisty"]],
+    [["Dnes je chuť po dálce, po smyslu a po něčem větším, než je běžný den. Věci se dobře plánují a učí, cizí i nové jde snadno pod kůži. Slibuje se přitom lehčeji, než se stíhá — a to je v pořádku, když se to ví. Odpoledne je nejotevřenější.","den rozhledu, důvěry a cesty"],["Dnes je dobré vrátit se k tomu, co se kdysi začalo a nedokončilo. Ukazuje se, co z velkých plánů má opravdu smysl a co byl jen zápal. Nadhled přichází snadno, stačí o krok ustoupit. K večeru se ujasní směr.","den nadhledu a návratů"]],
+    [["Dnes se dobře staví to, co má vydržet. Věci jdou pomaleji, ale drží tvar — a co se dnes rozhodne, ponese se dál. Zodpovědnosti je víc než chuti, a přesto se to dá unést. Dopoledne má nejpevnější krok.","den práce, řádu a základů"],["Dnes je znát tíha toho, co se dlouho nese. Je to den, kdy se dobře přiznává, že něco už dosloužilo, a kdy se dá odložit povinnost, která se nabalila sama od sebe. Míň věcí, víc pozornosti. K večeru se uleví.","den odložení a poctivého účtu"]],
+    [["Dnes se dobře dělá věc jinak, než jak se dělala vždycky. Nápady přicházejí zboku a často od lidí, kteří s tím zdánlivě nemají nic společného. Zavedené postupy dnes drhnou — a je to spíš pozvání než potíž. Odpoledne je nejnápaditější.","den svobody, nápadů a přátel"],["Dnes se ukazuje, co se dělá jen ze zvyku. Je to den na vyřazení věcí, které už nikomu neslouží, a na zjednodušení kolem sebe. Mezi lidmi se dýchá líp než o samotě. Podvečer bývá nejvolnější.","den zjednodušení a vzduchu"]],
+    [["Dnes je hranic míň než obvykle a věci se prolínají. Cit, hudba, obrazy a sny jdou dnes blíž než rozum a leccos se pochopí bez vysvětlování. Na přesnost a tvrdé jednání je to den slabší — a to je v pořádku. Podvečer je nejjemnější.","den citu, tvoření a splývání"],["Dnes se dobře odpouští a pouští. Je to den, kdy se dá odpočívat bez výčitek a kdy je únava spíš informací než chybou. Věci, které se zdály neřešitelné, se rozpustí samy. K ránu bývá mlhavo, večer se pročistí.","den odpočinku, odpuštění a ztišení"]]
+  ];
+  const DAY_READ_SP = {
+    nov: ["Dnes je ticho na začátku. Nic ještě není vidět, a přesto se rozhoduje, čemu dát v příštích týdnech místo. Je to den spíš na rozvahu než na rozjezd — co se dnes tiše nastaví, ponese se dlouho. Odpoledne se myšlenky usadí a bývá jasněji, o co vlastně jde.", "den ticha, záměru a základů"],
+    uplnek: ["Dnes se víc ozývá to, co cítíme. Některé věci už nejdou obejít rozumem ani odložit na později — chtějí být vyslovené, dožité nebo jednoduše puštěné. Ráno může být ještě trochu sevřené, po druhé se prostor začne otevírat a věci půjdou snáz.", "den citu, uvolnění a dozrávání"],
+    tense: ["Dnes jde všechno o něco pomaleji a je cítit odpor — jako když se kráčí do kopce. Není to den, kdy by se dalo hodně stihnout, spíš den, kdy obstojí to, co má pevný základ. Míň věcí, víc pozornosti. K večeru tlak povolí a bývá vidět, že se toho zvládlo víc, než se zdálo.", "den pomalého kroku a pevných věcí"],
+    harm: ["Dnes věci plynou snáz, než bývá zvykem — domluvy sedají, cesty se zkracují a leccos vyjde jakoby mimochodem. Je to den, kdy se vyplatí požádat o to, co se dlouho odkládalo. Dopoledne otevírá, odpoledne dotahuje.", "den plynutí a otevřených dveří"],
+    zatmeni: ["Dnes se děje víc, než je vidět. Zatmění bývá cítit několik dní kolem sebe a věci, které se dnes hnou, se často doceňují až s odstupem. Je to den spíš na vnímání než na velká rozhodnutí. Klidnější bývá večer.", "den obratu a tiché změny"]
+  };
+  function dayReading(da, ctxEvents) {
+    const pa = da.phaseAngle, ev = ctxEvents || [];
+    const sign = K.SIGN_LOC_V[da.moonSign];
+    const ph = phaseText(pa).name.replace(' Luna', '');
+    let t, sig, head;
+    if (ev.find(e => e.cat === 'zatmeni')) { [t, sig] = DAY_READ_SP.zatmeni; head = `Zatmění · ${sign}`; }
+    else if (pa < 18 || pa > 342) { [t, sig] = DAY_READ_SP.nov; head = `Nov ${sign}`; }
+    else if (Math.abs(pa - 180) < 18) { [t, sig] = DAY_READ_SP.uplnek; head = `Úplněk ${sign}`; }
+    else if (da.color === 'tense' && da.score <= -4) { [t, sig] = DAY_READ_SP.tense; head = `Luna ${sign}`; }
+    else if (da.color === 'harm' && da.score >= 4) { [t, sig] = DAY_READ_SP.harm; head = `Luna ${sign}`; }
+    else { const p = DAY_READ[da.moonSign][pa < 180 ? 0 : 1]; t = p[0]; sig = p[1]; head = `${cap(ph)} Luna ${sign}`; }
+    return { text: t, sign: `${head} · ${sig}` };
+  }
+
   // ============ VRSTVA 1 – obecná věta o dni ============
   function dayLede(da, ctxEvents) {
     const el = K.ELEMENT[da.moonSign];
@@ -1686,7 +1723,7 @@ function createKairosTexts(K) {
     return E;
   }
 
-  return { SUN_TONE, MOON_EL, MOON_SIGN, GO, COST, CONJ, DOMAIN, HOUR_USE, phaseText, dayLede, generalItems, personalItems, windows, dayWord, timeline };
+  return { SUN_TONE, MOON_EL, MOON_SIGN, GO, COST, CONJ, DOMAIN, HOUR_USE, phaseText, dayLede, dayReading, generalItems, personalItems, windows, dayWord, timeline };
 }
 if (typeof module !== 'undefined') module.exports = createKairosTexts;
 
@@ -2508,7 +2545,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       </div>
       <p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;% osvětlení</p>
       <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>
-      <p class="lede">${esc(TX.dayLede(da, dayEv))}</p>
+      ${(() => { const r = TX.dayReading(da, dayEv); return `<p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p>`; })()}
       </div>
       ${planPanel(K.isoDate(y, m, d))}
       <div class="panel go"><h4>Co dnes jde</h4>
