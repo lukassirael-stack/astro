@@ -393,6 +393,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .chakra .ch-track span{font-size:12.5px;color:var(--muted)}
 .chakra .ch-track em{display:block;margin-top:5px;font-style:normal;font-size:12px;line-height:1.5;color:var(--muted);opacity:.9}
 .chakra .ch-how{margin:4px 2px 0}
+.chakra .ch-src{font-size:11.5px;opacity:.8;margin-top:8px}
 .hsintro-note{border-left:2px solid rgba(var(--harm-ink),.5);padding-left:12px;margin-bottom:2px}
 .hsintro-note p{color:var(--harm-lite);font-size:14.5px;line-height:1.55}
 [data-theme="day"] .hsintro-note p{color:#2A6A5E}
@@ -3577,6 +3578,15 @@ ${parts}
     const to = new Date(hadBirthday ? ny + 1 : ny, bm - 1, bd);
     return { n, age, small, big, round, from, to, cell: CHAKRA_GRID[big][small], sm: CHAKRA[small], bg: CHAKRA[big], block: CHAKRA_BLOCK[big] };
   }
+  const ARC = [
+    'první rok sedmiletí — pokládají se základy nového tématu a hledá se v něm jistota',
+    'druhý rok — téma se okouší a přichází k němu chuť',
+    'třetí rok — do tématu vstupuje vlastní vůle a síla',
+    'čtvrtý rok, střed sedmiletí — téma se prohlubuje a otevírá se druhým',
+    'pátý rok — téma hledá svůj hlas a dá se vyslovit',
+    'šestý rok — téma se chápe a je vidět jako celek',
+    'poslední rok sedmiletí — téma se uzavírá a otevírají se dveře k dalšímu bloku',
+  ];
   function chakraHTML(prof) {
     const c = chakraYear(prof);
     const dd = (d) => `${d.getDate()}. ${K.MONTH_GEN[d.getMonth()]} ${d.getFullYear()}`;
@@ -3584,11 +3594,11 @@ ${parts}
     const dots = (activeIdx) => CHAKRA.map((ch, i) => `<span class="ch-dot${i === activeIdx ? ' on' : ''}" style="${i === activeIdx ? `background:${ch.col};box-shadow:0 0 10px ${ch.col}77` : `background:${ch.col};opacity:.28`}" title="${esc(ch.n)}"></span>`).join('');
     return `<div class="h3">Čakra roku</div>
       <div class="card chakra">
-        <p class="ch-lead">Život se dělí na sedmiletí a každý rok uvnitř nich patří jedné čakře. Teď jsi v <b>${blockFrom}.–${blockTo}. roce života</b> — to je sedmiletí <b style="color:${c.bg.col}">${esc(c.bg.n)}</b> — a uvnitř něj v <b>${c.small + 1}. roce</b>, který patří čakře <b style="color:${c.sm.col}">${esc(c.sm.n)}</b>. Jejich setkání dává letošku jméno:</p>
+        <p class="ch-lead">Život se dělí na sedmiletí a každý rok uvnitř nich patří jedné čakře. Teď jsi v <b>${blockFrom}.–${blockTo}. roce života</b> — to je sedmiletí <b style="color:${c.bg.col}">${esc(c.bg.n)}</b> — a uvnitř něj v <b>${c.small + 1}. roce</b>, který patří čakře <b style="color:${c.sm.col}">${esc(c.sm.n)}</b>. Sedmiletí drží <b>základní téma</b>, rok říká, <b>čím se to téma letos zpracovává</b>. Jejich setkání dává letošku jméno:</p>
         <div class="ch-head">
           <span class="ch-mark" style="background:${c.sm.col};box-shadow:0 0 12px ${c.sm.col}66"></span>
           <span class="ch-name">${esc(c.cell.n)}</span>
-          <span class="ch-year">${c.n}. rok života${c.round > 1 ? ` · ${c.round}. kolo` : ''}</span>
+          <span class="ch-year">${c.n}. rok života${c.round > 1 ? ` · ${c.round}. oktáva` : ''}</span>
         </div>
         <p class="ch-text">${esc(c.cell.t)}</p>
         <div class="ch-track">
@@ -3601,9 +3611,10 @@ ${parts}
           <small>Rok uvnitř sedmiletí</small>
           <div class="ch-dots">${dots(c.small)}</div>
           <b style="color:${c.sm.col}">${c.small + 1}. · ${esc(c.sm.n)}</b> <span>${esc(c.sm.cz)} — ${esc(c.sm.t)}</span>
+          <em>${esc(ARC[c.small])}.</em>
           <em>Platí od ${dd(c.from)} do ${dd(c.to)}, kdy nastupuje další.</em>
         </div>
-        <details class="hsintro ch-how"><summary>Jak se čakra roku počítá</summary><p>Sedm čaker se střídá po roce: první rok života patří kořenové, druhý křížové a tak dál. Po sedmi letech začne řada znovu — a zároveň každé celé sedmiletí patří jedné čakře ve stejném pořadí. Celá mřížka se tak uzavře po 49 letech a od padesátého roku běží další kolo, stejná témata v jiné hloubce.</p></details>
+        <details class="hsintro ch-how"><summary>Jak se čakra roku počítá</summary><p>Sedm čaker se střídá po roce: první rok života patří kořenové, druhý křížové a tak dál. Po sedmi letech začne řada znovu — a zároveň každé celé sedmiletí patří jedné čakře ve stejném pořadí, takže běží dva cykly naráz.</p><p>Sedmiletí drží základní téma období, rok uvnitř něj říká, kterou funkcí se to téma právě rozvíjí. Uvnitř každého sedmiletí má řada svůj oblouk: první rok pokládá základy a hledá jistotu, prostřední roky téma prohlubují a vyslovují, poslední rok je uzavírá a otevírá dveře k dalšímu bloku.</p><p>Pětkrát sedm let přivádí zhruba do středu života, sedmkrát sedm uzavírá celý cyklus 49 let. Padesátým rokem začíná nový úsek — stejná témata ve vyšší oktávě, s tím, co už člověk umí. Druhý velký průchod se uzavírá kolem 98 let.</p><p class="ch-src">Vychází z modelu popsaného v Základní knize o čakrách (Sharamon, Baginski) a z antroposofické nauky o sedmiletích.</p></details>
       </div>`;
   }
   function renderNatal() {
