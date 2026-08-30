@@ -394,6 +394,27 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .chakra .ch-track em{display:block;margin-top:5px;font-style:normal;font-size:12px;line-height:1.5;color:var(--muted);opacity:.9}
 .chakra .ch-how{margin:4px 2px 0}
 .chakra .ch-src{font-size:11.5px;opacity:.8;margin-top:8px}
+.daymine .dm-go{margin-left:4px}
+.daymine{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.daymine span{font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--hairline);background:var(--field);color:var(--text)}
+.daymine .dm-sd{border-color:rgba(239,200,120,.5);color:var(--gold)}
+.daymine .dm-it i{font-style:normal;margin-left:6px;font-size:10px;opacity:.7}
+.pcal{padding:12px 12px 10px}
+.pcbar{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pcbar .mn{flex:1;font-family:var(--display);font-size:18px;text-align:center}
+.pcbar .mn em{font-style:normal;font-size:13px;color:var(--muted);margin-left:6px}
+.pcgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.pcgrid.head{margin-bottom:3px}
+.pcgrid .pw{text-align:center;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.pc{position:relative;aspect-ratio:1;border-radius:9px;border:1px solid var(--hairline);background:var(--field);color:var(--text);font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:0}
+.pc.empty{border:0;background:none;pointer-events:none}
+.pc b{font-family:var(--display);font-size:15px;font-weight:500;line-height:1}
+.pc.today{border-color:var(--gold2)}
+.pc.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.pc .pcm{display:flex;align-items:center;gap:2px;height:8px}
+.pc .dot{width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.pc .dot.g{background:#7FB6DD}
+.pc .sd{font-style:normal;font-size:8px;line-height:1}
 .hsintro-note{border-left:2px solid rgba(var(--harm-ink),.5);padding-left:12px;margin-bottom:2px}
 .hsintro-note p{color:var(--harm-lite);font-size:14.5px;line-height:1.55}
 [data-theme="day"] .hsintro-note p{color:#2A6A5E}
@@ -2300,6 +2321,11 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     sdDel(el) { store.set('kairos_days', sdAll().filter(x => x.id !== el.dataset.id)); renderSettings(); },
     tvHelp() { S.tvHelp = !S.tvHelp; renderCalendar(); },
     evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
+    plSel(el) { S.plSel = el.dataset.k; renderJournal(); },
+    plPrev() { const t = (S.plSel || TODAY_KEY).split('-').map(Number); let y = S.plY || t[0], m = (S.plM || t[1]) - 1; if (m < 1) { m = 12; y--; } S.plY = y; S.plM = m; renderJournal(); },
+    plNext() { const t = (S.plSel || TODAY_KEY).split('-').map(Number); let y = S.plY || t[0], m = (S.plM || t[1]) + 1; if (m > 12) { m = 1; y++; } S.plY = y; S.plM = m; renderJournal(); },
+    plToday() { S.plSel = TODAY_KEY; const t = TODAY_KEY.split('-').map(Number); S.plY = t[0]; S.plM = t[1]; renderJournal(); },
+    goDiar(el) { const k = el.dataset.k, [yy, mm] = k.split('-').map(Number); S.plSel = k; S.plY = yy; S.plM = mm; showTab('diar'); setTimeout(() => { const t = $('#view-diar .pcal'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60); },
     evPastOn() { S.evPast = true; renderEvents(); },
     evPastOff() { S.evPast = false; renderEvents(); },
     evAll() { S.evAll = true; renderEvents(); },
@@ -2592,8 +2618,15 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       ${isToday ? '' : `<p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;% osvětlení</p>
       <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>`}
       ${isToday ? '' : (() => { const r = TX.dayReading(da, dayEv); return `<p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p>`; })()}
+      ${(() => {
+        const key = K.isoDate(y, m, d), sd = sdForDay(y, m, d), mine = pGet(key), gv = gEvByDay(key);
+        if (!sd.length && !mine.length && !gv.length) return `<div class="daymine"><button type="button" class="chip small" data-act="goDiar" data-k="${key}">✎ zapsat program v Diáři</button></div>`;
+        const bits = sd.map(x => `<span class="dm-sd">${esc(sdLabel(x, y).replace(/<[^>]+>/g, ''))}</span>`)
+          .concat(gv.map(e => `<span class="dm-it">${e.t ? esc(e.t) + ' ' : ''}${esc(e.name)}<i>G</i></span>`))
+          .concat(mine.map(it => `<span class="dm-it">${it.t ? esc(it.t) + ' ' : ''}${esc(it.name)}</span>`));
+        return `<div class="daymine">${bits.join('')}<button type="button" class="chip small dm-go" data-act="goDiar" data-k="${key}">✎ upravit v Diáři</button></div>`;
+      })()}
       </div>
-      ${planPanel(K.isoDate(y, m, d))}
       <div class="panel go"><h4>Co dnes jde</h4>
       <div class="ctxchips"><span>☽ Luna ${K.SIGN_LOC_V[da.moonSign]}</span><span>○ ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} ${Math.round(da.illum * 100)}&nbsp;%</span>${da.kp ? `<span>≋ Kp ${da.kp.kp} ${da.kp.kp >= 5 ? 'zvýšená' : 'klidná'}</span>` : ''}</div>
       <ul>${go.map(bullet).join('')}</ul></div>
@@ -3270,13 +3303,13 @@ ${parts}
     const list = items.map(it => `<li><button type="button" class="px" data-act="delPlan" data-k="${key}" data-id="${it.id}" aria-label="Smazat">×</button><span class="pt">${it.t ? esc(it.t) : '—'}</span><span class="pn">${esc(it.name)}</span>
       <a class="pg" target="_blank" rel="noopener" href="${gcalLink(key, it)}" title="Přidat do Google kalendáře" aria-label="Přidat do Google kalendáře">G</a></li>`).join('');
     return `<div class="panel pl">
-      <h4><i class="hstar">✧</i> Co mě čeká</h4>
+      <h4><i class="hstar">✧</i> Program dne</h4>
       ${sdList}
       ${gList}
       ${items.length ? `<ul class="plist">${list}</ul>` : '<p class="small muted" style="margin:0 0 8px">Zatím nic zapsaného.</p>'}
       <div class="planadd">
         <input type="text" name="ptime" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="čas" aria-label="Čas (nepovinný), např. 14:30" title="Čas (nepovinný), např. 14:30">
-        <input type="text" name="pname" placeholder="Co tě čeká — schůzka, zubař, cesta…" aria-label="Co tě čeká">
+        <input type="text" name="pname" placeholder="Co máš v plánu — schůzka, zubař, cesta…" aria-label="Co máš v plánu">
         <button type="button" class="btn small" data-act="addPlan" data-k="${key}">Přidat</button>
       </div>
     </div>`;
@@ -3303,6 +3336,36 @@ ${parts}
     </div>`;
   }
 
+  function programCal() {
+    const st = S.plSel || TODAY_KEY;
+    const [sy, sm, sd] = st.split('-').map(Number);
+    const cy = S.plY || sy, cm = S.plM || sm;
+    const n = K.daysInMonth(cy, cm);
+    const offset = (K.tzParts(K.dayStart(cy, cm, 1, TZ), TZ).wd + 6) % 7;
+    let cells = '';
+    for (let i = 0; i < offset; i++) cells += '<span class="pc empty"></span>';
+    for (let d = 1; d <= n; d++) {
+      const key = K.isoDate(cy, cm, d);
+      const has = pGet(key).length, gv = gEvByDay(key).length, sdn = sdForDay(cy, cm, d).length;
+      const isSel = key === st, isToday = key === TODAY_KEY;
+      cells += `<button type="button" class="pc${isSel ? ' sel' : ''}${isToday ? ' today' : ''}" data-act="plSel" data-k="${key}">
+        <b>${d}</b><span class="pcm">${sdn ? '<i class="sd">🎂</i>' : ''}${has ? '<i class="dot"></i>' : ''}${gv ? '<i class="dot g"></i>' : ''}</span></button>`;
+    }
+    const wd = ['po', 'út', 'st', 'čt', 'pá', 'so', 'ne'].map(x => `<span class="pw">${x}</span>`).join('');
+    return `<div class="h3">Program</div>
+      <div class="card pcal">
+        <div class="pcbar">
+          <button type="button" class="navbtn" data-act="plPrev" aria-label="Předchozí měsíc">‹</button>
+          <div class="mn">${K.MONTH_CZ[cm - 1].charAt(0).toUpperCase() + K.MONTH_CZ[cm - 1].slice(1)}<em>${cy}</em></div>
+          <button type="button" class="btn ghost small" data-act="plToday">Dnes</button>
+          <button type="button" class="navbtn" data-act="plNext" aria-label="Další měsíc">›</button>
+        </div>
+        <div class="pcgrid head">${wd}</div>
+        <div class="pcgrid">${cells}</div>
+      </div>
+      <div class="h3" style="margin-top:10px">${sd}. ${K.MONTH_GEN[sm - 1]} ${sy}</div>
+      ${planPanel(st)}`;
+  }
   function renderJournal() {
     const v = $('#view-diar');
     const jk = Object.keys(journal), pk = Object.keys(plan);
@@ -3312,6 +3375,7 @@ ${parts}
         <div class="h3" style="margin-top:6px">Dnes — ${np.d}. ${K.MONTH_GEN[np.m - 1]}</div>
         ${journalPanel(TODAY_KEY, analyze(np.y, np.m, np.d))}
         <p class="note" style="margin-bottom:2px">Zapiš, jak den šel, přidej fotku či hlasovou poznámku — časem se tu ukáže, jak se tvá hodnocení potkávají s výpočtem.</p>
+        ${programCal()}
         ${journalIO()}`;
       setTimeout(() => jMediaHydrate($('#view-diar')), 30);
       return;
@@ -3342,6 +3406,7 @@ ${parts}
     let html = `<div class="h2">Diář</div>
       <div class="h3" style="margin-top:6px">Dnes — ${td}. ${K.MONTH_GEN[tm - 1]}</div>
       ${journalPanel(tk, analyze(ty, tm, td))}
+      ${programCal()}
       <div class="h3">Historie</div><p class="note">${keys.length} ${keys.length === 1 ? 'zápis' : keys.length < 5 ? 'zápisy' : 'zápisů'} · vše zůstává jen v tomto zařízení</p>${stat}`;
     let curMonth = '';
     for (const k of keys) {
