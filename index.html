@@ -2450,8 +2450,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     }
     if (isCurMonth && (hiddenDays || S.showPast)) pastBar = `<div class="pastbar"><button type="button" class="chip small" data-act="pastToggle">${S.showPast ? '▴ skrýt uplynulé dny' : `▾ zobrazit ${hiddenDays} uplynulých dnů`}</button></div>`;
     v.innerHTML = `
-      ${todayHeroHTML()}
       ${aheadHTML()}
+      ${todayHeroHTML()}
       <div class="monthbar">
         <button class="navbtn" data-act="prevMonth" aria-label="Předchozí měsíc">‹</button>
         <div class="mn">${K.MONTH_CZ[m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[m - 1].slice(1)}<em>${y}</em></div>
