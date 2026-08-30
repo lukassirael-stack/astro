@@ -1887,12 +1887,12 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   ];
   function taskOfDay(da) {
     const pa = da.phaseAngle;
-    const sig0 = `Luna ${K.SIGN_LOC_V[da.moonSign]}`;
-    if (pa < 18 || pa > 342) return { t: 'Co chceš, aby v příštím měsíci rostlo? Dnes je den zapsat jeden záměr — jednou větou.', sig: sig0 + ' · nov — čas záměrů' };
-    if (Math.abs(pa - 180) < 18) return { t: 'Co ve tvém životě dozrálo? Dnes je den to dokončit a poděkovat.', sig: sig0 + ' · úplněk — čas sklizně' };
-    if (da.color === 'tense' && da.score <= -4) return { t: 'Tlačí se toho moc? Dnes je den vybrat tři podstatné věci a zbytek nechat na jindy.', sig: sig0 + ' · náročný den — méně je víc' };
+    const sig0 = '';
+    if (pa < 18 || pa > 342) return { t: 'Co chceš, aby v příštím měsíci rostlo? Dnes je den zapsat jeden záměr — jednou větou.', sig: 'nov — čas záměrů' };
+    if (Math.abs(pa - 180) < 18) return { t: 'Co ve tvém životě dozrálo? Dnes je den to dokončit a poděkovat.', sig: 'úplněk — čas sklizně' };
+    if (da.color === 'tense' && da.score <= -4) return { t: 'Tlačí se toho moc? Dnes je den vybrat tři podstatné věci a zbytek nechat na jindy.', sig: 'náročný den — méně je víc' };
     const grow = pa < 180;
-    return { t: DAY_TASKS[da.moonSign][grow ? 0 : 1], sig: sig0 + (grow ? ' · dorůstá — čas přidávat' : ' · couvá — čas dokončovat') };
+    return { t: DAY_TASKS[da.moonSign][grow ? 0 : 1], sig: grow ? 'dorůstající Luna — čas přidávat' : 'couvající Luna — čas dokončovat' };
   }
   const sdAll = () => store.get('kairos_days', []);
   const SD_EMO = { narozeniny: '🎂', vyroci: '💍', jine: '✦' };
@@ -2547,8 +2547,6 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
         <div class="day-title"><small>dnes · ${K.WEEKDAY_CZ[K.tzParts(da.noon, TZ).wd]}</small>${d}. ${K.MONTH_GEN[m - 1]} ${y}</div>
         <div><span class="badge ${da.color}">${TX.dayWord(da)}</span></div>
       </div>
-      <p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;% osvětlení</p>
-      <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>
       <p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p>
     </div>`;
   }
@@ -2590,9 +2588,9 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
         <div class="day-title"><small>${isToday ? 'dnes · ' : ''}${K.WEEKDAY_CZ[K.tzParts(da.noon, TZ).wd]}</small>${d}. ${K.MONTH_GEN[m - 1]} ${y}</div>
         <div><span class="badge ${da.color}">${TX.dayWord(da)}</span></div>
       </div>
-      <p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;% osvětlení</p>
-      <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>
-      ${(() => { const r = TX.dayReading(da, dayEv); return `<p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p>`; })()}
+      ${isToday ? '' : `<p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;% osvětlení</p>
+      <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>`}
+      ${isToday ? '' : (() => { const r = TX.dayReading(da, dayEv); return `<p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p>`; })()}
       </div>
       ${planPanel(K.isoDate(y, m, d))}
       <div class="panel go"><h4>Co dnes jde</h4>
