@@ -373,6 +373,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .ahead .a .wo{display:block;font-size:9.5px;color:var(--inst-muted);line-height:1.2;margin-top:1px;hyphens:auto}
 .ahead .a.today .dd{color:var(--inst-gold)}
 /* praktické bloky */
+.ev .evq{display:inline-grid;place-items:center;width:19px;height:19px;margin-left:7px;border-radius:50%;border:1px solid var(--line2);font-style:normal;font-size:11px;color:var(--muted);vertical-align:1px;cursor:pointer}
+.ev .evwhat{display:none;margin-top:6px;padding:8px 11px;border-radius:9px;border:1px dashed var(--hairline);font-size:13px;line-height:1.55;color:var(--muted)}
+.ev.open .evwhat{display:block}
+.ev.open .evq{border-color:var(--gold);color:var(--gold)}
 .chakra .ch-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}
 .chakra .ch-dot{width:14px;height:14px;border-radius:50%;flex:none}
 .chakra .ch-name{font-family:var(--display);font-size:20px;color:var(--text)}
@@ -2291,6 +2295,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     },
     sdDel(el) { store.set('kairos_days', sdAll().filter(x => x.id !== el.dataset.id)); renderSettings(); },
     tvHelp() { S.tvHelp = !S.tvHelp; renderCalendar(); },
+    evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
     evAll() { S.evAll = true; renderEvents(); },
     evLess() { S.evAll = false; renderEvents(); },
     sdLater() { store.set('kairos_days_seen', true); renderCalendar(); },
@@ -3429,6 +3434,32 @@ ${parts}
   }
 
   // ===================== ÚKAZY =====================
+  // co který druh úkazu je — jedna věta na rozkliknutí
+  const EV_WHAT = [
+    [/Novolun/i, 'Luna stojí mezi Zemí a Sluncem a na obloze ji nevidíme. Tradičně je to čas záměrů a nových začátků.'],
+    [/První čtvr/i, 'Luna je z poloviny osvětlená a dorůstá. Bývá to čas, kdy se rozjeté věci lámou do rozhodnutí.'],
+    [/Úplněk/i, 'Luna stojí proti Slunci a svítí celou noc. Bývá to čas vrcholu, uvědomění a dokončování.'],
+    [/Poslední čtvr/i, 'Luna je z poloviny osvětlená a couvá. Bývá to čas úklidu, pouštění a poctivého účtu.'],
+    [/zatmění Luny/i, 'Země vrhne stín na Lunu a ta se zbarví do měděna. Nastává jen za úplňku a bývá cítit několik dní kolem.'],
+    [/zatmění Slunce/i, 'Luna zakryje sluneční kotouč. Nastává jen za novoluní a působí jako silný obrat, který doznívá týdny.'],
+    [/rovnodennost/i, 'Den a noc mají stejnou délku a Slunce vstupuje do dalšího ročního oddílu. Bod rovnováhy a nového rozběhu.'],
+    [/slunovrat/i, 'Slunce dosáhne krajní polohy: nejdelšího, nebo nejkratšího dne v roce. Obrat, od kterého světla přibývá či ubývá.'],
+    [/v opozici se Sluncem/i, 'Planeta stojí proti Slunci, je nejblíž Zemi a nad obzorem celou noc. Nejlepší doba v roce si ji prohlédnout.'],
+    [/dolní konjunkci/i, 'Planeta prochází mezi Zemí a Sluncem a stěhuje se z večerní oblohy na ranní. Několik dní kolem je ztracená v záři Slunce.'],
+    [/Přechod .* přes sluneční kotouč/i, 'Planeta přejde jako malý černý bod přes sluneční kotouč. Vzácný úkaz, který se opakuje jednou za roky až desetiletí.'],
+    [/Heliakick/i, 'První ráno, kdy je hvězda po týdnech neviditelnosti znovu vidět nízko nad obzorem. Staré kultury tím značily začátky období.'],
+    [/maximum roje|roj|idy —|idy$|Perseid|Geminid|Kvadrantid|Lyrid|Aquarid|Orionid|Leonid|Ursid|Taurid/i, 'Země prolétá prachem po kometě a v maximu bývá vidět nejvíc meteorů. Nejštědřejší bývá čas po půlnoci mimo světla města.'],
+    [/největší ranní elongace/i, 'Planeta je nejdál od Slunce na ranní obloze a stojí nejvýš nad obzorem před svítáním. Nejlepší dny ji zahlédnout ráno.'],
+    [/největší večerní elongace/i, 'Planeta je nejdál od Slunce na večerní obloze a drží se nejdéle po západu. Nejlepší dny ji zahlédnout večer.'],
+    [/vstupuje do/i, 'Těleso přechází do dalšího znamení zvěrokruhu a mění se tím ladění následujícího období.'],
+    [/na tvé hvězdě/i, 'Planeta prochází přesně přes stálici, která stojí na citlivém místě tvé mapy. Bývá to krátké, výrazné okno.'],
+    [/^Konjunkce/i, 'Dvě tělesa stojí na obloze těsně u sebe. Bývá to hezký pohled a v mapě se jejich témata na chvíli spojí.'],
+    [/Luna u /i, 'Luna se na obloze přiblíží k planetě nebo jasné hvězdě. Krásný pohled pouhým okem, obvykle jeden večer nebo ráno.'],
+    [/obrací do retrogradity/i, 'Planeta se ze Země začne jevit jako couvající. Bývá to čas návratů, revizí a doladění rozdělaného.'],
+    [/vrací do přímého pohybu/i, 'Planeta po couvání znovu vykročí vpřed. Odložené věci se rozjíždějí a co se přehodnotilo, dostává směr.'],
+    [/kometa|Kometa/i, 'Ledové těleso z okraje sluneční soustavy se přiblížilo ke Slunci a rozsvítilo se. Jasnost komet se odhaduje těžko, tak stojí za to sledovat aktuální zprávy.'],
+  ];
+  function evWhat(title) { const h = EV_WHAT.find(([re]) => re.test(title)); return h ? h[1] : ''; }
   function renderEvents() {
     const v = $('#view-ukazy');
     if (!S.natal) { v.innerHTML = '<div class="card">Nejdřív vyplň nativ v Nastavení.</div>'; return; }
@@ -3464,7 +3495,7 @@ ${parts}
         html += `<div class="ev-month">${K.MONTH_CZ[mo.m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[mo.m - 1].slice(1)} ${mo.y}</div>`;
         for (const e of mo.items) {
           const p = K.tzParts(e.date, TZ);
-          html += `<div class="ev ${e.resonance ? 'res' : ''}"><div class="dt"><b>${p.d}.</b>${e.cat === 'roje' || e.custom || e.cat === 'hvezdy' && e.title.startsWith('Heliak') ? '' : K.fmtTime(e.date, TZ)}</div><div><div class="ti"><span class="c">${CAT_ICON[e.cat] || '✧'}</span>${esc(e.title)}</div>${e.note ? `<div class="no">${esc(e.note)}</div>` : ''}</div></div>`;
+          html += `<div class="ev ${e.resonance ? 'res' : ''}"><div class="dt"><b>${p.d}.</b>${e.cat === 'roje' || e.custom || e.cat === 'hvezdy' && e.title.startsWith('Heliak') ? '' : K.fmtTime(e.date, TZ)}</div><div><div class="ti"><span class="c">${CAT_ICON[e.cat] || '✧'}</span>${esc(e.title)}${evWhat(e.title) ? `<i class="evq" data-act="evWhat" role="button" aria-label="Co to je?">?</i>` : ''}</div>${e.note ? `<div class="no">${esc(e.note)}</div>` : ''}${evWhat(e.title) ? `<div class="evwhat">${esc(evWhat(e.title))}</div>` : ''}</div></div>`;
         }
       }
       html += `<p class="note" style="margin-top:18px">Komety, novy a podobné jednorázové úkazy se spočítat nedají – přidáš si je v Nastavení (řádek: datum | název | poznámka).</p>`;
