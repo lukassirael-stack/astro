@@ -1,5 +1,5 @@
 /* Kairos – service worker. Při každé změně index.html zvedni číslo verze. */
-const CACHE = 'kairos-v175';
+const CACHE = 'kairos-v176';
 const SHELL = ['./', './index.html', './astronomy.browser.min.js', './manifest.webmanifest', './logo.png', './logo-emblem.webp?v=1', './logo-stars.webp?v=1', './moon-tex.png?v=1', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './sky-day.webp?v=7', './sky-night.webp?v=4', './sky-night-hd2.webp?v=1', './sky-day-hd2.webp?v=1'];
 
 self.addEventListener('install', (e) => {

@@ -373,6 +373,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .ahead .a .wo{display:block;font-size:9.5px;color:var(--inst-muted);line-height:1.2;margin-top:1px;hyphens:auto}
 .ahead .a.today .dd{color:var(--inst-gold)}
 /* praktické bloky */
+.hsintro-note{border-left:2px solid rgba(var(--harm-ink),.5);padding-left:12px;margin-bottom:2px}
+.hsintro-note p{color:var(--harm-lite);font-size:14.5px;line-height:1.55}
+[data-theme="day"] .hsintro-note p{color:#2A6A5E}
 .dayread{margin-top:12px}
 .dayread .lede{margin:0}
 .lede-sig{margin:6px 0 2px;font-size:12.5px;letter-spacing:.03em;color:var(--harm-lite)}
@@ -2897,7 +2900,7 @@ ${parts}
       return out;
     };
     const jh = houseRanges('Jupiter'), sh = houseRanges('Saturn');
-    let html = hsPara('', `Tohle není o tom, kdo jsi — to čte nativní horoskop. Roční výhled čte počasí: kudy v příštích dvanácti měsících (od ${fmtD(now)}) půjdou pomalé planety vůči tvé mapě, kdy a o čem ta období budou.`, '');
+    let html = `<div class="hsp hsintro-note"><p>Roční výhled čte počasí nad tvou mapou: kudy půjdou v příštích dvanácti měsících (od ${fmtD(now)}) pomalé planety, kdy nastanou hlavní období a o čem budou. Kdo jsi, čte nativní horoskop.</p></div>`;
     const houseStory = (name, intro, rs, bank) => rs.map((r, i) => i === 0
       ? `${name} — ${intro} — ${rs.length > 1 ? `do ${fmtD(rs[1].from)}` : 'letos'} prochází tvým ${r.h}. domem: ${bank[r.h - 1]}.`
       : `Od ${fmtD(r.from)} přejde do tvého ${r.h}. domu: ${bank[r.h - 1]}.`).join(' ');
