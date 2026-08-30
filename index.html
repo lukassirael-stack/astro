@@ -1916,7 +1916,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const grow = pa < 180;
     return { t: DAY_TASKS[da.moonSign][grow ? 0 : 1], sig: grow ? 'dorůstající Luna — čas přidávat' : 'couvající Luna — čas dokončovat' };
   }
-  const FEEDBACK_MAIL = 'info@oaza-adamanthea.cz';
+  const FEEDBACK_MAIL = 'oaza.adamanthea@gmail.com';
   const sdAll = () => store.get('kairos_days', []);
   const SD_EMO = { narozeniny: '🎂', vyroci: '💍', jine: '✦' };
   function sdForDay(y, m, d) { return sdAll().filter(x => +x.m === +m && +x.d === +d && (x.r === 0 ? +x.y === +y : true)); }
@@ -2654,7 +2654,6 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       ${cost.length ? `<div class="panel cost"><h4>Co bude stát víc sil</h4><ul>${cost.map(bullet).join('')}</ul></div>` : ''}
       <div class="h3">Průběh dne</div>
       ${timelineHTML(da, ph, wins, ld, moonrise, moonset, dayEv, isToday)}
-      ${journalPanel(K.isoDate(y, m, d), da)}
       <details><summary>Podrobnosti — pro astrologa</summary>
         <div class="h3">Pás dne</div>
         ${stripHTML(da, ph, phPrev, isToday, moonrise, moonset)}
@@ -3393,10 +3392,10 @@ ${parts}
     const keys = [...new Set([...jk, ...pk])].sort().reverse();
     if (!keys.length) {
       v.innerHTML = `<div class="h2">Diář</div>
-        <div class="h3" style="margin-top:6px">Dnes — ${np.d}. ${K.MONTH_GEN[np.m - 1]}</div>
+        ${programCal()}
+        <div class="h3" style="margin-top:14px">Zápis dne — ${np.d}. ${K.MONTH_GEN[np.m - 1]}</div>
         ${journalPanel(TODAY_KEY, analyze(np.y, np.m, np.d))}
         <p class="note" style="margin-bottom:2px">Zapiš, jak den šel, přidej fotku či hlasovou poznámku — časem se tu ukáže, jak se tvá hodnocení potkávají s výpočtem.</p>
-        ${programCal()}
         ${journalIO()}`;
       setTimeout(() => jMediaHydrate($('#view-diar')), 30);
       return;
@@ -3425,9 +3424,9 @@ ${parts}
     }
     const tk = TODAY_KEY, [ty, tm, td] = tk.split('-').map(Number);
     let html = `<div class="h2">Diář</div>
-      <div class="h3" style="margin-top:6px">Dnes — ${td}. ${K.MONTH_GEN[tm - 1]}</div>
-      ${journalPanel(tk, analyze(ty, tm, td))}
       ${programCal()}
+      <div class="h3" style="margin-top:14px">Zápis dne — ${td}. ${K.MONTH_GEN[tm - 1]}</div>
+      ${journalPanel(tk, analyze(ty, tm, td))}
       <div class="h3">Historie</div><p class="note">${keys.length} ${keys.length === 1 ? 'zápis' : keys.length < 5 ? 'zápisy' : 'zápisů'} · vše zůstává jen v tomto zařízení</p>${stat}`;
     let curMonth = '';
     for (const k of keys) {
