@@ -152,8 +152,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @media (max-width:420px){.top{padding:14px 0 11px}.brand .logo{width:84%}}
 .profile-pill{font-size:12px;color:var(--muted);letter-spacing:.04em;padding:6px 10px;border:1px solid var(--line2);border-radius:999px;white-space:nowrap}
 /* navigace */
-.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:2px;padding:8px max(10px,env(safe-area-inset-left)) max(10px,env(safe-area-inset-bottom));background:rgba(4,10,26,.92);border-top:1px solid rgba(240,200,116,.25);z-index:20}
-.tab{flex:1;max-width:150px;padding:9px 4px 10px;border-radius:0;border-top:2px solid transparent;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,234,216,.72);display:flex;flex-direction:column;align-items:center;gap:3px}
+.tabs{touch-action:manipulation;-webkit-tap-highlight-color:transparent;position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:2px;padding:8px max(10px,env(safe-area-inset-left)) max(10px,env(safe-area-inset-bottom));background:rgba(4,10,26,.92);border-top:1px solid rgba(240,200,116,.25);z-index:20}
+.tab{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;flex:1;max-width:150px;padding:9px 4px 10px;border-radius:0;border-top:2px solid transparent;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,234,216,.72);display:flex;flex-direction:column;align-items:center;gap:3px}
 .tab .g{font-size:17px;line-height:1}
 .tab.on{color:var(--inst-gold);border-top-color:var(--inst-gold);text-shadow:0 0 8px rgba(239,200,120,.35)}
 .view{display:none;padding-top:20px}.view.on{display:block}
@@ -2288,10 +2288,20 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + tab));
     window.scrollTo({ top: 0 });
-    ({ kalendar: renderCalendar, ukazy: renderEvents, diar: renderJournal, nativ: renderNatal, nastaveni: renderSettings })[tab]();
+    const run = ({ kalendar: renderCalendar, ukazy: renderEvents, diar: renderJournal, nativ: renderNatal, nastaveni: renderSettings })[tab];
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => run()); else run();
   }
+  // přepnutí už na dotek: první ťuknutí nesmí jen zastavit setrvačné rolování
+  let tabTapAt = 0;
+  document.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const t = e.target.closest('[data-tab]');
+    if (!t) return;
+    tabTapAt = Date.now();
+    if (S.tab !== t.dataset.tab) showTab(t.dataset.tab);
+  }, { passive: true });
   document.addEventListener('click', (e) => {
-    const t = e.target.closest('[data-tab]'); if (t) { showTab(t.dataset.tab); return; }
+    const t = e.target.closest('[data-tab]'); if (t) { if (Date.now() - tabTapAt > 900) showTab(t.dataset.tab); return; }
     const act = e.target.closest('[data-act]'); if (act) { actions[act.dataset.act](act, e); }
   });
 
@@ -2450,13 +2460,13 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       toast(cycAll().includes(k) ? 'Zapsáno — fáze se přepočítaly.' : 'Zrušeno.');
     },
     cycToggle() { store.set('kairos_cyc_on', !cycOn()); renderSettings(); },
-    goDiar(el) { const k = el.dataset.k, [yy, mm] = k.split('-').map(Number); S.plSel = k; S.plY = yy; S.plM = mm; showTab('diar'); setTimeout(() => { const t = $('#view-diar .pcal'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60); },
+    goDiar(el) { const k = el.dataset.k, [yy, mm] = k.split('-').map(Number); S.plSel = k; S.plY = yy; S.plM = mm; showTab('diar'); setTimeout(() => { const t = $('#view-diar .pcal'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 140); },
     evPastOn() { S.evPast = true; renderEvents(); },
     evPastOff() { S.evPast = false; renderEvents(); },
     evAll() { S.evAll = true; renderEvents(); },
     evLess() { S.evAll = false; renderEvents(); },
     sdLater() { store.set('kairos_days_seen', true); renderCalendar(); },
-    sdGo() { store.set('kairos_days_seen', true); showTab('nastaveni'); setTimeout(() => { const el = $('#sdName'); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 60); },
+    sdGo() { store.set('kairos_days_seen', true); showTab('nastaveni'); setTimeout(() => { const el = $('#sdName'); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 140); },
     icsSave() { const v = $('#icsUrl'); if (!v || !v.value.trim()) { toast('Vlož adresu.'); return; } store.set('kairos_ics', v.value.trim()); icsRefresh(false); },
     icsOff() { store.set('kairos_ics', ''); store.set('kairos_icsev', null); renderSettings(); toast('Google kalendář odpojen.'); },
     async bkExport() {
@@ -2537,7 +2547,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       toast('Zapsáno.');
       if (S.tab === 'diar') renderJournal(); else renderCalendar();
     },
-    jumpDay(el) { S.sel = { y: +el.dataset.y, m: +el.dataset.m, d: +el.dataset.d }; S.y = S.sel.y; S.m = S.sel.m; showTab('kalendar'); setTimeout(() => { const n = $('#dayDetail'); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); },
+    jumpDay(el) { S.sel = { y: +el.dataset.y, m: +el.dataset.m, d: +el.dataset.d }; S.y = S.sel.y; S.m = S.sel.m; showTab('kalendar'); setTimeout(() => { const n = $('#dayDetail'); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 140); },
     exportJournal() {
       const rows = Object.keys(journal).sort();
       const payload = { app: 'nebesky-kalendar', version: VERSION, exported: new Date().toISOString(), profile: activeProfile().name, entries: journal, plan: plan };
