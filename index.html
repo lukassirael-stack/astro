@@ -2513,11 +2513,21 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 
   // pás nejbližších dnů
   function todayReadHTML() {
-    const da = analyze(np.y, np.m, np.d);
-    const key = K.isoDate(np.y, np.m, np.d);
-    const dayEv = monthEvents(np.y, np.m).filter(e => K.dateKey(e.date, TZ) === key);
+    const { y, m, d } = np;
+    const da = analyze(y, m, d);
+    const key = K.isoDate(y, m, d);
+    const dayEv = monthEvents(y, m).filter(e => K.dateKey(e.date, TZ) === key);
+    const ph = K.planetaryHours(y, m, d, observer(), TZ);
     const r = TX.dayReading(da, dayEv);
-    return `<div class="card dayread"><p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p></div>`;
+    return `<div class="day-hero dayread">
+      <div class="day-head">
+        <div class="day-title"><small>dnes · ${K.WEEKDAY_CZ[K.tzParts(da.noon, TZ).wd]}</small>${d}. ${K.MONTH_GEN[m - 1]} ${y}</div>
+        <div><span class="badge ${da.color}">${TX.dayWord(da)}</span></div>
+      </div>
+      <p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;% osvětlení</p>
+      <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>
+      <p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p>
+    </div>`;
   }
   function aheadHTML() {
     let out = '';
