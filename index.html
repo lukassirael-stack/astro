@@ -1916,6 +1916,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const grow = pa < 180;
     return { t: DAY_TASKS[da.moonSign][grow ? 0 : 1], sig: grow ? 'dorůstající Luna — čas přidávat' : 'couvající Luna — čas dokončovat' };
   }
+  const FEEDBACK_MAIL = 'info@oaza-adamanthea.cz';
   const sdAll = () => store.get('kairos_days', []);
   const SD_EMO = { narozeniny: '🎂', vyroci: '💍', jine: '✦' };
   function sdForDay(y, m, d) { return sdAll().filter(x => +x.m === +m && +x.d === +d && (x.r === 0 ? +x.y === +y : true)); }
@@ -2325,6 +2326,26 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     plPrev() { const t = (S.plSel || TODAY_KEY).split('-').map(Number); let y = S.plY || t[0], m = (S.plM || t[1]) - 1; if (m < 1) { m = 12; y--; } S.plY = y; S.plM = m; renderJournal(); },
     plNext() { const t = (S.plSel || TODAY_KEY).split('-').map(Number); let y = S.plY || t[0], m = (S.plM || t[1]) + 1; if (m > 12) { m = 1; y++; } S.plY = y; S.plM = m; renderJournal(); },
     plToday() { S.plSel = TODAY_KEY; const t = TODAY_KEY.split('-').map(Number); S.plY = t[0]; S.plM = t[1]; renderJournal(); },
+    fbKind(el) { S.fbKind = el.dataset.k; renderSettings(); },
+    fbBody() {
+      const t = ($('#fbText') && $('#fbText').value || '').trim();
+      const info = `\n\n—\nNebeský kompas ${VERSION} · ${S.fbKind || 'nápad'} · ${new Date().toLocaleString('cs-CZ')}\n${navigator.userAgent}`;
+      return { t, body: t + info };
+    },
+    fbSend() {
+      const { t, body } = actions.fbBody();
+      if (!t) { toast('Napiš prosím pár vět.'); return; }
+      const subj = `Nebeský kompas — ${S.fbKind || 'nápad'}`;
+      const url = `mailto:${FEEDBACK_MAIL}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+      if (window.__navSpy) { window.__navSpy(url); return; }
+      location.href = url;
+    },
+    async fbCopy() {
+      const { t, body } = actions.fbBody();
+      if (!t) { toast('Napiš prosím pár vět.'); return; }
+      try { await navigator.clipboard.writeText(body); toast(`Zkopírováno — pošli na ${FEEDBACK_MAIL}`); }
+      catch (e) { toast(`Pošli prosím na ${FEEDBACK_MAIL}`); }
+    },
     goDiar(el) { const k = el.dataset.k, [yy, mm] = k.split('-').map(Number); S.plSel = k; S.plY = yy; S.plM = mm; showTab('diar'); setTimeout(() => { const t = $('#view-diar .pcal'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60); },
     evPastOn() { S.evPast = true; renderEvents(); },
     evPastOff() { S.evPast = false; renderEvents(); },
@@ -3871,6 +3892,15 @@ ${parts}
       <div class="card">
         <div class="row"><button type="button" class="btn" data-act="bkExport">Stáhnout kompletní zálohu</button><label class="btn ghost" style="cursor:pointer">Obnovit ze zálohy<input type="file" id="bkFile" accept="application/json,.json" hidden></label></div>
         <p class="note">Záloha obsahuje všechno: profily, diář, plány, nastavení, osoby pro srovnání i fotky a hlasové poznámky. Při výměně telefonu: tady stáhni soubor, pošli si ho do nového zařízení (mail, Disk…) a tam ho načti přes „Obnovit ze zálohy“. Obnova přepíše stávající data v appce.</p>
+      </div>
+      <div class="h2">Podněty</div>
+      <div class="card">
+        <p class="note" style="margin-top:0">Co ti v Kompasu chybí, co se ti líbí, na co jsi narazil — každá zpráva pomáhá. Napiš pár vět a odešli; otevře se tvůj e-mail s připravenou zprávou.</p>
+        <div class="row" style="gap:6px;margin-bottom:8px">
+          ${['nápad', 'chyba', 'jiné'].map(k => `<button type="button" class="chip ${(S.fbKind || 'nápad') === k ? 'on' : ''}" data-act="fbKind" data-k="${k}">${k}</button>`).join('')}
+        </div>
+        <label class="wide" style="display:block"><textarea id="fbText" rows="4" placeholder="Sem napiš, co máš na srdci…" style="width:100%"></textarea></label>
+        <div class="row" style="margin-top:8px"><button type="button" class="btn primary" data-act="fbSend">Odeslat</button><button type="button" class="btn ghost" data-act="fbCopy">Zkopírovat text</button></div>
       </div>
       <div class="h2">Aplikace</div>
       <div class="card"><div class="row"><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
