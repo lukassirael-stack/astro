@@ -1588,7 +1588,7 @@ function createKairosTexts(K) {
     else if (Math.abs(pa - 180) < 18) { [t, sig] = DAY_READ_SP.uplnek; head = `Úplněk ${sign}`; }
     else if (da.color === 'tense' && da.score <= -4) { [t, sig] = DAY_READ_SP.tense; head = `Luna ${sign}`; }
     else if (da.color === 'harm' && da.score >= 4) { [t, sig] = DAY_READ_SP.harm; head = `Luna ${sign}`; }
-    else { const p = DAY_READ[da.moonSign][pa < 180 ? 0 : 1]; t = p[0]; sig = p[1]; head = `${cap(ph)} Luna ${sign}`; }
+    else { const p = DAY_READ[da.moonSign][pa < 180 ? 0 : 1]; t = p[0]; sig = p[1]; head = `${ph.charAt(0).toUpperCase() + ph.slice(1)} Luna ${sign}`; }
     return { text: t, sign: `${head} · ${sig}` };
   }
 
