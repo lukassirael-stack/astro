@@ -415,6 +415,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .pc .dot{width:5px;height:5px;border-radius:50%;background:var(--gold)}
 .pc .dot.g{background:#7FB6DD}
 .pc .sd{font-style:normal;font-size:8px;line-height:1}
+.cycline{display:flex;align-items:center;gap:8px;margin:2px 0 6px;font-size:13.5px;color:var(--text)}
+.cycline .cdot{width:10px;height:10px;border-radius:50%;flex:none}
+.cycline b{font-weight:600}
+.cycline span{color:var(--muted)}
+.cycline .cq{margin-left:auto;width:22px;height:22px;border-radius:50%;border:1px solid var(--line2);display:grid;place-items:center;font-style:normal;font-size:12px;color:var(--muted);cursor:pointer}
+.cycexp{margin:0 0 8px;padding:10px 12px;border-radius:10px;border:1px dashed var(--hairline)}
+.cycexp b{font-family:var(--display);font-size:15px}
+.cycexp p{margin:5px 0 0;font-size:13px;line-height:1.55;color:var(--muted)}
+.pcm .dot.c{background:#8FA6C9}
+.hero-today .ht-cyc{display:flex;align-items:center;gap:9px;font-size:14.5px;color:var(--inst-text)}
+.hero-today .ht-cyc .cdot{width:10px;height:10px;border-radius:50%;flex:none;margin-left:16px}
+.hero-today .ht-cyc span{color:var(--inst-muted)}
 .pcal .pcday{display:flex;align-items:center;gap:9px;margin:14px 0 10px;padding-top:12px;border-top:1px solid var(--hairline)}
 .pcal .pcday:before{content:'✧';color:var(--gold);font-size:12px}
 .pcal .pcd{font-family:var(--display);font-size:17px;color:var(--text)}
@@ -1942,6 +1954,56 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     return { t: DAY_TASKS[da.moonSign][grow ? 0 : 1], sig: grow ? 'dorůstající Luna — čas přidávat' : 'couvající Luna — čas dokončovat' };
   }
   const FEEDBACK_MAIL = 'oaza.adamanthea@gmail.com';
+  // ============ cyklus (volitelný modul) ============
+  const CYC_PHASES = [
+    { k: 'men', n: 'reflektivní', full: 'Menstruační · reflektivní', col: '#8FA6C9',
+      t: 'Čas ztišení a vhledu. Energie se stahuje dovnitř a co se přežilo, se v tomhle období pouští snadno. Je vidět podstata věcí a odpočinek nese víc než výkon.' },
+    { k: 'dyn', n: 'dynamická', full: 'Předovulační · dynamická', col: '#9ED47F',
+      t: 'Energie se vrací a chce ven. Věci se rozjíždějí lehce, myšlení je jasné a přímé — dobrá doba pustit se do nového a dotáhnout, co dlouho leželo.' },
+    { k: 'exp', n: 'expresivní', full: 'Ovulační · expresivní', col: '#E8A85C',
+      t: 'Čas otevřenosti a kontaktu. Slova jdou snadno, druzí jsou blízko a péče o sebe i o ostatní chutná. Fáze, kdy se dobře domlouvá, spojuje a ukazuje.' },
+    { k: 'kre', n: 'kreativní', full: 'Předmenstruační · kreativní', col: '#C77FB4',
+      t: 'Nápady přicházejí samy a intuice mluví nahlas. Je zřetelně vidět, co potřebuje změnu — fáze pro tvoření a pro poctivé pojmenování toho, co už nesedí.' },
+  ];
+  const cycOn = () => !!store.get('kairos_cyc_on', false);
+  const cycAll = () => store.get('kairos_cyc', []).slice().sort();
+  const cycSet = (list) => store.set('kairos_cyc', [...new Set(list)].sort());
+  function cycAvg() {
+    const l = cycAll();
+    if (l.length < 2) return 28;
+    const gaps = [];
+    for (let i = 1; i < l.length; i++) {
+      const g = Math.round((K.dayStart(...l[i].split('-').map(Number), TZ) - K.dayStart(...l[i - 1].split('-').map(Number), TZ)) / 86400000);
+      if (g >= 18 && g <= 45) gaps.push(g);
+    }
+    if (!gaps.length) return 28;
+    return Math.round(gaps.slice(-6).reduce((a, b) => a + b, 0) / gaps.slice(-6).length);
+  }
+  function cycFor(key) {
+    if (!cycOn()) return null;
+    const l = cycAll();
+    if (!l.length) return null;
+    const t = K.dayStart(...key.split('-').map(Number), TZ);
+    let start = null;
+    for (const k of l) { const d = K.dayStart(...k.split('-').map(Number), TZ); if (d <= t) start = d; else break; }
+    if (!start) return null;
+    const day = Math.round((t - start) / 86400000) + 1;
+    const len = cycAvg();
+    if (day > len + 20) return null;
+    const ov = Math.max(11, len - 14);
+    let ph;
+    if (day <= 5) ph = CYC_PHASES[0];
+    else if (day <= ov - 2) ph = CYC_PHASES[1];
+    else if (day <= ov + 2) ph = CYC_PHASES[2];
+    else ph = CYC_PHASES[3];
+    const next = new Date(start + len * 86400000);
+    return { day, len, ph, next, isStart: day === 1 };
+  }
+  function cycLine(key) {
+    const c = cycFor(key);
+    if (!c) return '';
+    return `<div class="cycline"><span class="cdot" style="background:${c.ph.col}"></span><b>${c.day}. den cyklu</b><span>${esc(c.ph.n)} fáze</span><i class="cq" data-act="cycHelp">?</i></div>${S.cycHelp ? `<div class="cycexp"><b>${esc(c.ph.full)}</b><p>${esc(c.ph.t)}</p><p class="small muted">Průměrná délka cyklu ${c.len} dní · další začátek kolem ${c.next.getDate()}. ${K.MONTH_GEN[c.next.getMonth()]}. Odhad z tvých zápisů, ne lékařský údaj.</p></div>` : ''}`;
+  }
   const sdAll = () => store.get('kairos_days', []);
   const SD_EMO = { narozeniny: '🎂', vyroci: '💍', jine: '✦' };
   function sdForDay(y, m, d) { return sdAll().filter(x => +x.m === +m && +x.d === +d && (x.r === 0 ? +x.y === +y : true)); }
@@ -2371,6 +2433,14 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       try { await navigator.clipboard.writeText(body); toast(`Zkopírováno — pošli na ${FEEDBACK_MAIL}`); }
       catch (e) { toast(`Pošli prosím na ${FEEDBACK_MAIL}`); }
     },
+    cycHelp() { S.cycHelp = !S.cycHelp; renderJournal(); },
+    cycMark(el) {
+      const k = el.dataset.k, l = cycAll();
+      cycSet(l.includes(k) ? l.filter(x => x !== k) : [...l, k]);
+      renderJournal();
+      toast(cycAll().includes(k) ? 'Zapsáno — fáze se přepočítaly.' : 'Zrušeno.');
+    },
+    cycToggle() { store.set('kairos_cyc_on', !cycOn()); renderSettings(); },
     goDiar(el) { const k = el.dataset.k, [yy, mm] = k.split('-').map(Number); S.plSel = k; S.plY = yy; S.plM = mm; showTab('diar'); setTimeout(() => { const t = $('#view-diar .pcal'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60); },
     evPastOn() { S.evPast = true; renderEvents(); },
     evPastOff() { S.evPast = false; renderEvents(); },
@@ -2597,6 +2667,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <span class="ht-div"></span>
       ${go.length ? `<span class="ht-row ht-go"><i class="ht-ic go">✦</i><b>Podporuje</b><span class="tx">${esc(go[0].text)}</span></span>` : ''}
       ${cost.length ? `<span class="ht-div"></span><span class="ht-row ht-cost"><i class="ht-ic cost">✳</i><b>Nepříznivé</b><span class="tx">${esc(cost[0].text)}</span></span>` : ''}
+      ${cycOn() && cycFor(K.isoDate(np.y, np.m, np.d)) ? `<span class="ht-div"></span><span class="ht-cyc">${(() => { const c = cycFor(K.isoDate(np.y, np.m, np.d)); return `<i class="cdot" style="background:${c.ph.col}"></i><b>${c.day}. den cyklu</b><span>${esc(c.ph.n)} fáze</span>`; })()}</span>` : ''}
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
 <linearGradient id="invG" gradientUnits="userSpaceOnUse" x1="40" y1="8" x2="40" y2="72"><stop offset="0" stop-color="#F7E3A8"/><stop offset="1" stop-color="#D9A54A"/></linearGradient>
@@ -3412,7 +3483,7 @@ ${parts}
       const has = pGet(key).length, gv = gEvByDay(key).length, sdn = sdForDay(cy, cm, d).length;
       const isSel = key === st, isToday = key === TODAY_KEY;
       cells += `<button type="button" class="pc${isSel ? ' sel' : ''}${isToday ? ' today' : ''}" data-act="plSel" data-k="${key}">
-        <b>${d}</b><span class="pcm">${sdn ? '<i class="sd">🎂</i>' : ''}${has ? '<i class="dot"></i>' : ''}${gv ? '<i class="dot g"></i>' : ''}</span></button>`;
+        <b>${d}</b><span class="pcm">${sdn ? '<i class="sd">🎂</i>' : ''}${has ? '<i class="dot"></i>' : ''}${gv ? '<i class="dot g"></i>' : ''}${(() => { const c = cycFor(key); return c ? `<i class="dot c" style="background:${c.ph.col};${c.isStart ? 'width:7px;height:7px' : ''}"></i>` : ''; })()}</span></button>`;
     }
     const wd = ['po', 'út', 'st', 'čt', 'pá', 'so', 'ne'].map(x => `<span class="pw">${x}</span>`).join('');
     return `<div class="h3">Program</div>
@@ -3426,6 +3497,7 @@ ${parts}
         <div class="pcgrid head">${wd}</div>
         <div class="pcgrid">${cells}</div>
         <div class="pcday"><span class="pcd">${sd}. ${K.MONTH_GEN[sm - 1]} ${sy}</span>${st === TODAY_KEY ? '<span class="pcnow">dnes</span>' : ''}</div>
+        ${cycOn() ? cycLine(st) + `<div class="row" style="margin:2px 0 10px"><button type="button" class="chip small" data-act="cycMark" data-k="${st}">${cycAll().includes(st) ? '✓ začátek menstruace — zrušit' : '● tímto dnem začala menstruace'}</button></div>` : ''}
         ${planPanel(st, true)}
       </div>`;
   }
@@ -3935,6 +4007,11 @@ ${parts}
       <div class="card">
         <div class="row"><button type="button" class="btn" data-act="bkExport">Stáhnout kompletní zálohu</button><label class="btn ghost" style="cursor:pointer">Obnovit ze zálohy<input type="file" id="bkFile" accept="application/json,.json" hidden></label></div>
         <p class="note">Záloha obsahuje všechno: profily, diář, plány, nastavení, osoby pro srovnání i fotky a hlasové poznámky. Při výměně telefonu: tady stáhni soubor, pošli si ho do nového zařízení (mail, Disk…) a tam ho načti přes „Obnovit ze zálohy“. Obnova přepíše stávající data v appce.</p>
+      </div>
+      <div class="h2">Cyklus</div>
+      <div class="card">
+        <div class="row" style="margin-bottom:8px"><button type="button" class="chip ${cycOn() ? 'on' : ''}" data-act="cycToggle">${cycOn() ? '✓ zapnuto' : 'zapnout sledování cyklu'}</button></div>
+        <p class="note" style="margin:0">Ženský cyklus jako vlastní rytmus vedle oblohy. V Diáři ťukneš u dne „tímto dnem začala menstruace“ a Kompas z tvých zápisů spočítá den cyklu a fázi — reflektivní, dynamickou, expresivní, kreativní. Vše zůstává jen v tomto zařízení. Slouží k orientaci v rytmu, ne k plánování ani k vyloučení otěhotnění.</p>
       </div>
       <div class="h2">Podněty</div>
       <div class="card">
