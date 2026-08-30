@@ -419,14 +419,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .jrate small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
 .jrate small em{font-style:normal;letter-spacing:.02em;text-transform:none;opacity:.8}
 .hsgrid{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 8px}
-.hsb{flex:1 1 calc(50% - 8px);min-width:150px;display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:13px;border:1px solid var(--glass-line);background:var(--glass);color:var(--text);font:inherit;font-size:14.5px;text-align:left;cursor:pointer;transition:border-color .18s,background .18s}
+.hsb{flex:1 1 auto;min-width:0;display:flex;align-items:center;justify-content:center;gap:9px;padding:11px 14px;border-radius:13px;border:1px solid var(--glass-line);background:var(--glass);color:var(--text);font:inherit;font-size:14.5px;text-align:left;cursor:pointer;transition:border-color .18s,background .18s}
 .hsb:hover{border-color:var(--gold2)}
 .hsb .hsi{flex:none;width:26px;height:26px;color:var(--gold);display:grid;place-items:center}
 .hsb .hsi svg{width:24px;height:24px}
 .hsb.on{background:linear-gradient(135deg,#EFD79A,#D9B96E);border-color:#EFD79A;color:#2A1E06;box-shadow:0 2px 14px rgba(217,185,110,.25)}
 .hsb.on .hsi{color:#4A3608}
 .hsb.hsprint{flex:1 1 100%;justify-content:center;margin-bottom:10px;font-size:14px;letter-spacing:.04em}
-@media (max-width:380px){.hsb{flex:1 1 100%}}
+[data-theme="day"] .hsb{color:#123252;border-color:rgba(4,32,68,.14)}
+[data-theme="day"] .hsb .hsi{color:#9A7B33}
+[data-theme="day"] .hsb.on{background:linear-gradient(135deg,#F3E2AE,#DCBE79);border-color:#C9A452;color:#33260A}
+[data-theme="day"] .hsb.on .hsi{color:#5A4310}
+[data-theme="day"] .hsprint{color:#123252}
 .hsintro-note{display:flex;align-items:center;gap:14px;padding:14px 15px;border-radius:14px;border:1px solid var(--glass-line);background:var(--glass);margin:2px 0 12px}
 .hsintro-note p{margin:0;color:var(--harm-lite);font-size:14px;line-height:1.6}
 .hsintro-note .hsorn{flex:none;width:74px;height:74px;opacity:.95}
@@ -2215,7 +2219,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
 
   const actions = {
     elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); },
-    hsTheme(el) { S.hsTheme = el.dataset.t; store.set('kairos_hstheme', S.hsTheme); renderNatal(); },
+    hsTheme(el) { S.hsTheme = el.dataset.t; store.set('kairos_hstheme', S.hsTheme); renderNatal(); setTimeout(() => { const c = $('#view-nativ .card.hs'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); },
     // (hydratace médií se volá po renderCalendar níže)
     synSel(el) { S.synId = S.synId === el.dataset.id ? null : el.dataset.id; S.synForm = null; renderNatal(); },
     synAdd() { S.synForm = { mode: 'new' }; renderNatal(); setTimeout(() => { const f = $('#synForm [name=name]'); if (f) f.focus(); }, 40); },
@@ -3174,6 +3178,7 @@ ${parts}
     rok: '<circle cx="12" cy="12" r="6.4"/><ellipse cx="12" cy="12" rx="10" ry="3.6" transform="rotate(-22 12 12)"/><circle cx="12" cy="12" r="1"/>',
   };
   const hsIcon = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${HS_ICON[k] || ''}</svg>`;
+  const HS_ORDER = ['rok', 'hvezdy', 'radost', 'zdravi', 'vztahy', 'rodina', 'duch', 'osobnost', 'mysl', 'prace', 'vyzvy', 'penize'];
   const HS_THEMES = [['osobnost', 'Osobnostní', (n) => horoscopePersonal(n)], ['penize', 'Peníze', horoscopeMoney], ['vztahy', 'Vztahy a láska', horoscopeLove], ['rodina', 'Rodina a kořeny', horoscopeFamily], ['duch', 'Duchovní cesta', horoscopeSpirit], ['vyzvy', 'Překážky a výzvy', horoscopeChallenge], ['prace', 'Práce a poslání', horoscopeWork], ['zdravi', 'Zdraví a vitalita', horoscopeHealth], ['radost', 'Tvořivost a radost', horoscopeJoy], ['mysl', 'Komunikace a mysl', horoscopeMind], ['hvezdy', 'Tvé hvězdy', horoscopeStars], ['rok', 'Tvůj rok', horoscopeYear]];
 
   function horoscopePersonal(n) {
@@ -3767,7 +3772,7 @@ ${parts}
       ${chakraHTML(p)}
       <div class="h3">Tvůj horoskop</div>
       <details class="hsintro"><summary>Jak číst svůj horoskop</summary><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></details>
-      <div class="hsgrid">${HS_THEMES.map(t => `<button type="button" class="hsb ${(S.hsTheme || 'osobnost') === t[0] ? 'on' : ''}" data-act="hsTheme" data-t="${t[0]}"><i class="hsi">${hsIcon(t[0])}</i><span>${t[1]}</span></button>`).join('')}</div>
+      <div class="hsgrid">${HS_ORDER.map(k => HS_THEMES.find(x => x[0] === k)).filter(Boolean).map(t => `<button type="button" class="hsb ${(S.hsTheme || 'osobnost') === t[0] ? 'on' : ''}" data-act="hsTheme" data-t="${t[0]}"><i class="hsi">${hsIcon(t[0])}</i><span>${t[1]}</span></button>`).join('')}</div>
       <button type="button" class="hsb hsprint" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení"><i class="hsi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8.4 10.6L12 14.2l3.6-3.6"/><path d="M5 17.6h14"/></svg></i><span>Uložit · tisk</span></button>
       <div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'osobnost')) || HS_THEMES[0])[2](n)}</div>
       ${synSectionHTML(n)}
