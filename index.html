@@ -373,6 +373,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .ahead .a .wo{display:block;font-size:9.5px;color:var(--inst-muted);line-height:1.2;margin-top:1px;hyphens:auto}
 .ahead .a.today .dd{color:var(--inst-gold)}
 /* praktické bloky */
+.dayread{margin-top:12px}
+.dayread .lede{margin:0}
 .lede-sig{margin:6px 0 2px;font-size:12.5px;letter-spacing:.03em;color:var(--harm-lite)}
 [data-theme="day"] .day-hero .lede-sig{color:#2A6A5E}
 .lede{font-family:var(--display);font-size:20px;line-height:1.35;margin:12px 0 4px;color:var(--text);text-shadow:var(--halo)}
@@ -2451,8 +2453,9 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     }
     if (isCurMonth && (hiddenDays || S.showPast)) pastBar = `<div class="pastbar"><button type="button" class="chip small" data-act="pastToggle">${S.showPast ? '▴ skrýt uplynulé dny' : `▾ zobrazit ${hiddenDays} uplynulých dnů`}</button></div>`;
     v.innerHTML = `
-      ${aheadHTML()}
       ${todayHeroHTML()}
+      ${aheadHTML()}
+      ${todayReadHTML()}
       <div class="monthbar">
         <button class="navbtn" data-act="prevMonth" aria-label="Předchozí měsíc">‹</button>
         <div class="mn">${K.MONTH_CZ[m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[m - 1].slice(1)}<em>${y}</em></div>
@@ -2506,6 +2509,13 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
 
   // pás nejbližších dnů
+  function todayReadHTML() {
+    const da = analyze(np.y, np.m, np.d);
+    const key = K.isoDate(np.y, np.m, np.d);
+    const dayEv = monthEvents(np.y, np.m).filter(e => K.dateKey(e.date, TZ) === key);
+    const r = TX.dayReading(da, dayEv);
+    return `<div class="card dayread"><p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p></div>`;
+  }
   function aheadHTML() {
     let out = '';
     for (let i = 0; i < 14; i++) {
