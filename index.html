@@ -415,6 +415,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .pc .dot{width:5px;height:5px;border-radius:50%;background:var(--gold)}
 .pc .dot.g{background:#7FB6DD}
 .pc .sd{font-style:normal;font-size:8px;line-height:1}
+.jrate{margin-top:11px;padding-top:10px;border-top:1px solid var(--hairline)}
+.jrate small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.jrate small em{font-style:normal;letter-spacing:.02em;text-transform:none;opacity:.8}
 .hsgrid{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 8px}
 .hsb{flex:1 1 calc(50% - 8px);min-width:150px;display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:13px;border:1px solid var(--glass-line);background:var(--glass);color:var(--text);font:inherit;font-size:14.5px;text-align:left;cursor:pointer;transition:border-color .18s,background .18s}
 .hsb:hover{border-color:var(--gold2)}
@@ -3365,15 +3368,17 @@ ${parts}
     const e = jGet(key) || {};
     const chips = RATES.map(r => `<button type="button" class="rate ${r.cls} ${e.rate === r.v ? 'on' : ''}" data-act="rate" data-k="${key}" data-v="${r.v}">${r.label}</button>`).join('');
     return `<div class="panel jr">
-      <h4>Zápis dne</h4>
-      <div class="rates">${chips}</div>
-      <textarea id="jNote" class="jnote" data-k="${key}" rows="3" placeholder="Jak dnešek šel? Co se stalo, jak ti bylo, co vyšlo a co ne.">${esc(e.note || '')}</textarea>
+      <textarea id="jNote" class="jnote" data-k="${key}" rows="3" placeholder="Chceš si něco z dneška poznamenat? Co se stalo, jak ti bylo, co vyšlo.">${esc(e.note || '')}</textarea>
       ${(e.media && e.media.length) ? `<div class="jmedia">${e.media.map(m => m.t === 'i'
         ? `<span class="jmit"><img data-mid="${m.id}" alt="fotka ke dni" data-act="jmView" data-mid2="${m.id}"><button type="button" class="jmx" data-act="jmDel" data-k="${key}" data-id="${m.id}" title="Smazat">×</button></span>`
         : `<span class="jmau"><audio data-mid="${m.id}" controls preload="none"></audio><button type="button" class="jmx" data-act="jmDel" data-k="${key}" data-id="${m.id}" title="Smazat">×</button></span>`).join('')}</div>` : ''}
       <div class="row" style="gap:8px;margin-top:7px">
         <label class="btn ghost small jphoto-l">📷 Fotka<input type="file" class="jphoto" accept="image/*" data-k="${key}" hidden></label>
         <button type="button" class="btn ghost small" data-act="jRec" data-k="${key}">${recState && recState.key === key ? '■ Zastavit nahrávání' : '🎙 Hlasová poznámka'}</button>
+      </div>
+      <div class="jrate">
+        <small>jak ti den přišel <em>· nepovinné, pomáhá to ladit výpočet</em></small>
+        <div class="rates">${chips}</div>
       </div>
       <div class="row" style="justify-content:space-between;margin-top:6px">
         <button type="button" class="btn ghost small" data-act="saveNote">Zapsat</button>
