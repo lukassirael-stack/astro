@@ -373,6 +373,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .ahead .a .wo{display:block;font-size:9.5px;color:var(--inst-muted);line-height:1.2;margin-top:1px;hyphens:auto}
 .ahead .a.today .dd{color:var(--inst-gold)}
 /* praktické bloky */
+.ev.gone{opacity:.55}
 .ev .evq{display:inline-grid;place-items:center;width:19px;height:19px;margin-left:7px;border-radius:50%;border:1px solid var(--line2);font-style:normal;font-size:11px;color:var(--muted);vertical-align:1px;cursor:pointer}
 .ev .evwhat{display:none;margin-top:6px;padding:8px 11px;border-radius:9px;border:1px dashed var(--hairline);font-size:13px;line-height:1.55;color:var(--muted)}
 .ev.open .evwhat{display:block}
@@ -2298,6 +2299,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     sdDel(el) { store.set('kairos_days', sdAll().filter(x => x.id !== el.dataset.id)); renderSettings(); },
     tvHelp() { S.tvHelp = !S.tvHelp; renderCalendar(); },
     evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
+    evPastOn() { S.evPast = true; renderEvents(); },
+    evPastOff() { S.evPast = false; renderEvents(); },
     evAll() { S.evAll = true; renderEvents(); },
     evLess() { S.evAll = false; renderEvents(); },
     sdLater() { store.set('kairos_days_seen', true); renderCalendar(); },
@@ -3492,12 +3495,19 @@ ${parts}
       const allKeys = Object.keys(months).sort();
       const keys = S.evAll ? allKeys : allKeys.slice(0, 3);
       if (!keys.length) html += '<p class="muted">V této kategorii nic není.</p>';
+      const nowMs = Date.now();
+      let pastCount = 0;
+      for (const k of keys) { for (const e of months[k].items) if (e.date.getTime() < nowMs) pastCount++; }
+      if (pastCount && !S.evPast) html += `<div class="pastbar"><button type="button" class="chip small" data-act="evPastOn">▾ zobrazit ${pastCount} ${pastCount === 1 ? 'uplynulý úkaz' : (pastCount < 5 ? 'uplynulé úkazy' : 'uplynulých úkazů')}</button></div>`;
+      else if (pastCount) html += `<div class="pastbar"><button type="button" class="chip small" data-act="evPastOff">▴ skrýt uplynulé</button></div>`;
       for (const k of keys) {
         const mo = months[k];
+        const shown = S.evPast ? mo.items : mo.items.filter(e => e.date.getTime() >= nowMs);
+        if (!shown.length) continue;
         html += `<div class="ev-month">${K.MONTH_CZ[mo.m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[mo.m - 1].slice(1)} ${mo.y}</div>`;
-        for (const e of mo.items) {
+        for (const e of shown) {
           const p = K.tzParts(e.date, TZ);
-          html += `<div class="ev ${e.resonance ? 'res' : ''}"><div class="dt"><b>${p.d}.</b>${e.cat === 'roje' || e.custom || e.cat === 'hvezdy' && e.title.startsWith('Heliak') ? '' : K.fmtTime(e.date, TZ)}</div><div><div class="ti"><span class="c">${CAT_ICON[e.cat] || '✧'}</span>${esc(e.title)}${evWhat(e.title) ? `<i class="evq" data-act="evWhat" role="button" aria-label="Co to je?">?</i>` : ''}</div>${e.note ? `<div class="no">${esc(e.note)}</div>` : ''}${evWhat(e.title) ? `<div class="evwhat">${esc(evWhat(e.title))}</div>` : ''}</div></div>`;
+          html += `<div class="ev ${e.resonance ? 'res' : ''} ${e.date.getTime() < nowMs ? 'gone' : ''}"><div class="dt"><b>${p.d}.</b>${e.cat === 'roje' || e.custom || e.cat === 'hvezdy' && e.title.startsWith('Heliak') ? '' : K.fmtTime(e.date, TZ)}</div><div><div class="ti"><span class="c">${CAT_ICON[e.cat] || '✧'}</span>${esc(e.title)}${evWhat(e.title) ? `<i class="evq" data-act="evWhat" role="button" aria-label="Co to je?">?</i>` : ''}</div>${e.note ? `<div class="no">${esc(e.note)}</div>` : ''}${evWhat(e.title) ? `<div class="evwhat">${esc(evWhat(e.title))}</div>` : ''}</div></div>`;
         }
       }
       html += `<p class="note" style="margin-top:18px">Komety, novy a podobné jednorázové úkazy se spočítat nedají – přidáš si je v Nastavení (řádek: datum | název | poznámka).</p>`;
