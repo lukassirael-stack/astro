@@ -271,6 +271,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today .ht-wx .dg{font-size:.62em;vertical-align:.3em;margin-left:1px}
 .hero-today .sri{font-style:normal;color:var(--inst-gold);opacity:.85;display:inline-block;transform:translateY(1.5px)}
 .hero-today .ht-tv .ht-ic.tv svg{width:16px;height:16px}
+.hero-today .tvn .tvlab{display:block;font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--inst-muted);margin-bottom:1px}
 .hero-today .ht-invite{position:relative;overflow:hidden;display:flex;align-items:center;gap:16px;margin-top:10px;padding:16px 17px;border:1px solid rgba(240,216,152,.5);border-radius:16px;background:linear-gradient(160deg,rgba(10,22,48,.6),rgba(5,12,30,.35));box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
 .hero-today .inv-orn{flex:none;width:62px;height:62px;color:#EFC878;opacity:.95;position:relative;z-index:1}
 .hero-today .inv-wm{position:absolute;right:-26px;top:50%;transform:translateY(-50%);width:150px;height:150px;color:#EFC878;opacity:.13;pointer-events:none}
@@ -1843,7 +1844,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   function tattvaHTML() {
     const x = tattvaNow();
     if (!x) return '';
-    return `<i class="ht-ic tv" style="border-color:${x.t.col};color:${x.t.col}">${x.t.sym}</i><b class="tvn"><span style="color:${x.t.col}">${x.t.n} <em>(${x.t.el})</em></span><small>do ${K.fmtTime(x.end, TZ)}</small></b><span class="tx">přeje ${x.t.tip}</span><i class="tvq" data-act="tvHelp" role="button" aria-label="Co jsou tatvy?">?</i>`;
+    return `<i class="ht-ic tv" style="border-color:${x.t.col};color:${x.t.col}">${x.t.sym}</i><b class="tvn"><small class="tvlab">tatva</small><span style="color:${x.t.col}">${x.t.n} <em>(${x.t.el})</em></span><small>do ${K.fmtTime(x.end, TZ)}</small></b><span class="tx">přeje ${x.t.tip}</span><i class="tvq" data-act="tvHelp" role="button" aria-label="Co jsou tatvy?">?</i>`;
   }
   const DAY_TASKS = [
     ['Odkládáš první krok? Dnes je den ho udělat — pět minut stačí.', 'Neseš rozdělanou věc? Dnes je den ji uzavřít: dokonči ji, nebo ji vědomě polož.'],
