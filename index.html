@@ -373,6 +373,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .ahead .a .wo{display:block;font-size:9.5px;color:var(--inst-muted);line-height:1.2;margin-top:1px;hyphens:auto}
 .ahead .a.today .dd{color:var(--inst-gold)}
 /* praktické bloky */
+.chakra .ch-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}
+.chakra .ch-dot{width:14px;height:14px;border-radius:50%;flex:none}
+.chakra .ch-name{font-family:var(--display);font-size:20px;color:var(--text)}
+.chakra .ch-year{font-size:12px;letter-spacing:.04em;color:var(--muted);margin-left:auto}
+.chakra .ch-text{margin:0 0 12px;font-size:15px;line-height:1.6;color:var(--text)}
+.chakra .ch-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.chakra .ch-cell{padding:9px 11px;border-radius:10px;background:var(--field);border:1px solid var(--hairline);min-width:0}
+.chakra .ch-cell small{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.chakra .ch-cell b{display:block;font-family:var(--display);font-size:16px;font-weight:600}
+.chakra .ch-cell span{display:block;font-size:11.5px;line-height:1.4;color:var(--muted);margin-top:2px}
+.chakra .ch-block{margin:0 0 6px;font-size:13px;line-height:1.5;color:var(--muted)}
+.chakra .ch-span{margin:0;font-size:12px;color:var(--harm-lite)}
+@media (max-width:400px){.chakra .ch-grid{grid-template-columns:1fr}}
 .hsintro-note{border-left:2px solid rgba(var(--harm-ink),.5);padding-left:12px;margin-bottom:2px}
 .hsintro-note p{color:var(--harm-lite);font-size:14.5px;line-height:1.55}
 [data-theme="day"] .hsintro-note p{color:#2A6A5E}
@@ -3505,6 +3518,43 @@ ${parts}
     const base = { kulminuje: 'kulminoval', antikulminuje: 'procházel dolní kulminací', vychází: 'vycházel', zapadá: 'zapadal' }[angle];
     return g === 'm' ? base : base.replace(/kulminoval|procházel|vycházel|zapadal/, w => w + (g === 'f' ? 'a' : 'o'));
   }
+  const CHAKRA = [{"n": "Múládhára", "cz": "kořenová", "col": "#C4553F", "t": "tělo, bezpečí, domov, důvěra"}, {"n": "Svádhišthána", "cz": "křížová", "col": "#D98A3F", "t": "cit, chuť, blízkost, tvořivost"}, {"n": "Manipúra", "cz": "solar plexus", "col": "#D9B96E", "t": "vůle, síla, jednání, hranice"}, {"n": "Anáhata", "cz": "srdeční", "col": "#6FBF8F", "t": "srdce, přijetí, dávání, spojení"}, {"n": "Višuddha", "cz": "krční", "col": "#7FB6DD", "t": "hlas, pravda, vyjádření"}, {"n": "Ádžňá", "cz": "třetí oko", "col": "#8F7BC0", "t": "vhled, rozlišení, vidění celku"}, {"n": "Sahasrára", "cz": "korunní", "col": "#C9A9E0", "t": "smysl, přesah, celistvost"}];
+  const CHAKRA_BLOCK = ["Blok o kořenech: o těle, bezpečí, domově a důvěře, že svět unese.", "Blok o prožívání: o citu, blízkosti, tvořivosti a chuti do života.", "Blok o vlastní síle: o jednání, hranicích, sebedůvěře a směru.", "Blok o vztazích: o dávání a přijímání, o partnerství a soucitu.", "Blok o vyjádření: o vlastní řeči, pravdivosti, tvorbě a naslouchání.", "Blok o vidění: o rozlišení, směru, intuici a chápání souvislostí.", "Blok o celistvosti: o smyslu, napojení, odevzdání a tichém návratu k podstatě."];
+  const CHAKRA_GRID = [[{"n": "Kořen v kořeni", "t": "Nejzákladnější rok celého cyklu: usazení v těle a v místě. Vše se točí kolem toho, aby bylo bezpečno, teplo a jistá půda pod nohama. Co se položí teď, ponese dalších čtyřicet devět let."}, {"n": "Chuť v kořeni", "t": "Do bezpečí přichází chuť a cit. Rok, kdy se objevuje radost z dotyku, pohybu a blízkosti — a kdy se učí, že potěšení a jistota mohou existovat vedle sebe."}, {"n": "Vůle v kořeni", "t": "Probouzí se vlastní síla, ještě v prostředí, které drží. Rok prvních „chci\" a „udělám sám\" — a zjištění, že vlastní vůle domov nerozbíjí."}, {"n": "Srdce v kořeni", "t": "Kořeny dostávají teplo. Rok, kdy se vztah k lidem stává součástí pocitu bezpečí a kdy náruč znamená totéž co střecha."}, {"n": "Hlas v kořeni", "t": "Hlas se učí, že je slyšen. Rok, kdy se pojmenovává, co se děje uvnitř, a kdy se ukazuje, že vyslovení potřeb přináší odpověď."}, {"n": "Vhled v kořeni", "t": "Do jistoty přichází zvědavost a obraznost. Rok, kdy se svět začíná chápat jako celek se svými pravidly — a kdy představivost dostává pevný základ."}, {"n": "Přesah v kořeni", "t": "Blok se uzavírá a otevírá se něco většího než domov. Rok, kdy se tuší, že za známým světem je ještě jiný — a kdy je dobré mít kam se vracet."}], [{"n": "Kořen v citu", "t": "Cit hledá bezpečné břehy. Rok, kdy se ukazuje, ve které blízkosti je dobře a co dává prožívání pevný rámec."}, {"n": "Cit v citu", "t": "Nejšťavnatější rok bloku: prožívání naplno, chuť, hravost, tvoření pro radost. Rok, kdy se stojí za to nechat věci téct."}, {"n": "Vůle v citu", "t": "Do prožívání vstupuje síla a vlastní volba. Rok, kdy se učí říkat ano tomu, co chutná, a kdy cit dostává směr."}, {"n": "Srdce v citu", "t": "Blízkost dostává hloubku. Rok přátelství, prvních velkých náklonností a poznání, že sdílená radost je jiná než radost sama."}, {"n": "Hlas v citu", "t": "Cit hledá slova a tvary. Rok, kdy se to, co se prožívá, začíná vyjadřovat — řečí, písmem, hudbou, pohybem."}, {"n": "Vhled v citu", "t": "Prožívání se začíná chápat. Rok, kdy je vidět, odkud nálady přicházejí a co se v nich opakuje — a kdy fantazie dostává vlastní život."}, {"n": "Přesah v citu", "t": "Cit sahá dál než k lidem kolem. Rok, kdy krása, hudba nebo příroda otevřou něco, co se nedá vysvětlit, jen prožít."}], [{"n": "Kořen v síle", "t": "Síla hledá oporu. Rok, kdy se buduje vlastní půda — místo, tělo, řád dne — ze které se dá vykročit."}, {"n": "Chuť v síle", "t": "Do jednání přichází chuť a lehkost. Rok, kdy se dělá to, co baví, a kdy je energie k mání skoro na požádání."}, {"n": "Síla v síle", "t": "Nejohnivější rok cyklu: vůle na plný plyn, chuť se prosadit, měřit síly a dokázat si své. Rok, kdy se pozná, co v člověku je."}, {"n": "Srdce v síle", "t": "Síla se učí být laskavá. Rok, kdy se ukazuje, že vést se dá i s otevřeným srdcem a že spolupráce nese dál než přetlačování."}, {"n": "Hlas v síle", "t": "Vůle se přesouvá do slov. Rok, kdy se dá prosadit řečí — vyjednáváním, argumentem, jasným požadavkem — a kdy se cení srozumitelnost."}, {"n": "Vhled v síle", "t": "Do jednání vstupuje rozvaha. Rok, kdy je vidět, kam kroky vedou, a kdy se energie začíná investovat cíleně."}, {"n": "Přesah v síle", "t": "Síla hledá, čemu sloužit. Rok, kdy se ptá po smyslu vlastního úsilí a kdy velká rozhodnutí dostávají hlubší důvod."}], [{"n": "Kořen v srdci", "t": "Vztahy hledají pevnou půdu. Rok, kdy se staví společný domov, závazek nebo prostě jistota, že je na koho spolehnout."}, {"n": "Chuť v srdci", "t": "Do vztahů přichází šťáva. Rok blízkosti, něhy a společné radosti — a chuti tvořit ve dvou."}, {"n": "Vůle v srdci", "t": "Srdce se učí hranicím. Rok, kdy se ukazuje, kde končí jeden a začíná druhý, a kdy poctivé „ne\" prospěje vztahu víc než vlažné „ano\"."}, {"n": "Srdce v srdci", "t": "Nejotevřenější rok bloku: dávání i přijímání naplno, odpuštění, sblížení. Rok, kdy láska stojí ve středu všeho."}, {"n": "Hlas v srdci", "t": "Vztahy hledají slova. Rok, kdy se vyslovuje to, co se dlouho jen cítilo — a kdy rozhovor dokáže víc než kterékoli gesto."}, {"n": "Vhled v srdci", "t": "Do vztahů přichází vidění. Rok, kdy je znát, co se ve vazbách opakuje a odkud to přišlo — a kdy se dá ledacos vědomě proměnit."}, {"n": "Přesah v srdci", "t": "Láska sahá za osobní vazby. Rok, kdy se otevírá soucit bez podmínek a kdy péče o druhé dostává tišší, širší podobu."}], [{"n": "Kořen v hlase", "t": "Hlas hledá pevnou půdu. Rok, kdy se buduje řemeslo, slovník a prostor, ve kterém se dá mluvit s jistotou."}, {"n": "Chuť v hlase", "t": "Do vyjádření přichází barva. Rok tvoření pro radost — psaní, zpěvu, řeči, která chutná a nese cit."}, {"n": "Vůle v hlase", "t": "Slovu se dodává síla. Rok, kdy se dá říct nahlas i to nepohodlné a kdy vlastní hlas obstojí i v odporu."}, {"n": "Srdce v hlase", "t": "Řeč se prohřívá. Rok, kdy slova léčí a spojují — kdy poděkování, přiznání nebo pochvala udělají víc než argument."}, {"n": "Hlas v hlase", "t": "Nejzvučnější rok bloku: vlastní pravda hledá čistý tvar. Rok, kdy se najde způsob řeči, který je opravdu vlastní — a kdy se sluší i mlčet a poslouchat."}, {"n": "Vhled v hlase", "t": "Řeč se ostří o vidění. Rok, kdy je jasné, co je podstatné, a kdy se dá říct hodně málo slovy."}, {"n": "Přesah v hlase", "t": "Hlas se ztišuje do podstaty. Rok, kdy mluvení slouží něčemu většímu než sobě — a kdy má ticho stejnou váhu jako slovo."}], [{"n": "Kořen ve vhledu", "t": "Vidění hledá zem. Rok, kdy se poznatky proměňují v praxi a kdy se nápady zkoušejí na tom, co skutečně funguje."}, {"n": "Chuť ve vhledu", "t": "Do vidění vstupuje obraznost. Rok, kdy přicházejí nápady zboku, sny mluví zřetelně a tvořivost jde vlastní cestou."}, {"n": "Vůle ve vhledu", "t": "Vhled se mění v čin. Rok, kdy se podle vlastního rozpoznání skutečně jedná — a kdy se to, co je vidět, dá také prosadit."}, {"n": "Srdce ve vhledu", "t": "Vidění se prohřívá. Rok, kdy porozumění zahrnuje i lidi — kdy je jasné, čím druzí procházejí, a kdy soucit a rozlišení jdou spolu."}, {"n": "Hlas ve vhledu", "t": "To, co je vidět, hledá slova. Rok, kdy se dá pojmenovat souvislost, kterou ostatní ještě netuší — a kdy se z toho stává učení nebo dílo."}, {"n": "Vhled ve vhledu", "t": "Nejjasnější rok bloku: vidění celku, rozpoznání směru, důvěra ve vnitřní obraz. Rok, kdy se ledacos konečně srovná do jednoho vzorce."}, {"n": "Přesah ve vhledu", "t": "Vidění naráží na svou hranici a otevírá se tomu, co se chápat nedá. Rok, kdy vhled ustupuje tichému vědění."}], [{"n": "Kořen v koruně", "t": "Přesah hledá tělo a všední den. Rok, kdy se duchovní zakotvuje v obyčejném — v práci rukou, v místě, v rytmu dne."}, {"n": "Chuť v koruně", "t": "Do hloubky přichází radost. Rok, kdy krása, hudba a příroda otevírají to, co jindy vyžaduje léta cvičení."}, {"n": "Vůle v koruně", "t": "Síla se dává do služby. Rok, kdy se pro to podstatné skutečně jedná — a kdy vlastní energie dostává vyšší adresu."}, {"n": "Srdce v koruně", "t": "Nejteplejší rok bloku: smysl se nachází v lásce a péči. Rok, kdy se to velké prožívá skrze docela obyčejnou blízkost."}, {"n": "Hlas v koruně", "t": "Podstata hledá řeč. Rok, kdy se dá předat dál to, co bylo pochopeno — učením, psaním, sdílením — a kdy se hlas stává mostem."}, {"n": "Vhled v koruně", "t": "Vidění se propojuje se smyslem. Rok, kdy je zřetelné, jak věci souvisí, a kdy se cesta ukazuje jako celek."}, {"n": "Koruna v koruně", "t": "Vrchol celého devětačtyřicetiletí: ztišení, odevzdání, celistvost. Rok, kdy se ledacos uzavírá a otevírá prostor pro nové kolo."}]];
+  // rok života a čakry malého i velkého cyklu
+  function chakraYear(prof, ref) {
+    const now = ref || new Date();
+    const by = +prof.y, bm = +prof.m, bd = +prof.d;
+    const ny = now.getFullYear();
+    const hadBirthday = (now.getMonth() + 1 > bm) || (now.getMonth() + 1 === bm && now.getDate() >= bd);
+    const age = ny - by - (hadBirthday ? 0 : 1);
+    const n = age + 1;                     // pořadí roku života
+    const small = ((n - 1) % 7);
+    const big = (Math.floor((n - 1) / 7) % 7);
+    const round = Math.floor((n - 1) / 49) + 1;
+    const from = new Date(hadBirthday ? ny : ny - 1, bm - 1, bd);
+    const to = new Date(hadBirthday ? ny + 1 : ny, bm - 1, bd);
+    return { n, age, small, big, round, from, to, cell: CHAKRA_GRID[big][small], sm: CHAKRA[small], bg: CHAKRA[big], block: CHAKRA_BLOCK[big] };
+  }
+  function chakraHTML(prof) {
+    const c = chakraYear(prof);
+    const dd = (d) => `${d.getDate()}. ${K.MONTH_GEN[d.getMonth()]} ${d.getFullYear()}`;
+    return `<div class="h3">Čakra roku</div>
+      <div class="card chakra">
+        <div class="ch-head">
+          <span class="ch-dot" style="background:${c.sm.col};box-shadow:0 0 12px ${c.sm.col}66"></span>
+          <span class="ch-name">${esc(c.cell.n)}</span>
+          <span class="ch-year">${c.n}. rok života${c.round > 1 ? ` · ${c.round}. kolo` : ''}</span>
+        </div>
+        <p class="ch-text">${esc(c.cell.t)}</p>
+        <div class="ch-grid">
+          <div class="ch-cell"><small>sedmiletí</small><b style="color:${c.bg.col}">${esc(c.bg.n)}</b><span>${esc(c.bg.cz)} · ${esc(c.bg.t)}</span></div>
+          <div class="ch-cell"><small>rok</small><b style="color:${c.sm.col}">${esc(c.sm.n)}</b><span>${esc(c.sm.cz)} · ${esc(c.sm.t)}</span></div>
+        </div>
+        <p class="ch-block">${esc(c.block)}</p>
+        <p class="ch-span">Platí od ${dd(c.from)} do ${dd(c.to)}, kdy nastupuje další čakra.</p>
+      </div>`;
+  }
   function renderNatal() {
     const v = $('#view-nativ');
     const n = S.natal, p = activeProfile();
@@ -3536,6 +3586,7 @@ ${parts}
         <div class="ns"><span class="g">${K.BODY_GLYPH.Asc || 'Asc'}</span><span class="k">Ascendent</span><span class="v">${K.SIGNS[K.signOf(n.points.Asc.lon)]}</span></div>
       </div>
       ${wheelSVG(n)}
+      ${chakraHTML(p)}
       <div class="h3">Tvůj horoskop</div>
       <details class="hsintro"><summary>Jak číst svůj horoskop</summary><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></details>
       <div class="row echips" style="margin-bottom:8px">${HS_THEMES.map(t => `<button type="button" class="chip ${(S.hsTheme || 'osobnost') === t[0] ? 'on' : ''}" data-act="hsTheme" data-t="${t[0]}">${t[1]}</button>`).join('')}<button type="button" class="chip gold" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení">⎙ Uložit · tisk</button></div>
