@@ -749,6 +749,10 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .star.main .nm{color:var(--gold)}
 /* nastavení */
 .natal-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.natal-sum.home{margin:4px 0 2px;cursor:pointer}
+.natal-sum.home .ns{padding:10px 6px 9px}
+.natal-sum.home .g{font-size:20px}
+.natal-sum.home .v{font-size:16px}
 .natal-sum .ns{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 6px 10px;
   border:1px solid var(--inst-line-soft);border-radius:var(--r);background:var(--inst);color:var(--inst-text);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 4px 14px rgba(2,8,24,.3)}
@@ -2489,6 +2493,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       toast(cycAll().includes(k) ? 'Zapsáno — fáze se přepočítaly.' : 'Zrušeno.');
     },
     cycToggle() { store.set('kairos_cyc_on', !cycOn()); renderSettings(); },
+    goNatal() { showTab('nativ'); },
     goDiar(el) { const k = el.dataset.k, [yy, mm] = k.split('-').map(Number); S.plSel = k; S.plY = yy; S.plM = mm; showTab('diar'); setTimeout(() => { const t = $('#view-diar .pcal'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 140); },
     evPastOn() { S.evPast = true; renderEvents(); },
     evPastOff() { S.evPast = false; renderEvents(); },
@@ -2670,6 +2675,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     }
     if (isCurMonth && (hiddenDays || S.showPast)) pastBar = `<div class="pastbar"><button type="button" class="chip small" data-act="pastToggle">${S.showPast ? '▴ skrýt uplynulé dny' : `▾ zobrazit ${hiddenDays} uplynulých dnů`}</button></div>`;
     v.innerHTML = `
+      ${natalSumHTML()}
       ${todayHeroHTML()}
       ${aheadHTML()}
       ${todayReadHTML()}
@@ -2727,6 +2733,15 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
 
   // pás nejbližších dnů
+  function natalSumHTML() {
+    const n = S.natal; if (!n) return '';
+    const asc = K.SIGNS[K.signOf(n.points.Asc.lon)];
+    return `<div class="natal-sum home" role="button" data-act="goNatal" title="Otevřít O tobě">
+      <div class="ns"><span class="g">${K.BODY_GLYPH.Sun}</span><span class="k">Slunce</span><span class="v">${K.SIGNS[n.sunSign]}</span></div>
+      <div class="ns"><span class="g">${K.BODY_GLYPH.Moon}</span><span class="k">Luna</span><span class="v">${K.SIGNS[n.moonSign]}</span></div>
+      <div class="ns"><span class="g">Asc</span><span class="k">Ascendent</span><span class="v">${asc}</span></div>
+    </div>`;
+  }
   function todayReadHTML() {
     const { y, m, d } = np;
     const da = analyze(y, m, d);
