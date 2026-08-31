@@ -446,15 +446,28 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .jrate{margin-top:11px;padding-top:10px;border-top:1px solid var(--hairline)}
 .jrate small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
 .jrate small em{font-style:normal;letter-spacing:.02em;text-transform:none;opacity:.8}
-.hsgrid{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 8px}
-.hsb{flex:1 1 auto;min-width:0;display:flex;align-items:center;justify-content:center;gap:9px;padding:11px 14px;border-radius:13px;border:1px solid var(--glass-line);background:var(--glass);color:var(--text);font:inherit;font-size:14.5px;text-align:left;cursor:pointer;transition:border-color .18s,background .18s}
-.hsb:hover{border-color:var(--gold2)}
+.hshead{text-align:center;margin:6px 0 4px}
+.hshead .hsstar{width:36px;height:36px;color:var(--gold);margin-bottom:4px}
+.hshead .hstitle{font-size:20px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:500}
+.hshead .hsrule{display:flex;align-items:center;gap:10px;justify-content:center;margin:6px auto 0;max-width:280px}
+.hshead .hsrule i{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(217,185,110,.7))}
+.hshead .hsrule i:last-child{background:linear-gradient(90deg,rgba(217,185,110,.7),transparent)}
+.hshead .hsrule b{color:var(--gold);font-size:11px}
+.hsintro.hscenter{text-align:center}
+.hsintro.hscenter summary{font-family:var(--display);font-size:17px;letter-spacing:.01em;color:var(--text)}
+.hsgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin:12px 0 8px}
+.hsb{grid-column:span var(--sp,3);min-width:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:13px 12px;border-radius:12px;border:1px solid rgba(217,185,110,.55);background:rgba(7,15,34,.62);color:var(--text);font-family:var(--display);font-size:16.5px;letter-spacing:.01em;text-align:left;cursor:pointer;box-shadow:0 0 0 1px rgba(217,185,110,.08) inset,0 6px 18px rgba(0,3,12,.25);transition:border-color .18s,background .18s}
+.hsb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hsb:hover{border-color:#EFD79A}
 .hsb .hsi{flex:none;width:26px;height:26px;color:var(--gold);display:grid;place-items:center}
 .hsb .hsi svg{width:24px;height:24px}
 .hsb.on{background:linear-gradient(135deg,#EFD79A,#D9B96E);border-color:#EFD79A;color:#2A1E06;box-shadow:0 2px 14px rgba(217,185,110,.25)}
 .hsb.on .hsi{color:#4A3608}
-.hsb.hsprint{flex:1 1 100%;justify-content:center;margin-bottom:10px;font-size:14px;letter-spacing:.04em}
-[data-theme="day"] .hsb{color:#123252;border-color:rgba(4,32,68,.14)}
+.hsb.hsprint{justify-content:center;font-size:16px}
+@media (max-width:640px){.hsgrid{grid-template-columns:1fr 1fr}.hsb{grid-column:span 1;font-size:15px;padding:12px 10px;gap:8px}.hsb.hsprint{grid-column:span 2}.hsb .hsi{width:22px;height:22px}.hsb .hsi svg{width:22px;height:22px}}
+@media (max-width:360px){.hsb{font-size:14px}}
+[data-theme="day"] .hsb{color:#123252;border-color:rgba(154,123,51,.55);background:rgba(255,255,255,.72);box-shadow:none}
+[data-theme="day"] .hshead .hstitle,[data-theme="day"] .hshead .hsstar,[data-theme="day"] .hshead .hsrule b{color:#8A6410}
 [data-theme="day"] .hsb .hsi{color:#9A7B33}
 [data-theme="day"] .hsb.on{background:linear-gradient(135deg,#F3E2AE,#DCBE79);border-color:#C9A452;color:#33260A}
 [data-theme="day"] .hsb.on .hsi{color:#5A4310}
@@ -3277,7 +3290,8 @@ ${parts}
     rok: '<circle cx="12" cy="12" r="6.4"/><ellipse cx="12" cy="12" rx="10" ry="3.6" transform="rotate(-22 12 12)"/><circle cx="12" cy="12" r="1"/>',
   };
   const hsIcon = (k) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${HS_ICON[k] || ''}</svg>`;
-  const HS_ORDER = ['rok', 'hvezdy', 'radost', 'zdravi', 'vztahy', 'rodina', 'duch', 'osobnost', 'mysl', 'prace', 'vyzvy', 'penize'];
+  const HS_ORDER = ['osobnost', 'penize', 'vztahy', 'rodina', 'duch', 'vyzvy', 'prace', 'zdravi', 'radost', 'mysl', 'hvezdy', 'rok'];
+  const HS_SPAN = [2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 2];
   const HS_THEMES = [['osobnost', 'Osobnostní', (n) => horoscopePersonal(n)], ['penize', 'Peníze', horoscopeMoney], ['vztahy', 'Vztahy a láska', horoscopeLove], ['rodina', 'Rodina a kořeny', horoscopeFamily], ['duch', 'Duchovní cesta', horoscopeSpirit], ['vyzvy', 'Překážky a výzvy', horoscopeChallenge], ['prace', 'Práce a poslání', horoscopeWork], ['zdravi', 'Zdraví a vitalita', horoscopeHealth], ['radost', 'Tvořivost a radost', horoscopeJoy], ['mysl', 'Komunikace a mysl', horoscopeMind], ['hvezdy', 'Tvé hvězdy', horoscopeStars], ['rok', 'Tvůj rok', horoscopeYear]];
 
   function horoscopePersonal(n) {
@@ -3870,10 +3884,10 @@ ${parts}
       </div>
       ${wheelSVG(n)}
       ${chakraHTML(p)}
-      <div class="h3">Tvůj horoskop</div>
-      <details class="hsintro"><summary>Jak číst svůj horoskop</summary><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></details>
-      <div class="hsgrid">${HS_ORDER.map(k => HS_THEMES.find(x => x[0] === k)).filter(Boolean).map(t => `<button type="button" class="hsb ${(S.hsTheme || 'osobnost') === t[0] ? 'on' : ''}" data-act="hsTheme" data-t="${t[0]}"><i class="hsi">${hsIcon(t[0])}</i><span>${t[1]}</span></button>`).join('')}</div>
-      <button type="button" class="hsb hsprint" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení"><i class="hsi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8.4 10.6L12 14.2l3.6-3.6"/><path d="M5 17.6h14"/></svg></i><span>Uložit · tisk</span></button>
+      <div class="hshead"><svg class="hsstar" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="20" cy="20" r="7"/><path d="M20 3v8M20 29v8M3 20h8M29 20h8"/><path d="M20 13l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor" stroke="none"/></svg><div class="hstitle">Tvůj horoskop</div><div class="hsrule"><i></i><b>✦</b><i></i></div></div>
+      <details class="hsintro hscenter"><summary>Jak číst svůj horoskop</summary><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></details>
+      <div class="hsgrid">${HS_ORDER.map((k, i) => [HS_THEMES.find(x => x[0] === k), HS_SPAN[i]]).filter(x => x[0]).map(([t, sp]) => `<button type="button" class="hsb ${(S.hsTheme || 'osobnost') === t[0] ? 'on' : ''}" style="--sp:${sp}" data-act="hsTheme" data-t="${t[0]}"><i class="hsi">${hsIcon(t[0])}</i><span>${t[1]}</span></button>`).join('')}
+      <button type="button" class="hsb hsprint" style="--sp:6" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení"><i class="hsi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8.4 10.6L12 14.2l3.6-3.6"/><path d="M5 17.6h14"/></svg></i><span>Uložit · tisk</span></button></div>
       <div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'osobnost')) || HS_THEMES[0])[2](n)}</div>
       ${synSectionHTML(n)}
       <div class="h3">Body nativu</div>
