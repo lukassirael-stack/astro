@@ -2901,7 +2901,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
   function horoscopeLove(n) {
     const si = K.signOf(n.cusps[7]), v = K.signOf(n.points.Venus.lon), ma = K.signOf(n.points.Mars.lon);
-    let out = hsPara('Co hledáš v partnerství', `Sedmý dům je zrcadlo naproti tobě: ukazuje, koho přitahuješ, co od partnerství čekáš — a co se o sobě skrze druhé učíš. ${HS.D7[si]}`, `7. dům ${K.SIGN_LOC_V[si]}`);
+    let out = hsPara('Co hledáš v partnerství', `Descendent stojí přesně naproti Ascendentu — je to hrot sedmého domu a zrcadlo naproti tobě: ukazuje, koho přitahuješ, co od partnerství čekáš a co se o sobě skrze druhé učíš. ${HS.D7[si]}`, `Descendent ${K.SIGN_LOC_V[si]} · 7. dům`);
     out += hsPara('Jak miluješ', `Miluješ ${HS.VEN[v]}. Tvá jiskra: ${HS.MARS[ma]}.`, `Venuše ${K.SIGN_LOC_V[v]} · Mars ${K.SIGN_LOC_V[ma]}`);
     const in7 = hsPlanetsIn(n, 7);
     if (in7.length) out += in7.map(k => hsPara('', `${K.BODY_CZ[k]} v domě partnerství: ${HS.P_REL[k]}`, `${K.BODY_CZ[k]} · 7. dům`)).join('');
@@ -2910,7 +2910,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
   function horoscopeFamily(n) {
     const si = K.signOf(n.cusps[4]);
-    let out = hsPara('Tvé kořeny', `Čtvrtý dům je základ mapy: rodina, ze které vycházíš, domov, který tvoříš, a to, co sis z dětství odnesl jako samozřejmost. ${HS.D4[si]}`, `4. dům ${K.SIGN_LOC_V[si]}`);
+    let out = hsPara('Tvé kořeny', `Imum Coeli — IC, dno mapy naproti MC — je hrot čtvrtého domu a její základ: rodina, ze které vycházíš, domov, který tvoříš, a to, co sis z dětství odnesl jako samozřejmost. ${HS.D4[si]}`, `IC ${K.SIGN_LOC_V[si]} · 4. dům`);
     const in4 = hsPlanetsIn(n, 4);
     if (in4.length) out += in4.map(k => hsPara('', `${K.BODY_CZ[k]} u kořenů: ${HS.P_FAM[k]}`, `${K.BODY_CZ[k]} · 4. dům`)).join('');
     else out += hsPara('', 'Ve 4. domě nemáš planetu — rodina není tvé osudové bojiště. Rukopis kořenů čti ze znamení hrotu; svůj vlastní domov tvoříš svobodněji než většina.', '');
@@ -3860,7 +3860,9 @@ ${parts}
     const n = S.natal, p = activeProfile();
     if (!n) { v.innerHTML = '<div class="card">Nejdřív vyplň nativ v Nastavení.</div>'; return; }
     const keys = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Node', 'Asc', 'MC'];
-    const pts = keys.map(k => `<tr><td class="g">${K.BODY_GLYPH[k]}</td><td>${K.BODY_CZ[k]}${k === 'Node' ? ' (střední)' : ''}</td><td class="p">${K.fmtLon(n.points[k].lon)}${n.points[k].retro && k !== 'Node' ? '<span class="tone-tense"> R</span>' : ''}</td><td class="muted">${k === 'Asc' || k === 'MC' ? '' : n.points[k].house + '. dům'}</td></tr>`).join('');
+    const pts = keys.map(k => `<tr><td class="g">${K.BODY_GLYPH[k]}</td><td>${K.BODY_CZ[k]}${k === 'Node' ? ' (střední)' : ''}${k === 'Asc' ? ' <span class="muted small">· hrot 1. domu</span>' : (k === 'MC' ? ' <span class="muted small">· Medium Coeli, hrot 10. domu</span>' : '')}</td><td class="p">${K.fmtLon(n.points[k].lon)}${n.points[k].retro && k !== 'Node' ? '<span class="tone-tense"> R</span>' : ''}</td><td class="muted">${k === 'Asc' || k === 'MC' ? '' : n.points[k].house + '. dům'}</td></tr>`).join('')
+      + `<tr><td class="g">Dsc</td><td>Descendent <span class="muted small">· hrot 7. domu, naproti Ascendentu</span></td><td class="p">${K.fmtLon(n.cusps[7])}</td><td class="muted"></td></tr>`
+      + `<tr><td class="g">IC</td><td>Imum Coeli <span class="muted small">· hrot 4. domu, naproti MC</span></td><td class="p">${K.fmtLon(n.cusps[4])}</td><td class="muted"></td></tr>`;
     const houses = Array.from({ length: 12 }, (_, i) => `<span class="mono small">${i + 1}: ${K.fmtLon(n.cusps[i + 1])}</span>`).join(' · ');
     // nativní aspekty
     const NA = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Asc', 'MC'];
