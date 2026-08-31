@@ -300,6 +300,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .sdlist li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--hairline)}
 .sdask p{font-size:14px}
 .hero-today .tvq{flex:none;align-self:center;margin-left:6px;width:30px;height:30px;border-radius:50%;border:1px solid var(--inst-line-soft);display:grid;place-items:center;font-size:16px;font-style:normal;color:var(--inst-muted)}
+.hero-today .orgexp .orglist{display:block;margin:8px 0 6px}
+.hero-today .orgexp .orow{display:flex;align-items:baseline;gap:8px;padding:2px 0;font-size:12.5px;line-height:1.45;opacity:.8}
+.hero-today .orgexp .orow.on{opacity:1;color:var(--inst-text)}
+.hero-today .orgexp .orow b{flex:none;width:96px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.hero-today .orgexp .orow span{flex:none;min-width:104px;font-weight:600}
+.hero-today .orgexp .orow.on span{color:#8FC2A8}
+.hero-today .orgexp .orow em{font-style:normal;opacity:.75}
 .hero-today .tvexp{display:block;margin:0 0 4px;padding:9px 12px;font-size:13px;line-height:1.55;color:var(--inst-muted);border:1px dashed var(--inst-line-soft);border-radius:10px}
 .btn.profsel{color:var(--text);border-color:var(--line2);font-weight:600;letter-spacing:.04em}
 [data-theme="day-ink-off"] .btn.profsel{background:#FDFBF5;color:#0E3556;border-color:#8FBCE4}
@@ -1899,6 +1906,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     themeHold: 'stay',   // 'stay' = ruční volba drží, 'once' = do nejbližší přirozené změny
     themeMark: null,     // jaká byla automatika ve chvíli ruční volby
     clouds: true,
+    organs: true,
   };
   // místa na jeden klik – uprav podle sebe
   const PLACES = [
@@ -1995,6 +2003,60 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const x = tattvaNow();
     if (!x) return '';
     return `<i class="ht-ic tv" style="border-color:${x.t.col};color:${x.t.col}">${x.t.sym}</i><b class="tvn"><small class="tvlab">tatva</small><span style="color:${x.t.col}">${x.t.n} <em>(${x.t.el})</em></span><small>do ${K.fmtTime(x.end, TZ)}</small></b><span class="tx">přeje ${x.t.tip}</span><i class="tvq" data-act="tvHelp" role="button" aria-label="Co jsou tatvy?">?</i>`;
+  }
+  // ---------- orgánové hodiny (TČM) — ukotvené na skutečné sluneční poledne ----------
+  const ORG_COL = '#8FC2A8';
+  const ORG_I = '<svg viewBox="0 0 14 14" width="13" height="13" aria-hidden="true"><circle cx="7" cy="7" r="5.1" fill="none" stroke="' + ORG_COL + '" stroke-width="1"/><circle cx="7" cy="7" r="1.7" fill="' + ORG_COL + '" opacity=".55"/></svg>';
+  // pořadí od dvouhodiny srdce, která leží kolem pravého poledne
+  const ORGANS = [
+    { n: 'srdce', tip: 'vrchol dne — setkání a živý kontakt' },
+    { n: 'tenké střevo', tip: 'třídění a trávení — nechat věci usadit' },
+    { n: 'močový měchýř', tip: 'druhý dech — pití a pohyb' },
+    { n: 'ledviny', tip: 'tělo bere zpátky — teplo a zpomalení' },
+    { n: 'osrdečník', tip: 'blízkost a jemnost — večer pro srdce' },
+    { n: 'trojitý ohřívač', tip: 'sladění a úklid — příprava na spánek' },
+    { n: 'žlučník', tip: 'obnova a bilancování — hluboký spánek' },
+    { n: 'játra', tip: 'nejhlubší očista — tma a klid' },
+    { n: 'plíce', tip: 'dech se prohlubuje — tiché rozednívání' },
+    { n: 'tlusté střevo', tip: 'ráno se otevírá — voda a klid' },
+    { n: 'žaludek', tip: 'nejsilnější trávení — vydatná snídaně' },
+    { n: 'slezina a slinivka', tip: 'síla do práce — soustředění a mysl' },
+  ];
+  function solarNoon(now) {
+    const q = K.tzParts(now, TZ);
+    const ph = K.planetaryHours(q.y, q.m, q.d, observer(), TZ);
+    if (!ph || !ph.sunrise || !ph.sunset) return null;
+    return new Date((ph.sunrise.getTime() + ph.sunset.getTime()) / 2);
+  }
+  function orgNow() {
+    try {
+      if (settings.organs === false) return null;
+      const now = new Date();
+      const noon = solarNoon(now);
+      if (!noon) return null;
+      const off = (now - noon) / 60000;
+      const idx = Math.floor((off + 60) / 120);
+      const o = ORGANS[((idx % 12) + 12) % 12];
+      const start = new Date(noon.getTime() + (idx * 120 - 60) * 60000);
+      const end = new Date(start.getTime() + 120 * 60000);
+      return { o, start, end, noon, idx };
+    } catch (e) { return null; }
+  }
+  function orgHTML() {
+    const x = orgNow();
+    if (!x) return '';
+    return `<i class="ht-ic tv" style="border-color:${ORG_COL};color:${ORG_COL}">${ORG_I}</i><b class="tvn"><small class="tvlab">tělo</small><span style="color:${ORG_COL}">${x.o.n}</span><small>do ${K.fmtTime(x.end, TZ)}</small></b><span class="tx">${x.o.tip}</span><i class="tvq" data-act="orgHelp" role="button" aria-label="Co jsou orgánové hodiny?">?</i>`;
+  }
+  function orgExpHTML() {
+    const x = orgNow();
+    if (!x) return '';
+    const cur = ((x.idx % 12) + 12) % 12;
+    const rows = ORGANS.map((o, i) => {
+      const st = new Date(x.noon.getTime() + (i * 120 - 60) * 60000);
+      const en = new Date(st.getTime() + 120 * 60000);
+      return `<span class="orow ${i === cur ? 'on' : ''}"><b>${K.fmtTime(st, TZ)}–${K.fmtTime(en, TZ)}</b><span>${o.n}</span><em>${o.tip}</em></span>`;
+    }).join('');
+    return `<span class="tvexp orgexp">Orgánové hodiny čínské medicíny dělí den na dvanáct dvouhodin, kterými postupně prochází čchi. Dvouhodina srdce leží kolem poledne, a proto je tady kruh ukotvený na <b>skutečnou kulminaci Slunce</b> pro tvé místo (dnes ${K.fmtTime(x.noon, TZ)}) — časy se tak přes rok posouvají spolu se Sluncem.<span class="orglist">${rows}</span>Ber to jako tichou orientaci v rytmu dne, kterou potvrdíš vlastním pozorováním.</span>`;
   }
   const DAY_TASKS = [
     ['Odkládáš první krok? Dnes je den ho udělat — pět minut stačí.', 'Neseš rozdělanou věc? Dnes je den ji uzavřít: dokonči ji, nebo ji vědomě polož.'],
@@ -2484,6 +2546,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     },
     sdDel(el) { store.set('kairos_days', sdAll().filter(x => x.id !== el.dataset.id)); renderSettings(); },
     tvHelp() { S.tvHelp = !S.tvHelp; renderCalendar(); },
+    orgHelp() { S.orgHelp = !S.orgHelp; renderCalendar(); },
+    toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
     evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
     plSel(el) { S.plSel = el.dataset.k; renderJournal(); },
     plPrev() { const t = (S.plSel || TODAY_KEY).split('-').map(Number); let y = S.plY || t[0], m = (S.plM || t[1]) - 1; if (m < 1) { m = 12; y--; } S.plY = y; S.plM = m; renderJournal(); },
@@ -2751,6 +2815,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       ${cost.length ? `<span class="ht-div"></span><span class="ht-row ht-cost"><i class="ht-ic cost">✳</i><b>Nepříznivé</b><span class="tx">${esc(cost[0].text)}</span></span>` : ''}
       ${cycOn() && cycFor(K.isoDate(np.y, np.m, np.d)) ? `<span class="ht-div"></span><span class="ht-cyc">${(() => { const c = cycFor(K.isoDate(np.y, np.m, np.d)); return `<i class="cdot" style="background:${c.ph.col}"></i><b>${c.day}. den cyklu</b><span>${esc(c.ph.n)} fáze</span>`; })()}</span>` : ''}
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
+      ${orgHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv ht-org" id="orgLine">${orgHTML()}</span>${S.orgHelp ? orgExpHTML() : ''}` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
 <linearGradient id="invG" gradientUnits="userSpaceOnUse" x1="40" y1="8" x2="40" y2="72"><stop offset="0" stop-color="#F7E3A8"/><stop offset="1" stop-color="#D9A54A"/></linearGradient>
 <radialGradient id="invBloom" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFEFC8" stop-opacity=".75"/><stop offset=".3" stop-color="#FBD489" stop-opacity=".34"/><stop offset=".62" stop-color="#F3BC63" stop-opacity=".1"/><stop offset="1" stop-color="#F3BC63" stop-opacity="0"/></radialGradient>
@@ -4108,6 +4173,7 @@ ${parts}
         <label>Luna bez kurzu – hodin v aktivní části dne (8–22), aby srazila skóre<input name="voc" type="number" step="1" value="${settings.rules.vocHours}"></label>
         <label>Orbis pro tvé hvězdy (°)<input name="starOrb" type="number" step="0.5" value="${settings.rules.starOrb}"></label>
         <label class="wide" style="flex-direction:row;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--text)"><input type="checkbox" name="showKp" ${settings.showKp ? 'checked' : ''}> Započítávat kosmické počasí (Kp) do skóre</label>
+        <label class="wide" style="flex-direction:row;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--text)"><input type="checkbox" data-act="toggleOrg" ${settings.organs === false ? '' : 'checked'}> Orgánové hodiny v dnešku</label>
         <div class="wide row"><button type="button" class="btn" data-act="saveRules">Uložit pravidla</button></div>
         <details class="expl"><summary>Co ta čísla znamenají? (polopatě)</summary><div class="card">
           <p><b>Jak appka barví dny.</b> Každý den se podívá, jak putující Luna svítí na tvou osobní mapu. Když ladí, den dostává plusové body; když dře, minusové. Součet je skóre dne — vidíš ho v detailu dne.</p>
@@ -4268,7 +4334,7 @@ ${parts}
   showTab(['kalendar', 'ukazy', 'diar', 'nativ', 'nastaveni'].includes(store.get('kairos_tab', 'kalendar')) ? store.get('kairos_tab', 'kalendar') : 'kalendar');
   setTimeout(reconcileMedia, 1200);
   setTimeout(() => { const w = wxGet(); if (!w || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); }, 800);
-  setInterval(() => { const el = $('#tatvaLine'); if (el) { const h = tattvaHTML(); if (h) el.innerHTML = h; } }, 30000);
+  setInterval(() => { const el = $('#tatvaLine'); if (el) { const h = tattvaHTML(); if (h) el.innerHTML = h; } const eo = $('#orgLine'); if (eo) { const g = orgHTML(); if (g) eo.innerHTML = g; } }, 30000);
   setTimeout(() => { const c = gEv(); if (store.get('kairos_ics', '') && (!c || Date.now() - c.when > 6 * 3600 * 1000)) icsRefresh(true); }, 2500);
   loadKp(false);
   (() => { const sp = $('#splash'); if (!sp) return; const off = () => { sp.classList.add('done'); setTimeout(() => sp.remove(), 650); };
