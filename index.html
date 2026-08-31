@@ -754,7 +754,16 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .fourpts{margin:0 2px 10px}
 .fourpts p{margin:6px 2px 0;font-size:13.5px;line-height:1.55;color:var(--muted)}
 .fourpts p b{color:var(--text)}
-.natal-sum.home{margin:4px 0 2px;cursor:pointer}
+.natal-sum .ns{font:inherit;cursor:pointer;transition:border-color .18s,transform .18s}
+.natal-sum .ns:hover{border-color:var(--inst-gold)}
+.natal-sum .ns.on{border-color:var(--inst-gold);box-shadow:0 0 0 1px var(--inst-gold) inset,0 4px 14px rgba(2,8,24,.3)}
+.ptexp{margin:8px 0 12px;padding:12px 14px;border-radius:12px;border:1px solid var(--glass-line);background:var(--glass)}
+.ptexp .pth{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ptexp .pth b{font-family:var(--display);font-size:18px;color:var(--text)}
+.ptexp .ptx{font:inherit;background:none;border:1px solid var(--line2);border-radius:50%;width:26px;height:26px;color:var(--muted);cursor:pointer}
+.ptexp .ptwhat{margin:8px 0 6px;font-size:13.5px;line-height:1.55;color:var(--muted)}
+.ptexp .ptme{margin:0 0 8px;font-size:15px;line-height:1.6;color:var(--text)}
+.natal-sum.home{margin:4px 0 2px}
 .natal-sum.home .ns{padding:10px 6px 9px}
 .natal-sum.home .g{font-size:20px}
 .natal-sum.home .v{font-size:16px}
@@ -2499,6 +2508,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     },
     cycToggle() { store.set('kairos_cyc_on', !cycOn()); renderSettings(); },
     goNatal() { showTab('nativ'); },
+    ptOpen(el) { S.ptOpen = S.ptOpen === el.dataset.k ? null : el.dataset.k; if (S.tab === 'nativ') renderNatal(); else renderCalendar(); },
     goDiar(el) { const k = el.dataset.k, [yy, mm] = k.split('-').map(Number); S.plSel = k; S.plY = yy; S.plM = mm; showTab('diar'); setTimeout(() => { const t = $('#view-diar .pcal'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 140); },
     evPastOn() { S.evPast = true; renderEvents(); },
     evPastOff() { S.evPast = false; renderEvents(); },
@@ -2680,7 +2690,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     }
     if (isCurMonth && (hiddenDays || S.showPast)) pastBar = `<div class="pastbar"><button type="button" class="chip small" data-act="pastToggle">${S.showPast ? '▴ skrýt uplynulé dny' : `▾ zobrazit ${hiddenDays} uplynulých dnů`}</button></div>`;
     v.innerHTML = `
-      ${natalSumHTML()}
+      ${natalSumHTML(true)}
       ${todayHeroHTML()}
       ${aheadHTML()}
       ${todayReadHTML()}
@@ -2738,15 +2748,26 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   }
 
   // pás nejbližších dnů
-  function natalSumHTML() {
+  const PT_INFO = {
+    sun: { g: () => K.BODY_GLYPH.Sun, k: 'Slunce', what: 'Jádro osobnosti: čím svítíš, kam rosteš a co ti dává smysl.', si: (n) => n.sunSign, txt: (si) => HS.SUN[si] },
+    moon: { g: () => K.BODY_GLYPH.Moon, k: 'Luna', what: 'Vnitřní svět: co potřebuješ, aby ti bylo dobře, a jak prožíváš.', si: (n) => n.moonSign, txt: (si) => (HS.MOON && HS.MOON[si]) || `Uvnitř potřebuješ ${HS.NEED[si]}.` },
+    asc: { g: () => 'Asc', k: 'Ascendent', what: 'Znamení, které vycházelo na východě v okamžiku narození: jak vstupuješ do světa a jak tě druzí vidí na první pohled.', si: (n) => K.signOf(n.points.Asc.lon), txt: (si) => HS.ASC[si] },
+    dsc: { g: () => 'Dsc', k: 'Descendent', what: 'Bod přesně naproti Ascendentu, hrot sedmého domu: koho k sobě přitahuješ, co hledáš v partnerství a co se o sobě učíš skrze druhé. Ascendent je „já", Descendent je „ty".', si: (n) => K.signOf(n.cusps[7]), txt: (si) => HS.D7[si] },
+  };
+  function natalSumHTML(home) {
     const n = S.natal; if (!n) return '';
-    const asc = K.SIGNS[K.signOf(n.points.Asc.lon)];
-    return `<div class="natal-sum home" role="button" data-act="goNatal" title="Otevřít O tobě">
-      <div class="ns"><span class="g">${K.BODY_GLYPH.Sun}</span><span class="k">Slunce</span><span class="v">${K.SIGNS[n.sunSign]}</span></div>
-      <div class="ns"><span class="g">${K.BODY_GLYPH.Moon}</span><span class="k">Luna</span><span class="v">${K.SIGNS[n.moonSign]}</span></div>
-      <div class="ns"><span class="g">Asc</span><span class="k">Ascendent</span><span class="v">${asc}</span></div>
-      <div class="ns"><span class="g">Dsc</span><span class="k">Descendent</span><span class="v">${K.SIGNS[K.signOf(n.cusps[7])]}</span></div>
-    </div>`;
+    const open = S.ptOpen;
+    const cards = ['sun', 'moon', 'asc', 'dsc'].map(k => { const P = PT_INFO[k], si = P.si(n);
+      return `<button type="button" class="ns ${open === k ? 'on' : ''}" data-act="ptOpen" data-k="${k}"><span class="g">${P.g()}</span><span class="k">${P.k}</span><span class="v">${K.SIGNS[si]}</span></button>`; }).join('');
+    let exp = '';
+    if (open && PT_INFO[open]) {
+      const P = PT_INFO[open], si = P.si(n);
+      exp = `<div class="ptexp"><div class="pth"><b>${P.k} ${K.SIGN_LOC_V[si]}</b><button type="button" class="ptx" data-act="ptOpen" data-k="${open}" aria-label="Zavřít">×</button></div>
+        <p class="ptwhat">${P.what}</p>
+        <p class="ptme">${esc(P.txt(si) || '')}</p>
+        ${home ? `<button type="button" class="chip small" data-act="goNatal">✦ celý horoskop v O tobě</button>` : ''}</div>`;
+    }
+    return `<div class="natal-sum ${home ? 'home' : ''}">${cards}</div>${exp}`;
   }
   function todayReadHTML() {
     const { y, m, d } = np;
@@ -3916,18 +3937,8 @@ ${parts}
     const natalHTML = `
       <div class="h2">${esc(p.name)}</div>
       <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p>
-      <div class="natal-sum">
-        <div class="ns"><span class="g">${K.BODY_GLYPH.Sun}</span><span class="k">Slunce</span><span class="v">${K.SIGNS[n.sunSign]}</span></div>
-        <div class="ns"><span class="g">${K.BODY_GLYPH.Moon}</span><span class="k">Luna</span><span class="v">${K.SIGNS[n.moonSign]}</span></div>
-        <div class="ns"><span class="g">${K.BODY_GLYPH.Asc || 'Asc'}</span><span class="k">Ascendent</span><span class="v">${K.SIGNS[K.signOf(n.points.Asc.lon)]}</span></div>
-        <div class="ns"><span class="g">Dsc</span><span class="k">Descendent</span><span class="v">${K.SIGNS[K.signOf(n.cusps[7])]}</span></div>
-      </div>
-      <details class="hsintro fourpts"><summary>Co znamenají tyto čtyři body</summary>
-        <p><b>Slunce</b> — jádro osobnosti: čím svítíš, kam rosteš a co ti dává smysl.</p>
-        <p><b>Luna</b> — vnitřní svět: co potřebuješ, aby ti bylo dobře, a jak prožíváš.</p>
-        <p><b>Ascendent</b> — znamení, které vycházelo na východě v okamžiku narození: jak vstupuješ do světa a jak tě druzí vidí na první pohled.</p>
-        <p><b>Descendent</b> — bod přesně naproti Ascendentu, hrot sedmého domu: koho k sobě přitahuješ, co hledáš v partnerství a co se o sobě učíš skrze druhé. Ascendent je „já", Descendent je „ty".</p>
-      </details>
+      ${natalSumHTML(false)}
+      <p class="note" style="margin:0 2px 10px">Ťukni na kartu — dozvíš se, co ten bod znamená a jak vychází tobě.</p>
       ${wheelSVG(n)}
       ${chakraHTML(p)}
       <div class="hshead"><svg class="hsstar" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="20" cy="20" r="7"/><path d="M20 3v8M20 29v8M3 20h8M29 20h8"/><path d="M20 13l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor" stroke="none"/></svg><div class="hstitle">Tvůj horoskop</div><div class="hsrule"><i></i><b>✦</b><i></i></div></div>
