@@ -167,7 +167,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .tab{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;flex:1;max-width:150px;padding:9px 4px 10px;border-radius:0;border-top:2px solid transparent;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,234,216,.72);display:flex;flex-direction:column;align-items:center;gap:3px}
 .tab .g{font-size:17px;line-height:1}
 .tab.on{color:var(--inst-gold);border-top-color:var(--inst-gold);text-shadow:0 0 8px rgba(239,200,120,.35)}
-.view{display:none;padding-top:20px}.view.on{display:block}
+.view{display:none;padding-top:20px}
+.view.on{animation:viewIn .24s ease-out}
+@keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view.on{animation:none}}.view.on{display:block}
 /* obecné */
 .h2{font-family:var(--display);font-size:24px;font-weight:500;margin:22px 0 8px;color:var(--text);text-shadow:var(--halo)}
 .h3{display:flex;align-items:center;gap:12px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--h3);margin:20px 0 9px;font-weight:500;text-shadow:var(--halo)}
@@ -355,7 +358,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 [data-theme="day"] .legend{background:rgba(250,252,255,.7);border-color:rgba(255,255,255,.85);color:#123252}
 .legend-more summary{padding:5px 12px;border-radius:999px;background:rgba(8,16,36,.34);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);border:1px solid rgba(236,232,220,.14);display:inline-block;text-shadow:none}
 [data-theme="day"] .legend-more summary{background:rgba(250,252,255,.7);border-color:rgba(255,255,255,.85);color:#8A6410}
-.day-hero{border-radius:14px;padding:12px 14px 10px;margin:0 -4px 12px;background:rgba(8,16,36,.34);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);border:1px solid rgba(236,232,220,.14)}
+.day-hero.today-detail{padding:4px 12px 6px}
+.day-hero{border-radius:var(--r);padding:12px 14px 10px;margin:0 0 12px;background:rgba(8,16,36,.34);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);border:1px solid rgba(236,232,220,.14)}
 [data-theme="day"] .day-hero{background:rgba(250,252,255,.66);border-color:rgba(255,255,255,.85)}
 [data-theme="day"] .day-hero .day-title{color:#0E3556;text-shadow:none}
 [data-theme="day"] .day-hero .day-title small{color:#38689A;text-shadow:none}
@@ -427,6 +431,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .pc .dot{width:5px;height:5px;border-radius:50%;background:var(--gold)}
 .pc .dot.g{background:#7FB6DD}
 .pc .sd{font-style:normal;font-size:8px;line-height:1}
+[data-theme="day"] .monthbar .mn{color:#0E3556;text-shadow:0 1px 2px rgba(255,255,255,.85),0 0 10px rgba(255,255,255,.6)}
+[data-theme="day"] .weekdays{color:#173B5E;border-bottom-color:rgba(4,32,68,.25);text-shadow:0 1px 2px rgba(255,255,255,.8)}
+[data-theme="day"] .h3{color:#0E3556;text-shadow:0 1px 2px rgba(255,255,255,.75),0 0 10px rgba(255,255,255,.5)}
 .dayread{position:relative;overflow:hidden;border-color:rgba(240,216,152,.3)}
 .dayread:before{content:'';position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(240,216,152,.55),transparent)}
 .dr-head{display:flex;align-items:center;gap:10px;margin-bottom:3px}
@@ -757,7 +764,7 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .natal-sum .ns{font:inherit;cursor:pointer;transition:border-color .18s,transform .18s}
 .natal-sum .ns:hover{border-color:var(--inst-gold)}
 .natal-sum .ns.on{border-color:var(--inst-gold);box-shadow:0 0 0 1px var(--inst-gold) inset,0 4px 14px rgba(2,8,24,.3)}
-.ptexp{margin:8px 0 12px;padding:12px 14px;border-radius:12px;border:1px solid var(--glass-line);background:var(--glass)}
+.ptexp{margin:8px 0 12px;padding:12px 14px;border-radius:var(--r);border:1px solid var(--glass-line);background:var(--glass)}
 .ptexp .pth{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .ptexp .pth b{font-family:var(--display);font-size:18px;color:var(--text)}
 .ptexp .ptx{font:inherit;background:none;border:1px solid var(--line2);border-radius:50%;width:26px;height:26px;color:var(--muted);cursor:pointer}
@@ -2682,9 +2689,11 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     let hiddenDays = 0, pastBar = '';
     const weeks = [];
     for (let i = 0; i < cellArr.length; i += 7) weeks.push(cellArr.slice(i, i + 7));
-    for (const wk of weeks) {
+    const todayWk = weeks.findIndex(wk => wk.some(c => c.key === TODAY_KEY));
+    for (let wi = 0; wi < weeks.length; wi++) {
+      const wk = weeks[wi];
       const real = wk.filter(c => c.key);
-      const wholePast = isCurMonth && real.length && real.every(c => c.key < TODAY_KEY);
+      const wholePast = isCurMonth && real.length && real.every(c => c.key < TODAY_KEY) && wi < todayWk - 1;
       if (wholePast && !S.showPast) { hiddenDays += real.length; continue; }
       cells += wk.map(c => c.html).join('');
     }
@@ -2704,7 +2713,6 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <div class="weekdays"><span>Po</span><span>Út</span><span>St</span><span>Čt</span><span>Pá</span><span>So</span><span>Ne</span></div>
       <div class="grid">${cells}</div>
       <div class="legend"><span><i style="background:linear-gradient(90deg,#8FE8BE,#2F9E72)"></i>plyne to</span><span><i style="background:linear-gradient(90deg,#FFB598,#C9563A)"></i>větší tření</span><span>✦ tvá hvězda</span><span>◉ zatmění</span><span>● ○ novoluní / úplněk</span><span style="color:var(--gold)">1</span><span style="margin-left:-8px">zapsané plány</span><span style="color:var(--gold)">✎</span><span style="margin-left:-8px">zápis dne</span></div>
-      ${electHTML()}
       <details class="legend-more"><summary><span class="tri" aria-hidden="true"></span>Co značky znamenají?</summary>
         <p><b style="color:#8FE8BE"><i class="lg" style="background:linear-gradient(90deg,#8FE8BE,#2F9E72)"></i>Zelený proužek</b> — den, kdy jsou energie více v souladu s tvým osobním horoskopem. Věci mohou jít přirozeněji a s menším úsilím.</p>
         <p><b style="color:#FFB598"><i class="lg" style="background:linear-gradient(90deg,#FFB598,#C9563A)"></i>Lososový proužek</b> — den s větším odporem nebo napětím. Některé věci mohou vyžadovat více energie, trpělivosti a odpočinku.</p>
@@ -2714,6 +2722,8 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
         <p>Barvy i značky jsou vypočítané podle tvého osobního horoskopu, takže u každého člověka mohou vycházet jinak. Po rozkliknutí konkrétního dne se dozvíš, proč má právě takové označení.</p>
         <button type="button" class="legend-close" data-act="closeLegend">▲ &nbsp;Sbalit vysvětlivky</button>
       </details>
+      ${electHTML()}
+
       <div class="day" id="dayDetail">${dayDetailHTML(S.sel.y, S.sel.m, S.sel.d, evByDay)}</div>`;
   }
 
@@ -2819,11 +2829,11 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     const go = gen.go.concat(per.go), cost = gen.cost.concat(per.cost);
 
     return `
-      <div class="day-hero">
+      ${isToday ? `<div class="h3" style="margin-top:22px">Dnes podrobně</div><div class="day-hero today-detail">` : `<div class="day-hero">
       <div class="day-head">
-        <div class="day-title"><small>${isToday ? 'dnes · ' : ''}${K.WEEKDAY_CZ[K.tzParts(da.noon, TZ).wd]}</small>${d}. ${K.MONTH_GEN[m - 1]} ${y}</div>
+        <div class="day-title"><small>${K.WEEKDAY_CZ[K.tzParts(da.noon, TZ).wd]}</small>${d}. ${K.MONTH_GEN[m - 1]} ${y}</div>
         <div><span class="badge ${da.color}">${TX.dayWord(da)}</span></div>
-      </div>
+      </div>`}
       ${isToday ? '' : `<p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;% osvětlení</p>
       <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>`}
       ${isToday ? '' : (() => { const r = TX.dayReading(da, dayEv); return `<p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p>`; })()}
