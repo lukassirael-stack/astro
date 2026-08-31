@@ -309,11 +309,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .arctitle{display:inline-block;vertical-align:top;line-height:1.3}
 .arctitle em{display:block;margin-top:2px}
 .arctitle em{font-style:normal;font-family:var(--body);font-size:12px;font-weight:500;letter-spacing:.09em;text-transform:lowercase;color:var(--muted)}
-.arcwheel{display:block;margin:10px auto 18px;max-width:290px}
-.arcsvg{width:100%;height:auto;display:block;overflow:visible}
-.arcsvg .arcn{font-family:var(--body);font-size:12px;font-weight:600;fill:var(--gold);opacity:.85;text-anchor:middle}
-.arcsvg .arcn.arch{opacity:1}
-.arcsvg .arcw{font-family:var(--body);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;fill:var(--muted);opacity:.7}
+.arcwheel{position:relative;margin:12px auto 20px;max-width:320px;border-radius:14px;overflow:hidden;border:1px solid var(--line2)}
+.arcwheel img{display:block;width:100%;height:auto}
+.arcsvg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.arcsvg .arcn{font-family:var(--body);font-size:52px;font-weight:700;fill:#F0C874;paint-order:stroke;stroke:rgba(6,14,30,.55);stroke-width:5px}
+.arcsvg .arcw{font-family:var(--body);font-size:34px;letter-spacing:.16em;text-transform:uppercase;fill:#EAF1FA;opacity:.75;paint-order:stroke;stroke:rgba(6,14,30,.5);stroke-width:4px}
 .arclede{font-size:15px;line-height:1.62;color:var(--text);margin:6px 0 16px}
 .arcsteps{display:flex;flex-direction:column;gap:2px;position:relative}
 .arcstep{display:flex;gap:14px;padding:11px 0 13px;position:relative}
@@ -2850,32 +2850,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     return `<details class="arc"${S.arcOpen ? ' open' : ''}>
       <summary><span class="arctitle">Čakrový cyklus dne<em>sedm poloh od probuzení k odevzdání</em></span></summary>
       <div class="arcin">
-        <div class="arcwheel"><svg class="arcsvg" viewBox="0 0 320 330" aria-hidden="true">
-  <defs>
-    <linearGradient id="arcG" x1="0" y1="330" x2="0" y2="0" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#8A6A2E" stop-opacity=".35"/>
-      <stop offset=".5" stop-color="#EFC77A" stop-opacity=".9"/>
-      <stop offset="1" stop-color="#FFF0C8" stop-opacity=".95"/>
-    </linearGradient>
-    <radialGradient id="arcZ" cx=".5" cy=".5" r=".5">
-      <stop offset="0" stop-color="#FFF3D4" stop-opacity=".5"/>
-      <stop offset="1" stop-color="#FFE6B0" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <ellipse cx="160" cy="56" rx="46" ry="46" fill="url(#arcZ)"/>
-  <circle cx="160" cy="172" r="116" fill="none" stroke="url(#arcG)" stroke-width="1.1"/>
-  <circle cx="160" cy="172" r="132" fill="none" stroke="#EFC77A" stroke-opacity=".16" stroke-width=".8"/>
-  <line x1="10" y1="172" x2="310" y2="172" stroke="#EFC77A" stroke-opacity=".3" stroke-width=".9" stroke-dasharray="3 5"/>
-  <text x="14" y="166" class="arcw" text-anchor="start">východ</text>
-  <text x="306" y="166" class="arcw" text-anchor="end">západ</text>
-  <circle cx="44" cy="172" r="6" fill="#C9705A"/><text x="44" y="196" class="arcn">1</text>
-  <circle cx="59.5" cy="114" r="6" fill="#E8865C"/><text x="40" y="112" class="arcn">2</text>
-  <circle cx="102" cy="71.5" r="6" fill="#D9B96E"/><text x="88" y="58" class="arcn">3</text>
-  <circle cx="160" cy="56" r="8" fill="#8FC2A8"/><circle cx="160" cy="56" r="14" fill="none" stroke="#8FC2A8" stroke-opacity=".45" stroke-width="1"/><text x="160" y="30" class="arcn arch">4</text>
-  <circle cx="234.6" cy="83.1" r="6" fill="#7FB6DD"/><text x="252" y="72" class="arcn">5</text>
-  <circle cx="274.2" cy="151.9" r="6" fill="#8F7BC0"/><text x="292" y="146" class="arcn">6</text>
-  <circle cx="160" cy="288" r="7" fill="#CDBFE4"/><text x="160" y="311" class="arcn">7</text>
-</svg></div>
+        <div class="arcwheel"><img src="cyklus-dne.webp?v=1" alt="Kruh dne nad krajinou od svítání k noci" loading="lazy"><svg class="arcsvg" viewBox="0 0 1023 1537" aria-hidden="true"><circle cx="167" cy="726" r="38" fill="#E8503A" opacity=".22"/><circle cx="167" cy="726" r="24" fill="#E8503A" opacity=".3"/><circle cx="167" cy="726" r="16" fill="#E8503A"/><text x="105" y="744" class="arcn" text-anchor="start">1</text><circle cx="228" cy="531" r="38" fill="#F5762A" opacity=".22"/><circle cx="228" cy="531" r="24" fill="#F5762A" opacity=".3"/><circle cx="228" cy="531" r="16" fill="#F5762A"/><text x="178" y="513" class="arcn" text-anchor="end">2</text><circle cx="363" cy="418" r="38" fill="#F5C542" opacity=".22"/><circle cx="363" cy="418" r="24" fill="#F5C542" opacity=".3"/><circle cx="363" cy="418" r="16" fill="#F5C542"/><text x="337" y="380" class="arcn" text-anchor="end">3</text><circle cx="507" cy="386" r="48" fill="#6FCB5A" opacity=".22"/><circle cx="507" cy="386" r="30" fill="#6FCB5A" opacity=".3"/><circle cx="507" cy="386" r="20" fill="#6FCB5A"/><text x="507" y="336" class="arcn" text-anchor="middle">4</text><circle cx="702" cy="447" r="38" fill="#6FB6E8" opacity=".22"/><circle cx="702" cy="447" r="24" fill="#6FB6E8" opacity=".3"/><circle cx="702" cy="447" r="16" fill="#6FB6E8"/><text x="738" y="415" class="arcn" text-anchor="start">5</text><circle cx="835" cy="638" r="38" fill="#9B5FD8" opacity=".22"/><circle cx="835" cy="638" r="24" fill="#9B5FD8" opacity=".3"/><circle cx="835" cy="638" r="16" fill="#9B5FD8"/><text x="895" y="640" class="arcn" text-anchor="start">6</text><circle cx="507" cy="1066" r="38" fill="#B98BF0" opacity=".22"/><circle cx="507" cy="1066" r="24" fill="#B98BF0" opacity=".3"/><circle cx="507" cy="1066" r="16" fill="#B98BF0"/><text x="507" y="1152" class="arcn" text-anchor="middle">7</text><text x="58" y="700" class="arcw" text-anchor="start">východ</text><text x="965" y="700" class="arcw" text-anchor="end">západ</text></svg></div>
         <p class="arclede">Když se den poskládá podle přirozených činností člověka, vychází docela čistý oblouk — a je to týž oblouk, jaký nad hlavou opisuje Slunce. Pozornost vychází s tělem na východě, kulminuje v setkání a klesá k odevzdání ve spánku, nejhlouběji pod obzorem. Ráno pak vyjde znovu.</p>
         <div class="arcsteps">${steps}</div>
         <p class="arcnote">Nejzajímavější je čtvrtý krok. Není to další činnost v řadě, je to zlom celé křivky: první tři polohy jsou hlavně <em>já v těle</em> a <em>já ve světě</em>, pátá až sedmá vedou k jemnějším vrstvám vědomí. Srdce je most, kterým se přechází z <em>já</em> do <em>my</em>. Jóga zná na dráze sušumny tři uzly, <b>granthi</b>, a druhý z nich leží právě na úrovni srdce — jako místo, kde přechod stojí něco navíc.</p>
