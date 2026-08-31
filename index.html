@@ -441,6 +441,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .cycexp{margin:0 0 8px;padding:10px 12px;border-radius:10px;border:1px dashed var(--hairline)}
 .cycexp b{font-family:var(--display);font-size:15px}
 .cycexp p{margin:5px 0 0;font-size:13px;line-height:1.55;color:var(--muted)}
+.cystat{margin-top:10px}
+.cystat .cyrow{display:flex;align-items:center;gap:9px;margin:8px 0;font-size:13px}
+.cystat .cyrow .cdot{width:9px;height:9px;border-radius:50%;flex:none}
+.cystat .cyrow .cyn{flex:none;width:86px;color:var(--text)}
+.cystat .cybar{position:relative;flex:1;height:8px;border-radius:4px;background:var(--field);border:1px solid var(--hairline)}
+.cystat .cybar i{position:absolute;top:0;height:100%;border-radius:4px;display:block;opacity:.9}
+.cystat .cybar u{position:absolute;left:50%;top:-3px;width:1px;height:12px;background:var(--line2);text-decoration:none}
+.cystat .cyv{flex:none;width:64px;text-align:right;color:var(--muted);font-size:11.5px;font-variant-numeric:tabular-nums}
+.jitem .jcy{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:11.5px;color:var(--muted)}
+.jitem .jcy .cdot{width:7px;height:7px;border-radius:50%;flex:none}
 .pcm .dot.c{background:#8FA6C9}
 .hero-today .ht-cyc{display:flex;align-items:center;gap:9px;font-size:14.5px;color:var(--inst-text)}
 .hero-today .ht-cyc .cdot{width:10px;height:10px;border-radius:50%;flex:none;margin-left:16px}
@@ -3630,12 +3640,46 @@ ${parts}
     } else {
       stat = `<p class="note">Na porovnání s výpočtem je potřeba aspoň pět ohodnocených dnů. Máš ${rated.length}.</p>`;
     }
+    // rozložení hodnocení po fázích cyklu
+    let cycStat = '';
+    if (cycOn()) {
+      const buckets = {};
+      for (const P of CYC_PHASES) buckets[P.k] = [];
+      for (const k of rated) { const c = cycFor(k); if (c) buckets[c.ph.k].push(jGet(k).rate); }
+      const total = CYC_PHASES.reduce((a, P) => a + buckets[P.k].length, 0);
+      const filled = CYC_PHASES.filter(P => buckets[P.k].length >= 2).length;
+      if (total >= 8 && filled >= 3) {
+        const avg = {};
+        for (const P of CYC_PHASES) avg[P.k] = buckets[P.k].length ? buckets[P.k].reduce((a, b) => a + b, 0) / buckets[P.k].length : null;
+        const have = CYC_PHASES.filter(P => avg[P.k] != null);
+        const best = have.reduce((a, b) => (avg[b.k] > avg[a.k] ? b : a));
+        const low = have.reduce((a, b) => (avg[b.k] < avg[a.k] ? b : a));
+        const spread = avg[best.k] - avg[low.k];
+        const rows = CYC_PHASES.map(P => {
+          const n = buckets[P.k].length, a = avg[P.k];
+          if (!n) return `<div class="cyrow"><span class="cdot" style="background:${P.col};opacity:.3"></span><span class="cyn">${esc(P.n)}</span><span class="cybar"><u></u></span><span class="cyv">zatím</span></div>`;
+          const w = Math.abs(a) / 2 * 50;
+          const left = a >= 0 ? 50 : 50 - w;
+          const val = (a >= 0 ? '+' : '−') + fmtNum(Math.abs(a), 1).replace('.', ',');
+          return `<div class="cyrow"><span class="cdot" style="background:${P.col}"></span><span class="cyn">${esc(P.n)}</span><span class="cybar"><i style="left:${left}%;width:${Math.max(w, 2)}%;background:${P.col}"></i><u></u></span><span class="cyv">${val} · ${n}×</span></div>`;
+        }).join('');
+        const shrnuti = spread >= 0.5
+          ? `<p>Nejvýš zatím vycházejí dny ve fázi <b>${esc(best.n)}</b>, nejtišeji ve fázi <b>${esc(low.n)}</b>. Rozdíl mezi fázemi je ${spread >= 1 ? 'zřetelný' : 'jemný'}.</p>`
+          : `<p>Hodnocení se zatím drží napříč fázemi vyrovnaně.</p>`;
+        cycStat = `<div class="card"><div class="h3" style="margin-top:0">Hodnocení podle fáze cyklu</div>
+          <div class="cystat">${rows}</div>
+          ${shrnuti}
+          <p class="note">Průměr tvého hodnocení v každé fázi na škále od náročného po příznivý den, počítáno z ${total} ohodnocených dnů se známou fází. Obraz se ustálí zhruba po třech cyklech.</p></div>`;
+      } else if (total >= 1) {
+        cycStat = `<p class="note">Rozložení hodnocení po fázích cyklu se ukáže při osmi ohodnocených dnech se známou fází — máš jich ${total}.</p>`;
+      }
+    }
     const tk = TODAY_KEY, [ty, tm, td] = tk.split('-').map(Number);
     let html = `<div class="h2">Diář</div>
       ${programCal()}
       <div class="h3" style="margin-top:14px">Zápis dne — ${td}. ${K.MONTH_GEN[tm - 1]}</div>
       ${journalPanel(tk, analyze(ty, tm, td))}
-      <div class="h3">Historie</div><p class="note">${keys.length} ${keys.length === 1 ? 'zápis' : keys.length < 5 ? 'zápisy' : 'zápisů'} · vše zůstává jen v tomto zařízení</p>${stat}`;
+      <div class="h3">Historie</div><p class="note">${keys.length} ${keys.length === 1 ? 'zápis' : keys.length < 5 ? 'zápisy' : 'zápisů'} · vše zůstává jen v tomto zařízení</p>${stat}${cycStat}`;
     let curMonth = '';
     for (const k of keys) {
       const [y, m, d] = k.split('-').map(Number);
@@ -3644,13 +3688,15 @@ ${parts}
       const e = jGet(k) || {}, da = analyze(y, m, d);
       const r = RATES.find(x => x.v === e.rate);
       const pls = pGet(k);
+      const cy = cycFor(k);
+      const cyHtml = cy ? `<span class="jcy"><i class="cdot" style="background:${cy.ph.col}"></i>${cy.day}. den cyklu · ${esc(cy.ph.n)} fáze</span>` : '';
       const plHtml = pls.length ? `<span class="jc" style="color:var(--gold)">${pls.map(x => (x.t ? x.t + ' ' : '') + esc(x.name)).join(' · ')}</span>` : '';
       const med = e.media || [];
       const medHtml = med.length ? `<span class="jc muted">${med.filter(x => x.t === 'i').length ? '📷 ' + med.filter(x => x.t === 'i').length : ''} ${med.filter(x => x.t === 'a').length ? '🎙 ' + med.filter(x => x.t === 'a').length : ''}</span>` : '';
       const p = K.tzParts(K.dayStart(y, m, d, TZ), TZ);
       html += `<button type="button" class="jitem ${da.color}" data-act="jumpDay" data-y="${y}" data-m="${m}" data-d="${d}">
         <span class="jd"><b>${d}.</b>${K.WEEKDAY_CZ[p.wd].slice(0, 2)}</span>
-        <span class="jt">${r ? `<span class="badge ${r.cls}">${r.label}</span>` : ''}${plHtml}${medHtml}${e.note ? `<span class="jc">${esc(e.note)}</span>` : ''}
+        <span class="jt">${r ? `<span class="badge ${r.cls}">${r.label}</span>` : ''}${cyHtml}${plHtml}${medHtml}${e.note ? `<span class="jc">${esc(e.note)}</span>` : ''}
         <span class="n">appka: ${TX.dayWord(da)}${r && ((r.v > 0 && da.color === 'tense') || (r.v < 0 && da.color === 'harm')) ? ' · rozchází se' : ''}</span></span></button>`;
     }
     v.innerHTML = html + journalIO();
