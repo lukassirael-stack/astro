@@ -254,6 +254,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .legend-more .lg{display:inline-block;width:14px;height:2px;margin-right:6px;vertical-align:3px}
 .legend-more summary{list-style:none}
 .legend-more summary::-webkit-details-marker{display:none}
+.arc>summary .tri::before{content:'▸';display:inline-block;transition:transform .15s ease}
+.arc[open]>summary .tri::before{content:'▾'}
 .legend-more summary .tri::before{content:'▸';display:inline-block;margin-right:7px;transition:transform .15s ease}
 .legend-more[open] summary .tri::before{content:'▾'}
 .legend-close{display:block;margin:10px 0 2px;padding:7px 14px;border:1px solid var(--line2);border-radius:8px;color:var(--gold);font-size:12px;letter-spacing:.06em;background:none}
@@ -300,6 +302,25 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .sdlist li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--hairline)}
 .sdask p{font-size:14px}
 .hero-today .tvq{flex:none;align-self:center;margin-left:6px;width:30px;height:30px;border-radius:50%;border:1px solid var(--inst-line-soft);display:grid;place-items:center;font-size:16px;font-style:normal;color:var(--inst-muted)}
+.arc{margin:26px 0 8px;border-top:1px solid var(--line2);padding-top:18px}
+.arc>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;font-family:var(--display);font-size:16.5px;letter-spacing:.01em;color:var(--gold);padding:6px 0}
+.arc>summary::-webkit-details-marker{display:none}
+.arc[open]>summary{margin-bottom:6px}
+.arcin{padding:2px 2px 6px}
+.arclede{font-size:15px;line-height:1.62;color:var(--text);margin:6px 0 16px}
+.arcsteps{display:flex;flex-direction:column;gap:2px;position:relative}
+.arcstep{display:flex;gap:14px;padding:11px 0 13px;position:relative}
+.arcstep::after{content:'';position:absolute;left:5px;top:26px;bottom:-2px;width:1px;background:linear-gradient(180deg,var(--line2),transparent)}
+.arcstep:last-child::after{display:none}
+.arcdot{flex:none;width:11px;height:11px;border-radius:50%;margin-top:7px}
+.arcbody{flex:1;min-width:0}
+.arcbody h4{margin:0 0 4px;font-family:var(--display);font-size:15.5px;font-weight:600;color:var(--text);letter-spacing:.01em}
+.arcbody h4 em{font-style:normal;font-weight:500;color:var(--muted)}
+.arcnum{display:inline-block;min-width:17px;font-size:12px;color:var(--gold);opacity:.8}
+.arcbody p{margin:0;font-size:14px;line-height:1.66;color:var(--muted)}
+.arcbody p b{color:var(--text);font-weight:600}
+.arcnote{font-size:14px;line-height:1.66;color:var(--muted);margin:16px 0 0}
+.arcline{margin:18px 0;padding:14px 16px;border:1px solid var(--line2);border-radius:12px;font-family:var(--display);font-size:15.5px;line-height:1.75;color:var(--gold);text-align:center}
 .hero-today .orgexp .orglist{display:block;margin:8px 0 6px}
 .hero-today .orgexp .orow{display:flex;align-items:baseline;gap:8px;padding:2px 0;font-size:12.5px;line-height:1.45;opacity:.8}
 .hero-today .orgexp .orow.on{opacity:1;color:var(--inst-text)}
@@ -2791,9 +2812,45 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       </details>
       ${electHTML()}
 
-      <div class="day" id="dayDetail">${dayDetailHTML(S.sel.y, S.sel.m, S.sel.d, evByDay)}</div>`;
+      <div class="day" id="dayDetail">${dayDetailHTML(S.sel.y, S.sel.m, S.sel.d, evByDay)}</div>
+      ${arcHTML()}`;
+    const ar = v.querySelector('.arc');
+    if (ar) ar.addEventListener('toggle', () => { S.arcOpen = ar.open; });
   }
 
+  // ---------- Oblouk dne: sedm kroků přirozeným životem ----------
+  const ARC_STEPS = [
+    { n: 1, ch: 'Kořenová čakra', t: 'návrat do těla', col: '#C9705A',
+      p: 'Probuzení. Dřív než přijde jakákoli myšlenka na den, je tu tíha těla v posteli, teplota vzduchu, zvuky domu. Vstávání, chodidla na podlaze, gravitace. Základní potřeby, bezpečí, jistota, že tohle místo je moje. <b>Jsem tady.</b>' },
+    { n: 2, ch: 'Sakrální čakra', t: 'rozhýbání života', col: '#E8865C',
+      p: 'Voda, toaleta, hygiena, protažení. Organismus se rozproudí, krev se rozejde do končetin, přichází hlad a s ním první jídlo. Smysly se otevírají, tělo si vzpomíná, že je živé a že ho život baví.' },
+    { n: 3, ch: 'Solar plexus', t: 'vykročení do světa', col: '#D9B96E',
+      p: 'Činnost. Rozhodování, práce rukama i hlavou, obstarávání, tvoření, prosazení vlastní vůle. Člověk bere den do ruky a nechává na něm stopu. <b>Něco dnes udělám.</b>' },
+    { n: 4, ch: 'Srdeční čakra', t: 'setkání', col: '#8FC2A8',
+      p: 'Předěl celého dne. Společné jídlo, rodina, blízkost, spolupráce, péče, chvíle venku mezi stromy. Člověk přestává být jen <em>já konající</em> a vzniká <b>my</b>.' },
+    { n: 5, ch: 'Krční čakra', t: 'sdílení a předávání', col: '#7FB6DD',
+      p: 'Rozhovory, domlouvání, vyprávění, zpěv, učení, předávání zkušeností. V tradiční komunitě sem patří pozdní odpoledne a podvečer, kdy se práce utlumuje a lidé jsou spolu.' },
+    { n: 6, ch: 'Třetí oko', t: 'vnitřní pohled', col: '#8F7BC0',
+      p: 'Se stmíváním ubývá vnějšího jednání. Reflexe dne, ticho, pozorování ohně nebo oblohy, modlitba, meditace, imaginace, intuice. Sny začínají ještě před usnutím. Pozornost jde zvenku dovnitř.' },
+    { n: 7, ch: 'Korunní čakra', t: 'odevzdání', col: '#CDBFE4',
+      p: 'Spánek. Opuštění běžné identity, kontroly a jednání. Člověk už nic nevytváří ani neřeší. Rozpouští se do něčeho většího a ráno se z toho beztvarého vrací zpátky dolů do těla, do prostoru, do konkrétního života.' },
+  ];
+  function arcHTML() {
+    const steps = ARC_STEPS.map(x => `<div class="arcstep">
+      <span class="arcdot" style="background:${x.col};box-shadow:0 0 0 4px ${x.col}22"></span>
+      <div class="arcbody"><h4><span class="arcnum">${x.n}</span>${x.ch} <em>— ${x.t}</em></h4><p>${x.p}</p></div>
+    </div>`).join('');
+    return `<details class="arc"${S.arcOpen ? ' open' : ''}>
+      <summary><span class="tri" aria-hidden="true"></span>Oblouk dne — sedm kroků přirozeným životem</summary>
+      <div class="arcin">
+        <p class="arclede">Když se den poskládá podle přirozených činností člověka, vychází docela čistý oblouk. Sedm poloh, kterými prochází pozornost od probuzení k usnutí — a další ráno zase od začátku.</p>
+        <div class="arcsteps">${steps}</div>
+        <p class="arcnote">Nejzajímavější je čtvrtý krok. Není to další činnost v řadě, je to zlom celé křivky: první tři polohy jsou hlavně <em>já v těle</em> a <em>já ve světě</em>, pátá až sedmá vedou k jemnějším vrstvám vědomí. Srdce je most, kterým se přechází z <em>já</em> do <em>my</em>. Jóga zná na dráze sušumny tři uzly, <b>granthi</b>, a druhý z nich leží právě na úrovni srdce — jako místo, kde přechod stojí něco navíc.</p>
+        <p class="arcline">Přijdu do těla&nbsp;→ ožiju&nbsp;→ konám&nbsp;→ propojuji&nbsp;se&nbsp;→ sdílím&nbsp;→ nahlížím&nbsp;dovnitř&nbsp;→ odevzdávám&nbsp;se.</p>
+        <p class="arcnote">Je to posloupnost života, která se teprve druhotně může projevit v denním čase. Skutečný den se mezi polohami vrací a přeskakuje — v poledne jsi u srdce, odpoledne zpátky v konání, večer znovu u lidí. Proto tady nejsou žádné hodiny. Je to tvar, ne rozvrh: mapa, na které se člověk najde.</p>
+      </div>
+    </details>`;
+  }
   // dnešní shrnutí nahoře
   function todayHeroHTML() {
     const da = analyze(np.y, np.m, np.d);
