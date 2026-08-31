@@ -748,7 +748,12 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .star .why span{display:block}
 .star.main .nm{color:var(--gold)}
 /* nastavení */
-.natal-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.natal-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.natal-sum .k{white-space:nowrap}
+@media (max-width:400px){.natal-sum{gap:6px}.natal-sum .k{font-size:9px;letter-spacing:.1em}.natal-sum .v{font-size:14.5px}.natal-sum .g{font-size:18px}}
+.fourpts{margin:0 2px 10px}
+.fourpts p{margin:6px 2px 0;font-size:13.5px;line-height:1.55;color:var(--muted)}
+.fourpts p b{color:var(--text)}
 .natal-sum.home{margin:4px 0 2px;cursor:pointer}
 .natal-sum.home .ns{padding:10px 6px 9px}
 .natal-sum.home .g{font-size:20px}
@@ -2740,6 +2745,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
       <div class="ns"><span class="g">${K.BODY_GLYPH.Sun}</span><span class="k">Slunce</span><span class="v">${K.SIGNS[n.sunSign]}</span></div>
       <div class="ns"><span class="g">${K.BODY_GLYPH.Moon}</span><span class="k">Luna</span><span class="v">${K.SIGNS[n.moonSign]}</span></div>
       <div class="ns"><span class="g">Asc</span><span class="k">Ascendent</span><span class="v">${asc}</span></div>
+      <div class="ns"><span class="g">Dsc</span><span class="k">Descendent</span><span class="v">${K.SIGNS[K.signOf(n.cusps[7])]}</span></div>
     </div>`;
   }
   function todayReadHTML() {
@@ -3914,7 +3920,14 @@ ${parts}
         <div class="ns"><span class="g">${K.BODY_GLYPH.Sun}</span><span class="k">Slunce</span><span class="v">${K.SIGNS[n.sunSign]}</span></div>
         <div class="ns"><span class="g">${K.BODY_GLYPH.Moon}</span><span class="k">Luna</span><span class="v">${K.SIGNS[n.moonSign]}</span></div>
         <div class="ns"><span class="g">${K.BODY_GLYPH.Asc || 'Asc'}</span><span class="k">Ascendent</span><span class="v">${K.SIGNS[K.signOf(n.points.Asc.lon)]}</span></div>
+        <div class="ns"><span class="g">Dsc</span><span class="k">Descendent</span><span class="v">${K.SIGNS[K.signOf(n.cusps[7])]}</span></div>
       </div>
+      <details class="hsintro fourpts"><summary>Co znamenají tyto čtyři body</summary>
+        <p><b>Slunce</b> — jádro osobnosti: čím svítíš, kam rosteš a co ti dává smysl.</p>
+        <p><b>Luna</b> — vnitřní svět: co potřebuješ, aby ti bylo dobře, a jak prožíváš.</p>
+        <p><b>Ascendent</b> — znamení, které vycházelo na východě v okamžiku narození: jak vstupuješ do světa a jak tě druzí vidí na první pohled.</p>
+        <p><b>Descendent</b> — bod přesně naproti Ascendentu, hrot sedmého domu: koho k sobě přitahuješ, co hledáš v partnerství a co se o sobě učíš skrze druhé. Ascendent je „já", Descendent je „ty".</p>
+      </details>
       ${wheelSVG(n)}
       ${chakraHTML(p)}
       <div class="hshead"><svg class="hsstar" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="20" cy="20" r="7"/><path d="M20 3v8M20 29v8M3 20h8M29 20h8"/><path d="M20 13l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor" stroke="none"/></svg><div class="hstitle">Tvůj horoskop</div><div class="hsrule"><i></i><b>✦</b><i></i></div></div>
