@@ -107,7 +107,18 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 }
 @media (min-width:768px){
   :root{--photo:url('sky-night-hd2.webp?v=1'); --photo-h:calc(100vw*2.706); --tail-1:#0A1B33; --tail-2:#0A1B33; --tail-3:#050E1C}
-  [data-theme="day"]{--photo:url('sky-day-hd2.webp?v=1'); --photo-h:calc(100vw*2.3762); --tail-1:#2C517F; --tail-2:#2C517F; --tail-3:#48699A}
+  [data-theme="day"]{--photo:url('sky-day-hd2.webp?v=1'); --photo-h:calc(100vw*2.3762); --tail-1:#2C517F; --tail-2:#3A5F90; --tail-3:#5F89BB}
+  #skybg{background-image:
+    radial-gradient(58% 20vh at 50% 100%, rgba(240,200,116,.10), transparent 72%),
+    radial-gradient(62vw 30vw at 16% calc(var(--photo-h) + 30vw), rgba(255,255,255,.05), transparent 70%),
+    radial-gradient(54vw 26vw at 84% calc(var(--photo-h) + 82vw), rgba(255,255,255,.04), transparent 70%),
+    radial-gradient(48vw 22vw at 40% calc(var(--photo-h) + 140vw), rgba(255,255,255,.035), transparent 70%),
+    radial-gradient(1.1px 1.1px at 31% 22%, rgba(255,252,238,.28) 50%, transparent 51%) 0 0/260px 260px repeat,
+    radial-gradient(.9px .9px at 68% 57%, rgba(240,224,180,.22) 50%, transparent 51%) 0 0/190px 190px repeat,
+    linear-gradient(90deg, transparent calc(50% - 1px), rgba(240,200,116,var(--axis-a)) 50%, transparent calc(50% + 1px)),
+    radial-gradient(circle at 50% calc(var(--photo-h) + 62vw), transparent calc(56vw - 1px), rgba(240,200,116,var(--geo-a)) 56vw, transparent calc(56vw + 1.5px)),
+    radial-gradient(circle at 50% calc(var(--photo-h) + 175vw), transparent calc(78vw - 1px), rgba(240,200,116,var(--geo-a)) 78vw, transparent calc(78vw + 1.5px)),
+    linear-gradient(180deg, var(--tail-1) 0, var(--tail-1) calc(var(--photo-h) - 30vw), var(--tail-2) calc(var(--photo-h) + 120vw), var(--tail-3) 100%)}
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -589,7 +600,9 @@ details.expl .card p:last-child{margin:0}
     background:
       radial-gradient(1.1px 1.1px at 31% 22%, rgba(255,252,238,.5) 50%, transparent 51%) 0 0/210px 210px repeat,
       radial-gradient(.9px .9px at 68% 57%, rgba(240,224,180,.4) 50%, transparent 51%) 0 0/170px 170px repeat,
-      radial-gradient(120% 60% at 50% 0%, transparent 60%, rgba(4,10,24,.18) 100%)}
+      radial-gradient(120% 60% at 50% 0%, transparent 60%, rgba(4,10,24,.18) 100%);
+    -webkit-mask-image:linear-gradient(180deg,#000 calc(100% - max(220px,38vw)),rgba(0,0,0,.55) calc(100% - max(110px,19vw)),transparent 100%);
+    mask-image:linear-gradient(180deg,#000 calc(100% - max(220px,38vw)),rgba(0,0,0,.55) calc(100% - max(110px,19vw)),transparent 100%)}
 }
 #view-nativ .echips .chip{background:rgba(11,19,40,.78);border-color:rgba(212,183,122,.42);color:#E9E2CF;backdrop-filter:blur(3px)}
 #view-nativ .echips .chip.on{background:rgba(20,30,58,.9);border-color:var(--gold);color:var(--gold)}
