@@ -51,7 +51,7 @@
   --sky:linear-gradient(180deg,#4590D1 0%,#2F7CC6 50%,#1B62B2 100%);
   --sky-tail:#1B62B2;
   /* zlato na světlé obloze: těsný tmavý obrys + širší modrý dosvit, ať logo drží tvar i kresbu */
-  --logo-filter:drop-shadow(0 4px 14px rgba(4,18,46,.35));
+  --logo-filter:none;
   --logo-accent:#9FD0F0;
   --stars:0;
   /* plocha pod fotkou drží denní modř — fotka do ní přechází svým dosvitem */
@@ -824,11 +824,11 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .ev .c .ico{width:15px;height:15px;vertical-align:-3px;margin-right:2px}
 
 /* DEN – logo s obrysem je o okraj větší, název v sytějším zlatě s obrysem, hlavička O tobě ve skle */
-[data-theme="day"] .brand .logo{width:min(253px,50.6%)}
-@media (max-width:640px){[data-theme="day"] .brand .logo{width:88%}}
-@media (max-width:420px){[data-theme="day"] .brand .logo{width:92%}}
-[data-theme="day"] .bstars{width:min(192px,42.5%)}
-[data-theme="day"] .bname b{background:linear-gradient(180deg,#FFF0BC 0%,#F3D07C 38%,#CD9B40 72%,#9C6C24 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 1px rgba(6,22,56,.95)) drop-shadow(0 1px 2px rgba(6,22,56,.9)) drop-shadow(0 3px 10px rgba(6,22,56,.5))}
+[data-theme="day"] .brand .logo{width:min(243px,48.6%)}
+@media (max-width:640px){[data-theme="day"] .brand .logo{width:84.5%}}
+@media (max-width:420px){[data-theme="day"] .brand .logo{width:88.8%}}
+[data-theme="day"] .bstars{width:min(186px,41.3%)}
+[data-theme="day"] .bname b{background:linear-gradient(180deg,#FFF0BC 0%,#F3D07C 38%,#CD9B40 72%,#9C6C24 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 1px rgba(16,44,96,.9))}
 [data-theme="day"] .bname .l2:before,[data-theme="day"] .bname .l2:after{background:linear-gradient(90deg,transparent,#B8862F)}
 [data-theme="day"] .bname .l2:after{background:linear-gradient(90deg,#B8862F,transparent)}
 .nhead{margin:8px 0 10px}

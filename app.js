@@ -2480,8 +2480,8 @@ ${parts}
       document.documentElement.dataset.theme = want;
       // denní verze loga má zapečený tmavý obrys, ať zlato drží i na světlé letní obloze
       const day = want === 'day';
-      document.querySelectorAll('.brand .logo, #splash .sp-em').forEach(el => { el.src = day ? 'logo-emblem-day.webp?v=1' : 'logo-emblem.webp?v=1'; });
-      document.querySelectorAll('.brand .bstars, #splash .sp-st').forEach(el => { el.src = day ? 'logo-stars-day.webp?v=1' : 'logo-stars.webp?v=1'; });
+      document.querySelectorAll('.brand .logo, #splash .sp-em').forEach(el => { el.src = day ? 'logo-emblem-day.webp?v=2' : 'logo-emblem.webp?v=1'; });
+      document.querySelectorAll('.brand .bstars, #splash .sp-st').forEach(el => { el.src = day ? 'logo-stars-day.webp?v=2' : 'logo-stars.webp?v=1'; });
       const mt = document.querySelector('meta[name=theme-color]');
       if (mt) mt.setAttribute('content', THEME_META[want] || '#111832');
     }
