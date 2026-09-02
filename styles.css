@@ -50,7 +50,8 @@
   --photo:url('sky-day2.webp?v=1'); --photo-h:calc(100vw*2.6989); /* 724×1954 — výška musí odpovídat souboru, jinak se dosvit počítá pod fotkou */
   --sky:linear-gradient(180deg,#4590D1 0%,#2F7CC6 50%,#1B62B2 100%);
   --sky-tail:#1B62B2;
-  --logo-filter:drop-shadow(0 2px 10px rgba(1,20,50,.55));
+  /* zlato na světlé obloze: těsný tmavý obrys + širší modrý dosvit, ať logo drží tvar i kresbu */
+  --logo-filter:drop-shadow(0 0 1.2px rgba(4,18,46,.95)) drop-shadow(0 2px 4px rgba(4,18,46,.8)) drop-shadow(0 6px 22px rgba(4,18,46,.6));
   --logo-accent:#9FD0F0;
   --stars:0;
   /* plocha pod fotkou drží denní modř — fotka do ní přechází svým dosvitem */
@@ -59,7 +60,7 @@
 }
 /* DEN – spodní část fotky (hory, jezero, krystaly) je světlá a rušná; pod obsahem ji zklidní
    modrý závoj, který začíná pod oblohou a dole přejde do tónu plochy. */
-[data-theme="day"] #skybg::before{background-image:linear-gradient(180deg, transparent 34%, rgba(20,42,76,.46) 50%, rgba(22,44,80,.66) 66%, rgba(23,47,84,.74) 100%), var(--photo)}
+[data-theme="day"] #skybg::before{background-image:radial-gradient(70% 22% at 50% 12%, rgba(6,22,56,.34), transparent 75%), linear-gradient(180deg, transparent 34%, rgba(20,42,76,.46) 50%, rgba(22,44,80,.66) 66%, rgba(23,47,84,.74) 100%), var(--photo)}
 /* ---------- STMÍVÁNÍ – rozžhavené mraky nad tmavnoucí modří ---------- */
 [data-theme="dusk"]{
   --bg:#241E36; --bg2:#2F2745; --surface:#352C4C; --surface2:#403658;
@@ -575,7 +576,7 @@ details.expl .card p:last-child{margin:0}
 .bstars{display:block;margin:2px auto -2px;width:min(180px,40%);height:auto;filter:var(--logo-filter)}
 .brand-claim{margin:24px auto 0}
 [data-theme="day"] .brand-claim{margin:6px auto 0}
-[data-theme="day"] .claim i{-webkit-text-stroke:.4px rgba(255,255,255,.5);background:linear-gradient(180deg,#FFF4CE 0%,#F2D68C 40%,#D9AC55 74%,#BE8F3C 100%);-webkit-background-clip:text;background-clip:text}
+[data-theme="day"] .claim i{-webkit-text-stroke:.3px rgba(255,255,255,.35);filter:drop-shadow(0 0 1px rgba(4,18,46,.95)) drop-shadow(0 1px 3px rgba(4,18,46,.85)) drop-shadow(0 4px 14px rgba(4,18,46,.6));background:linear-gradient(180deg,#FFF4CE 0%,#F2D68C 40%,#D9AC55 74%,#BE8F3C 100%);-webkit-background-clip:text;background-clip:text}
 .brand-claim{font-size:var(--fs-xs)}
 @media (max-width:420px){.claim{font-size:var(--fs-xs);letter-spacing:.26em}.claim:before,.claim:after{width:44px}}
 #splash{position:fixed;inset:0;z-index:999;display:grid;place-items:center;align-content:center;gap:18px;
