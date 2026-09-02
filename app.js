@@ -74,6 +74,35 @@
   let settings = deepMerge(DEFAULT_SETTINGS, store.get('kairos_settings', {}));
   function deepMerge(a, b) { const o = Object.assign({}, a); for (const k in b) { if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k])) o[k] = deepMerge(a[k] || {}, b[k]); else if (b[k] !== undefined) o[k] = b[k]; } return o; }
 
+  // ---------- svátky a volné dny ----------
+  // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
+  function easterSunday(y) {
+    const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(Date.UTC(y, mo - 1, da));
+  }
+  const _holCache = {};
+  function holidaysFor(y) {
+    if (_holCache[y]) return _holCache[y];
+    const out = {};
+    const put = (dt, v) => { out[K.isoDate(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate())] = v; };
+    const shift = (dt, n) => new Date(dt.getTime() + n * 86400000);
+    const es = easterSunday(y);
+    put(shift(es, -46), { n: 'Popeleční středa', t: true });
+    put(shift(es, -7), { n: 'Květná neděle', t: true });
+    put(shift(es, -2), { n: 'Velký pátek', f: true });
+    put(es, { n: 'Velikonoční neděle · Boží hod velikonoční', t: true });
+    put(shift(es, 1), { n: 'Velikonoční pondělí', f: true });
+    // adventní neděle: čtyři neděle před Štědrým dnem
+    const xmas = new Date(Date.UTC(y, 11, 24));
+    const lastAdv = shift(xmas, -xmas.getUTCDay()); // neděle před Štědrým dnem (nebo on sám, když je neděle)
+    for (let i = 0; i < 4; i++) { const dt = shift(lastAdv, -7 * i); put(dt, { n: `${4 - i}. adventní neděle`, t: true }); }
+    for (const [md, v] of Object.entries(HOLIDAYS_CZ)) out[`${y}-${md}`] = v;
+    return (_holCache[y] = out);
+  }
+  function holidayFor(y, m, d) { return holidaysFor(y)[K.isoDate(y, m, d)] || null; }
+  const holidayLine = (y, m, d) => { const h = holidayFor(y, m, d); return h ? `${h.f ? 'státní svátek' : 'tradice'} · ${h.n}` : ''; };
+
   const namedayLine = (m, d) => {
     const k = String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
     const cz = NAMEDAY_CZ[k], sk = NAMEDAY_SK[k];
@@ -905,8 +934,8 @@
       const hasJ = !!jGet(key);
       const hasP = pGet(key).length > 0;
       const isPast = key < TODAY_KEY;
-      cellArr.push({ key, html: `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${isPast ? 'past' : ''} ${hasJ ? 'noted' : ''} ${hasP ? 'planned' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
-        <span class="d">${d}</span><span class="mk">${mk}</span>${sdForDay(y, m, d).length ? '<span class="sdmark" title="významný den">🎂</span>' : ''}${gEvByDay(key).length ? '<span class="gdot" title="událost z Google kalendáře"></span>' : ''}${hasP || hasJ ? `<span class="marks">${hasP ? `<span class="pc" title="zapsané plány">${pGet(key).length}</span>` : ''}${hasJ ? '<span class="pen" title="zápis dne">✎</span>' : ''}</span>` : ''}${moonSVG(da.phaseAngle, 12, q ? (q.quarter === 2 ? 'moon full' : 'moon new') : 'moon')}
+      cellArr.push({ key, html: `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${holidayFor(y, m, d) && holidayFor(y, m, d).f ? 'free' : ''} ${isPast ? 'past' : ''} ${hasJ ? 'noted' : ''} ${hasP ? 'planned' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
+        <span class="d">${d}</span><span class="mk">${mk}</span>${(() => { const h = holidayFor(y, m, d); return h ? `<span class="hol ${h.f ? 'free' : 'trad'}" title="${esc(h.n)}"></span>` : ''; })()}${sdForDay(y, m, d).length ? '<span class="sdmark" title="významný den">🎂</span>' : ''}${gEvByDay(key).length ? '<span class="gdot" title="událost z Google kalendáře"></span>' : ''}${hasP || hasJ ? `<span class="marks">${hasP ? `<span class="pc" title="zapsané plány">${pGet(key).length}</span>` : ''}${hasJ ? '<span class="pen" title="zápis dne">✎</span>' : ''}</span>` : ''}${moonSVG(da.phaseAngle, 12, q ? (q.quarter === 2 ? 'moon full' : 'moon new') : 'moon')}
       </button>` });
     }
     // uplynulé celé týdny aktuálního měsíce sbalit
@@ -1004,8 +1033,9 @@
     const ph = TX.phaseText(da.phaseAngle);
     const phh = K.planetaryHours(np.y, np.m, np.d, observer(), TZ);
     const nd = namedayLine(np.m, np.d);
+    const hol = holidayFor(np.y, np.m, np.d);
     return `<button type="button" class="hero-today ${da.color}" data-act="jumpDay" data-y="${np.y}" data-m="${np.m}" data-d="${np.d}" aria-label="Otevřít dnešek">
-      <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}</span>
+      <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}${hol ? ` <em class="ht-hol ${hol.f ? 'free' : 'trad'}">${esc(hol.n)}</em>` : ''}</span>
       <span class="ht-date ht-date2">${phh ? `<i class="sri">${SUNRISE_I}</i>&nbsp;${K.fmtTime(phh.sunrise, TZ)}&nbsp;&nbsp;–&nbsp;&nbsp;<i class="sri">${SUNSET_I}</i>&nbsp;${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + String(nd).replace(/\s*·\s*SK.*$/i, '') : ''}</span>${wxLine()}${(() => { const sd = sdForDay(np.y, np.m, np.d); return sd.length ? `<span class="ht-sd">${sd.map(x => sdLabel(x, np.y)).join(' · ')}</span>` : ''; })()}
       <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}<svg class="wflo" viewBox="0 0 180 14" aria-hidden="true"><path d="M4 8 C 50 2, 80 12, 176 6" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M88 4.6 90.6 7.2 88 9.8 85.4 7.2Z" fill="currentColor" opacity=".8"/></svg></span></span>
       <span class="ht-moon"><span class="ht-medal"><svg class="mring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="37" fill="none" stroke="rgba(239,200,120,.7)" stroke-width=".9"/><circle cx="60" cy="60" r="42" fill="none" stroke="rgba(239,200,120,.42)" stroke-width=".8"/></svg>${moonSVG(da.phaseAngle, 38, 'moon hm')}</span> Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
@@ -1102,7 +1132,7 @@
         <div><span class="badge ${da.color}">${TX.dayWord(da)}</span></div>
       </div>`}
       ${isToday ? '' : `<p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;% osvětlení</p>
-      <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>`}
+      <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>${holidayFor(y, m, d) ? `<p class="day-hol ${holidayFor(y, m, d).f ? 'free' : 'trad'}">${esc(holidayLine(y, m, d))}</p>` : ''}`}
       ${isToday ? '' : (() => { const r = TX.dayReading(da, dayEv); return `<p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p>`; })()}
       ${(() => {
         const key = K.isoDate(y, m, d), sd = sdForDay(y, m, d), mine = pGet(key), gv = gEvByDay(key);

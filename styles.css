@@ -830,3 +830,13 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 
 /* DEN – fotka končí východem Slunce nad krajinou; dosvit bere jen spodní pruh krajiny, Slunce zůstává celé */
 [data-theme="day"] #skybg::before,[data-theme="day"] #skybg::after{-webkit-mask-image:linear-gradient(180deg,#000 86%,rgba(0,0,0,.6) 94%,transparent 100%);mask-image:linear-gradient(180deg,#000 86%,rgba(0,0,0,.6) 94%,transparent 100%)}
+
+/* svátky a volné dny */
+.cell .hol{position:absolute;left:6px;bottom:6px;width:6px;height:6px;border-radius:50%}
+.cell .hol.free{background:#E07A6E;box-shadow:0 0 0 2px rgba(224,122,110,.28)}
+.cell .hol.trad{background:var(--gold);opacity:.75}
+.cell.free .d{color:#F2A89E}
+.day-hol{margin:2px 0 8px;font-size:var(--fs-s);color:var(--muted);letter-spacing:.02em}
+.day-hol.free{color:#F2A89E}
+.ht-hol{font-style:normal;display:block;margin-top:2px;font-size:var(--fs-s);letter-spacing:.03em;color:var(--muted)}
+.ht-hol.free{color:#F2A89E}

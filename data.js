@@ -6,3 +6,22 @@ const CHAKRA_GRID = [[{"n": "Kořen v kořeni", "t": "Nejzákladnější rok cel
 // Sedm barev čaker — jediná sada, ze které berou barvu čakra roku, denní kruh,
 // fáze cyklu, tatvy i orgánové hodiny. Stejné hodnoty leží v styles.css jako --c-*.
 const CHAKRA_COL = { root: '#C4553F', sacral: '#D98A3F', solar: '#D9B96E', heart: '#6FBF8F', throat: '#7FB6DD', brow: '#8F7BC0', crown: '#C9A9E0' };
+
+// České státní svátky a významné dny. f = volný den (státní svátek), t = tradice bez volna.
+const HOLIDAYS_CZ = {
+  '01-01': { n: 'Nový rok · Den obnovy samostatného českého státu', f: true },
+  '01-06': { n: 'Tři králové', t: true },
+  '05-01': { n: 'Svátek práce', f: true },
+  '05-08': { n: 'Den vítězství', f: true },
+  '07-05': { n: 'Den slovanských věrozvěstů Cyrila a Metoděje', f: true },
+  '07-06': { n: 'Den upálení mistra Jana Husa', f: true },
+  '09-28': { n: 'Den české státnosti · sv. Václav', f: true },
+  '10-28': { n: 'Den vzniku samostatného československého státu', f: true },
+  '11-02': { n: 'Dušičky · Památka zesnulých', t: true },
+  '11-17': { n: 'Den boje za svobodu a demokracii', f: true },
+  '12-05': { n: 'Mikuláš', t: true },
+  '12-24': { n: 'Štědrý den', f: true },
+  '12-25': { n: '1. svátek vánoční · Boží hod', f: true },
+  '12-26': { n: '2. svátek vánoční · sv. Štěpán', f: true },
+  '12-31': { n: 'Silvestr', t: true },
+};
