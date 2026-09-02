@@ -47,7 +47,7 @@
 /* ---------- DEN – modř průhledu a teplé krémové mraky ---------- */
 [data-theme="day"]{
   /* DEN – denní zůstává jen plocha: fotka oblohy, její dosvit a logo. Karty, inkoust i lišta dědí noční ladění. */
-  --photo:url('sky-day2.webp?v=1'); --photo-h:calc(100vw*2.6989); /* 724×1954 — výška musí odpovídat souboru, jinak se dosvit počítá pod fotkou */
+  --photo:url('sky-day2.webp?v=2'); --photo-h:calc(100vw*2.6989); /* 724×1954 — výška musí odpovídat souboru, jinak se dosvit počítá pod fotkou */
   --sky:linear-gradient(180deg,#4590D1 0%,#2F7CC6 50%,#1B62B2 100%);
   --sky-tail:#1B62B2;
   /* zlato na světlé obloze: těsný tmavý obrys + širší modrý dosvit, ať logo drží tvar i kresbu */
@@ -56,11 +56,11 @@
   --stars:0;
   /* plocha pod fotkou drží denní modř — fotka do ní přechází svým dosvitem */
   --muted:#EAF1FA;
-  --bg:#234870; --tail-1:#1C375D; --tail-2:#203F69; --tail-3:#234870; /* tail-1 = modř jezera pod závojem */
+  --bg:#234870; --tail-1:#122C59; --tail-2:#1A3A66; --tail-3:#234870; /* tail-1 = ultramarínové jezero pod závojem */
 }
 /* DEN – spodní část fotky (hory, jezero, krystaly) je světlá a rušná; pod obsahem ji zklidní
    modrý závoj, který začíná pod oblohou a dole přejde do tónu plochy. */
-[data-theme="day"] #skybg::before{background-image:radial-gradient(70% 22% at 50% 12%, rgba(6,22,56,.34), transparent 75%), linear-gradient(180deg, transparent 34%, rgba(20,42,76,.46) 50%, rgba(22,44,80,.66) 66%, rgba(23,47,84,.74) 100%), var(--photo)}
+[data-theme="day"] #skybg::before{background-image:radial-gradient(70% 22% at 50% 12%, rgba(6,22,56,.18), transparent 75%), linear-gradient(180deg, transparent 34%, rgba(20,42,76,.40) 50%, rgba(22,44,80,.56) 66%, rgba(23,47,84,.62) 100%), var(--photo)}
 /* ---------- STMÍVÁNÍ – rozžhavené mraky nad tmavnoucí modří ---------- */
 [data-theme="dusk"]{
   --bg:#241E36; --bg2:#2F2745; --surface:#352C4C; --surface2:#403658;
@@ -80,7 +80,7 @@
 }
 @media (min-width:768px){
   :root{--photo:url('sky-night-hd2.webp?v=1'); --photo-h:calc(100vw*2.706); --tail-1:#0A1B33; --tail-2:#0A1B33; --tail-3:#050E1C}
-  [data-theme="day"]{--photo:url('sky-day2-hd.webp?v=1'); --photo-h:calc(100vw*2.6989); --tail-1:#1C375D; --tail-2:#203F69; --tail-3:#234870}
+  [data-theme="day"]{--photo:url('sky-day2-hd.webp?v=2'); --photo-h:calc(100vw*2.6989); --tail-1:#122C59; --tail-2:#1A3A66; --tail-3:#234870}
   #skybg{background-image:
     radial-gradient(58% 20vh at 50% 100%, rgba(240,200,116,.10), transparent 72%),
     radial-gradient(62vw 30vw at 16% calc(var(--photo-h) + 30vw), rgba(255,255,255,.05), transparent 70%),
