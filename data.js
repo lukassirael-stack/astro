@@ -25,3 +25,23 @@ const HOLIDAYS_CZ = {
   '12-26': { n: '2. svátek vánoční · sv. Štěpán', f: true },
   '12-31': { n: 'Silvestr', t: true },
 };
+
+// Slovenské štátne sviatky a dni pracovného pokoja (f) a tradície (t)
+const HOLIDAYS_SK = {
+  '01-01': { n: 'Deň vzniku Slovenskej republiky', f: true },
+  '01-06': { n: 'Zjavenie Pána · Traja králi', f: true },
+  '05-01': { n: 'Sviatok práce', f: true },
+  '05-08': { n: 'Deň víťazstva nad fašizmom', f: true },
+  '07-05': { n: 'Sviatok svätého Cyrila a Metoda', f: true },
+  '08-29': { n: 'Výročie SNP', f: true },
+  '09-01': { n: 'Deň Ústavy SR', t: true },
+  '09-15': { n: 'Sedembolestná Panna Mária', f: true },
+  '11-01': { n: 'Sviatok všetkých svätých', f: true },
+  '11-02': { n: 'Pamiatka zosnulých · Dušičky', t: true },
+  '11-17': { n: 'Deň boja za slobodu a demokraciu', f: true },
+  '12-06': { n: 'Mikuláš', t: true },
+  '12-24': { n: 'Štedrý deň', f: true },
+  '12-25': { n: 'Prvý sviatok vianočný', f: true },
+  '12-26': { n: 'Druhý sviatok vianočný', f: true },
+  '12-31': { n: 'Silvester', t: true },
+};

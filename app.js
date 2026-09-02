@@ -18,6 +18,7 @@
     themeMark: null,     // jaká byla automatika ve chvíli ruční volby
     clouds: true,
     organs: true,
+    country: 'both', // cz | sk | both — svátky a jmeniny
   };
   // místa na jeden klik – uprav podle sebe
   const PLACES = [
@@ -83,30 +84,36 @@
   }
   const _holCache = {};
   function holidaysFor(y) {
-    if (_holCache[y]) return _holCache[y];
+    const ctry = settings.country || 'both', ck = y + ':' + ctry;
+    if (_holCache[ck]) return _holCache[ck];
     const out = {};
     const put = (dt, v) => { out[K.isoDate(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate())] = v; };
     const shift = (dt, n) => new Date(dt.getTime() + n * 86400000);
     const es = easterSunday(y);
-    put(shift(es, -46), { n: 'Popeleční středa', t: true });
-    put(shift(es, -7), { n: 'Květná neděle', t: true });
-    put(shift(es, -2), { n: 'Velký pátek', f: true });
-    put(es, { n: 'Velikonoční neděle · Boží hod velikonoční', t: true });
-    put(shift(es, 1), { n: 'Velikonoční pondělí', f: true });
+    const sk = ctry === 'sk';
+    put(shift(es, -46), { n: sk ? 'Popolcová streda' : 'Popeleční středa', t: true });
+    put(shift(es, -7), { n: sk ? 'Kvetná nedeľa' : 'Květná neděle', t: true });
+    put(shift(es, -2), { n: sk ? 'Veľký piatok' : 'Velký pátek', f: true });
+    put(es, { n: sk ? 'Veľkonočná nedeľa' : 'Velikonoční neděle · Boží hod velikonoční', t: true });
+    put(shift(es, 1), { n: sk ? 'Veľkonočný pondelok' : 'Velikonoční pondělí', f: true });
     // adventní neděle: čtyři neděle před Štědrým dnem
     const xmas = new Date(Date.UTC(y, 11, 24));
     const lastAdv = shift(xmas, -xmas.getUTCDay()); // neděle před Štědrým dnem (nebo on sám, když je neděle)
-    for (let i = 0; i < 4; i++) { const dt = shift(lastAdv, -7 * i); put(dt, { n: `${4 - i}. adventní neděle`, t: true }); }
-    for (const [md, v] of Object.entries(HOLIDAYS_CZ)) out[`${y}-${md}`] = v;
-    return (_holCache[y] = out);
+    for (let i = 0; i < 4; i++) { const dt = shift(lastAdv, -7 * i); put(dt, { n: `${4 - i}. ${sk ? 'adventná nedeľa' : 'adventní neděle'}`, t: true }); }
+    const merge = (tab, tag) => { for (const [md, v] of Object.entries(tab)) { const k = `${y}-${md}`, prev = out[k]; const nv = Object.assign({}, v, ctry === 'both' ? { n: `${tag} ${v.n}` } : {}); out[k] = prev ? { n: `${prev.n} · ${nv.n}`, f: !!(prev.f || nv.f), t: !!(prev.t || nv.t) } : nv; } };
+    if (ctry !== 'sk') merge(HOLIDAYS_CZ, 'CZ');
+    if (ctry !== 'cz') merge(HOLIDAYS_SK, 'SK');
+    return (_holCache[ck] = out);
   }
   function holidayFor(y, m, d) { return holidaysFor(y)[K.isoDate(y, m, d)] || null; }
   const holidayLine = (y, m, d) => { const h = holidayFor(y, m, d); return h ? `${h.f ? 'státní svátek' : 'tradice'} · ${h.n}` : ''; };
 
   const namedayLine = (m, d) => {
     const k = String(m).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-    const cz = NAMEDAY_CZ[k], sk = NAMEDAY_SK[k];
+    const ctry = settings.country || 'both';
+    const cz = ctry !== 'sk' ? NAMEDAY_CZ[k] : '', sk = ctry !== 'cz' ? NAMEDAY_SK[k] : '';
     if (!cz && !sk) return '';
+    if (ctry === 'sk') return `meniny ${sk}`;
     return (cz ? `svátek ${cz}` : '') + (cz && sk ? ' · ' : '') + (sk ? `SK ${sk}` : '');
   };
 
@@ -606,7 +613,7 @@
   }, { passive: true });
   document.addEventListener('click', (e) => {
     const t = e.target.closest('[data-tab]'); if (t) { if (Date.now() - tabTapAt > 900) showTab(t.dataset.tab); return; }
-    const act = e.target.closest('[data-act]'); if (act) { actions[act.dataset.act](act, e); }
+    const act = e.target.closest('[data-act]'); if (act && act.tagName !== 'SELECT') { actions[act.dataset.act](act, e); }
   });
 
   const actions = {
@@ -734,6 +741,7 @@
     tvHelp() { S.tvHelp = !S.tvHelp; renderCalendar(); },
     orgHelp() { S.orgHelp = !S.orgHelp; renderCalendar(); },
     goNatal() { showTab('nastaveni'); setTimeout(() => { const f = $('#profileForm'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); },
+    setCountry(el) { settings.country = el.value; persistSettings(); for (const k in _holCache) delete _holCache[k]; S.dayCache = {}; renderSettings(); },
     toggleKp() { settings.showKp = !settings.showKp; persistSettings(); S.dayCache = {}; renderSettings(); },
     toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
     evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
@@ -2406,6 +2414,7 @@ ${parts}
         <label>Luna bez kurzu – hodin v aktivní části dne (8–22), aby srazila skóre<input name="voc" type="number" step="1" value="${settings.rules.vocHours}"></label>
         <label>Orbis pro tvé hvězdy (°)<input name="starOrb" type="number" step="0.5" value="${settings.rules.starOrb}"></label>
         <label class="wide" style="flex-direction:row;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:var(--fs-m);color:var(--text)"><input type="checkbox" data-act="toggleOrg" ${settings.organs === false ? '' : 'checked'}> Orgánové hodiny v dnešku</label>
+        <label class="wide" style="text-transform:none;letter-spacing:0;font-size:var(--fs-m);color:var(--text)">Svátky a jmeniny<select class="btn" data-act="setCountry" style="margin-top:6px"><option value="both" ${(settings.country || 'both') === 'both' ? 'selected' : ''}>Česko i Slovensko</option><option value="cz" ${settings.country === 'cz' ? 'selected' : ''}>Česko</option><option value="sk" ${settings.country === 'sk' ? 'selected' : ''}>Slovensko</option></select></label>
         <div class="wide row"><button type="button" class="btn" data-act="saveRules">Uložit pravidla</button></div>
         <details class="expl"><summary>Co ta čísla znamenají? (polopatě)</summary><div class="card">
           <p><b>Jak appka barví dny.</b> Každý den se podívá, jak putující Luna svítí na tvou osobní mapu. Když ladí, den dostává plusové body; když dře, minusové. Součet je skóre dne — vidíš ho v detailu dne.</p>
@@ -2576,6 +2585,7 @@ ${parts}
   (() => { const sp = $('#splash'); if (!sp) return; const off = () => { sp.classList.add('done'); setTimeout(() => sp.remove(), 650); };
     requestAnimationFrame(() => setTimeout(off, 3000)); setTimeout(off, 7000); })();
   document.addEventListener('change', (e) => {
+    { const s = e.target && e.target.closest && e.target.closest('select[data-act]'); if (s && actions[s.dataset.act]) { actions[s.dataset.act](s, e); return; } }
     if (e.target && e.target.id === 'bkFile' && e.target.files && e.target.files[0]) {
       const file = e.target.files[0]; e.target.value = '';
       const fr = new FileReader();
