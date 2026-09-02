@@ -55,8 +55,11 @@
   --stars:0;
   /* plocha pod fotkou drží denní modř — fotka do ní přechází svým dosvitem */
   --muted:#EAF1FA;
-  --bg:#234870; --tail-1:#2A5386; --tail-2:#27497A; --tail-3:#234870; /* tail-1 = plochá modř jezera, do které fotka končí */
+  --bg:#234870; --tail-1:#1C375D; --tail-2:#203F69; --tail-3:#234870; /* tail-1 = modř jezera pod závojem */
 }
+/* DEN – spodní část fotky (hory, jezero, krystaly) je světlá a rušná; pod obsahem ji zklidní
+   modrý závoj, který začíná pod oblohou a dole přejde do tónu plochy. */
+[data-theme="day"] #skybg::before{background-image:linear-gradient(180deg, transparent 34%, rgba(20,42,76,.46) 50%, rgba(22,44,80,.66) 66%, rgba(23,47,84,.74) 100%), var(--photo)}
 /* ---------- STMÍVÁNÍ – rozžhavené mraky nad tmavnoucí modří ---------- */
 [data-theme="dusk"]{
   --bg:#241E36; --bg2:#2F2745; --surface:#352C4C; --surface2:#403658;
@@ -76,7 +79,7 @@
 }
 @media (min-width:768px){
   :root{--photo:url('sky-night-hd2.webp?v=1'); --photo-h:calc(100vw*2.706); --tail-1:#0A1B33; --tail-2:#0A1B33; --tail-3:#050E1C}
-  [data-theme="day"]{--photo:url('sky-day2-hd.webp?v=1'); --photo-h:calc(100vw*2.6989); --tail-1:#2A5386; --tail-2:#27497A; --tail-3:#234870}
+  [data-theme="day"]{--photo:url('sky-day2-hd.webp?v=1'); --photo-h:calc(100vw*2.6989); --tail-1:#1C375D; --tail-2:#203F69; --tail-3:#234870}
   #skybg{background-image:
     radial-gradient(58% 20vh at 50% 100%, rgba(240,200,116,.10), transparent 72%),
     radial-gradient(62vw 30vw at 16% calc(var(--photo-h) + 30vw), rgba(255,255,255,.05), transparent 70%),
