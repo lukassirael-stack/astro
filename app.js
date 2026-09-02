@@ -108,11 +108,11 @@
   const SUNRISE_I = '<svg viewBox="0 0 16 12" width="15" height="11" aria-hidden="true"><path d="M3.5 9a4.5 4.5 0 0 1 9 0" fill="none" stroke="currentColor" stroke-width="1.2"/><line x1="1" y1="11" x2="15" y2="11" stroke="currentColor" stroke-width="1.2"/><line x1="8" y1="1" x2="8" y2="3.4" stroke="currentColor" stroke-width="1.2"/><line x1="3" y1="3" x2="4.6" y2="4.6" stroke="currentColor" stroke-width="1.1"/><line x1="13" y1="3" x2="11.4" y2="4.6" stroke="currentColor" stroke-width="1.1"/></svg>';
   const SUNSET_I = '<svg viewBox="0 0 16 12" width="15" height="11" aria-hidden="true"><path d="M3.5 9a4.5 4.5 0 0 1 9 0" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".55"/><line x1="1" y1="11" x2="15" y2="11" stroke="currentColor" stroke-width="1.2"/><path d="M8 1.2 6.4 3.2h3.2Z" fill="currentColor" transform="rotate(180 8 2.2)"/></svg>';
   const TATVY = [
-    { n: 'Akáša', el: 'éter', tip: 'ticho, meditace a vhled', col: '#8F7BC0', sym: '<svg viewBox="0 0 14 14" width="13" height="13"><ellipse cx="7" cy="7" rx="4.2" ry="5.6" fill="#2E2440" stroke="#8F7BC0" stroke-width="1"/></svg>' },
-    { n: 'Váju', el: 'vzduch', tip: 'myšlenky, rozhovory a pohyb', col: '#7FB6DD', sym: '<svg viewBox="0 0 14 14" width="13" height="13"><circle cx="7" cy="7" r="5" fill="#274A66" stroke="#7FB6DD" stroke-width="1"/></svg>' },
-    { n: 'Tédžas', el: 'oheň', tip: 'vůli, akci a rozhodnutí', col: '#E8865C', sym: '<svg viewBox="0 0 14 14" width="13" height="13"><path d="M7 1.6 12.6 12H1.4Z" fill="#6E2B1C" stroke="#E8865C" stroke-width="1"/></svg>' },
-    { n: 'Ápas', el: 'voda', tip: 'cit, plynutí a doplnění sil', col: '#9ED4E4', sym: '<svg viewBox="0 0 14 14" width="13" height="13"><path d="M1.8 8.2a5.4 5.4 0 0 0 10.4 0 5.4 5.4 0 0 1-10.4 0Z" fill="#2B4C5C" stroke="#9ED4E4" stroke-width="1"/><path d="M2.6 7.4a4.6 4.6 0 0 0 8.8 0" fill="none" stroke="#C9E9F2" stroke-width=".8"/></svg>' },
-    { n: 'Prithví', el: 'země', tip: 'tělo, práci rukama a stabilitu', col: '#D9B96E', sym: '<svg viewBox="0 0 14 14" width="13" height="13"><rect x="2.4" y="2.4" width="9.2" height="9.2" fill="#5C4A1E" stroke="#D9B96E" stroke-width="1"/></svg>' },
+    { n: 'Akáša', el: 'éter', tip: 'ticho, meditace a vhled', col: CHAKRA_COL.brow, sym: '<svg viewBox="0 0 14 14" width="13" height="13"><ellipse cx="7" cy="7" rx="4.2" ry="5.6" fill="#2E2440" stroke="currentColor" stroke-width="1"/></svg>' },
+    { n: 'Váju', el: 'vzduch', tip: 'myšlenky, rozhovory a pohyb', col: CHAKRA_COL.throat, sym: '<svg viewBox="0 0 14 14" width="13" height="13"><circle cx="7" cy="7" r="5" fill="#274A66" stroke="currentColor" stroke-width="1"/></svg>' },
+    { n: 'Tédžas', el: 'oheň', tip: 'vůli, akci a rozhodnutí', col: CHAKRA_COL.sacral, sym: '<svg viewBox="0 0 14 14" width="13" height="13"><path d="M7 1.6 12.6 12H1.4Z" fill="#6E2B1C" stroke="currentColor" stroke-width="1"/></svg>' },
+    { n: 'Ápas', el: 'voda', tip: 'cit, plynutí a doplnění sil', col: '#9ED4E4', sym: '<svg viewBox="0 0 14 14" width="13" height="13"><path d="M1.8 8.2a5.4 5.4 0 0 0 10.4 0 5.4 5.4 0 0 1-10.4 0Z" fill="#2B4C5C" stroke="currentColor" stroke-width="1"/><path d="M2.6 7.4a4.6 4.6 0 0 0 8.8 0" fill="none" stroke="currentColor" stroke-width=".8"/></svg>' },
+    { n: 'Prithví', el: 'země', tip: 'tělo, práci rukama a stabilitu', col: '#D9B96E', sym: '<svg viewBox="0 0 14 14" width="13" height="13"><rect x="2.4" y="2.4" width="9.2" height="9.2" fill="#5C4A1E" stroke="currentColor" stroke-width="1"/></svg>' },
   ];
   function tattvaNow() {
     try {
@@ -140,7 +140,7 @@
     return `<i class="ht-ic tv" style="border-color:${x.t.col};color:${x.t.col}">${x.t.sym}</i><b class="tvn"><small class="tvlab">tatva</small><span style="color:${x.t.col}">${x.t.n} <em>(${x.t.el})</em></span><small>do ${K.fmtTime(x.end, TZ)}</small></b><span class="tx">přeje ${x.t.tip}</span><i class="tvq" data-act="tvHelp" role="button" aria-label="Co jsou tatvy?">?</i>`;
   }
   // ---------- orgánové hodiny (TČM) — ukotvené na skutečné sluneční poledne ----------
-  const ORG_COL = '#8FC2A8';
+  const ORG_COL = CHAKRA_COL.heart;
   const ORG_I = '<svg viewBox="0 0 14 14" width="13" height="13" aria-hidden="true"><circle cx="7" cy="7" r="5.1" fill="none" stroke="' + ORG_COL + '" stroke-width="1"/><circle cx="7" cy="7" r="1.7" fill="' + ORG_COL + '" opacity=".55"/></svg>';
   // pořadí od dvouhodiny srdce, která leží kolem pravého poledne
   const ORGANS = [
@@ -219,13 +219,13 @@
   const FEEDBACK_MAIL = 'oaza.adamanthea@gmail.com';
   // ============ cyklus (volitelný modul) ============
   const CYC_PHASES = [
-    { k: 'men', n: 'reflektivní', full: 'Menstruační · reflektivní', col: '#8FA6C9',
+    { k: 'men', n: 'reflektivní', full: 'Menstruační · reflektivní', col: CHAKRA_COL.throat,
       t: 'Čas ztišení a vhledu. Energie se stahuje dovnitř a co se přežilo, se v tomhle období pouští snadno. Je vidět podstata věcí a odpočinek nese víc než výkon.' },
-    { k: 'dyn', n: 'dynamická', full: 'Předovulační · dynamická', col: '#9ED47F',
+    { k: 'dyn', n: 'dynamická', full: 'Předovulační · dynamická', col: CHAKRA_COL.heart,
       t: 'Energie se vrací a chce ven. Věci se rozjíždějí lehce, myšlení je jasné a přímé — dobrá doba pustit se do nového a dotáhnout, co dlouho leželo.' },
-    { k: 'exp', n: 'expresivní', full: 'Ovulační · expresivní', col: '#E8A85C',
+    { k: 'exp', n: 'expresivní', full: 'Ovulační · expresivní', col: CHAKRA_COL.sacral,
       t: 'Čas otevřenosti a kontaktu. Slova jdou snadno, druzí jsou blízko a péče o sebe i o ostatní chutná. Fáze, kdy se dobře domlouvá, spojuje a ukazuje.' },
-    { k: 'kre', n: 'kreativní', full: 'Předmenstruační · kreativní', col: '#C77FB4',
+    { k: 'kre', n: 'kreativní', full: 'Předmenstruační · kreativní', col: CHAKRA_COL.crown,
       t: 'Nápady přicházejí samy a intuice mluví nahlas. Je zřetelně vidět, co potřebuje změnu — fáze pro tvoření a pro poctivé pojmenování toho, co už nesedí.' },
   ];
   const cycOn = () => !!store.get('kairos_cyc_on', false);
@@ -451,6 +451,27 @@
   const NATAL_LOC = { Sun: 'tvém Slunci', Moon: 'tvé Luně', Mercury: 'tvém Merkuru', Venus: 'tvé Venuši', Mars: 'tvém Marsu', Jupiter: 'tvém Jupiteru', Saturn: 'tvém Saturnu', Uranus: 'tvém Uranu', Neptune: 'tvém Neptunu', Pluto: 'tvém Plutu', Asc: 'tvém Ascendentu', MC: 'tvém MC' };
   const CONJ_HINT = { Sun: 'zviditelnění, soustředění světla', Mercury: 'myšlenky, zprávy, domluvy', Venus: 'laskavost, krása, vztah', Mars: 'energie, tlak, spěch', Jupiter: 'otevírání, růst, důvěra', Saturn: 'zkouška, struktura, zpomalení', Uranus: 'zvrat, probuzení, změna', Neptune: 'rozpouštění, zjemnění, mlha', Pluto: 'přerod, intenzita, hloubka', Moon: 'citové naladění' };
   const PLANET_COLOR = { Sun: 'var(--sun)', Moon: 'var(--moon)', Mercury: 'var(--merc)', Venus: 'var(--ven)', Mars: 'var(--mar)', Jupiter: 'var(--jup)', Saturn: 'var(--sat)' };
+  // ---------- jednotná sada ikon (14×14, jedna tloušťka čáry, barva z okolí) ----------
+  const _ic = (inner) => `<svg class="ico" viewBox="0 0 14 14" aria-hidden="true">${inner}</svg>`;
+  const ICO = {
+    '☉': _ic('<circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="7" r="1.3" fill="currentColor"/>'),
+    '☽': _ic('<path d="M9.4 1.9a5.3 5.3 0 1 0 2.7 8.9 4.3 4.3 0 0 1-2.7-8.9Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>'),
+    '●': _ic('<circle cx="7" cy="7" r="4.6" fill="currentColor"/>'),
+    '○': _ic('<circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.2"/>'),
+    '◐': _ic('<circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M7 2.4a4.6 4.6 0 0 0 0 9.2Z" fill="currentColor"/>'),
+    '◇': _ic('<path d="M7 1.8 12.2 7 7 12.2 1.8 7Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>'),
+    '◆': _ic('<path d="M7 1.8 12.2 7 7 12.2 1.8 7Z" fill="currentColor"/>'),
+    '✦': _ic('<path d="M7 .9c.5 3.4 2.7 5.6 6.1 6.1-3.4.5-5.6 2.7-6.1 6.1C6.5 9.7 4.3 7.5.9 7 4.3 6.5 6.5 4.3 7 .9Z" fill="currentColor"/>'),
+    '✧': _ic('<path d="M7 1.6c.5 2.8 2.6 4.9 5.4 5.4-2.8.5-4.9 2.6-5.4 5.4C6.5 9.6 4.4 7.5 1.6 7 4.4 6.5 6.5 4.4 7 1.6Z" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/>'),
+    '△': _ic('<path d="M7 2.2 12.4 11.6H1.6Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>'),
+    '∅': _ic('<circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M3.2 10.8 10.8 3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'),
+    '→': _ic('<path d="M2 7h9M8 3.6 11.4 7 8 10.4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>'),
+    '◉': _ic('<circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="7" r="2.4" fill="currentColor"/>'),
+    '☄': _ic('<circle cx="9.6" cy="4.4" r="2.4" fill="currentColor"/><path d="M7.6 6.4 2 12M6.4 4.6 1.4 8.8M9.4 7.6 5.2 12.6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>'),
+    '♃': _ic('<path d="M3.2 4.2c1.2-2 4.3-1.9 4.3.6 0 1.7-1.8 2.3-3.4 4.4h7.2M8.9 3.4v9" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"/>'),
+    '✳': _ic('<path d="M7 1.6v10.8M2.3 4.3l9.4 5.4M2.3 9.7l9.4-5.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'),
+  };
+  const ico = (g) => ICO[g] || g;
   const CAT_ICON = { luna: '☽', zatmeni: '◉', slunce: '☉', planety: '♃', roje: '☄', hvezdy: '✦', komety: '✧' };
   const CAT_CZ = { vse: 'vše', luna: 'Luna', zatmeni: 'zatmění', slunce: 'Slunce', planety: 'planety', roje: 'roje', hvezdy: 'hvězdy', komety: 'komety' };
   const TODAY_KEY = K.isoDate(np.y, np.m, np.d);
@@ -921,9 +942,9 @@
       <details class="legend-more"><summary>Co značky znamenají?</summary>
         <p><b style="color:#8FE8BE"><i class="lg" style="background:linear-gradient(90deg,#8FE8BE,#2F9E72)"></i>Zelený proužek</b> — den, kdy jsou energie více v souladu s tvým osobním horoskopem. Věci mohou jít přirozeněji a s menším úsilím.</p>
         <p><b style="color:#FFB598"><i class="lg" style="background:linear-gradient(90deg,#FFB598,#C9563A)"></i>Lososový proužek</b> — den s větším odporem nebo napětím. Některé věci mohou vyžadovat více energie, trpělivosti a odpočinku.</p>
-        <p><b>✦ Tvá hvězda</b> — tento den se tě postavení Luny nebo planet dotýká osobně. Něco může být výraznější, důležitější nebo citlivější právě pro tebe. Hvězda na zeleném dni značí příznivý čas pro důležité kroky. Hvězda na lososovém dni znamená silné osobní téma, ale zároveň náročnější energii — spíš vnímej, co se děje, než abys tlačil/a na výsledek.</p>
-        <p><b>◉ Zatmění</b> — energeticky výrazné novoluní nebo úplněk. Tradičně se doporučuje nechat velká rozhodnutí a nové začátky na jiný den.</p>
-        <p><b>● / ○ Novoluní a úplněk</b> — novoluní podporuje nové záměry a začátky, úplněk přináší vyvrcholení, uvědomění a završení.</p>
+        <p><b>${ico('✦')} Tvá hvězda</b> — tento den se tě postavení Luny nebo planet dotýká osobně. Něco může být výraznější, důležitější nebo citlivější právě pro tebe. Hvězda na zeleném dni značí příznivý čas pro důležité kroky. Hvězda na lososovém dni znamená silné osobní téma, ale zároveň náročnější energii — spíš vnímej, co se děje, než abys tlačil/a na výsledek.</p>
+        <p><b>${ico('◉')} Zatmění</b> — energeticky výrazné novoluní nebo úplněk. Tradičně se doporučuje nechat velká rozhodnutí a nové začátky na jiný den.</p>
+        <p><b>${ico('●')} / ${ico('○')} Novoluní a úplněk</b> — novoluní podporuje nové záměry a začátky, úplněk přináší vyvrcholení, uvědomění a završení.</p>
         <p>Barvy i značky jsou vypočítané podle tvého osobního horoskopu, takže u každého člověka mohou vycházet jinak. Po rozkliknutí konkrétního dne se dozvíš, proč má právě takové označení.</p>
         <button type="button" class="legend-close" data-act="closeLegend">▲ &nbsp;Sbalit vysvětlivky</button>
       </details>
@@ -940,19 +961,19 @@
 
   // ---------- Oblouk dne: sedm kroků přirozeným životem ----------
   const ARC_STEPS = [
-    { n: 1, ch: 'Kořenová čakra', t: 'návrat do těla', col: '#C9705A',
+    { n: 1, ch: 'Kořenová čakra', t: 'návrat do těla', col: CHAKRA_COL.root,
       p: 'Probuzení. Dřív než přijde jakákoli myšlenka na den, je tu tíha těla v posteli, teplota vzduchu, zvuky domu. Vstávání, chodidla na podlaze, gravitace. Základní potřeby, bezpečí, jistota, že tohle místo je moje. <b>Jsem tady.</b>' },
-    { n: 2, ch: 'Sakrální čakra', t: 'rozhýbání života', col: '#E8865C',
+    { n: 2, ch: 'Sakrální čakra', t: 'rozhýbání života', col: CHAKRA_COL.sacral,
       p: 'Voda, toaleta, hygiena, protažení. Organismus se rozproudí, krev se rozejde do končetin, přichází hlad a s ním první jídlo. Smysly se otevírají, tělo si vzpomíná, že je živé a že ho život baví.' },
-    { n: 3, ch: 'Solar plexus', t: 'vykročení do světa', col: '#D9B96E',
+    { n: 3, ch: 'Solar plexus', t: 'vykročení do světa', col: CHAKRA_COL.solar,
       p: 'Činnost. Rozhodování, práce rukama i hlavou, obstarávání, tvoření, prosazení vlastní vůle. Člověk bere den do ruky a nechává na něm stopu. <b>Něco dnes udělám.</b>' },
-    { n: 4, ch: 'Srdeční čakra', t: 'setkání', col: '#8FC2A8',
+    { n: 4, ch: 'Srdeční čakra', t: 'setkání', col: CHAKRA_COL.heart,
       p: 'Předěl celého dne. Společné jídlo, rodina, blízkost, spolupráce, péče, chvíle venku mezi stromy. Člověk přestává být jen <em>já konající</em> a vzniká <b>my</b>.' },
-    { n: 5, ch: 'Krční čakra', t: 'sdílení a předávání', col: '#7FB6DD',
+    { n: 5, ch: 'Krční čakra', t: 'sdílení a předávání', col: CHAKRA_COL.throat,
       p: 'Rozhovory, domlouvání, vyprávění, zpěv, učení, předávání zkušeností. V tradiční komunitě sem patří pozdní odpoledne a podvečer, kdy se práce utlumuje a lidé jsou spolu.' },
-    { n: 6, ch: 'Třetí oko', t: 'vnitřní pohled', col: '#8F7BC0',
+    { n: 6, ch: 'Třetí oko', t: 'vnitřní pohled', col: CHAKRA_COL.brow,
       p: 'Se stmíváním ubývá vnějšího jednání. Reflexe dne, ticho, pozorování ohně nebo oblohy, modlitba, meditace, imaginace, intuice. Sny začínají ještě před usnutím. Pozornost jde zvenku dovnitř.' },
-    { n: 7, ch: 'Korunní čakra', t: 'odevzdání', col: '#CDBFE4',
+    { n: 7, ch: 'Korunní čakra', t: 'odevzdání', col: CHAKRA_COL.crown,
       p: 'Spánek. Opuštění běžné identity, kontroly a jednání. Člověk už nic nevytváří ani neřeší. Rozpouští se do něčeho většího a ráno se z toho beztvarého vrací zpátky dolů do těla, do prostoru, do konkrétního života.' },
   ];
   function arcHTML() {
@@ -990,7 +1011,7 @@
       <span class="ht-moon"><span class="ht-medal"><svg class="mring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="37" fill="none" stroke="rgba(239,200,120,.7)" stroke-width=".9"/><circle cx="60" cy="60" r="42" fill="none" stroke="rgba(239,200,120,.42)" stroke-width=".8"/></svg>${moonSVG(da.phaseAngle, 38, 'moon hm')}</span> Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
       <span class="ht-div"></span>
       ${go.length ? `<span class="ht-row ht-go"><i class="ht-ic go">✦</i><b>Podporuje</b><span class="tx">${esc(go[0].text)}</span></span>` : ''}
-      ${cost.length ? `<span class="ht-div"></span><span class="ht-row ht-cost"><i class="ht-ic cost">✳</i><b>Nepříznivé</b><span class="tx">${esc(cost[0].text)}</span></span>` : ''}
+      ${cost.length ? `<span class="ht-div"></span><span class="ht-row ht-cost"><i class="ht-ic cost">${ico('✳')}</i><b>Nepříznivé</b><span class="tx">${esc(cost[0].text)}</span></span>` : ''}
       ${cycOn() && cycFor(K.isoDate(np.y, np.m, np.d)) ? `<span class="ht-div"></span><span class="ht-cyc">${(() => { const c = cycFor(K.isoDate(np.y, np.m, np.d)); return `<i class="cdot" style="background:${c.ph.col}"></i><b>${c.day}. den cyklu</b><span>${esc(c.ph.n)} fáze</span>`; })()}</span>` : ''}
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
       ${orgHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv ht-org" id="orgLine">${orgHTML()}</span>${S.orgHelp ? orgExpHTML() : ''}` : ''}
@@ -1967,7 +1988,7 @@ ${parts}
     let nextIdx = -1;
     if (isToday) { for (let i = 0; i < E.length; i++) if (E[i].ms >= nowMs) { nextIdx = i; break; } }
     return `<div class="tl">${E.map((e, i) => `<div class="e ${e.kind} ${i === nextIdx ? 'now' : ''}">
-      <span class="t">${K.fmtTime(new Date(e.ms), TZ)}</span><span class="dot">${e.icon}</span>
+      <span class="t">${K.fmtTime(new Date(e.ms), TZ)}</span><span class="dot">${ico(e.icon)}</span>
       <span class="x">${esc(e.text)}${e.note ? `<span class="n">${esc(e.note)}</span>` : ''}</span></div>`).join('')}</div>
       ${untimed.length ? `<p class="note">Bez času: ${untimed.map(x => esc(x.name)).join(' · ')}</p>` : ''}
       ${isToday && nextIdx > 0 ? '<p class="note">Zvýrazněné je nejbližší, co tě dnes čeká.</p>' : ''}`;
@@ -2091,7 +2112,7 @@ ${parts}
         html += `<div class="ev-month">${K.MONTH_CZ[mo.m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[mo.m - 1].slice(1)} ${mo.y}</div>`;
         for (const e of shown) {
           const p = K.tzParts(e.date, TZ);
-          html += `<div class="ev ${e.resonance ? 'res' : ''} ${e.date.getTime() < nowMs ? 'gone' : ''}"><div class="dt"><b>${p.d}.</b>${e.cat === 'roje' || e.custom || e.cat === 'hvezdy' && e.title.startsWith('Heliak') ? '' : K.fmtTime(e.date, TZ)}</div><div><div class="ti"><span class="c">${CAT_ICON[e.cat] || '✧'}</span>${esc(e.title)}${evWhat(e.title) ? `<i class="evq" data-act="evWhat" role="button" aria-label="Co to je?">?</i>` : ''}</div>${e.note ? `<div class="no">${esc(e.note)}</div>` : ''}${evWhat(e.title) ? `<div class="evwhat">${esc(evWhat(e.title))}</div>` : ''}</div></div>`;
+          html += `<div class="ev ${e.resonance ? 'res' : ''} ${e.date.getTime() < nowMs ? 'gone' : ''}"><div class="dt"><b>${p.d}.</b>${e.cat === 'roje' || e.custom || e.cat === 'hvezdy' && e.title.startsWith('Heliak') ? '' : K.fmtTime(e.date, TZ)}</div><div><div class="ti"><span class="c">${ico(CAT_ICON[e.cat] || '✧')}</span>${esc(e.title)}${evWhat(e.title) ? `<i class="evq" data-act="evWhat" role="button" aria-label="Co to je?">?</i>` : ''}</div>${e.note ? `<div class="no">${esc(e.note)}</div>` : ''}${evWhat(e.title) ? `<div class="evwhat">${esc(evWhat(e.title))}</div>` : ''}</div></div>`;
         }
       }
       html += `<p class="note" style="margin-top:18px">Komety, novy a podobné jednorázové úkazy se spočítat nedají – přidáš si je v Nastavení (řádek: datum | název | poznámka).</p>`;
@@ -2118,7 +2139,7 @@ ${parts}
       t += `<tr class="${phaseDays.has(key) ? 'phase' : ''}"><td>${r.d}.</td>${cols.map(c => `<td>${K.fmtLon(r.pos[c].lon)}${r.pos[c].retro ? '<span class="r">R</span>' : ''}</td>`).join('')}<td>${K.fmtLon(r.pos.Node.lon)}</td></tr>`;
     }
     t += '</tbody></table>';
-    const monthEvs = evs.filter(e => ['luna', 'planety', 'slunce', 'zatmeni'].includes(e.cat) && !(e.conj)).map(e => `<li><span class="g">${CAT_ICON[e.cat]}</span><span class="t">${esc(e.title)}<span class="n">${K.fmtDateCz(e.date, TZ)} ${K.fmtTime(e.date, TZ)}${e.note ? ' · ' + esc(e.note) : ''}</span></span></li>`).join('');
+    const monthEvs = evs.filter(e => ['luna', 'planety', 'slunce', 'zatmeni'].includes(e.cat) && !(e.conj)).map(e => `<li><span class="g">${ico(CAT_ICON[e.cat])}</span><span class="t">${esc(e.title)}<span class="n">${K.fmtDateCz(e.date, TZ)} ${K.fmtTime(e.date, TZ)}${e.note ? ' · ' + esc(e.note) : ''}</span></span></li>`).join('');
     const vocList = ctx.voc.filter(vv => K.tzParts(new Date(vv.to), TZ).m === m && K.tzParts(new Date(vv.to), TZ).y === y).map(vv => `<li><span class="g">∅</span><span class="t">${K.fmtDateCz(new Date(vv.from), TZ)} ${K.fmtTime(new Date(vv.from), TZ)} → ${K.fmtDateCz(new Date(vv.to), TZ)} ${K.fmtTime(new Date(vv.to), TZ)}<span class="n">${vv.lastAspect ? 'poslední aspekt ' + vv.lastAspect.glyph + ' ' + K.BODY_CZ[vv.lastAspect.target] + ' · ' : ''}vstup do ${K.SIGN_GEN[vv.toSign]}</span></span></li>`).join('');
     v.innerHTML = `
       <div class="monthbar"><button class="navbtn" data-act="ephPrev" aria-label="Předchozí měsíc">‹</button><div class="mn">${K.MONTH_CZ[m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[m - 1].slice(1)}<em>${y}</em></div><div class="row"><button type="button" class="btn ghost small" data-act="ephCsv">Stáhnout CSV</button><button class="navbtn" data-act="ephNext" aria-label="Další měsíc">›</button></div></div>
@@ -2145,7 +2166,7 @@ ${parts}
     const base = { kulminuje: 'kulminoval', antikulminuje: 'procházel dolní kulminací', vychází: 'vycházel', zapadá: 'zapadal' }[angle];
     return g === 'm' ? base : base.replace(/kulminoval|procházel|vycházel|zapadal/, w => w + (g === 'f' ? 'a' : 'o'));
   }
-  const CHAKRA = [{"n": "Múládhára", "cz": "kořenová", "col": "#C4553F", "t": "tělo, bezpečí, domov, důvěra"}, {"n": "Svádhišthána", "cz": "křížová", "col": "#D98A3F", "t": "cit, chuť, blízkost, tvořivost"}, {"n": "Manipúra", "cz": "solar plexus", "col": "#D9B96E", "t": "vůle, síla, jednání, hranice"}, {"n": "Anáhata", "cz": "srdeční", "col": "#6FBF8F", "t": "srdce, přijetí, dávání, spojení"}, {"n": "Višuddha", "cz": "krční", "col": "#7FB6DD", "t": "hlas, pravda, vyjádření"}, {"n": "Ádžňá", "cz": "třetí oko", "col": "#8F7BC0", "t": "vhled, rozlišení, vidění celku"}, {"n": "Sahasrára", "cz": "korunní", "col": "#C9A9E0", "t": "smysl, přesah, celistvost"}];
+  const CHAKRA = [{"n": "Múládhára", "cz": "kořenová", "col": CHAKRA_COL.root, "t": "tělo, bezpečí, domov, důvěra"}, {"n": "Svádhišthána", "cz": "křížová", "col": CHAKRA_COL.sacral, "t": "cit, chuť, blízkost, tvořivost"}, {"n": "Manipúra", "cz": "solar plexus", "col": CHAKRA_COL.solar, "t": "vůle, síla, jednání, hranice"}, {"n": "Anáhata", "cz": "srdeční", "col": CHAKRA_COL.heart, "t": "srdce, přijetí, dávání, spojení"}, {"n": "Višuddha", "cz": "krční", "col": CHAKRA_COL.throat, "t": "hlas, pravda, vyjádření"}, {"n": "Ádžňá", "cz": "třetí oko", "col": CHAKRA_COL.brow, "t": "vhled, rozlišení, vidění celku"}, {"n": "Sahasrára", "cz": "korunní", "col": CHAKRA_COL.crown, "t": "smysl, přesah, celistvost"}];
   const CHAKRA_BLOCK = ["Blok o kořenech: o těle, bezpečí, domově a důvěře, že svět unese.", "Blok o prožívání: o citu, blízkosti, tvořivosti a chuti do života.", "Blok o vlastní síle: o jednání, hranicích, sebedůvěře a směru.", "Blok o vztazích: o dávání a přijímání, o partnerství a soucitu.", "Blok o vyjádření: o vlastní řeči, pravdivosti, tvorbě a naslouchání.", "Blok o vidění: o rozlišení, směru, intuici a chápání souvislostí.", "Blok o celistvosti: o smyslu, napojení, odevzdání a tichém návratu k podstatě."];
   // rok života a čakry malého i velkého cyklu
   function chakraYear(prof, ref) {

@@ -2,6 +2,7 @@
   /* NOC – podle nočního obrazu: půlnoční modř a zlato */
   --bg:#040A18; --bg2:#0A162B; --surface:#111F3A; --surface2:#18294A;
   --line:rgba(236,232,220,.15); --line2:rgba(236,232,220,.27);
+  --c-root:#C4553F; --c-sacral:#D98A3F; --c-solar:#D9B96E; --c-heart:#6FBF8F; --c-throat:#7FB6DD; --c-brow:#8F7BC0; --c-crown:#C9A9E0;
   --fs-xs:11px; --fs-s:12.5px; --fs-m:14px; --fs-b:15px; --fs-l:17px; --fs-xl:20px; --fs-xxl:24px;
   --text:#F2EBDB; --muted:#AFC1D9; --gold:#F0C874; --gold2:#A8873F; --gold-soft:rgba(240,200,116,.18);
   --on-gold:#161204; --h3:#C4D2E6;
@@ -308,7 +309,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today .orgexp .orow.on{opacity:1;color:var(--inst-text)}
 .hero-today .orgexp .orow b{flex:none;width:96px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .hero-today .orgexp .orow span{flex:none;min-width:104px;font-weight:600}
-.hero-today .orgexp .orow.on span{color:#8FC2A8}
+.hero-today .orgexp .orow.on span{color:var(--c-heart)}
 .hero-today .orgexp .orow em{font-style:normal;opacity:.75}
 .hero-today .tvexp{display:block;margin:0 0 4px;padding:9px 12px;font-size:var(--fs-s);line-height:1.55;color:var(--inst-muted);border:1px dashed var(--inst-line-soft);border-radius:10px}
 .btn.profsel{color:var(--text);border-color:var(--line2);font-weight:600;letter-spacing:.04em}
@@ -813,3 +814,10 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .upbar .upx{border:0;background:transparent;color:#AFC1D9;padding:6px 8px;font-size:var(--fs-l);line-height:1}
 .loading{padding:30px;text-align:center;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* jednotné ikony */
+.ico{width:14px;height:14px;display:inline-block;vertical-align:-2px;flex:none}
+.tl .dot .ico{width:15px;height:15px;vertical-align:-3px}
+.legend-more .ico{margin-right:2px}
+.ht-ic .ico{width:15px;height:15px;vertical-align:0}
+.ev .c .ico{width:15px;height:15px;vertical-align:-3px;margin-right:2px}
