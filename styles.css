@@ -47,7 +47,7 @@
 /* ---------- DEN – modř průhledu a teplé krémové mraky ---------- */
 [data-theme="day"]{
   /* DEN – denní zůstává jen plocha: fotka oblohy, její dosvit a logo. Karty, inkoust i lišta dědí noční ladění. */
-  --photo:url('sky-day.webp?v=7'); --photo-h:calc(100vw*1.7768); /* 941×1672 — výška musí odpovídat souboru, jinak se dosvit počítá pod fotkou a ta končí ostrou hranou */
+  --photo:url('sky-day2.webp?v=1'); --photo-h:calc(100vw*2.6989); /* 724×1954 — výška musí odpovídat souboru, jinak se dosvit počítá pod fotkou */
   --sky:linear-gradient(180deg,#4590D1 0%,#2F7CC6 50%,#1B62B2 100%);
   --sky-tail:#1B62B2;
   --logo-filter:drop-shadow(0 2px 10px rgba(1,20,50,.55));
@@ -55,7 +55,7 @@
   --stars:0;
   /* plocha pod fotkou drží denní modř — fotka do ní přechází svým dosvitem */
   --muted:#EAF1FA;
-  --bg:#234870; --tail-1:#2E5586; --tail-2:#2A4F80; --tail-3:#234870; /* tail-1 sedí na tón, do kterého se fotka rozpouští */
+  --bg:#234870; --tail-1:#2A5386; --tail-2:#27497A; --tail-3:#234870; /* tail-1 = plochá modř jezera, do které fotka končí */
 }
 /* ---------- STMÍVÁNÍ – rozžhavené mraky nad tmavnoucí modří ---------- */
 [data-theme="dusk"]{
@@ -76,7 +76,7 @@
 }
 @media (min-width:768px){
   :root{--photo:url('sky-night-hd2.webp?v=1'); --photo-h:calc(100vw*2.706); --tail-1:#0A1B33; --tail-2:#0A1B33; --tail-3:#050E1C}
-  [data-theme="day"]{--photo:url('sky-day-hd2.webp?v=1'); --photo-h:calc(100vw*2.3762); --tail-1:#2E5586; --tail-2:#2A4F80; --tail-3:#234870}
+  [data-theme="day"]{--photo:url('sky-day2-hd.webp?v=1'); --photo-h:calc(100vw*2.6989); --tail-1:#2A5386; --tail-2:#27497A; --tail-3:#234870}
   #skybg{background-image:
     radial-gradient(58% 20vh at 50% 100%, rgba(240,200,116,.10), transparent 72%),
     radial-gradient(62vw 30vw at 16% calc(var(--photo-h) + 30vw), rgba(255,255,255,.05), transparent 70%),
