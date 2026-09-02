@@ -2247,8 +2247,8 @@ ${parts}
       ${s.neverRises && !s.angles.length ? '<span>z našich šířek nikdy nevychází nad obzor</span>' : ''}${s.circumpolar ? '<span>cirkumpolární – nad obzorem po celý rok</span>' : ''}
     </div></div>`;
     const natalHTML = `
-      <div class="h2">${esc(p.name)}</div>
-      <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p>
+      <div class="nhead"><div class="h2">${esc(p.name)}</div>
+      <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p></div>
       ${natalSumHTML(false)}
       <p class="note" style="margin:0 2px 10px">Ťukni na kartu — dozvíš se, co ten bod znamená a jak vychází tobě.</p>
       ${wheelSVG(n)}
@@ -2478,6 +2478,10 @@ ${parts}
     const want = settings.theme === 'auto' ? themeForNow() : settings.theme;
     if (document.documentElement.dataset.theme !== want) {
       document.documentElement.dataset.theme = want;
+      // denní verze loga má zapečený tmavý obrys, ať zlato drží i na světlé letní obloze
+      const day = want === 'day';
+      document.querySelectorAll('.brand .logo, #splash .sp-em').forEach(el => { el.src = day ? 'logo-emblem-day.webp?v=1' : 'logo-emblem.webp?v=1'; });
+      document.querySelectorAll('.brand .bstars, #splash .sp-st').forEach(el => { el.src = day ? 'logo-stars-day.webp?v=1' : 'logo-stars.webp?v=1'; });
       const mt = document.querySelector('meta[name=theme-color]');
       if (mt) mt.setAttribute('content', THEME_META[want] || '#111832');
     }

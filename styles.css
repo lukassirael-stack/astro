@@ -47,20 +47,17 @@
 /* ---------- DEN – modř průhledu a teplé krémové mraky ---------- */
 [data-theme="day"]{
   /* DEN – denní zůstává jen plocha: fotka oblohy, její dosvit a logo. Karty, inkoust i lišta dědí noční ladění. */
-  --photo:url('sky-day2.webp?v=2'); --photo-h:calc(100vw*2.6989); /* 724×1954 — výška musí odpovídat souboru, jinak se dosvit počítá pod fotkou */
+  --photo:url('sky-day3.webp?v=1'); --photo-h:calc(100vw*2.5497); /* 724×1846 — výška musí odpovídat souboru, jinak se dosvit počítá pod fotkou */
   --sky:linear-gradient(180deg,#4590D1 0%,#2F7CC6 50%,#1B62B2 100%);
   --sky-tail:#1B62B2;
   /* zlato na světlé obloze: těsný tmavý obrys + širší modrý dosvit, ať logo drží tvar i kresbu */
-  --logo-filter:drop-shadow(0 0 1.2px rgba(4,18,46,.95)) drop-shadow(0 2px 4px rgba(4,18,46,.8)) drop-shadow(0 6px 22px rgba(4,18,46,.6));
+  --logo-filter:drop-shadow(0 4px 14px rgba(4,18,46,.35));
   --logo-accent:#9FD0F0;
   --stars:0;
   /* plocha pod fotkou drží denní modř — fotka do ní přechází svým dosvitem */
   --muted:#EAF1FA;
-  --bg:#234870; --tail-1:#122C59; --tail-2:#1A3A66; --tail-3:#234870; /* tail-1 = ultramarínové jezero pod závojem */
+  --bg:#234870; --tail-1:#195591; --tail-2:#1E4F86; --tail-3:#234870; /* tail-1 = plochá modř letního jezera, do které fotka končí */
 }
-/* DEN – spodní část fotky (hory, jezero, krystaly) je světlá a rušná; pod obsahem ji zklidní
-   modrý závoj, který začíná pod oblohou a dole přejde do tónu plochy. */
-[data-theme="day"] #skybg::before{background-image:radial-gradient(70% 22% at 50% 12%, rgba(6,22,56,.18), transparent 75%), linear-gradient(180deg, transparent 34%, rgba(20,42,76,.40) 50%, rgba(22,44,80,.56) 66%, rgba(23,47,84,.62) 100%), var(--photo)}
 /* ---------- STMÍVÁNÍ – rozžhavené mraky nad tmavnoucí modří ---------- */
 [data-theme="dusk"]{
   --bg:#241E36; --bg2:#2F2745; --surface:#352C4C; --surface2:#403658;
@@ -80,7 +77,7 @@
 }
 @media (min-width:768px){
   :root{--photo:url('sky-night-hd2.webp?v=1'); --photo-h:calc(100vw*2.706); --tail-1:#0A1B33; --tail-2:#0A1B33; --tail-3:#050E1C}
-  [data-theme="day"]{--photo:url('sky-day2-hd.webp?v=2'); --photo-h:calc(100vw*2.6989); --tail-1:#122C59; --tail-2:#1A3A66; --tail-3:#234870}
+  [data-theme="day"]{--photo:url('sky-day3-hd.webp?v=1'); --photo-h:calc(100vw*2.5497); --tail-1:#195591; --tail-2:#1E4F86; --tail-3:#234870}
   #skybg{background-image:
     radial-gradient(58% 20vh at 50% 100%, rgba(240,200,116,.10), transparent 72%),
     radial-gradient(62vw 30vw at 16% calc(var(--photo-h) + 30vw), rgba(255,255,255,.05), transparent 70%),
@@ -825,3 +822,16 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .legend-more .ico{margin-right:2px}
 .ht-ic .ico{width:15px;height:15px;vertical-align:0}
 .ev .c .ico{width:15px;height:15px;vertical-align:-3px;margin-right:2px}
+
+/* DEN – logo s obrysem je o okraj větší, název v sytějším zlatě s obrysem, hlavička O tobě ve skle */
+[data-theme="day"] .brand .logo{width:min(253px,50.6%)}
+@media (max-width:640px){[data-theme="day"] .brand .logo{width:88%}}
+@media (max-width:420px){[data-theme="day"] .brand .logo{width:92%}}
+[data-theme="day"] .bstars{width:min(192px,42.5%)}
+[data-theme="day"] .bname b{background:linear-gradient(180deg,#FFF0BC 0%,#F3D07C 38%,#CD9B40 72%,#9C6C24 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 1px rgba(6,22,56,.95)) drop-shadow(0 1px 2px rgba(6,22,56,.9)) drop-shadow(0 3px 10px rgba(6,22,56,.5))}
+[data-theme="day"] .bname .l2:before,[data-theme="day"] .bname .l2:after{background:linear-gradient(90deg,transparent,#B8862F)}
+[data-theme="day"] .bname .l2:after{background:linear-gradient(90deg,#B8862F,transparent)}
+.nhead{margin:8px 0 10px}
+[data-theme="day"] .nhead{background:var(--glass);border:1px solid var(--hairline);border-radius:var(--r);box-shadow:0 1px 3px var(--glass-shadow);padding:12px 14px 10px}
+[data-theme="day"] .nhead .h2{margin-top:0}
+[data-theme="day"] .nhead .natal-meta{margin-bottom:0}
