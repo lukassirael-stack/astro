@@ -47,16 +47,16 @@
 /* ---------- DEN – modř průhledu a teplé krémové mraky ---------- */
 [data-theme="day"]{
   /* DEN – denní zůstává jen plocha: fotka oblohy, její dosvit a logo. Karty, inkoust i lišta dědí noční ladění. */
-  --photo:url('sky-day3.webp?v=1'); --photo-h:calc(100vw*2.5497); /* 724×1846 — výška musí odpovídat souboru, jinak se dosvit počítá pod fotkou */
+  --photo:url('sky-day.webp?v=7'); --photo-h:calc(100vw*1.7768); /* 941×1672 — výška odpovídá souboru, dosvit začíná až pod východem Slunce */
   --sky:linear-gradient(180deg,#4590D1 0%,#2F7CC6 50%,#1B62B2 100%);
   --sky-tail:#1B62B2;
   /* zlato na světlé obloze: těsný tmavý obrys + širší modrý dosvit, ať logo drží tvar i kresbu */
-  --logo-filter:none;
+  --logo-filter:drop-shadow(0 2px 10px rgba(1,20,50,.55));
   --logo-accent:#9FD0F0;
   --stars:0;
   /* plocha pod fotkou drží denní modř — fotka do ní přechází svým dosvitem */
   --muted:#EAF1FA;
-  --bg:#234870; --tail-1:#195591; --tail-2:#1E4F86; --tail-3:#234870; /* tail-1 = plochá modř letního jezera, do které fotka končí */
+  --bg:#2A4F80; --tail-1:#1B3F64; --tail-2:#2E5586; --tail-3:#2A4F80; /* tail-1 = tón krajiny pod východem Slunce, pak nebeská modř */
 }
 /* ---------- STMÍVÁNÍ – rozžhavené mraky nad tmavnoucí modří ---------- */
 [data-theme="dusk"]{
@@ -77,7 +77,7 @@
 }
 @media (min-width:768px){
   :root{--photo:url('sky-night-hd2.webp?v=1'); --photo-h:calc(100vw*2.706); --tail-1:#0A1B33; --tail-2:#0A1B33; --tail-3:#050E1C}
-  [data-theme="day"]{--photo:url('sky-day3-hd.webp?v=1'); --photo-h:calc(100vw*2.5497); --tail-1:#195591; --tail-2:#1E4F86; --tail-3:#234870}
+  [data-theme="day"]{--photo:url('sky-day-hd2.webp?v=1'); --photo-h:calc(100vw*2.3762); --tail-1:#264A72; --tail-2:#2E5586; --tail-3:#2A4F80}
   #skybg{background-image:
     radial-gradient(58% 20vh at 50% 100%, rgba(240,200,116,.10), transparent 72%),
     radial-gradient(62vw 30vw at 16% calc(var(--photo-h) + 30vw), rgba(255,255,255,.05), transparent 70%),
@@ -573,7 +573,7 @@ details.expl .card p:last-child{margin:0}
 .bstars{display:block;margin:2px auto -2px;width:min(180px,40%);height:auto;filter:var(--logo-filter)}
 .brand-claim{margin:24px auto 0}
 [data-theme="day"] .brand-claim{margin:6px auto 0}
-[data-theme="day"] .claim i{-webkit-text-stroke:.3px rgba(255,255,255,.35);filter:drop-shadow(0 0 1px rgba(4,18,46,.95)) drop-shadow(0 1px 3px rgba(4,18,46,.85)) drop-shadow(0 4px 14px rgba(4,18,46,.6));background:linear-gradient(180deg,#FFF4CE 0%,#F2D68C 40%,#D9AC55 74%,#BE8F3C 100%);-webkit-background-clip:text;background-clip:text}
+[data-theme="day"] .claim i{-webkit-text-stroke:.4px rgba(255,255,255,.5);background:linear-gradient(180deg,#FFF4CE 0%,#F2D68C 40%,#D9AC55 74%,#BE8F3C 100%);-webkit-background-clip:text;background-clip:text}
 .brand-claim{font-size:var(--fs-xs)}
 @media (max-width:420px){.claim{font-size:var(--fs-xs);letter-spacing:.26em}.claim:before,.claim:after{width:44px}}
 #splash{position:fixed;inset:0;z-index:999;display:grid;place-items:center;align-content:center;gap:18px;
@@ -823,15 +823,10 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .ht-ic .ico{width:15px;height:15px;vertical-align:0}
 .ev .c .ico{width:15px;height:15px;vertical-align:-3px;margin-right:2px}
 
-/* DEN – logo s obrysem je o okraj větší, název v sytějším zlatě s obrysem, hlavička O tobě ve skle */
-[data-theme="day"] .brand .logo{width:min(243px,48.6%)}
-@media (max-width:640px){[data-theme="day"] .brand .logo{width:84.5%}}
-@media (max-width:420px){[data-theme="day"] .brand .logo{width:88.8%}}
-[data-theme="day"] .bstars{width:min(186px,41.3%)}
-[data-theme="day"] .bname b{background:linear-gradient(180deg,#FFF0BC 0%,#F3D07C 38%,#CD9B40 72%,#9C6C24 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 1px rgba(16,44,96,.9))}
-[data-theme="day"] .bname .l2:before,[data-theme="day"] .bname .l2:after{background:linear-gradient(90deg,transparent,#B8862F)}
-[data-theme="day"] .bname .l2:after{background:linear-gradient(90deg,#B8862F,transparent)}
 .nhead{margin:8px 0 10px}
 [data-theme="day"] .nhead{background:var(--glass);border:1px solid var(--hairline);border-radius:var(--r);box-shadow:0 1px 3px var(--glass-shadow);padding:12px 14px 10px}
 [data-theme="day"] .nhead .h2{margin-top:0}
 [data-theme="day"] .nhead .natal-meta{margin-bottom:0}
+
+/* DEN – fotka končí východem Slunce nad krajinou; dosvit bere jen spodní pruh krajiny, Slunce zůstává celé */
+[data-theme="day"] #skybg::before,[data-theme="day"] #skybg::after{-webkit-mask-image:linear-gradient(180deg,#000 86%,rgba(0,0,0,.6) 94%,transparent 100%);mask-image:linear-gradient(180deg,#000 86%,rgba(0,0,0,.6) 94%,transparent 100%)}
