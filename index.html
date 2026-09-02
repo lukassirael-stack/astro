@@ -210,7 +210,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .monthbar{display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px}
 .monthbar .mn{font-family:var(--display);font-size:27px;font-weight:500;letter-spacing:.05em;color:#F5EEDC;text-shadow:0 1px 5px rgba(2,10,28,.75)}
 .monthbar .mn em{font-style:normal;color:rgba(240,224,180,.75);font-size:var(--fs-l);margin-left:8px}
-.navbtn{width:40px;height:40px;border-radius:50%;border:1px solid rgba(240,200,116,.4);color:#F2EAD8;background:rgba(6,14,36,.45);font-size:var(--fs-l);display:grid;place-items:center;transition:border-color .15s ease}
+.navbtn{width:44px;height:44px;border-radius:50%;border:1px solid rgba(240,200,116,.4);color:#F2EAD8;background:rgba(6,14,36,.45);font-size:var(--fs-l);display:grid;place-items:center;transition:border-color .15s ease}
 .navbtn:hover{border-color:var(--inst-gold)}
 .monthbar .btn{color:#F2EAD8;border-color:rgba(240,200,116,.4);background:rgba(6,14,36,.45)}
 .today-strip{display:flex;gap:14px;align-items:center;padding:10px 12px;border:1px solid var(--hairline);border-radius:10px;background:var(--glass);margin:6px 0 12px;font-size:var(--fs-s);overflow-x:auto;white-space:nowrap}
@@ -295,7 +295,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .sdlist{list-style:none;margin:0 0 10px;padding:0}
 .sdlist li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--hairline)}
 .sdask p{font-size:var(--fs-m)}
-.hero-today .tvq{flex:none;align-self:center;margin-left:6px;width:30px;height:30px;border-radius:50%;border:1px solid var(--inst-line-soft);display:grid;place-items:center;font-size:var(--fs-l);font-style:normal;color:var(--inst-muted)}
+.hero-today .tvq::after{content:'';position:absolute;inset:-9px;border-radius:50%}
+.hero-today .tvq{position:relative;flex:none;align-self:center;margin-left:6px;width:30px;height:30px;border-radius:50%;border:1px solid var(--inst-line-soft);display:grid;place-items:center;font-size:var(--fs-l);font-style:normal;color:var(--inst-muted)}
 .arc{margin:26px 0 8px;border-top:1px solid var(--line2);padding-top:18px}
 .arc>summary{list-style:none;cursor:pointer;display:block;padding:0}
 .arc>summary::before{content:none}
@@ -830,6 +831,7 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .upbar span{flex:1;min-width:0}
 .upbar span b{display:block;color:#F0C874;font-weight:600}
 .upbar button{flex:none;border:1px solid rgba(240,200,116,.7);background:rgba(240,200,116,.14);color:#F0C874;font:inherit;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer}
+.nonatal p{margin:0 0 12px;line-height:1.6;color:var(--text)}
 .kpnow{font-size:var(--fs-b);color:var(--text);margin:2px 0 4px}
 .kpnow b{color:var(--gold);font-weight:600}
 .kpnow small{color:var(--muted);font-size:var(--fs-s)}
@@ -2584,6 +2586,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
     sdDel(el) { store.set('kairos_days', sdAll().filter(x => x.id !== el.dataset.id)); renderSettings(); },
     tvHelp() { S.tvHelp = !S.tvHelp; renderCalendar(); },
     orgHelp() { S.orgHelp = !S.orgHelp; renderCalendar(); },
+    goNatal() { showTab('nastaveni'); setTimeout(() => { const f = $('#profileForm'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); },
     toggleKp() { settings.showKp = !settings.showKp; persistSettings(); S.dayCache = {}; renderSettings(); },
     toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
     evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
@@ -2758,7 +2761,7 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   // ===================== KALENDÁŘ =====================
   function renderCalendarRaw() {
     const v = $('#view-kalendar');
-    if (!S.natal) { v.innerHTML = '<div class="card">Nejdřív zadej datum, čas a místo narození v Nastavení.</div>'; return; }
+    if (!S.natal) { v.innerHTML = noNatalHTML('barvu každého dne, nejbližší chvíle a rytmus dne'); return; }
     const { y, m } = S;
     const n = K.daysInMonth(y, m);
     const offset = (K.tzParts(K.dayStart(y, m, 1, TZ), TZ).wd + 6) % 7;
@@ -3687,7 +3690,7 @@ ${parts}
       ${inner ? '' : '<h4><i class="hstar">✧</i> Program dne</h4>'}
       ${sdList}
       ${gList}
-      ${items.length ? `<ul class="plist">${list}</ul>` : '<p class="small muted" style="margin:0 0 8px">Zatím nic zapsaného.</p>'}
+      ${items.length ? `<ul class="plist">${list}</ul>` : '<p class="small muted" style="margin:0 0 8px">Přidej první plán — zapíše se sem a ráno tě čeká v kartě Dnes.</p>'}
       <div class="planadd">
         <input type="text" name="ptime" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="čas" aria-label="Čas (nepovinný), např. 14:30" title="Čas (nepovinný), např. 14:30">
         <input type="text" name="pname" placeholder="Co máš v plánu…" aria-label="Co máš v plánu">
@@ -3759,7 +3762,7 @@ ${parts}
         ${programCal()}
         <div class="h3" style="margin-top:14px">Zápis dne — ${np.d}. ${K.MONTH_GEN[np.m - 1]}</div>
         ${journalPanel(TODAY_KEY, analyze(np.y, np.m, np.d))}
-        <p class="note" style="margin-bottom:2px">Zapiš, jak den šel, přidej fotku či hlasovou poznámku — časem se tu ukáže, jak se tvá hodnocení potkávají s výpočtem.</p>
+        <p class="note" style="margin-bottom:2px">Zapiš pár slov o tom, jak den šel, a ohodnoť ho. Přidat jde i fotka nebo hlasová poznámka. Po pěti dnech se tu začne ukazovat, jak tvá hodnocení sedí s výpočtem, po osmi i podle fází cyklu.</p>
         ${journalIO()}`;
       setTimeout(() => jMediaHydrate($('#view-diar')), 30);
       return;
@@ -3784,7 +3787,7 @@ ${parts}
         <p><b>${pct} %</b> dnů se shoduje ve směru · souvislost <b>${slovo}</b> (r = ${fmtNum(corr, 2).replace('.', ',')})</p>
         <p class="note">Počítáno z ${n} ohodnocených dnů. Pod dvacet dnů je to jen orientační — na náhodě se dá snadno vidět vzorec, který tam není. Kdyby souvislost zůstala žádná i po dvou měsících, znamená to, že váhy v Nastavení potřebují přeladit, nebo že tenhle způsob barvení dnů pro tebe nefunguje.</p></div>`;
     } else {
-      stat = `<p class="note">Na porovnání s výpočtem je potřeba aspoň pět ohodnocených dnů. Máš ${rated.length}.</p>`;
+      stat = `<p class="note">Od pěti ohodnocených dnů se tu ukáže, jak tvá hodnocení sedí s výpočtem. ${rated.length ? `Máš ${rated.length}, chybí ${5 - rated.length}.` : 'Stačí u zápisu dne klepnout na hodnocení.'}</p>`;
     }
     // rozložení hodnocení po fázích cyklu
     let cycStat = '';
@@ -3817,7 +3820,7 @@ ${parts}
           ${shrnuti}
           <p class="note">Průměr tvého hodnocení v každé fázi na škále od náročného po příznivý den, počítáno z ${total} ohodnocených dnů se známou fází. Obraz se ustálí zhruba po třech cyklech.</p></div>`;
       } else if (total >= 1) {
-        cycStat = `<p class="note">Rozložení hodnocení po fázích cyklu se ukáže při osmi ohodnocených dnech se známou fází — máš jich ${total}.</p>`;
+        cycStat = `<p class="note">Od osmi ohodnocených dnů se známou fází uvidíš, jak ti vycházejí jednotlivé fáze cyklu. Máš ${total}, chybí ${8 - total}.</p>`;
       }
     }
     const tk = TODAY_KEY, [ty, tm, td] = tk.split('-').map(Number);
@@ -3951,7 +3954,7 @@ ${parts}
   function evWhat(title) { const h = EV_WHAT.find(([re]) => re.test(title)); return h ? h[1] : ''; }
   function renderEvents() {
     const v = $('#view-ukazy');
-    if (!S.natal) { v.innerHTML = '<div class="card">Nejdřív vyplň nativ v Nastavení.</div>'; return; }
+    if (!S.natal) { v.innerHTML = noNatalHTML('úkazy roku dopředu a to, jak se dotknou právě tebe'); return; }
     v.innerHTML = '<div class="loading">Počítám oblohu na rok dopředu…</div>';
     setTimeout(() => {
       const key = `y|${activeId}|${np.y}-${np.m}|${settings.loc.lat},${settings.loc.lon}|${(settings.comets || '').length}`;
@@ -4105,7 +4108,7 @@ ${parts}
   function renderNatal() {
     const v = $('#view-nativ');
     const n = S.natal, p = activeProfile();
-    if (!n) { v.innerHTML = '<div class="card">Nejdřív vyplň nativ v Nastavení.</div>'; return; }
+    if (!n) { v.innerHTML = noNatalHTML('tvůj horoskop, domy a hvězdy'); return; }
     const keys = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Node', 'Asc', 'MC'];
     const pts = keys.map(k => `<tr><td class="g">${K.BODY_GLYPH[k]}</td><td>${K.BODY_CZ[k]}${k === 'Node' ? ' (střední)' : ''}${k === 'Asc' ? ' <span class="muted small">· hrot 1. domu</span>' : (k === 'MC' ? ' <span class="muted small">· Medium Coeli, hrot 10. domu</span>' : '')}</td><td class="p">${K.fmtLon(n.points[k].lon)}${n.points[k].retro && k !== 'Node' ? '<span class="tone-tense"> R</span>' : ''}</td><td class="muted">${k === 'Asc' || k === 'MC' ? '' : n.points[k].house + '. dům'}</td></tr>`).join('')
       + `<tr><td class="g">Dsc</td><td>Descendent <span class="muted small">· hrot 7. domu, naproti Ascendentu</span></td><td class="p">${K.fmtLon(n.cusps[7])}</td><td class="muted"></td></tr>`
@@ -4503,6 +4506,13 @@ ${parts}
     }
   });
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); S.installEvt = e; });
+  function noNatalHTML(what) {
+    return `<div class="card nonatal">
+      <div class="h3" style="margin-top:0">Začni datem narození</div>
+      <p>Kompas počítá ${what} z tvé osobní mapy — potřebuje datum, čas a místo, kde ses narodil. Zabere to minutu a všechno zůstává jen v tomto zařízení.</p>
+      <div class="row"><button type="button" class="btn" data-act="goNatal">Zadat narození</button></div>
+    </div>`;
+  }
   function renderCalendar() { renderCalendarRaw(); setTimeout(() => jMediaHydrate(), 30); }
   document.addEventListener('wheel', (e) => {
     const st = e.target.closest && e.target.closest('.strip-wrap .ahead');
