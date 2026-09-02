@@ -834,6 +834,12 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .view>.note,.view>p.note{color:var(--text);text-shadow:var(--halo)}
 .toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);width:max-content;max-width:86vw;background:#0E1830;border:1px solid rgba(240,216,152,.55);color:#F2EAD8;padding:10px 16px;border-radius:12px;font-size:13px;z-index:30;opacity:0;transition:opacity .2s;box-shadow:0 8px 24px rgba(2,8,24,.55);text-align:center}
 .toast.on{opacity:1}
+.upbar{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,16px);width:min(92vw,420px);display:flex;align-items:center;gap:12px;background:#0E1830;border:1px solid rgba(240,216,152,.55);color:#F2EAD8;padding:11px 12px 11px 16px;border-radius:14px;font-size:13.5px;line-height:1.35;z-index:31;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;box-shadow:0 10px 28px rgba(0,0,0,.45)}
+.upbar.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.upbar span{flex:1;min-width:0}
+.upbar span b{display:block;color:#F0C874;font-weight:600}
+.upbar button{flex:none;border:1px solid rgba(240,200,116,.7);background:rgba(240,200,116,.14);color:#F0C874;font:inherit;font-weight:600;padding:8px 14px;border-radius:10px;cursor:pointer}
+.upbar .upx{border:0;background:transparent;color:#AFC1D9;padding:6px 8px;font-size:18px;line-height:1}
 .loading{padding:30px;text-align:center;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -863,6 +869,7 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
   <button class="tab" data-tab="nastaveni"><span class="g">⚙</span>Nastavení</button>
 </nav>
 <div class="toast" id="toast"></div>
+<div class="upbar" id="upbar" role="status"><span><b>Nová verze je připravená</b>Obnov a máš ji hned.</span><button type="button" id="upGo">Obnovit</button><button type="button" class="upx" id="upX" aria-label="Zavřít">×</button></div>
 <script src="astronomy.browser.min.js"></script>
 <script>
 /* ============================================================
@@ -4499,15 +4506,25 @@ ${parts}
   }, { passive: false });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { const q = K.tzParts(new Date(), TZ); if (K.isoDate(q.y, q.m, q.d) !== TODAY_KEY) location.reload(); else if (S.tab === 'kalendar') renderCalendar(); } });
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => reg.update()).catch(() => { });
+    let swReg = null;
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => { swReg = reg; reg.update(); }).catch(() => { });
     let hadCtrl = !!navigator.serviceWorker.controller, reloaded = false;
     const bootT = Date.now();
+    const goNew = () => { reloaded = true; try { sessionStorage.setItem('kNoSp', '1'); } catch (e) { } location.reload(); };
+    const showUp = () => { const b = $('#upbar'); if (b) b.classList.add('on'); };
+    $('#upGo').addEventListener('click', goNew);
+    $('#upX').addEventListener('click', () => $('#upbar').classList.remove('on'));
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (hadCtrl && !reloaded) {
-        if (Date.now() - bootT < 4000) { reloaded = true; try { sessionStorage.setItem('kNoSp', '1'); } catch (e) { } location.reload(); }
-        else toast('Je připravená nová verze — projeví se při příštím otevření.');
+        if (Date.now() - bootT < 4000) goNew();
+        else showUp();
       }
       hadCtrl = true;
+    });
+    // při návratu do appky se podívat po nové verzi (nejvýš jednou za 10 minut)
+    let lastUp = Date.now();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && swReg && Date.now() - lastUp > 10 * 60 * 1000) { lastUp = Date.now(); swReg.update().catch(() => { }); }
     });
   }
   window.KAIROS = { K, S, settings, profiles };
