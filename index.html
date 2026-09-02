@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Nebeský kompas">
 <meta name="robots" content="noindex">
-<script>(function(){try{var st=JSON.parse(localStorage.getItem('kairos_settings')||'{}'),t=st.theme||'auto';
+<script>(function(){try{var ks=JSON.parse(localStorage.getItem('kairos_state')||'null'),st=(ks&&ks.data&&ks.data.settings)||JSON.parse(localStorage.getItem('kairos_settings')||'{}'),t=st.theme||'auto';
 if(t==='auto'||t==='dawn'||t==='dusk'){var h=new Date().getHours();t=h>=6&&h<20?'day':'night';}
 document.documentElement.dataset.theme=t;
 var c={day:'#0A4FA8',night:'#040A18'}[t];
@@ -1963,10 +1963,36 @@ if (typeof module !== 'undefined') module.exports = createKairosTexts;
   };
 
   // ===================== úložiště =====================
+  // ---------- úložiště: jeden balíček kairos_state pro data uživatele ----------
+  // Uživatelská data (profil, diář, plány, cyklus, nastavení…) žijí v jednom objektu
+  // s číslem verze — sync mezi zařízeními pak přenáší jednu věc. Dočasné věci
+  // (stažené Kp, počasí, kalendář z Googlu, otevřená záložka) zůstávají zvlášť,
+  // protože se dají kdykoli stáhnout znovu.
+  const STATE_KEY = 'kairos_state', STATE_V = 1;
+  const USER_KEYS = ['settings', 'profiles', 'active', 'journal', 'plan', 'cyc', 'cyc_on', 'days', 'days_seen', 'partners', 'ics', 'plus'];
+  const rawGet = (k, def) => { try { const v = localStorage.getItem(k); return v == null ? def : JSON.parse(v); } catch (e) { return def; } };
+  const rawSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } };
+  const rawDel = (k) => { try { localStorage.removeItem(k); } catch (e) { } };
+  let stateObj = rawGet(STATE_KEY, null);
+  if (!stateObj || typeof stateObj !== 'object' || !stateObj.data) stateObj = { v: STATE_V, updated: 0, data: {} };
+  // převod ze starých klíčů: cokoli ještě leží zvlášť (první spuštění nové verze,
+  // nebo obnovená starší záloha) se přenese dovnitř a smaže
+  (function migrate() {
+    let moved = 0;
+    for (const sk of USER_KEYS) {
+      const lk = 'kairos_' + sk;
+      if (localStorage.getItem(lk) != null) { stateObj.data[sk] = rawGet(lk, undefined); rawDel(lk); moved++; }
+    }
+    if (moved) { stateObj.updated = Date.now(); rawSet(STATE_KEY, stateObj); }
+  })();
+  const stateKey = (k) => { const sk = k.replace(/^kairos_/, ''); return USER_KEYS.includes(sk) ? sk : null; };
   const store = {
-    get(k, def) { try { const v = localStorage.getItem(k); return v == null ? def : JSON.parse(v); } catch (e) { return def; } },
-    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } },
-    del(k) { try { localStorage.removeItem(k); } catch (e) { } },
+    get(k, def) { const sk = stateKey(k); if (sk) return sk in stateObj.data ? stateObj.data[sk] : def; return rawGet(k, def); },
+    set(k, v) { const sk = stateKey(k); if (sk) { stateObj.data[sk] = v; stateObj.updated = Date.now(); rawSet(STATE_KEY, stateObj); return; } rawSet(k, v); },
+    del(k) { const sk = stateKey(k); if (sk) { delete stateObj.data[sk]; stateObj.updated = Date.now(); rawSet(STATE_KEY, stateObj); return; } rawDel(k); },
+    // celý balíček pro sync/zálohu a jeho nahrání zpět
+    exportState() { return JSON.parse(JSON.stringify(stateObj)); },
+    importState(obj) { if (obj && obj.data) { stateObj = { v: STATE_V, updated: obj.updated || Date.now(), data: obj.data }; rawSet(STATE_KEY, stateObj); } },
   };
   let profiles = store.get('kairos_profiles', null);
   if (!Array.isArray(profiles) || !profiles.length) profiles = [DEFAULT_PROFILE];
