@@ -673,7 +673,7 @@
   });
 
   const actions = {
-    elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); },
+    elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); if (S.elek.open) setTimeout(() => { const p = $('#view-kalendar .panel.elek, #view-kalendar .elek'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 40); },
     hsTheme(el) { S.hsTheme = el.dataset.t; renderNatal(); setTimeout(() => { const c = $('#view-nativ .card.hs'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); },
     // (hydratace médií se volá po renderCalendar níže)
     synSel(el) { S.synId = S.synId === el.dataset.id ? null : el.dataset.id; S.synForm = null; renderNatal(); },
@@ -1042,9 +1042,9 @@
         <p>Barvy i značky jsou vypočítané podle tvého osobního horoskopu, takže u každého člověka mohou vycházet jinak. Po rozkliknutí konkrétního dne se dozvíš, proč má právě takové označení.</p>
         <button type="button" class="legend-close" data-act="closeLegend">▲ &nbsp;Sbalit vysvětlivky</button>
       </details>
-      ${electHTML()}
 
       <div class="day" id="dayDetail">${dayDetailHTML(S.sel.y, S.sel.m, S.sel.d, evByDay)}</div>
+      ${electHTML()}
       ${arcHTML()}`;
     const ar = v.querySelector('.arc');
     if (ar) ar.addEventListener('toggle', () => {
