@@ -840,3 +840,6 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .day-hol.free{color:#F2A89E}
 .ht-hol{font-style:normal;display:block;margin-top:2px;font-size:var(--fs-s);letter-spacing:.03em;color:var(--muted)}
 .ht-hol.free{color:#F2A89E}
+
+.setsel{display:flex;flex-direction:column;gap:6px;font-size:var(--fs-s);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:150px;flex:1}
+.setsel select{text-transform:none;letter-spacing:0;font-size:var(--fs-m)}

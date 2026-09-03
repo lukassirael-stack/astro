@@ -274,6 +274,23 @@
     ['Jedeš v zajetých kolejích? Dnes je den udělat jednu věc jinak.', 'Bere ti něco čas bez užitku? Dnes je den si ho vzít zpět.'],
     ['Kdy jsi byl naposled v tichu? Dnes je den si dopřát půl hodiny jen pro sebe.', 'Spěcháš na dokončení? Dnes je den to udělat jemně a beze spěchu.'],
   ];
+  // podle vládce dne v týdnu (ne Slunce, po Luna, út Mars, st Merkur, čt Jupiter, pá Venuše, so Saturn): [dorůstající, couvající]
+  const WEEKDAY_TASKS = [
+    ['Co ti dnes dodá světlo? Dnes je den udělat jednu věc jen proto, že tě těší.', 'Kde jsi tento týden zářil? Dnes je den to v klidu docenit a odpočinout.'],
+    ['Co potřebuje tvé tělo? Dnes je den mu dát, oč si říká — spánek, teplo, jídlo.', 'Co tě v týdnu rozhodilo? Dnes je den to nechat usednout.'],
+    ['Co vyžaduje odvahu? Dnes je den do toho jít první.', 'Co tě zbytečně dráždí? Dnes je den ušetřit sílu na to podstatné.'],
+    ['Co chceš vyřídit? Dnes je den na hovory, maily a domluvy.', 'Které slovo bylo navíc? Dnes je den mluvit míň a poslouchat víc.'],
+    ['Kam chceš růst? Dnes je den udělat krok, který má rozměr.', 'Za co jsi vděčný? Dnes je den to říct nahlas.'],
+    ['Co je krásné a čeká na tebe? Dnes je den si to dopřát.', 'Co si zaslouží péči? Dnes je den ji věnovat — sobě nebo místu, kde žiješ.'],
+    ['Co chce řád? Dnes je den nastavit jedno pravidlo a držet ho.', 'Co dlouho vleče nohy? Dnes je den to uzavřít, nebo pustit.'],
+  ];
+  // podle živlu znamení Luny (oheň, země, vzduch, voda): [dorůstající, couvající]
+  const ELEMENT_TASKS = [
+    ['Hoří v tobě něco? Dnes je den to rozdmýchat — začni.', 'Kde už není co dohořívat? Dnes je den nechat oheň klidně dohasnout.'],
+    ['Co chce pevný základ? Dnes je den ho položit — malý a skutečný.', 'Co je hotové? Dnes je den to sklidit a uklidit po sobě.'],
+    ['Jaká myšlenka se vrací? Dnes je den ji napsat a poslat dál.', 'Kde je moc slov? Dnes je den vybrat jen ta pravá.'],
+    ['Co cítíš pod povrchem? Dnes je den tomu dát prostor.', 'Co odplouvá? Dnes je den to nechat jít a neohlížet se.'],
+  ];
   function taskOfDay(da) {
     const pa = da.phaseAngle;
     const sig0 = '';
@@ -281,7 +298,13 @@
     if (Math.abs(pa - 180) < 18) return { t: 'Co ve tvém životě dozrálo? Dnes je den to dokončit a poděkovat.', sig: 'úplněk — čas sklizně' };
     if (da.color === 'tense' && da.score <= -4) return { t: 'Tlačí se toho moc? Dnes je den vybrat tři podstatné věci a zbytek nechat na jindy.', sig: 'náročný den — méně je víc' };
     const grow = pa < 180;
-    return { t: DAY_TASKS[da.moonSign][grow ? 0 : 1], sig: grow ? 'dorůstající Luna — čas přidávat' : 'couvající Luna — čas dokončovat' };
+    const sig = grow ? 'dorůstající Luna — čas přidávat' : 'couvající Luna — čas dokončovat';
+    // Luna je ve znamení dva až tři dny — text se proto střídá: den znamení, den vládce dne v týdnu, den živlu
+    const lon = da.pos && da.pos.Moon ? da.pos.Moon.lon : da.moonSign * 30;
+    const dayInSign = Math.min(2, Math.floor(((lon % 30) + 30) % 30 / 13.2));
+    if (dayInSign === 1) { const wd = K.tzParts(da.noon, TZ).wd; return { t: WEEKDAY_TASKS[wd][grow ? 0 : 1], sig }; }
+    if (dayInSign === 2) return { t: ELEMENT_TASKS[da.moonSign % 4][grow ? 0 : 1], sig };
+    return { t: DAY_TASKS[da.moonSign][grow ? 0 : 1], sig };
   }
   const FEEDBACK_MAIL = 'oaza.adamanthea@gmail.com';
   // ============ cyklus (volitelný modul) ============
@@ -2448,8 +2471,6 @@ ${parts}
         <label>Luna bez kurzu – hodin v aktivní části dne (8–22), aby srazila skóre<input name="voc" type="number" step="1" value="${settings.rules.vocHours}"></label>
         <label>Orbis pro tvé hvězdy (°)<input name="starOrb" type="number" step="0.5" value="${settings.rules.starOrb}"></label>
         <label class="wide" style="flex-direction:row;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:var(--fs-m);color:var(--text)"><input type="checkbox" data-act="toggleOrg" ${settings.organs === false ? '' : 'checked'}> Orgánové hodiny v dnešku</label>
-        <label class="wide" style="text-transform:none;letter-spacing:0;font-size:var(--fs-m);color:var(--text)">Svátky a jmeniny<select class="btn" data-act="setCountry" style="margin-top:6px"><option value="both" ${(settings.country || 'both') === 'both' ? 'selected' : ''}>Česko i Slovensko</option><option value="cz" ${settings.country === 'cz' ? 'selected' : ''}>Česko</option><option value="sk" ${settings.country === 'sk' ? 'selected' : ''}>Slovensko</option></select></label>
-        <label class="wide" style="text-transform:none;letter-spacing:0;font-size:var(--fs-m);color:var(--text)">Jazyk rozhraní<select class="btn" data-act="setLang" style="margin-top:6px"><option value="cs" ${(settings.lang || 'cs') === 'cs' ? 'selected' : ''}>čeština</option><option value="sk" ${settings.lang === 'sk' ? 'selected' : ''}>slovenčina</option></select></label>
         <div class="wide row"><button type="button" class="btn" data-act="saveRules">Uložit pravidla</button></div>
         <details class="expl"><summary>Co ta čísla znamenají? (polopatě)</summary><div class="card">
           <p><b>Jak appka barví dny.</b> Každý den se podívá, jak putující Luna svítí na tvou osobní mapu. Když ladí, den dostává plusové body; když dře, minusové. Součet je skóre dne — vidíš ho v detailu dne.</p>
@@ -2510,7 +2531,12 @@ ${parts}
         <div class="row" style="margin-top:8px"><button type="button" class="btn primary" data-act="fbSend">Odeslat</button><button type="button" class="btn ghost" data-act="fbCopy">Zkopírovat text</button></div>
       </div>
       <div class="h2">Aplikace</div>
-      <div class="card"><div class="row"><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
+      <div class="card">
+      <div class="row" style="gap:14px;flex-wrap:wrap;margin-bottom:12px">
+        <label class="setsel">Jazyk rozhraní<select class="btn" data-act="setLang"><option value="cs" ${(settings.lang || 'cs') === 'cs' ? 'selected' : ''}>čeština</option><option value="sk" ${settings.lang === 'sk' ? 'selected' : ''}>slovenčina</option></select></label>
+        <label class="setsel">Svátky a jmeniny<select class="btn" data-act="setCountry"><option value="both" ${(settings.country || 'both') === 'both' ? 'selected' : ''}>Česko i Slovensko</option><option value="cz" ${settings.country === 'cz' ? 'selected' : ''}>Česko</option><option value="sk" ${settings.country === 'sk' ? 'selected' : ''}>Slovensko</option></select></label>
+      </div>
+      <div class="row"><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
       <p class="note" data-act="verTap" style="cursor:default">Nebeský kompas ${VERSION}${store.get('kairos_plus', false) ? ' · plná verze' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
       <p class="note">Jazyk aplikace je záměrně „tohle je ve hře, tohoto si všímej“. Žádná barva dne není předpověď a nerozhoduje za tebe.</p></div>`;
     const sel = $('#profileSelect', v); sel.addEventListener('change', () => actions.switchProfile(sel));
