@@ -19,6 +19,7 @@
     clouds: true,
     organs: true,
     country: 'both', // cz | sk | both — svátky a jmeniny
+    lang: 'cs', // cs | sk — jazyk rozhraní
   };
   // místa na jeden klik – uprav podle sebe
   const PLACES = [
@@ -74,6 +75,36 @@
   if (!profiles.find(p => p.id === activeId)) activeId = profiles[0].id;
   let settings = deepMerge(DEFAULT_SETTINGS, store.get('kairos_settings', {}));
   function deepMerge(a, b) { const o = Object.assign({}, a); for (const k in b) { if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k])) o[k] = deepMerge(a[k] || {}, b[k]); else if (b[k] !== undefined) o[k] = b[k]; } return o; }
+
+  // ---------- slovenské rozhraní: překlad hotového DOMu ----------
+  // Rozhraní se překládá až po vykreslení: krátké texty podle přesné shody, měsíce a dny podle slov.
+  // Výkladové texty (horoskopy, čtení dne) zůstávají v češtině.
+  const SK_WORD_RE = new RegExp('(^|[^\\p{L}])(' + Object.keys(SK_WORDS).sort((x, y) => y.length - x.length).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')(?![\\p{L}])', 'gu');
+  function skText(t) {
+    const k = t.trim(); if (!k) return t;
+    if (SK_UI[k]) return t.replace(k, SK_UI[k]);
+    if (k.length > 160) return t;
+    return t.replace(/(\d+\.\s*)září/g, '$1septembra').replace(SK_WORD_RE, (m, pre, w) => pre + SK_WORDS[w]);
+  }
+  function translateDOM(root) {
+    if (!root || (settings.lang || 'cs') !== 'sk') return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) => { const p = n.parentNode && n.parentNode.nodeName; return (p === 'SCRIPT' || p === 'STYLE' || !n.nodeValue.trim()) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT; } });
+    const nodes = []; while (w.nextNode()) nodes.push(w.currentNode);
+    for (const n of nodes) { const v = n.nodeValue, t = skText(v); if (t !== v) { if (n._cs == null) n._cs = v; n.nodeValue = t; } }
+    const els = root.querySelectorAll ? root.querySelectorAll('[aria-label],[placeholder],[title]') : [];
+    for (const el of els) for (const at of ['aria-label', 'placeholder', 'title']) { const v = el.getAttribute(at); if (v && SK_UI[v]) el.setAttribute(at, SK_UI[v]); }
+  }
+  function restoreCzechDOM(root) {
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); const nodes = []; while (w.nextNode()) nodes.push(w.currentNode);
+    for (const n of nodes) if (n._cs != null) { n.nodeValue = n._cs; delete n._cs; }
+  }
+  function tr(s) { return (settings.lang || 'cs') === 'sk' ? skText(s) : s; }
+  let _trPending = null;
+  new MutationObserver((muts) => {
+    if ((settings.lang || 'cs') !== 'sk') return;
+    if (_trPending) return;
+    _trPending = requestAnimationFrame(() => { _trPending = null; for (const m of muts) for (const n of m.addedNodes) { if (n.nodeType === 1) translateDOM(n); else if (n.nodeType === 3) { const t = skText(n.nodeValue); if (t !== n.nodeValue) n.nodeValue = t; } } });
+  }).observe(document.body, { childList: true, subtree: true });
 
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
@@ -512,7 +543,7 @@
   const CAT_CZ = { vse: 'vše', luna: 'Luna', zatmeni: 'zatmění', slunce: 'Slunce', planety: 'planety', roje: 'roje', hvezdy: 'hvězdy', komety: 'komety' };
   const TODAY_KEY = K.isoDate(np.y, np.m, np.d);
 
-  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 2600); }
+  function toast(msg) { const t = $('#toast'); t.textContent = tr(msg); t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 2600); }
 
   function moonSVG(phase, size, cls) {
     const r = size / 2 - 0.6, p = phase * Math.PI / 180;
@@ -593,6 +624,8 @@
 
   const verTapState = { t: 0, n: 0 };
   // ===================== navigace =====================
+  document.addEventListener('DOMContentLoaded', () => translateDOM(document.body));
+  if (document.readyState !== 'loading') setTimeout(() => translateDOM(document.body), 0);
   function showTab(tab) {
     S.tab = tab;
     store.set('kairos_tab', tab);
@@ -741,6 +774,7 @@
     tvHelp() { S.tvHelp = !S.tvHelp; renderCalendar(); },
     orgHelp() { S.orgHelp = !S.orgHelp; renderCalendar(); },
     goNatal() { showTab('nastaveni'); setTimeout(() => { const f = $('#profileForm'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); },
+    setLang(el) { settings.lang = el.value; persistSettings(); if (settings.lang === 'sk') { translateDOM(document.body); } else { restoreCzechDOM(document.body); } showTab(S.tab); },
     setCountry(el) { settings.country = el.value; persistSettings(); for (const k in _holCache) delete _holCache[k]; S.dayCache = {}; renderSettings(); },
     toggleKp() { settings.showKp = !settings.showKp; persistSettings(); S.dayCache = {}; renderSettings(); },
     toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
@@ -2415,6 +2449,7 @@ ${parts}
         <label>Orbis pro tvé hvězdy (°)<input name="starOrb" type="number" step="0.5" value="${settings.rules.starOrb}"></label>
         <label class="wide" style="flex-direction:row;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:var(--fs-m);color:var(--text)"><input type="checkbox" data-act="toggleOrg" ${settings.organs === false ? '' : 'checked'}> Orgánové hodiny v dnešku</label>
         <label class="wide" style="text-transform:none;letter-spacing:0;font-size:var(--fs-m);color:var(--text)">Svátky a jmeniny<select class="btn" data-act="setCountry" style="margin-top:6px"><option value="both" ${(settings.country || 'both') === 'both' ? 'selected' : ''}>Česko i Slovensko</option><option value="cz" ${settings.country === 'cz' ? 'selected' : ''}>Česko</option><option value="sk" ${settings.country === 'sk' ? 'selected' : ''}>Slovensko</option></select></label>
+        <label class="wide" style="text-transform:none;letter-spacing:0;font-size:var(--fs-m);color:var(--text)">Jazyk rozhraní<select class="btn" data-act="setLang" style="margin-top:6px"><option value="cs" ${(settings.lang || 'cs') === 'cs' ? 'selected' : ''}>čeština</option><option value="sk" ${settings.lang === 'sk' ? 'selected' : ''}>slovenčina</option></select></label>
         <div class="wide row"><button type="button" class="btn" data-act="saveRules">Uložit pravidla</button></div>
         <details class="expl"><summary>Co ta čísla znamenají? (polopatě)</summary><div class="card">
           <p><b>Jak appka barví dny.</b> Každý den se podívá, jak putující Luna svítí na tvou osobní mapu. Když ladí, den dostává plusové body; když dře, minusové. Součet je skóre dne — vidíš ho v detailu dne.</p>
