@@ -673,7 +673,7 @@
   });
 
   const actions = {
-    elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); if (S.elek.open) setTimeout(() => { const p = $('#view-kalendar .panel.elek, #view-kalendar .elek'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 40); },
+    elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); if (S.elek.open) setTimeout(() => { const p = $('#view-kalendar .eltoggle'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 40); },
     hsTheme(el) { S.hsTheme = el.dataset.t; renderNatal(); setTimeout(() => { const c = $('#view-nativ .card.hs'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); },
     // (hydratace médií se volá po renderCalendar níže)
     synSel(el) { S.synId = S.synId === el.dataset.id ? null : el.dataset.id; S.synForm = null; renderNatal(); },
