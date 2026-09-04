@@ -905,7 +905,6 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .tfast>summary{font-size:var(--fs-s)}
 .tarc.fast{margin-top:8px;padding:8px 12px}
 .tarc.fast .tarc-p{margin-bottom:6px}
-.hero-today .ht-arc .tvn span{font-size:var(--fs-m);line-height:1.4;color:var(--text)}
 
 /* O tobě jako rozcestník */
 .nnow{margin:6px 0 12px;font-size:var(--fs-m);color:var(--text);line-height:1.5}
