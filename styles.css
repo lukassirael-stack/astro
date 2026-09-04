@@ -944,3 +944,8 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .ptcard.asp.harm>summary .g{color:var(--harm)}.ptcard.asp.tense>summary .g{color:var(--tense)}
 .astrolink{text-align:center;margin:-6px 0 16px}
 .linkbtn{background:none;border:0;padding:6px 8px;color:var(--gold);font:inherit;font-size:var(--fs-s);letter-spacing:.03em;cursor:pointer;opacity:.85}
+
+/* karty O tobě jako hotové obrazy */
+.ntile.img{padding:0;min-height:0;display:block;background:none;border:0;box-shadow:0 10px 26px rgba(0,0,0,.35);border-radius:20px;overflow:hidden}
+.ntile.img img{display:block;width:100%;height:auto;border-radius:20px}
+.ntile.img.main{box-shadow:0 0 24px rgba(243,211,132,.28),0 10px 26px rgba(0,0,0,.35)}
