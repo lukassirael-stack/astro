@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v257';
+  const VERSION = 'v258';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1077,9 +1077,9 @@
     guide() { S.guide = true; renderSettings(); window.scrollTo({ top: 0 }); },
     goGuide() { S.guide = true; showTab('nastaveni'); },
     guideBack() { S.guide = false; renderSettings(); window.scrollTo({ top: 0 }); },
-    goArcs() { S.natalView = 'ty'; showTab('nativ'); },
+    goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; renderNatal(); window.scrollTo({ top: 0 }); },
-    lookback() { const v = ($('#lookbackDate') || {}).value; if (!v) return; S.lookback = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .lookback'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
+    lookback() { const v = ($('#lookbackDate') || {}).value; if (!v) return; S.lookback = v; S.natalView = 'prochazis'; renderNatal(); setTimeout(() => { const el = $('#view-nativ .lookback'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
     toggleNum() { settings.numerology = settings.numerology === false; persistSettings(); S.dayCache = {}; renderSettings(); },
     toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
     evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
@@ -2757,37 +2757,17 @@ ${parts}
       ${s.parans.map(pr => `<span>paran: když hvězda ${STAR_ANGLE_PAST[pr.starAngle].replace('procházela dolní kulminací', 'byla v dolní kulminaci')}, ${K.BODY_CZ[pr.planet]} ${planetVerb(pr.planetAngle, pr.planet)} (${K.fmtTime(pr.time, TZ)}, ${fmtOrb(pr.orb)})</span>`).join('')}
       ${s.neverRises && !s.angles.length ? '<span>z našich šířek nikdy nevychází nad obzor</span>' : ''}${s.circumpolar ? '<span>cirkumpolární – nad obzorem po celý rok</span>' : ''}
     </div></div>`;
-    const natalHTML = `
-      <div class="nhead"><div class="h2">${esc(p.name)}</div>
-      <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p></div>
-      <div class="h3" style="margin-top:6px">Čím teď procházíš</div>
+    const SEC = {
+      prochazis: `      
       <p class="note" style="margin-top:-4px">Tranzity na tvou mapu jako oblouky: kdy začaly, kdy jsou přesné a kdy doznějí. Pomalé planety nahoře nesou období, rychlé dole barví týden.</p>
       ${arcsHTML(np.y, np.m, np.d, { empty: '<p class="note">Právě teď se tvé mapy nedotýká žádný tranzit v orbisu — klidné pozadí.</p>' })}
       <details class="lookback"><summary>Ohlédnutí — co bylo ve hře jindy</summary>
         <div class="row" style="align-items:center;gap:10px;margin:6px 0 10px"><input type="date" id="lookbackDate" class="btn" value="${S.lookback || K.isoDate(np.y, np.m, np.d)}" style="flex:1;min-width:0;max-width:260px"><button type="button" class="btn ghost small" data-act="lookback">Ukázat</button></div>
         ${S.lookback ? (() => { const [ly, lm, ld] = S.lookback.split('-').map(Number); return `<p class="small" style="margin:0 0 6px">${ld}. ${lm}. ${ly}</p>${arcsHTML(ly, lm, ld, { empty: '<p class="note">Ten den se tvé mapy nedotýkal žádný tranzit v orbisu.</p>' })}`; })() : '<p class="note">Vyber datum — třeba den, kdy ses stěhoval, začal něco nového nebo se ti něco stalo — a uvidíš, čím jsi tehdy procházel.</p>'}
-      </details>
-      <div class="h3">Tvoje mapa</div>
+      </details>`,
+      mapa: `      
       ${natalSumHTML(false)}
       <p class="note" style="margin:0 2px 10px">Ťukni na kartu — dozvíš se, co ten bod znamená a jak vychází tobě.</p>
-      ${(() => { const by = +p.y; const yr = np.y; const age = yr - by; const sat = [29, 59, 88].map(x => by + x), jup = []; for (let k = 12; k <= 96; k += 12) jup.push(by + k); const nextS = sat.find(x => x >= yr), nextJ = jup.find(x => x >= yr); const near = (x) => Math.abs(x - yr) <= 1;
-        return `<div class="card small returns"><div class="h3" style="margin-top:0">Tvé velké návraty</div>
-        <p><b>Saturn</b> — ${sat.map(x => `<span class="${near(x) ? 'on' : ''}">${x}</span>`).join(' · ')}${nextS ? ` · další ${nextS}` : ''}. Vrací se na tvé místo přibližně každých 29 let a přeskládává, co je opravdu tvé.</p>
-        <p><b>Jupiter</b> — ${jup.filter(x => Math.abs(x - yr) <= 24).map(x => `<span class="${near(x) ? 'on' : ''}">${x}</span>`).join(' · ')}. Každých 12 let otevře dveře tam, kde máš důvěru.</p>
-        <p class="note" style="margin:6px 0 0">Přesný den návratu najdeš v Úkazech pod <b>tvé cykly</b> — spolu se slunečním návratem (tvůj osobní nový rok) a lunárním návratem každých 27 dní.</p></div>`; })()}
-      ${settings.numerology !== false ? (() => { const n = numerology(p, np.y, np.m, np.d); const L = NUM_LIFE[n.life] || NUM_LIFE[numReduce(n.life)];
-        return `<div class="card small numcard"><div class="h3" style="margin-top:0">Tvá čísla</div>
-        <p><b>Životní číslo ${n.life}</b> · ${L[0]}<br>${L[1]}</p>
-        <p><b>Osobní rok ${n.year}</b> — ${NUM_YEAR[n.year]}.</p>
-        <p><b>Osobní měsíc ${n.month}</b> · <b>osobní den ${n.day}</b> — ${NUM_DAY[n.day]}.</p>
-        <p class="note" style="margin:6px 0 0">Životní číslo je součet číslic data narození (11, 22 a 33 zůstávají jako mistrovská). Osobní rok vychází z tvého dne a měsíce narození a běžného roku; z něj se odvíjí měsíc a den. Osobní den každého dne najdeš v jeho detailu.</p></div>${numerologyDeepHTML(p)}`; })() : ''}
-      ${wheelSVG(n)}
-      ${chakraHTML(p)}
-      <div class="hshead"><svg class="hsstar" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="20" cy="20" r="7"/><path d="M20 3v8M20 29v8M3 20h8M29 20h8"/><path d="M20 13l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor" stroke="none"/></svg><div class="hstitle">Tvůj horoskop</div><div class="hsrule"><i></i><b>✦</b><i></i></div></div>
-      <details class="hsintro hscenter"><summary><span class="hsq">✧</span> Jak číst svůj horoskop <span class="hsq">✧</span></summary><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></details>
-      <div class="hsgrid">${HS_ORDER.map((k, i) => [HS_THEMES.find(x => x[0] === k), HS_SPAN[i]]).filter(x => x[0]).map(([t, sp]) => `<button type="button" class="hsb ${(S.hsTheme || 'rok') === t[0] ? 'on' : ''}" style="--sp:${sp}" data-act="hsTheme" data-t="${t[0]}"><i class="hsi">${hsIcon(t[0])}</i><span>${t[1]}</span></button>`).join('')}
-      <button type="button" class="hsb hsprint" style="--sp:6" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení"><i class="hsi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8.4 10.6L12 14.2l3.6-3.6"/><path d="M5 17.6h14"/></svg></i><span>Uložit · tisk</span></button></div>
-      <div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'rok')) || HS_THEMES[0])[2](n)}</div>
       <div class="h3">Body nativu</div>
       <table class="pts">${pts}</table>
       <details class="expl"><summary>Co ty body znamenají?</summary><div class="card small">
@@ -2803,26 +2783,60 @@ ${parts}
       <details class="expl"><summary>Co znamenají aspekty?</summary><div class="card small">
         <p>Aspekt je úhel mezi dvěma body — rozhovor, který spolu vedou. <b>☌ konjunkce (0°)</b> — síly se spojují v jedno silné téma · <b>✶ sextil (60°)</b> — příležitost, které stačí vyjít vstříc · <b>△ trigon (120°)</b> — přirozený dar, plyne to samo · <b>□ kvadratura (90°)</b> — tření, které nutí růst · <b>☍ opozice (180°)</b> — dva protipóly hledající rovnováhu.</p>
         <p class="note">Číslo vpravo je orbis — o kolik stupňů se aspekt liší od přesného úhlu. Čím menší číslo, tím silněji téma působí. Seznam je řazený od nejpřesnějších.</p>
-      </div></details>
-      <div class="h2">Tvé hvězdy</div>
+      </div></details>`,
+      horoskop: `      ${wheelSVG(n)}
+      ${chakraHTML(p)}
+      <div class="hshead"><svg class="hsstar" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="20" cy="20" r="7"/><path d="M20 3v8M20 29v8M3 20h8M29 20h8"/><path d="M20 13l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor" stroke="none"/></svg><div class="hstitle">Tvůj horoskop</div><div class="hsrule"><i></i><b>✦</b><i></i></div></div>
+      <details class="hsintro hscenter"><summary><span class="hsq">✧</span> Jak číst svůj horoskop <span class="hsq">✧</span></summary><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></details>
+      <div class="hsgrid">${HS_ORDER.map((k, i) => [HS_THEMES.find(x => x[0] === k), HS_SPAN[i]]).filter(x => x[0]).map(([t, sp]) => `<button type="button" class="hsb ${(S.hsTheme || 'rok') === t[0] ? 'on' : ''}" style="--sp:${sp}" data-act="hsTheme" data-t="${t[0]}"><i class="hsi">${hsIcon(t[0])}</i><span>${t[1]}</span></button>`).join('')}
+      <button type="button" class="hsb hsprint" style="--sp:6" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení"><i class="hsi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8.4 10.6L12 14.2l3.6-3.6"/><path d="M5 17.6h14"/></svg></i><span>Uložit · tisk</span></button></div>
+      <div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'rok')) || HS_THEMES[0])[2](n)}</div>`,
+      hvezdy: `      
       <p class="note">Hvězdy systémů z Hvězdného kvízu a královské hvězdy jako body v tvém nativu. Hlavní = hvězda stojí na tvém bodě (orbis 1°), byla na úhlu v okamžiku narození, nebo tvoří paran se Sluncem či Lunou. Vedlejší = parany s ostatními planetami v den narození. Rod z kvízu se do výpočtu nepočítá – tohle je čisté nebe.</p>
       ${mine.length ? mine.map(s => starBlock(s, true)).join('') : '<p class="muted">Žádná hlavní hvězda – neobvyklé, ověř čas narození.</p>'}
       ${second.length ? `<div class="h3">Vedlejší hvězdy</div>${second.map(s => starBlock(s, false)).join('')}` : ''}
-      <details><summary>Ostatní hvězdy v nativu (bez kontaktu)</summary>${rest.map(s => `<div class="star"><div class="nm" style="font-size:var(--fs-l)">${esc(s.name)}<em>${K.fmtLon(s.lon)} · ${s.house}. dům</em></div>${s.neverRises ? '<div class="why">z našich šířek nikdy nevychází</div>' : ''}${s.circumpolar ? '<div class="why">cirkumpolární</div>' : ''}</div>`).join('')}</details>
-      <div class="h3">Efemeridy</div>
+      <details><summary>Ostatní hvězdy v nativu (bez kontaktu)</summary>${rest.map(s => `<div class="star"><div class="nm" style="font-size:var(--fs-l)">${esc(s.name)}<em>${K.fmtLon(s.lon)} · ${s.house}. dům</em></div>${s.neverRises ? '<div class="why">z našich šířek nikdy nevychází</div>' : ''}${s.circumpolar ? '<div class="why">cirkumpolární</div>' : ''}</div>`).join('')}</details>`,
+      navraty: `      ${(() => { const by = +p.y; const yr = np.y; const age = yr - by; const sat = [29, 59, 88].map(x => by + x), jup = []; for (let k = 12; k <= 96; k += 12) jup.push(by + k); const nextS = sat.find(x => x >= yr), nextJ = jup.find(x => x >= yr); const near = (x) => Math.abs(x - yr) <= 1;
+        return `<div class="card small returns"><div class="h3" style="margin-top:0">Tvé velké návraty</div>
+        <p><b>Saturn</b> — ${sat.map(x => `<span class="${near(x) ? 'on' : ''}">${x}</span>`).join(' · ')}${nextS ? ` · další ${nextS}` : ''}. Vrací se na tvé místo přibližně každých 29 let a přeskládává, co je opravdu tvé.</p>
+        <p><b>Jupiter</b> — ${jup.filter(x => Math.abs(x - yr) <= 24).map(x => `<span class="${near(x) ? 'on' : ''}">${x}</span>`).join(' · ')}. Každých 12 let otevře dveře tam, kde máš důvěru.</p>
+        <p class="note" style="margin:6px 0 0">Přesný den návratu najdeš v Úkazech pod <b>tvé cykly</b> — spolu se slunečním návratem (tvůj osobní nový rok) a lunárním návratem každých 27 dní.</p></div>`; })()}`,
+      cisla: `      ${settings.numerology !== false ? (() => { const n = numerology(p, np.y, np.m, np.d); const L = NUM_LIFE[n.life] || NUM_LIFE[numReduce(n.life)];
+        return `<div class="card small numcard"><div class="h3" style="margin-top:0">Tvá čísla</div>
+        <p><b>Životní číslo ${n.life}</b> · ${L[0]}<br>${L[1]}</p>
+        <p><b>Osobní rok ${n.year}</b> — ${NUM_YEAR[n.year]}.</p>
+        <p><b>Osobní měsíc ${n.month}</b> · <b>osobní den ${n.day}</b> — ${NUM_DAY[n.day]}.</p>
+        <p class="note" style="margin:6px 0 0">Životní číslo je součet číslic data narození (11, 22 a 33 zůstávají jako mistrovská). Osobní rok vychází z tvého dne a měsíce narození a běžného roku; z něj se odvíjí měsíc a den. Osobní den každého dne najdeš v jeho detailu.</p></div>${numerologyDeepHTML(p)}`; })() : ''}`,
+      efemeridy: `      
       <details><summary>Měsíční tabulka poloh, ingresy, Luna bez kurzu, export</summary><div id="ephHost"></div></details>
-      <p class="note" style="margin-top:16px">Rezonanční dny v kalendáři (✦) vznikají, když Slunce, Venuše, Merkur či Mars stojí na tvé hvězdě (orbis ${fmtNum(settings.rules.starOrb, 1)}°), když přes ni přechází Luna, nebo když na ní nastane novoluní či úplněk (orbis 2°).</p>`;
-    const view = S.natalView || 'ty';
-    const tabs = `<div class="row nvtabs"><button type="button" class="chip ${view === 'ty' ? 'on' : ''}" data-act="natalView" data-v="ty">Ty</button><button type="button" class="chip ${view === 'vztahy' ? 'on' : ''}" data-act="natalView" data-v="vztahy">Vztahy</button></div>`;
-    if (view === 'vztahy') {
-      v.innerHTML = tabs + `
-      <div class="h2">Vztahy</div>
-      <p class="note" style="margin-top:-2px">Jak si tvá mapa rozumí s mapami lidí kolem tebe — partner, děti, rodiče, přátelé, kolegové. Přidej datum, čas a místo narození druhého a Kompas přečte, kde se vaše mapy potkávají samy a kde to chce práci.</p>
-      ${synSectionHTML(n)}`;
+      <p class="note" style="margin-top:16px">Rezonanční dny v kalendáři (✦) vznikají, když Slunce, Venuše, Merkur či Mars stojí na tvé hvězdě (orbis ${fmtNum(settings.rules.starOrb, 1)}°), když přes ni přechází Luna, nebo když na ní nastane novoluní či úplněk (orbis 2°).</p>`,
+    };
+    const natalHead = `      <div class="nhead"><div class="h2">${esc(p.name)}</div>
+      <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p></div>`;
+    const view = S.natalView && S.natalView !== 'ty' ? S.natalView : 'menu';
+    const TILES = [
+      ['prochazis', '✺', 'Čím teď procházíš', 'tranzity jako oblouky, ohlédnutí'],
+      ['mapa', '☉', 'Tvoje mapa', 'Slunce, Luna, ascendent, body, domy, aspekty'],
+      ['horoskop', '✦', 'Tvůj horoskop', 'kapitoly o tobě, čakra roku, tisk'],
+      ['hvezdy', '★', 'Tvé hvězdy', 'stálice na tvých bodech'],
+      ['vztahy', '☌', 'Vztahy', 'jak si tvá mapa rozumí s druhými'],
+      ['navraty', '⟳', 'Velké návraty', 'Saturn a Jupiter v tvém životě'],
+      ['cisla', '8', 'Tvá čísla', 'životní číslo, osobní rok, hlubší rozbor'],
+      ['efemeridy', '≡', 'Efemeridy', 'tabulky pro astrologa'],
+    ].filter(t => t[0] !== 'cisla' || settings.numerology !== false);
+    if (view === 'menu') {
+      const arcS = arcSentence();
+      v.innerHTML = natalHead + (arcS ? `<p class="nnow"><span class="tvlab">u tebe teď</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES.map(([id, ic, t, sub]) => `<button type="button" class="ntile" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small></button>`).join('')}</div>`;
       return;
     }
-    v.innerHTML = tabs + natalHTML;
-    renderEphemeris();
+    const tile = TILES.find(t => t[0] === view) || TILES[0];
+    const back = `<div class="row" style="align-items:center;gap:10px;margin:2px 0 8px"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
+    if (view === 'vztahy') {
+      v.innerHTML = back + `<p class="note" style="margin-top:-2px">Jak si tvá mapa rozumí s mapami lidí kolem tebe — partner, děti, rodiče, přátelé, kolegové. Přidej datum, čas a místo narození druhého a Kompas přečte, kde se vaše mapy potkávají samy a kde to chce práci.</p>${synSectionHTML(n)}`;
+      return;
+    }
+    v.innerHTML = back + (SEC[view] || SEC.prochazis);
+    if (view === 'efemeridy') renderEphemeris();
   }
   function wheelSVG(n) {
     const cx = 180, cy = 180, R = 172, Rz = 150, Rh = 118, Rp = 100;
