@@ -964,3 +964,9 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .top .topbtns .profile-pill{position:static;top:auto;right:auto}
 .topbtn{width:32px;height:32px;border-radius:50%;border:1px solid var(--line2);background:rgba(8,20,40,.35);color:var(--muted);display:grid;place-items:center;font:inherit;font-size:var(--fs-m);font-weight:600;cursor:pointer;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .topbtn:active{transform:translateY(1px)}
+
+.nature-month{margin:10px 0 6px}
+.nature-month>summary{font-family:var(--display);font-size:var(--fs-l);letter-spacing:.01em}
+.nature-month .card p{margin:0 0 10px;line-height:1.62;color:var(--text)}
+.nature-month .card p.small{color:var(--muted)}
+.nature-month .card p b{color:var(--gold);font-weight:600}

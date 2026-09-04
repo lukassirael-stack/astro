@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v277';
+  const VERSION = 'v278';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -358,6 +358,27 @@
       ${SEC.map(([id, ic, t, txt], k) => `<div class="card gcard" id="g-${id}"><div class="gh"><span class="gi">${ic}</span><span class="gn">${k + 1}</span><div class="h3">${t}</div></div><p>${txt}</p></div>`).join('')}
       <button type="button" class="btn ghost small" data-act="guideBack" style="margin-top:8px">‹ Zpět do Nastavení</button>
     </div>`;
+  }
+  // ---------- přírodní kalendář: měsíc v přírodě a na zahradě + nejbližší dny podle Luny ----------
+  function natureMonthHTML(y, m) {
+    const nm = NATURE_MONTHS[m - 1]; if (!nm) return '';
+    const n = K.daysInMonth(y, m);
+    const kinds = { 0: [], 1: [], 2: [], 3: [] }, grow = [], wane = [];
+    for (let d = 1; d <= n; d++) {
+      let da; try { da = analyze(y, m, d); } catch (e) { continue; }
+      const el = da.moonSign % 4; kinds[el].push(d); (da.phaseAngle < 180 ? grow : wane).push(d);
+    }
+    const ranges = (arr) => { const out = []; let s = null, p = null; for (const d of arr) { if (s == null) { s = d; p = d; } else if (d === p + 1) p = d; else { out.push(s === p ? `${s}.` : `${s}.–${p}.`); s = d; p = d; } } if (s != null) out.push(s === p ? `${s}.` : `${s}.–${p}.`); return out.join(', '); };
+    const GK = ['plodové', 'kořenové', 'květové', 'listové'];
+    return `<details class="nature-month ${S.natureOpen ? 'open' : ''}"${S.natureOpen ? ' open' : ''}><summary>${nm.n} v přírodě a na zahradě · ${nm.t}</summary>
+      <div class="card">
+        <div class="h3" style="margin-top:0">Co se děje venku</div><p>${nm.p}</p>
+        <div class="h3">Na zahradě</div><p>${nm.z}</p>
+        <div class="h3">Podle Luny tento měsíc</div>
+        <p class="small"><b>Sít a sázet</b> (dorůstá): ${ranges(grow) || '—'}<br><b>Sklízet, prořezávat, ošetřovat půdu</b> (couvá): ${ranges(wane) || '—'}</p>
+        <p class="small">${[1, 3, 2, 0].map(k => `<b>${GK[k]} dny</b> ${ranges(kinds[k]) || '—'}`).join(' · ')}</p>
+        <p class="note" style="margin-top:6px">Kořenové dny pro kořenovou zeleninu a sázení, listové pro saláty, bylinky a zálivku, květové pro květiny a košťáloviny, plodové pro plody a obilí. Lunární zahrádkář je tradice, počasí a půda mají vždy poslední slovo.</p>
+      </div></details>`;
   }
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
@@ -1327,9 +1348,11 @@
         <button type="button" class="legend-close" data-act="closeLegend">▲ &nbsp;Sbalit vysvětlivky</button>
       </details>
 
+      ${natureMonthHTML(y, m)}
       <div class="day" id="dayDetail">${dayDetailHTML(S.sel.y, S.sel.m, S.sel.d, evByDay)}</div>
       ${electHTML()}
       ${arcHTML()}`;
+    const nmEl = v.querySelector('.nature-month'); if (nmEl) nmEl.addEventListener('toggle', () => { S.natureOpen = nmEl.open; });
     const ar = v.querySelector('.arc');
     if (ar) ar.addEventListener('toggle', () => {
       S.arcOpen = ar.open;
