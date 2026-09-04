@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v264';
+  const VERSION = 'v265';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2856,14 +2856,13 @@ ${parts}
       ['cakra', '◉', 'Čakra roku', 'kterou čakrou letos procházíš'],
       ['navraty', '⟳', 'Velké návraty', 'Saturn, Jupiter, Uran a uzly v tvém životě'],
       ['hvezdy', '★', 'Tvé hvězdy', 'stálice na tvých bodech'],
-      ['efemeridy', '≡', 'Efemeridy', 'tabulky pro astrologa'],
     ].filter(t => t[0] !== 'cisla' || settings.numerology !== false);
     if (view === 'menu') {
       const arcS = arcSentence();
-      v.innerHTML = natalHead + (arcS ? `<p class="nnow"><span class="tvlab">u tebe teď</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES.map(([id, ic, t, sub, kind]) => `<button type="button" class="ntile ${kind || ''}" data-act="natalView" data-v="${id}" style="--art:url('tile-${id}.webp?v=1')"><span class="art"></span><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>`).join('')}</div>`;
+      v.innerHTML = natalHead + (arcS ? `<p class="nnow"><span class="tvlab">u tebe teď</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES.map(([id, ic, t, sub, kind]) => `<button type="button" class="ntile ${kind || ''}" data-act="natalView" data-v="${id}" style="--art:url('tile-${id}.webp?v=1')"><span class="art"></span><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
       return;
     }
-    const tile = TILES.find(t => t[0] === view) || TILES[0];
+    const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : TILES[0]);
     const back = `<div class="row" style="align-items:center;gap:10px;margin:2px 0 8px"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
     if (view === 'vztahy') {
       v.innerHTML = back + `<p class="note" style="margin-top:-2px">Jak si tvá mapa rozumí s mapami lidí kolem tebe — partner, děti, rodiče, přátelé, kolegové. Přidej datum, čas a místo narození druhého a Kompas přečte, kde se vaše mapy potkávají samy a kde to chce práci.</p>${synSectionHTML(n)}`;

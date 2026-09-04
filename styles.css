@@ -940,3 +940,5 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .stardeep p b{color:var(--gold);font-weight:600;margin-right:4px}
 .returns .yrs{color:var(--muted);letter-spacing:.03em}
 .ptcard.asp.harm>summary .g{color:var(--harm)}.ptcard.asp.tense>summary .g{color:var(--tense)}
+.astrolink{text-align:center;margin:-6px 0 16px}
+.linkbtn{background:none;border:0;padding:6px 8px;color:var(--gold);font:inherit;font-size:var(--fs-s);letter-spacing:.03em;cursor:pointer;opacity:.85}
