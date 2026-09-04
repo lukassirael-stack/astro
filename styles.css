@@ -893,10 +893,19 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .nvtabs .chip{flex:1;justify-content:center;text-align:center;padding:10px 12px;font-size:var(--fs-m)}
 
 /* průvodce */
-.guide .lede{font-size:var(--fs-b);line-height:1.65;color:var(--text);margin:4px 0 14px}
-.guide p{line-height:1.65;color:var(--muted);margin:0 0 10px}
-.guide p b{color:var(--text);font-weight:600}
-.guide .h3{margin:16px 0 6px}
+.guide .gcard{margin:10px 0}
+.guide .glede p{font-size:var(--fs-b);line-height:1.65;color:var(--text);margin:6px 0 0}
+.guide .gcard p{line-height:1.66;color:var(--text);margin:0}
+.guide .gcard p b{color:var(--gold);font-weight:600}
+.guide .gcard p em{font-style:normal;color:var(--gold)}
+.guide .gh{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+.guide .gh .h3{margin:0;flex:1}
+.guide .gi{color:var(--gold);font-size:var(--fs-l);width:22px;text-align:center}
+.guide .gn{font-family:var(--mono);font-size:var(--fs-xs);color:var(--muted);letter-spacing:.08em}
+.gtoc{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 14px}
+.gtoc .chip{text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.gtoc .gi{font-size:var(--fs-s);width:auto}
+
 .tarc-p .asp{display:block;margin-top:3px;font-size:var(--fs-xs);color:var(--muted);opacity:.75;letter-spacing:.03em}
 .tarc.slow .tarc-p{font-size:var(--fs-m);color:var(--text);line-height:1.6}
 .tarc-p .dom{display:block;margin-top:4px;font-size:var(--fs-s);color:var(--muted)}

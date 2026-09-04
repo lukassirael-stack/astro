@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v274';
+  const VERSION = 'v275';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -329,40 +329,24 @@
   }
   // ---------- Průvodce Kompasem ----------
   function guideHTML() {
+    const SEC = [
+      ['zacit', '☉', 'Jak začít', `Zadej v Nastavení datum, čas a místo narození. Z toho vzniká tvá mapa a všechno osobní v Kompasu — barva dnů, tranzity, hvězdy, návraty. Přesný čas narození dělá rozdíl u ascendentu a domů; když ho neznáš, Kompas počítá s polednem a řekne ti, co je tím méně jisté. Pak si Kompas přidej na plochu a nech ho běžet — nejlíp se čte ráno.`],
+      ['ridit', '✦', 'Čím se řídit', `<b>Barva dne</b> je souhrn — jediné číslo, které bere všechno v úvahu. <b>Dvě věty v Dnes</b> — <em>u tebe</em> (co se dotýká tvé mapy) a <em>Pozvánka dne</em> (jeden krok) — víc pokynů den nemá. <b>Všechno ostatní jsou vrstvy</b>: tatva, tělo, zahrádkář, zlatá hodina, čísla, kolo roku. Říkají, co je, ne co dělat. Kdo si je oblíbí, čte je; kdo ne, nic nezmešká.`],
+      ['kalendar', '☽', 'Kalendář — barva dne', `Každý den v mřížce má barvu: <b>příznivý</b>, <b>vlídný</b>, <b>klidný</b>, <b>pomalejší</b>, <b>náročný</b>. Vzniká součtem toho, co se dnes na obloze dotýká tvé mapy, jak stojí Luna a jaké je kosmické počasí. Hvězdička ✦ značí den, kdy planeta stojí na tvé hvězdě; tečka u čísla je svátek nebo tradice. Klepnutím na den otevřeš jeho detail.`],
+      ['dnes', '◉', 'Karta Dnes', `Řádky odshora: <b>hodina</b> (planetární hodina a na co se hodí), <b>cena dne</b> (co dnes bude stát víc sil), <b>tatva</b> (jemný rytmus po 24 minutách od východu Slunce), <b>tělo</b> (orgánové hodiny ukotvené na skutečné poledne), <b>u tebe</b> (nejsilnější tranzit na tvou mapu a kde v jeho oblouku stojíš). Otazník u každého řádku vysvětlí, co je zač. Dole je <b>Pozvánka dne</b>: otázka a jeden krok.`],
+      ['detail', '≡', 'Detail dne', `Co dnes jde a co bude stát víc sil, průběh dne na ose — východy a západy, planetární hodiny, aspekty Luny, Luna bez kurzu — a pod tím příroda a obloha: zlatá a modrá hodina, tmavé noci pro hvězdy, lunární zahrádkář, číslo dne. <b>Podrobnosti — pro astrologa</b> otevřou přesná čísla. Tenhle vzor platí v celém Kompasu: nejdřív věta, mechanika až na požádání.`],
+      ['ukazy', '☄', 'Úkazy', `Obloha rok dopředu: fáze Luny, zatmění, ingresy, retrogradity, konjunkce, elongace, meteorické roje, heliakické východy hvězd, Kolo roku s osmi branami, perigeum a apogeum Luny. Čip <b>tvé cykly</b> ukáže tvé osobní návraty — sluneční (tvůj osobní nový rok), lunární každých 27 dní, Jupiterův a Saturnův. Každý úkaz má otazník s výkladem na míru.`],
+      ['diar', '✎', 'Diář', `Zapiš pár slov o dni a ohodnoť ho. Po pěti dnech Kompas ukáže, jak tvá hodnocení sedí s výpočtem; po osmi i podle fází cyklu, pokud ho vedeš. Plány na den se ráno objeví v kartě Dnes. Diář je tvůj kontrolní nástroj: Kompas říká, co je ve hře, ty říkáš, jak to bylo.`],
+      ['otobe', '★', 'O tobě', `Rozcestník osmi karet. <b>Tvoje mapa</b> — Slunce, Luna, ascendent, body, domy a aspekty, každý s výkladem. <b>Čím teď procházíš</b> — tranzity jako oblouky s počátkem, vrcholem a koncem, a ohlédnutí na kterékoli datum. <b>Vztahy</b> — jak si tvá mapa rozumí s druhými. <b>Tvůj horoskop</b> v kapitolách, <b>Tvá čísla</b>, <b>Čakra roku</b>, <b>Velké návraty</b>, <b>Tvé hvězdy</b>.`],
+      ['nastaveni', '⚙', 'Nastavení', `Profil a místo, obloha (den a noc podle skutečného východu a západu Slunce), pravidla barvení dne, cyklus, orgánové hodiny, numerologie, kosmické počasí, svátky pro Česko a Slovensko, jazyk rozhraní, Google kalendář, záloha, sdílení. Verze appky je úplně dole.`],
+      ['data', '⌂', 'Tvá data', `Všechno běží v prohlížeči a zůstává v tomto zařízení. Záloha v Nastavení je jediná cesta, kudy data odcházejí, a jde jen tam, kam ji pošleš ty.`],
+    ];
     return `<div class="guide">
       <button type="button" class="btn ghost small" data-act="guideBack">‹ Zpět do Nastavení</button>
-      <div class="h2">Průvodce Kompasem</div>
-      <p class="lede">Nebeský kompas je kalendář žitý s oblohou. Z postavení Slunce, Luny, planet a stálic nad tvým místem a z tvé vlastní mapy narození skládá každý den do jedné barvy, jedné věty a několika tichých vrstev. Je to mapa terénu: říká, kudy dnes půjde snáz a kde budeš potřebovat víc trpělivosti. Kroky děláš ty.</p>
-
-      <div class="h3">Jak začít</div>
-      <p>Zadej v Nastavení datum, čas a místo narození. Z toho vzniká tvá mapa a všechno osobní v Kompasu — barva dnů, tranzity, hvězdy, návraty. Přesný čas narození dělá rozdíl u ascendentu a domů; když ho neznáš, Kompas počítá s polednem a řekne ti, co je tím méně jisté. Pak si Kompas přidej na plochu a nech ho běžet — nejlíp se čte ráno.</p>
-
-      <div class="h3">Kalendář — barva dne</div>
-      <p>Každý den v mřížce má barvu: <b>příznivý</b>, <b>vlídný</b>, <b>klidný</b>, <b>pomalejší</b>, <b>náročný</b>. Vzniká součtem toho, co se dnes na obloze dotýká tvé mapy, jak stojí Luna a jaké je kosmické počasí. Zlatá hvězdička ✦ značí den, kdy planeta stojí na tvé hvězdě. Tečka u čísla je svátek nebo tradice. Klepnutím na den otevřeš jeho detail.</p>
-
-      <div class="h3">Karta Dnes</div>
-      <p>Nahoře v Kalendáři je karta s dneškem. Řádky odshora: <b>hodina</b> (která planetární hodina právě běží a na co se hodí), <b>cena dne</b> (co dnes bude stát víc sil), <b>tatva</b> (jemný rytmus po 24 minutách od východu Slunce), <b>tělo</b> (orgánové hodiny ukotvené na skutečné poledne), <b>u tebe</b> (nejsilnější tranzit na tvou mapu a kde v jeho oblouku stojíš). Otazník u každého řádku vysvětlí, co je zač. Dole je <b>Pozvánka dne</b> — otázka a jeden krok podle znamení Luny, dne v týdnu nebo živlu.</p>
-
-      <div class="h3">Detail dne</div>
-      <p>Co dnes jde a co bude stát víc sil, průběh dne na ose (východy a západy, planetární hodiny, aspekty Luny, Luna bez kurzu), pod tím příroda a obloha: zlatá a modrá hodina, tmavé noci pro hvězdy, lunární zahrádkář a tvůj osobní den. <b>Podrobnosti — pro astrologa</b> otevřou přesná čísla: tranzity, orbisy, skóre. Tenhle vzor platí v celém Kompasu: nejdřív věta, mechanika až na požádání.</p>
-
-      <div class="h3">Úkazy</div>
-      <p>Obloha rok dopředu: fáze Luny, zatmění, ingresy, retrogradity, konjunkce, elongace, meteorické roje, heliakické východy hvězd, Kolo roku s osmi branami, perigeum a apogeum Luny. Čip <b>tvé cykly</b> ukáže tvé osobní návraty — sluneční (tvůj osobní nový rok), lunární každých 27 dní, Jupiterův a Saturnův. Každý úkaz má otazník s výkladem na míru tělesu a znamení.</p>
-
-      <div class="h3">Diář</div>
-      <p>Zapiš pár slov o dni a ohodnoť ho. Po pěti dnech Kompas ukáže, jak tvá hodnocení sedí s výpočtem; po osmi i podle fází cyklu, pokud ho vedeš. Plány na den se ráno objeví v kartě Dnes. Diář je tvůj kontrolní nástroj: Kompas říká, co je ve hře, ty říkáš, jak to bylo, a časem se ukáže, kde se potkáváte.</p>
-
-      <div class="h3">O tobě</div>
-      <p><b>Ty</b> začíná tím, čím právě procházíš — tranzity jako oblouky s počátkem, vrcholem a koncem, ohlédnutí na kterékoli datum. Pod tím tvoje mapa: Slunce, Luna, ascendent, celý horoskop v kapitolách, hvězdy, velké návraty a tvá čísla. <b>Vztahy</b> čtou, jak si tvá mapa rozumí s mapami lidí kolem tebe.</p>
-
-      <div class="h3">Nastavení</div>
-      <p>Profil a místo, obloha (den a noc se přepínají podle skutečného východu a západu Slunce), pravidla barvení dne s přesnými váhami pro zvídavé, cyklus, orgánové hodiny, numerologie, kosmické počasí, svátky pro Česko a Slovensko, jazyk rozhraní, Google kalendář, záloha a sdílení. Verze appky je úplně dole.</p>
-
-      <div class="h3">Jak Kompas číst</div>
-      <p>Ráno karta Dnes, jedna věta, jeden krok. Když plánuješ, <b>Najít vhodný den</b> pod detailem dne. Když se něco děje, otazník. Když chceš rozumět, Podrobnosti. Kompas mluví jazykem <em>tohle je ve hře, tohoto si všímej</em>; nejlepší výsledky dává tomu, kdo ho vede vedle vlastního pozorování a Diáře, ne místo něj.</p>
-
-      <div class="h3">Tvá data</div>
-      <p>Všechno běží v prohlížeči a zůstává v tomto zařízení. Záloha v Nastavení je jediná cesta, kudy data odcházejí, a jde jen tam, kam ji pošleš ty.</p>
+      <div class="card gcard glede"><div class="h2" style="margin-top:0">Průvodce Kompasem</div>
+      <p>Nebeský kompas je kalendář žitý s oblohou. Z postavení Slunce, Luny, planet a stálic nad tvým místem a z tvé vlastní mapy narození skládá každý den do jedné barvy, jedné věty a několika tichých vrstev. Je to mapa terénu: říká, kudy dnes půjde snáz a kde budeš potřebovat víc trpělivosti. Kroky děláš ty.</p></div>
+      <div class="gtoc">${SEC.map(([id, ic, t], k) => `<a href="#g-${id}" class="chip"><span class="gi">${ic}</span>${t}</a>`).join('')}</div>
+      ${SEC.map(([id, ic, t, txt], k) => `<div class="card gcard" id="g-${id}"><div class="gh"><span class="gi">${ic}</span><span class="gn">${k + 1}</span><div class="h3">${t}</div></div><p>${txt}</p></div>`).join('')}
       <button type="button" class="btn ghost small" data-act="guideBack" style="margin-top:8px">‹ Zpět do Nastavení</button>
     </div>`;
   }
