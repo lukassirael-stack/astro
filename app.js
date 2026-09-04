@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v250';
+  const VERSION = 'v251';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -177,6 +177,78 @@
     1: 'začni, rozhodni, jdi první', 2: 'naslouchej, spolupracuj, nespěchej', 3: 'tvoř, mluv, těš se', 4: 'pracuj, uspořádej, dotáhni', 5: 'změň, vyjdi ven, zkus nové',
     6: 'pečuj, buď doma, sladi', 7: 'ztiš se, přemýšlej, buď sám', 8: 'jednej, spravuj, rozhodni o penězích', 9: 'uzavři, pusť, odpusť',
   };
+  // ---------- hlubší rozbor čísel: narozeniny, karmické dluhy, vrcholy a výzvy, období, mřížka ----------
+  const NUM_BDAY = {
+    1: 'samostatný začátečník — nejlíp ti je, když věci vedeš', 2: 'citlivý a diplomatický — vnímáš, co druzí nevysloví', 3: 'hravý a výřečný — slovo a radost jsou tvůj nástroj',
+    4: 'poctivý a metodický — stavíš z toho, co drží', 5: 'zvědavý a pohyblivý — potřebuješ prostor a změnu', 6: 'pečující a odpovědný — domov a lidé jsou ti na prvním místě',
+    7: 'přemýšlivý a hledající — potřebuješ ticho, abys rozuměl', 8: 'rozhodný a praktický — máš tah na výsledek', 9: 'velkorysý a soucitný — myslíš v celku, ne v detailu',
+    10: 'jednička s nadhledem — vedeš, ale s lehkostí', 11: 'intuitivní a citlivý — vnímáš víc, než dokážeš říct', 12: 'tvořivý s rozumem — nápad i způsob, jak ho uskutečnit',
+    13: 'houževnatý — co jiní vzdají, ty dotáhneš prací', 14: 'svobodomyslný — potřebuješ pohyb a zároveň míru', 15: 'laskavý a přitažlivý — lidé k tobě přicházejí pro klid',
+    16: 'hloubavý a nezávislý — rozumíš věcem zevnitř, sám', 17: 'ctižádostivý a schopný — hmotu i myšlenku držíš najednou', 18: 'širokého záběru — máš dar vidět souvislosti a pomáhat',
+    19: 'silný a samostatný — učíš se, že síla roste sdílením', 20: 'jemný a vnímavý — tvá síla je v tichu a spolupráci', 21: 'společenský a tvůrčí — oživuješ, kam přijdeš',
+    22: 'stavitel velkých věcí — vidíš celek a umíš ho udělat', 23: 'pružný a komunikativní — zvládneš skoro každé prostředí', 24: 'starostlivý a pracovitý — rodina a dílo jdou ruku v ruce',
+    25: 'analytický a citlivý — rozum s intuicí v jednom', 26: 'organizátor s velkým srdcem — umíš řídit i pečovat', 27: 'moudrý a nezávislý — přemýšlíš o celku, chodíš svou cestou',
+    28: 'vůdčí a laskavý — vedeš tak, že se tě lidé rádi drží', 29: 'hluboce citlivý — vnímáš proudy, které jiní minou', 30: 'radostný tvůrce — slovo a představivost bez zábran', 31: 'praktický tvůrce — nápad hned zkoušíš rukama',
+  };
+  const NUM_KARMA = {
+    13: 'Karmický dluh 13 — lekce práce. Zkratky se nevyplácejí, výsledek přichází vytrvalostí; dar je schopnost dokončit, co jiní opustí.',
+    14: 'Karmický dluh 14 — lekce míry. Svoboda bez hranic se rozpouští v roztěkanosti; dar je pružnost, když k ní přidáš disciplínu.',
+    16: 'Karmický dluh 16 — lekce pokory. Co je postavené na obraze sebe, může spadnout; dar je hluboké poznání, které po pádu zůstane.',
+    19: 'Karmický dluh 19 — lekce sdílení. Síla a samostatnost ti jdou samy; dar je vedení, které přestane být o tobě.',
+  };
+  const NUM_PIN = {
+    1: 'období samostatnosti — učíš se stát na vlastních nohou a vést', 2: 'období vztahů — učíš se spolupracovat, čekat a naslouchat', 3: 'období vyjádření — tvorba, slovo, společnost, radost',
+    4: 'období práce — základy, řád, trpělivé budování', 5: 'období změny — pohyb, cesty, svoboda, nové zkušenosti', 6: 'období domova — rodina, péče, odpovědnost za druhé',
+    7: 'období nitra — studium, samota, duchovní hloubka', 8: 'období sklizně — hmota, moc, výsledky, zodpovědnost za víc lidí', 9: 'období uzavírání — soucit, služba, pouštění a rozhled',
+  };
+  const NUM_CHAL = {
+    0: 'výzva volby — máš všechny možnosti otevřené a učíš se sám za sebe rozhodnout', 1: 'výzva samostatnosti — stát za sebou bez vzdoru i bez podřízení', 2: 'výzva citlivosti — nenechat se přecitlivělostí ovládat a přitom neotupět',
+    3: 'výzva soustředění — roztříštěnou tvořivost sebrat do jedné věci', 4: 'výzva řádu — přijmout práci a kázeň bez toho, aby ztvrdly v rutinu', 5: 'výzva míry — svobodu žít, aniž by se rozpadla v neklid',
+    6: 'výzva rovnováhy — pečovat, aniž bys ovládal nebo se ztratil', 7: 'výzva důvěry — nezůstat v hlavě a v samotě, pustit k sobě lidi', 8: 'výzva hmoty — zacházet s penězi a mocí, aniž by tě vedly',
+  };
+  const NUM_GRID_MISS = {
+    1: 'chybí 1 — samostatnost se učí; prosadit se je pro tebe práce, ne samozřejmost', 2: 'chybí 2 — cit a trpělivost se učí; vnímat druhé chce vědomou pozornost', 3: 'chybí 3 — vyjádření se učí; slovo a radost si musíš dovolit',
+    4: 'chybí 4 — řád se učí; praktické věci a vytrvalost přicházejí zkušeností', 5: 'chybí 5 — pohyb se učí; změna a svoboda ti nejsou přirozené, a proto jsou důležité', 6: 'chybí 6 — péče se učí; domov a odpovědnost za druhé chtějí zralost',
+    7: 'chybí 7 — hloubka se učí; ticho a otázky po smyslu si musíš vyhledat', 8: 'chybí 8 — hmota se učí; peníze a moc chtějí vědomý postoj', 9: 'chybí 9 — soucit se učí; nadhled a služba celku přicházejí věkem',
+  };
+  const NUM_GRID_MANY = {
+    1: 'silná 1 — pevná vůle a ego; ve větším počtu i tvrdohlavost', 2: 'silná 2 — citlivost a intuice; ve větším počtu snadná zranitelnost', 3: 'silná 3 — představivost a řeč; ve větším počtu roztěkanost',
+    4: 'silná 4 — praktičnost a práce; ve větším počtu strnulost', 5: 'silná 5 — svoboda a pohyb; ve větším počtu neklid', 6: 'silná 6 — péče a domov; ve větším počtu sklon k obětování',
+    7: 'silná 7 — hloubka a samota; ve větším počtu uzavřenost', 8: 'silná 8 — energie a hmota; ve větším počtu tlak na výkon', 9: 'silná 9 — soucit a rozhled; ve větším počtu idealismus',
+  };
+  function numerologyDeep(p, y) {
+    const rd = (n) => numReduce(n);
+    const m = rd(p.m), d = rd(p.d), yr = rd(digitsSum(p.y));
+    const life = numReduce(digitsSum(`${p.d}${p.m}${p.y}`));
+    const raw = [p.d, digitsSum(`${p.d}${p.m}${p.y}`), m + d + yr];
+    const karma = [...new Set(raw.filter(x => NUM_KARMA[x]))];
+    const pins = [rd(m + d), rd(d + yr), 0, rd(m + yr)]; pins[2] = rd(pins[0] + pins[1]);
+    const chal = [Math.abs(m - d), Math.abs(d - yr), 0, Math.abs(m - yr)]; chal[2] = Math.abs(chal[0] - chal[1]);
+    const a1 = 36 - life, ages = [[0, a1], [a1 + 1, a1 + 9], [a1 + 10, a1 + 18], [a1 + 19, null]];
+    const cycles = [[m, 0, a1], [d, a1 + 1, a1 + 27], [yr, a1 + 28, null]];
+    const cnt = {}; for (const ch of `${p.d}${p.m}${p.y}`) if (ch !== '0') cnt[ch] = (cnt[ch] || 0) + 1;
+    const age = y - p.y;
+    return { life, bday: p.d, karma, pins, chal, ages, cycles, cnt, age };
+  }
+  function numerologyDeepHTML(p) {
+    const n = numerologyDeep(p, np.y);
+    const cur = n.ages.findIndex(([a, b]) => n.age >= a && (b == null || n.age <= b));
+    const grid = [[3, 6, 9], [2, 5, 8], [1, 4, 7]].map(r => `<div class="gr">${r.map(k => `<span class="${n.cnt[k] ? 'on' : 'off'}">${n.cnt[k] ? String(k).repeat(Math.min(n.cnt[k], 4)) : '·'}</span>`).join('')}</div>`).join('');
+    const miss = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(k => !n.cnt[k]), many = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(k => n.cnt[k] >= 2);
+    return `<details class="numdeep"><summary>Hlubší rozbor čísel</summary><div class="card small">
+      <p><b>Číslo narozeniny ${n.bday}</b> — ${NUM_BDAY[n.bday]}.</p>
+      ${n.karma.length ? n.karma.map(k => `<p class="karma">${NUM_KARMA[k]}</p>`).join('') : '<p class="note">V tvém datu se žádné z karmických čísel 13, 14, 16 a 19 neobjevuje — bez dluhu z minula, lekce si vybíráš sám.</p>'}
+      <div class="h3">Vrcholy a výzvy</div>
+      <p class="note" style="margin-top:-4px">Čtyři období života; každé má svůj vrchol (co období nese) a výzvu (co v něm zraje). Věky vycházejí z tvého životního čísla.</p>
+      ${n.pins.map((pn, i) => `<p class="${i === cur ? 'now' : ''}"><b>${i + 1}. období${i === cur ? ' · teď' : ''}</b> <small>${n.ages[i][1] == null ? `od ${n.ages[i][0]} let` : `${n.ages[i][0]}–${n.ages[i][1]} let`}</small><br>vrchol ${pn} — ${NUM_PIN[pn]}<br>${NUM_CHAL[n.chal[i]]}</p>`).join('')}
+      <div class="h3">Tři životní období</div>
+      ${n.cycles.map(([v, a, b], i) => `<p><b>${['Mládí', 'Střed', 'Zralost'][i]}</b> <small>${b == null ? `od ${a} let` : `${a}–${b} let`}</small> — ${v}: ${NUM_YEAR[v].replace(/^rok /, '')}.</p>`).join('')}
+      <div class="h3">Mřížka data narození</div>
+      <div class="numgrid">${grid}</div>
+      ${many.map(k => `<p>${NUM_GRID_MANY[k]}.</p>`).join('')}
+      ${miss.map(k => `<p class="muted">${NUM_GRID_MISS[k]}.</p>`).join('')}
+    </div></details>`;
+  }
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
   function easterSunday(y) {
@@ -2575,7 +2647,7 @@ ${parts}
         <p><b>Životní číslo ${n.life}</b> · ${L[0]}<br>${L[1]}</p>
         <p><b>Osobní rok ${n.year}</b> — ${NUM_YEAR[n.year]}.</p>
         <p><b>Osobní měsíc ${n.month}</b> · <b>osobní den ${n.day}</b> — ${NUM_DAY[n.day]}.</p>
-        <p class="note" style="margin:6px 0 0">Životní číslo je součet číslic data narození (11, 22 a 33 zůstávají jako mistrovská). Osobní rok vychází z tvého dne a měsíce narození a běžného roku; z něj se odvíjí měsíc a den. Osobní den každého dne najdeš v jeho detailu.</p></div>`; })() : ''}
+        <p class="note" style="margin:6px 0 0">Životní číslo je součet číslic data narození (11, 22 a 33 zůstávají jako mistrovská). Osobní rok vychází z tvého dne a měsíce narození a běžného roku; z něj se odvíjí měsíc a den. Osobní den každého dne najdeš v jeho detailu.</p></div>${numerologyDeepHTML(p)}`; })() : ''}
       ${wheelSVG(n)}
       ${chakraHTML(p)}
       <div class="hshead"><svg class="hsstar" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="20" cy="20" r="7"/><path d="M20 3v8M20 29v8M3 20h8M29 20h8"/><path d="M20 13l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor" stroke="none"/></svg><div class="hstitle">Tvůj horoskop</div><div class="hsrule"><i></i><b>✦</b><i></i></div></div>

@@ -856,3 +856,15 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 
 .numcard p{margin:0 0 8px;line-height:1.6}
 .nature small{color:var(--muted);opacity:.85}
+
+.numdeep{margin:-4px 0 14px}
+.numdeep>summary{font-family:var(--display);font-size:var(--fs-l);letter-spacing:.01em}
+.numdeep .card p{margin:0 0 8px;line-height:1.6}
+.numdeep .card p.now{padding:8px 10px;border-left:2px solid var(--gold);background:var(--gold-soft);border-radius:0 10px 10px 0}
+.numdeep .card p.karma{color:var(--text)}
+.numdeep .card p small{color:var(--muted);margin-left:6px}
+.numdeep .h3{margin:14px 0 6px}
+.numgrid{display:inline-grid;grid-template-rows:repeat(3,44px);gap:4px;margin:4px 0 10px}
+.numgrid .gr{display:grid;grid-template-columns:repeat(3,56px);gap:4px}
+.numgrid span{display:flex;align-items:center;justify-content:center;border:1px solid var(--hairline);border-radius:10px;font-family:var(--mono);font-size:var(--fs-m);letter-spacing:.06em;color:var(--gold)}
+.numgrid span.off{color:var(--muted);opacity:.5}
