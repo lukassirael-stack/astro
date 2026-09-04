@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v256';
+  const VERSION = 'v257';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -325,7 +325,7 @@
     const list = transitArcs(np.y, np.m, np.d); if (!list.length) return '';
     const it = list[0]; const t = it.t; const ref = K.dayStart(np.y, np.m, np.d, TZ);
     const when = it.nextExact ? (Math.abs(it.nextExact - ref) < 86400000 ? 'dnes je to přesné' : `vrchol ${fmtD(it.nextExact)}`) : (it.lastExact ? `vrchol byl ${fmtD(it.lastExact)}, dozní ${fmtD(it.arc.end)}` : `do ${fmtD(it.arc.end)}`);
-    return `${arcTitle(t)} — ${arcPhrase(t)} · ${when}`;
+    return `${arcTitle(t)} · ${when}`;
   }
   // ---------- Průvodce Kompasem ----------
   function guideHTML() {
@@ -1077,6 +1077,7 @@
     guide() { S.guide = true; renderSettings(); window.scrollTo({ top: 0 }); },
     goGuide() { S.guide = true; showTab('nastaveni'); },
     guideBack() { S.guide = false; renderSettings(); window.scrollTo({ top: 0 }); },
+    goArcs() { S.natalView = 'ty'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; renderNatal(); window.scrollTo({ top: 0 }); },
     lookback() { const v = ($('#lookbackDate') || {}).value; if (!v) return; S.lookback = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .lookback'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
     toggleNum() { settings.numerology = settings.numerology === false; persistSettings(); S.dayCache = {}; renderSettings(); },
@@ -1391,7 +1392,7 @@
       ${cycOn() && cycFor(K.isoDate(np.y, np.m, np.d)) ? `<span class="ht-div"></span><span class="ht-cyc">${(() => { const c = cycFor(K.isoDate(np.y, np.m, np.d)); return `<i class="cdot" style="background:${c.ph.col}"></i><b>${c.day}. den cyklu</b><span>${esc(c.ph.n)} fáze</span>`; })()}</span>` : ''}
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
       ${orgHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv ht-org" id="orgLine">${orgHTML()}</span>${S.orgHelp ? orgExpHTML() : ''}` : ''}
-      ${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">✺</i><span class="tx"><small class="tvlab">u tebe</small>${esc(arcS)}</span></span>` : ''}
+      ${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">${ico('✺')}</i><b class="tvn"><small class="tvlab">u tebe</small><span>${esc(arcS)}</span></b><i class="tvq" data-act="goArcs" role="button" aria-label="Čím teď procházíš">›</i></span>` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
 <linearGradient id="invG" gradientUnits="userSpaceOnUse" x1="40" y1="8" x2="40" y2="72"><stop offset="0" stop-color="#F7E3A8"/><stop offset="1" stop-color="#D9A54A"/></linearGradient>
 <radialGradient id="invBloom" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFEFC8" stop-opacity=".75"/><stop offset=".3" stop-color="#FBD489" stop-opacity=".34"/><stop offset=".62" stop-color="#F3BC63" stop-opacity=".1"/><stop offset="1" stop-color="#F3BC63" stop-opacity="0"/></radialGradient>
@@ -2763,7 +2764,7 @@ ${parts}
       <p class="note" style="margin-top:-4px">Tranzity na tvou mapu jako oblouky: kdy začaly, kdy jsou přesné a kdy doznějí. Pomalé planety nahoře nesou období, rychlé dole barví týden.</p>
       ${arcsHTML(np.y, np.m, np.d, { empty: '<p class="note">Právě teď se tvé mapy nedotýká žádný tranzit v orbisu — klidné pozadí.</p>' })}
       <details class="lookback"><summary>Ohlédnutí — co bylo ve hře jindy</summary>
-        <div class="row" style="align-items:center;gap:10px;margin:6px 0 10px"><input type="date" id="lookbackDate" class="btn" value="${S.lookback || K.isoDate(np.y, np.m, np.d)}" style="max-width:190px"><button type="button" class="btn ghost small" data-act="lookback">Ukázat</button></div>
+        <div class="row" style="align-items:center;gap:10px;margin:6px 0 10px"><input type="date" id="lookbackDate" class="btn" value="${S.lookback || K.isoDate(np.y, np.m, np.d)}" style="flex:1;min-width:0;max-width:260px"><button type="button" class="btn ghost small" data-act="lookback">Ukázat</button></div>
         ${S.lookback ? (() => { const [ly, lm, ld] = S.lookback.split('-').map(Number); return `<p class="small" style="margin:0 0 6px">${ld}. ${lm}. ${ly}</p>${arcsHTML(ly, lm, ld, { empty: '<p class="note">Ten den se tvé mapy nedotýkal žádný tranzit v orbisu.</p>' })}`; })() : '<p class="note">Vyber datum — třeba den, kdy ses stěhoval, začal něco nového nebo se ti něco stalo — a uvidíš, čím jsi tehdy procházel.</p>'}
       </details>
       <div class="h3">Tvoje mapa</div>
