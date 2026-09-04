@@ -909,17 +909,19 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 /* O tobě jako rozcestník */
 .nnow{margin:6px 0 12px;font-size:var(--fs-m);color:var(--text);line-height:1.5}
 .nnow .tvlab{display:block;margin-bottom:2px}
-.ntiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0 18px}
-.ntile{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;padding:14px 14px 12px;min-height:132px;background:linear-gradient(180deg,rgba(21,41,73,.72),rgba(12,26,50,.92));border:1px solid rgba(240,216,152,.28);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.28);color:var(--text);text-align:left;cursor:pointer;font:inherit}
-.ntile.main{min-height:160px;border-color:rgba(240,200,116,.7);box-shadow:0 0 0 1px rgba(240,200,116,.25),0 0 22px rgba(240,200,116,.22),0 8px 24px rgba(0,0,0,.3)}
-.ntile .art{position:absolute;right:-2px;top:-2px;width:66%;height:64%;background:var(--art) right top/cover no-repeat;opacity:.95;pointer-events:none}
-.ntile .ic{position:absolute;left:14px;top:12px;font-size:var(--fs-xxl);color:var(--gold);line-height:1;text-shadow:0 0 12px rgba(240,200,116,.45)}
-.ntile b{position:relative;font-family:var(--display);font-size:var(--fs-xl);font-weight:500;line-height:1.15;color:#FFF6E4;text-shadow:0 1px 6px rgba(0,0,0,.6)}
-.ntile.main b{font-size:22px}
-.ntile small{position:relative;font-size:var(--fs-s);color:#C9D6EA;line-height:1.35;padding-right:22px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
-.ntile .chev{position:absolute;right:12px;bottom:12px;font-size:var(--fs-xl);color:var(--gold);line-height:1}
+.ntiles{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 18px}
+.ntile{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;padding:16px 16px 14px;min-height:150px;background:linear-gradient(160deg,rgba(18,36,66,.66) 0%,rgba(10,22,44,.9) 100%);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1.5px solid rgba(240,216,152,.42);border-radius:20px;box-shadow:0 10px 28px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.08);color:var(--text);text-align:left;cursor:pointer;font:inherit}
+.ntile.main{min-height:186px;border-color:#F3D384;box-shadow:0 0 0 1px rgba(243,211,132,.35),0 0 26px rgba(243,211,132,.35),0 10px 28px rgba(0,0,0,.35)}
+.ntile .art{position:absolute;right:0;top:0;width:70%;height:70%;background:var(--art) right top/cover no-repeat;pointer-events:none}
+.ntile .ic{position:absolute;left:16px;top:14px;font-size:30px;color:#F3D384;line-height:1;text-shadow:0 0 14px rgba(243,211,132,.55)}
+.ntile.main .ic{font-size:36px}
+.ntile b{position:relative;font-family:var(--display);font-size:22px;font-weight:500;line-height:1.12;color:#FFF7E6;text-shadow:0 1px 6px rgba(0,0,0,.65)}
+.ntile.main b{font-size:26px}
+.ntile small{position:relative;font-size:var(--fs-m);color:#CFDBEE;line-height:1.3;padding-right:24px;text-shadow:0 1px 4px rgba(0,0,0,.65)}
+.ntile .chev{position:absolute;right:14px;bottom:14px;font-size:26px;color:#F3D384;line-height:1;font-weight:600}
 .ntile:active{transform:translateY(1px)}
-.ntiles .ntile:last-child:nth-child(odd){grid-column:1 / span 1}
+@media (max-width:360px){.ntile b{font-size:20px}.ntile.main b{font-size:23px}.ntile small{font-size:var(--fs-s)}}
+
 
 
 /* body mapy jako karty */
