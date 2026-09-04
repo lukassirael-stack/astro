@@ -890,3 +890,9 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 
 .nvtabs{gap:8px;margin:2px 0 10px}
 .nvtabs .chip{flex:1;justify-content:center;text-align:center;padding:10px 12px;font-size:var(--fs-m)}
+
+/* průvodce */
+.guide .lede{font-size:var(--fs-b);line-height:1.65;color:var(--text);margin:4px 0 14px}
+.guide p{line-height:1.65;color:var(--muted);margin:0 0 10px}
+.guide p b{color:var(--text);font-weight:600}
+.guide .h3{margin:16px 0 6px}

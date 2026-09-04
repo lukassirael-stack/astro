@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v253';
+  const VERSION = 'v254';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -295,6 +295,45 @@
     const it = list[0]; const t = it.t; const ref = K.dayStart(np.y, np.m, np.d, TZ);
     const when = it.nextExact ? (Math.abs(it.nextExact - ref) < 86400000 ? 'dnes je to přesné' : `vrchol ${fmtD(it.nextExact)}`) : (it.lastExact ? `vrchol byl ${fmtD(it.lastExact)}, dozní ${fmtD(it.arc.end)}` : `do ${fmtD(it.arc.end)}`);
     return `${K.BODY_CZ[t.transit]} ${t.glyph} ${NATAL_ACC[t.natal]} — ${arcPhrase(t)} · ${when}`;
+  }
+  // ---------- Průvodce Kompasem ----------
+  function guideHTML() {
+    return `<div class="guide">
+      <button type="button" class="btn ghost small" data-act="guideBack">‹ Zpět do Nastavení</button>
+      <div class="h2">Průvodce Kompasem</div>
+      <p class="lede">Nebeský kompas je kalendář žitý s oblohou. Z postavení Slunce, Luny, planet a stálic nad tvým místem a z tvé vlastní mapy narození skládá každý den do jedné barvy, jedné věty a několika tichých vrstev. Je to mapa terénu: říká, kudy dnes půjde snáz a kde budeš potřebovat víc trpělivosti. Kroky děláš ty.</p>
+
+      <div class="h3">Jak začít</div>
+      <p>Zadej v Nastavení datum, čas a místo narození. Z toho vzniká tvá mapa a všechno osobní v Kompasu — barva dnů, tranzity, hvězdy, návraty. Přesný čas narození dělá rozdíl u ascendentu a domů; když ho neznáš, Kompas počítá s polednem a řekne ti, co je tím méně jisté. Pak si Kompas přidej na plochu a nech ho běžet — nejlíp se čte ráno.</p>
+
+      <div class="h3">Kalendář — barva dne</div>
+      <p>Každý den v mřížce má barvu: <b>příznivý</b>, <b>vlídný</b>, <b>klidný</b>, <b>pomalejší</b>, <b>náročný</b>. Vzniká součtem toho, co se dnes na obloze dotýká tvé mapy, jak stojí Luna a jaké je kosmické počasí. Zlatá hvězdička ✦ značí den, kdy planeta stojí na tvé hvězdě. Tečka u čísla je svátek nebo tradice. Klepnutím na den otevřeš jeho detail.</p>
+
+      <div class="h3">Karta Dnes</div>
+      <p>Nahoře v Kalendáři je karta s dneškem. Řádky odshora: <b>hodina</b> (která planetární hodina právě běží a na co se hodí), <b>cena dne</b> (co dnes bude stát víc sil), <b>tatva</b> (jemný rytmus po 24 minutách od východu Slunce), <b>tělo</b> (orgánové hodiny ukotvené na skutečné poledne), <b>u tebe</b> (nejsilnější tranzit na tvou mapu a kde v jeho oblouku stojíš). Otazník u každého řádku vysvětlí, co je zač. Dole je <b>Pozvánka dne</b> — otázka a jeden krok podle znamení Luny, dne v týdnu nebo živlu.</p>
+
+      <div class="h3">Detail dne</div>
+      <p>Co dnes jde a co bude stát víc sil, průběh dne na ose (východy a západy, planetární hodiny, aspekty Luny, Luna bez kurzu), pod tím příroda a obloha: zlatá a modrá hodina, tmavé noci pro hvězdy, lunární zahrádkář a tvůj osobní den. <b>Podrobnosti — pro astrologa</b> otevřou přesná čísla: tranzity, orbisy, skóre. Tenhle vzor platí v celém Kompasu: nejdřív věta, mechanika až na požádání.</p>
+
+      <div class="h3">Úkazy</div>
+      <p>Obloha rok dopředu: fáze Luny, zatmění, ingresy, retrogradity, konjunkce, elongace, meteorické roje, heliakické východy hvězd, Kolo roku s osmi branami, perigeum a apogeum Luny. Čip <b>tvé cykly</b> ukáže tvé osobní návraty — sluneční (tvůj osobní nový rok), lunární každých 27 dní, Jupiterův a Saturnův. Každý úkaz má otazník s výkladem na míru tělesu a znamení.</p>
+
+      <div class="h3">Diář</div>
+      <p>Zapiš pár slov o dni a ohodnoť ho. Po pěti dnech Kompas ukáže, jak tvá hodnocení sedí s výpočtem; po osmi i podle fází cyklu, pokud ho vedeš. Plány na den se ráno objeví v kartě Dnes. Diář je tvůj kontrolní nástroj: Kompas říká, co je ve hře, ty říkáš, jak to bylo, a časem se ukáže, kde se potkáváte.</p>
+
+      <div class="h3">O tobě</div>
+      <p><b>Ty</b> začíná tím, čím právě procházíš — tranzity jako oblouky s počátkem, vrcholem a koncem, ohlédnutí na kterékoli datum. Pod tím tvoje mapa: Slunce, Luna, ascendent, celý horoskop v kapitolách, hvězdy, velké návraty a tvá čísla. <b>Vztahy</b> čtou, jak si tvá mapa rozumí s mapami lidí kolem tebe.</p>
+
+      <div class="h3">Nastavení</div>
+      <p>Profil a místo, obloha (den a noc se přepínají podle skutečného východu a západu Slunce), pravidla barvení dne s přesnými váhami pro zvídavé, cyklus, orgánové hodiny, numerologie, kosmické počasí, svátky pro Česko a Slovensko, jazyk rozhraní, Google kalendář, záloha a sdílení. Verze appky je úplně dole.</p>
+
+      <div class="h3">Jak Kompas číst</div>
+      <p>Ráno karta Dnes, jedna věta, jeden krok. Když plánuješ, <b>Najít vhodný den</b> pod detailem dne. Když se něco děje, otazník. Když chceš rozumět, Podrobnosti. Kompas mluví jazykem <em>tohle je ve hře, tohoto si všímej</em>; nejlepší výsledky dává tomu, kdo ho vede vedle vlastního pozorování a Diáře, ne místo něj.</p>
+
+      <div class="h3">Tvá data</div>
+      <p>Všechno běží v prohlížeči a zůstává v tomto zařízení. Záloha v Nastavení je jediná cesta, kudy data odcházejí, a jde jen tam, kam ji pošleš ty.</p>
+      <button type="button" class="btn ghost small" data-act="guideBack" style="margin-top:8px">‹ Zpět do Nastavení</button>
+    </div>`;
   }
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
@@ -1004,6 +1043,9 @@
       catch (e) { prompt('Odkaz na Kompas:', url); }
     },
     toggleKp() { settings.showKp = !settings.showKp; persistSettings(); S.dayCache = {}; renderSettings(); },
+    guide() { S.guide = true; renderSettings(); window.scrollTo({ top: 0 }); },
+    goGuide() { S.guide = true; showTab('nastaveni'); },
+    guideBack() { S.guide = false; renderSettings(); window.scrollTo({ top: 0 }); },
     natalView(el) { S.natalView = el.dataset.v; renderNatal(); window.scrollTo({ top: 0 }); },
     lookback() { const v = ($('#lookbackDate') || {}).value; if (!v) return; S.lookback = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .lookback'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
     toggleNum() { settings.numerology = settings.numerology === false; persistSettings(); S.dayCache = {}; renderSettings(); },
@@ -2785,6 +2827,7 @@ ${parts}
   // ===================== NASTAVENÍ =====================
   function renderSettings() {
     const v = $('#view-nastaveni');
+    if (S.guide) { v.innerHTML = guideHTML(); return; }
     const p = activeProfile();
     const opts = profiles.map(x => `<option value="${x.id}" ${x.id === activeId ? 'selected' : ''}>${esc(x.name)}</option>`).join('');
     const kpToday = S.kpMap[TODAY_KEY] || null;
@@ -2906,7 +2949,7 @@ ${parts}
         <label class="setsel">Jazyk rozhraní<select class="btn" data-act="setLang"><option value="cs" ${(settings.lang || 'cs') === 'cs' ? 'selected' : ''}>čeština</option><option value="sk" ${settings.lang === 'sk' ? 'selected' : ''}>slovenčina</option></select></label>
         <label class="setsel">Svátky a jmeniny<select class="btn" data-act="setCountry"><option value="both" ${(settings.country || 'both') === 'both' ? 'selected' : ''}>Česko i Slovensko</option><option value="cz" ${settings.country === 'cz' ? 'selected' : ''}>Česko</option><option value="sk" ${settings.country === 'sk' ? 'selected' : ''}>Slovensko</option></select></label>
       </div>
-      <div class="row"><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn" data-act="shareApp">Sdílet Kompas</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
+      <div class="row"><button type="button" class="btn" data-act="guide">Průvodce Kompasem</button><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn" data-act="shareApp">Sdílet Kompas</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
       <p class="note" style="margin-top:8px">Sdílení pošle odkaz na Kompas — druhý si ho otevře v prohlížeči a může si ho přidat na plochu stejně jako ty. Tvá data zůstávají jen u tebe; každý začíná se svým nativem.</p>
       <p class="note" data-act="verTap" style="cursor:default">Nebeský kompas ${VERSION}${store.get('kairos_plus', false) ? ' · plná verze' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
       <p class="note">Jazyk aplikace je záměrně „tohle je ve hře, tohoto si všímej“. Žádná barva dne není předpověď a nerozhoduje za tebe.</p></div>`;
@@ -3104,7 +3147,7 @@ ${parts}
     return `<div class="card nonatal">
       <div class="h3" style="margin-top:0">Začni datem narození</div>
       <p>Kompas počítá ${what} z tvé osobní mapy — potřebuje datum, čas a místo, kde ses narodil. Zabere to minutu a všechno zůstává jen v tomto zařízení.</p>
-      <div class="row"><button type="button" class="btn" data-act="goNatal">Zadat narození</button></div>
+      <div class="row"><button type="button" class="btn" data-act="goNatal">Zadat narození</button><button type="button" class="btn ghost" data-act="goGuide">Co Kompas umí</button></div>
     </div>`;
   }
   function renderCalendar() { renderCalendarRaw(); setTimeout(() => jMediaHydrate(), 30); }
