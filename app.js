@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v271';
+  const VERSION = 'v272';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -939,7 +939,7 @@
 
   const actions = {
     elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); if (S.elek.open) setTimeout(() => { const p = $('#view-kalendar .eltoggle'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 40); },
-    hsTheme(el) { S.hsTheme = el.dataset.t; renderNatal(); setTimeout(() => { const c = $('#view-nativ .card.hs'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); },
+    hsTheme(el) { const cur = S.hsTheme || 'rok'; S.hsTheme = cur === el.dataset.t ? 'none' : el.dataset.t; renderNatal(); if (S.hsTheme !== 'none') setTimeout(() => { const c = $('#view-nativ .card.hs'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); },
     // (hydratace médií se volá po renderCalendar níže)
     synSel(el) { S.synId = S.synId === el.dataset.id ? null : el.dataset.id; S.synForm = null; renderNatal(); },
     synAdd() { S.synForm = { mode: 'new' }; renderNatal(); setTimeout(() => { const f = $('#synForm [name=name]'); if (f) f.focus(); }, 40); },
@@ -2849,7 +2849,7 @@ ${parts}
       <details class="hsintro hscenter"><summary><span class="hsq">✧</span> Jak číst svůj horoskop <span class="hsq">✧</span></summary><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></details>
       <div class="hsgrid">${HS_ORDER.map((k, i) => [HS_THEMES.find(x => x[0] === k), HS_SPAN[i]]).filter(x => x[0]).map(([t, sp]) => `<button type="button" class="hsb ${(S.hsTheme || 'rok') === t[0] ? 'on' : ''}" style="--sp:${sp}" data-act="hsTheme" data-t="${t[0]}"><i class="hsi">${hsIcon(t[0])}</i><span>${t[1]}</span></button>`).join('')}
       <button type="button" class="hsb hsprint" style="--sp:6" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení"><i class="hsi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8.4 10.6L12 14.2l3.6-3.6"/><path d="M5 17.6h14"/></svg></i><span>Uložit · tisk</span></button></div>
-      <div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'rok')) || HS_THEMES[0])[2](n)}</div>`,
+      ${S.hsTheme === 'none' ? '<p class="note" style="text-align:center">Vyber kapitolu, kterou chceš číst.</p>' : `<div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'rok')) || HS_THEMES[0])[2](n)}</div>`}`,
       hvezdy: `      
       <p class="note">Hvězdy systémů z Hvězdného kvízu a královské hvězdy jako body v tvém nativu. Hlavní = hvězda stojí na tvém bodě (orbis 1°), byla na úhlu v okamžiku narození, nebo tvoří paran se Sluncem či Lunou. Vedlejší = parany s ostatními planetami v den narození. Rod z kvízu se do výpočtu nepočítá – tohle je čisté nebe.</p>
       ${mine.length ? mine.map(s => starBlock(s, true)).join('') : '<p class="muted">Žádná hlavní hvězda – neobvyklé, ověř čas narození.</p>'}
