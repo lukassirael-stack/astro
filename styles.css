@@ -883,7 +883,8 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .tarc.tense .tarc-bar .fill{background:linear-gradient(90deg,rgba(224,122,110,.35),rgba(224,122,110,.85))}
 .tarc-bar i{position:absolute;top:-3px;width:2px;height:12px;margin-left:-1px;background:#FFF0C8;border-radius:1px;opacity:.9}
 .tarc-bar em{position:absolute;top:-4px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px rgba(240,200,116,.25)}
-.tarc-d{display:flex;justify-content:space-between;gap:8px;font-size:var(--fs-xs);color:var(--muted);letter-spacing:.03em}
+.tarc-d{display:flex;justify-content:space-between;gap:8px;font-size:var(--fs-xs);color:var(--muted);letter-spacing:.03em;flex-wrap:wrap}
+.tarc-d span{white-space:nowrap}
 .tarc-d span:nth-child(2){color:var(--text)}
 .hero-today .ht-arc .ht-ic.arc{color:var(--gold);font-style:normal}
 .lookback{margin:4px 0 16px}
@@ -896,3 +897,4 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .guide p{line-height:1.65;color:var(--muted);margin:0 0 10px}
 .guide p b{color:var(--text);font-weight:600}
 .guide .h3{margin:16px 0 6px}
+.tarc-p .asp{display:block;margin-top:3px;font-size:var(--fs-xs);color:var(--muted);opacity:.75;letter-spacing:.03em}

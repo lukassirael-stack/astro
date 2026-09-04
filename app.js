@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v254';
+  const VERSION = 'v255';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -265,9 +265,14 @@
     out.sort((x, y) => (y.slow - x.slow) || (x.t.orb - y.t.orb));
     return (_arcCache[key] = out);
   }
+  const ASP_VERB = { conj: 'zesiluje', sextile: 'podněcuje', trine: 'podporuje', square: 'tlačí na', opposition: 'zrcadlí' };
+  const ASP_NAME = { conj: 'konjunkce', sextile: 'sextil', trine: 'trigon', square: 'kvadratura', opposition: 'opozice' };
+  const ASP_HOW = { conj: 'obě témata splývají v jedno', sextile: 'příležitost, která chce malý krok', trine: 'jde to samo, snadno se přehlédne', square: 'tření, které nutí rozhodnout', opposition: 'dvě strany, které chtějí vyvážit' };
+  function arcTitle(t) { return `${K.BODY_CZ[t.transit]} ${ASP_VERB[t.key] || t.glyph} ${NATAL_ACC[t.natal]}`; }
   function arcPhrase(t) {
-    if (t.key === 'conj') return TX.CONJ[t.transit] || '';
-    return t.kind === 'harm' ? TX.GO[t.transit] : TX.COST[t.transit];
+    const base = t.key === 'conj' ? (TX.CONJ[t.transit] || '') : (t.kind === 'harm' ? TX.GO[t.transit] : TX.COST[t.transit]);
+    const dom = TX.DOMAIN[t.natal] ? ` — v oblasti, kde jde o ${TX.DOMAIN[t.natal]}` : '';
+    return base + dom;
   }
   const fmtD = (dt) => { const p = K.tzParts(dt, TZ); return `${p.d}. ${p.m}.`; };
   const fmtDY = (dt, y) => { const p = K.tzParts(dt, TZ); return p.y === y ? `${p.d}. ${p.m}.` : `${p.d}. ${p.m}. ${p.y}`; };
@@ -281,8 +286,8 @@
       const when = nextExact ? (Math.abs(nextExact - ref) < 86400000 ? 'přesně dnes' : `vrchol ${fmtDY(nextExact, y)}`) : (lastExact ? `vrchol byl ${fmtDY(lastExact, y)}` : '');
       const marks = arc.exact.map(x => `<i style="left:${(100 * (x - arc.start) / ((arc.end - arc.start) || 1)).toFixed(1)}%"></i>`).join('');
       return `<div class="tarc ${cls} ${slow ? 'slow' : ''}">
-        <div class="tarc-h"><span class="g">${K.BODY_GLYPH[t.transit]}</span><b>${esc(K.BODY_CZ[t.transit])} ${t.glyph} ${esc(NATAL_ACC[t.natal])}</b>${t.retro ? '<span class="rx">℞</span>' : ''}</div>
-        <div class="tarc-p">${esc(arcPhrase(t))}</div>
+        <div class="tarc-h"><span class="g">${K.BODY_GLYPH[t.transit]}</span><b>${esc(arcTitle(t))}</b>${t.retro ? '<span class="rx" title="retrográdně">℞</span>' : ''}</div>
+        <div class="tarc-p">${esc(arcPhrase(t))}<span class="asp">${t.glyph} ${ASP_NAME[t.key] || ''} · ${ASP_HOW[t.key] || ''}</span></div>
         <div class="tarc-bar"><span class="fill" style="width:${(pos * 100).toFixed(1)}%"></span>${marks}<em style="left:${(pos * 100).toFixed(1)}%"></em></div>
         <div class="tarc-d"><span>od ${fmtDY(arc.start, y)}</span><span>${when}</span><span>do ${fmtDY(arc.end, y)}${days > 0 && days < 400 ? ` · ještě ${days} ${days === 1 ? 'den' : days < 5 ? 'dny' : 'dní'}` : ''}</span></div>
       </div>`;
@@ -294,7 +299,7 @@
     const list = transitArcs(np.y, np.m, np.d); if (!list.length) return '';
     const it = list[0]; const t = it.t; const ref = K.dayStart(np.y, np.m, np.d, TZ);
     const when = it.nextExact ? (Math.abs(it.nextExact - ref) < 86400000 ? 'dnes je to přesné' : `vrchol ${fmtD(it.nextExact)}`) : (it.lastExact ? `vrchol byl ${fmtD(it.lastExact)}, dozní ${fmtD(it.arc.end)}` : `do ${fmtD(it.arc.end)}`);
-    return `${K.BODY_CZ[t.transit]} ${t.glyph} ${NATAL_ACC[t.natal]} — ${arcPhrase(t)} · ${when}`;
+    return `${arcTitle(t)} — ${arcPhrase(t)} · ${when}`;
   }
   // ---------- Průvodce Kompasem ----------
   function guideHTML() {
