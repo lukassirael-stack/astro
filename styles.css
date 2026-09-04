@@ -850,3 +850,6 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .nature .nl{display:inline-block;min-width:96px;margin-right:6px;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;font-size:var(--fs-xs)}
 .nature .nl+.nl{margin-left:10px}
 .nature b{color:var(--text);font-weight:600}
+
+.returns p{margin:0 0 8px;line-height:1.6}
+.returns span.on{color:var(--gold);font-weight:600}

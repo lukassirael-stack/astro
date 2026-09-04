@@ -627,6 +627,32 @@ function createKairosEngine(A) {
       const list = [[s.mar_equinox, 'Jarní rovnodennost', 'Slunce vstupuje do Berana · začátek astrologického roku'], [s.jun_solstice, 'Letní slunovrat', 'Slunce vstupuje do Raka · nejdelší den'], [s.sep_equinox, 'Podzimní rovnodennost', 'Slunce vstupuje do Vah'], [s.dec_solstice, 'Zimní slunovrat', 'Slunce vstupuje do Kozoroha · nejdelší noc']];
       for (const [t, title, note] of list) if (t.date >= d0 && t.date < d1) push(t.date, 'slunce', title, note);
     }
+    // ---------- osobní cykly: návraty Slunce, Luny, Jupitera a Saturnu na nativní polohu ----------
+    if (natal && natal.points) {
+      const natLon = (b) => natal.points[b] ? natal.points[b].lon : null;
+      const dist = (x, y) => ((x - y + 540) % 360) - 180;
+      // obecné hledání návratu: hrubý krok, pak půlení
+      const findReturn = (body, target, from, to, stepDays) => {
+        const out = [];
+        let t0 = from.getTime(); let d0v = dist(lonOf(body, T(new Date(t0))), target);
+        while (t0 < to.getTime()) {
+          const t1 = Math.min(t0 + stepDays * 86400000, to.getTime()); const d1v = dist(lonOf(body, T(new Date(t1))), target);
+          // průchod oběma směry (přímý i zpětný pohyb) — Saturn i Jupiter se přes nativní stupeň často vracejí třikrát
+          if (d0v * d1v < 0 && Math.abs(d1v - d0v) < 180) {
+            let lo = t0, hi = t1, slo = d0v;
+            for (let i = 0; i < 40; i++) { const mid = (lo + hi) / 2; const dm = dist(lonOf(body, T(new Date(mid))), target); if ((dm < 0) === (slo < 0)) { lo = mid; slo = dm; } else hi = mid; }
+            out.push(new Date((lo + hi) / 2));
+          }
+          t0 = t1; d0v = d1v;
+        }
+        return out;
+      };
+      const sunL = natLon('Sun'), moonL = natLon('Moon'), jupL = natLon('Jupiter'), satL = natLon('Saturn');
+      if (sunL != null) for (const t of findReturn('Sun', sunL, d0, d1, 1)) push(t, 'osobni', 'Sluneční návrat', `Slunce se vrací na ${fmtLonText(sunL)} · začátek tvého osobního roku`, { personal: 'sun' });
+      if (moonL != null) for (const t of findReturn('Moon', moonL, d0, d1, 0.25)) push(t, 'osobni', 'Lunární návrat', `Luna se vrací na ${fmtLonText(moonL)} · tichý osobní nov`, { personal: 'moon' });
+      if (jupL != null) for (const t of findReturn('Jupiter', jupL, d0, d1, 5)) push(t, 'osobni', 'Jupiterův návrat', `Jupiter se vrací na ${fmtLonText(jupL)} · jednou za 12 let`, { personal: 'jupiter' });
+      if (satL != null) for (const t of findReturn('Saturn', satL, d0, d1, 5)) push(t, 'osobni', 'Saturnův návrat', `Saturn se vrací na ${fmtLonText(satL)} · jednou za 29 let`, { personal: 'saturn' });
+    }
     // Kolo roku: čtyři mezidny přesně v 15° pevných znamení (astronomicky, ne podle data)
     {
       const gates = [[315, 'Imbolc', 'Slunce v 15° Vodnáře · brána ke světlu, první náznak jara'], [45, 'Beltain', 'Slunce v 15° Býka · brána léta, vrchol rozkvětu'], [135, 'Lughnasad', 'Slunce v 15° Lva · brána sklizně, první plody'], [225, 'Samhain', 'Slunce v 15° Štíra · brána zimy, čas předků a ticha']];

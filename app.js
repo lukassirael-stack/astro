@@ -600,11 +600,12 @@
     '⟳': _ic('<path d="M11.4 7A4.4 4.4 0 1 1 9.8 3.6M9.4 1.6l.6 2.4-2.4.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>'),
     '☌': _ic('<circle cx="7" cy="8.8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.3 6.5 12.4 3.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'),
     '☍': _ic('<circle cx="4" cy="10" r="2.4" fill="none" stroke="currentColor" stroke-width="1.15"/><circle cx="10" cy="4" r="2.4" fill="none" stroke="currentColor" stroke-width="1.15"/><path d="M5.7 8.3 8.3 5.7" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/>'),
+    '✺': _ic('<circle cx="7" cy="7" r="2.2" fill="currentColor"/><path d="M7 1.2v2.4M7 10.4v2.4M1.2 7h2.4M10.4 7h2.4M2.9 2.9l1.7 1.7M9.4 9.4l1.7 1.7M2.9 11.1l1.7-1.7M9.4 4.6l1.7-1.7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>'),
     '✳': _ic('<path d="M7 1.6v10.8M2.3 4.3l9.4 5.4M2.3 9.7l9.4-5.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'),
   };
   const ico = (g) => ICO[g] || g;
-  const CAT_ICON = { luna: '☽', zatmeni: '◉', slunce: '☉', planety: '♃', roje: '☄', hvezdy: '✦', komety: '✧' };
-  const CAT_CZ = { vse: 'vše', luna: 'Luna', zatmeni: 'zatmění', slunce: 'Slunce', planety: 'planety', roje: 'roje', hvezdy: 'hvězdy', komety: 'komety' };
+  const CAT_ICON = { luna: '☽', zatmeni: '◉', slunce: '☉', planety: '♃', roje: '☄', hvezdy: '✦', komety: '✧', osobni: '✺' };
+  const CAT_CZ = { vse: 'vše', luna: 'Luna', zatmeni: 'zatmění', slunce: 'Slunce', planety: 'planety', roje: 'roje', hvezdy: 'hvězdy', komety: 'komety', osobni: 'tvé cykly' };
   const TODAY_KEY = K.isoDate(np.y, np.m, np.d);
 
   function toast(msg) { const t = $('#toast'); t.textContent = tr(msg); t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 2600); }
@@ -2218,6 +2219,10 @@ ${parts}
     [/Luna u /i, 'Luna se na obloze přiblíží k planetě nebo jasné hvězdě. Krásný pohled pouhým okem, obvykle jeden večer nebo ráno.'],
     [/obrací do retrogradity/i, 'Planeta se ze Země začne jevit jako couvající. Bývá to čas návratů, revizí a doladění rozdělaného.'],
     [/vrací do přímého pohybu/i, 'Planeta po couvání znovu vykročí vpřed. Odložené věci se rozjíždějí a co se přehodnotilo, dostává směr.'],
+    [/^Sluneční návrat$/, 'Slunce stojí přesně tam, kde stálo v okamžiku tvého narození — na minutu přesný začátek tvého osobního roku, obvykle den před nebo po narozeninách. Mapa oblohy v tento okamžik tradičně popisuje rok, který přichází. Dobrý den na ticho, záměr a pohled na uplynulý rok.'],
+    [/^Lunární návrat$/, 'Luna se vrací na místo, kde stála při tvém narození — děje se to každých 27 dní. Tichý osobní nov: nálada a potřeby se na pár dní vracejí k tomu, co je ti od základu vlastní. Dobrý den na odpočinek a pozornost k tomu, co doopravdy potřebuješ.'],
+    [/^Jupiterův návrat$/, 'Jupiter se po dvanácti letech vrací na místo tvé mapy — kolem 12, 24, 36, 48, 60 let. Tradičně rok otevřených dveří a růstu: co jsi za dvanáct let vybudoval, dostává prostor, a nový cyklus začíná tam, kde máš důvěru.'],
+    [/^Saturnův návrat$/, 'Saturn se po 29 letech vrací na místo tvé mapy — kolem 29, 58 a 87 let. Jeden z nejvýznamnějších přechodů života: dospělost se skládá znovu, co bylo jen převzaté, padá, a zůstává, co je opravdu tvé. Bývá náročný a bývá zakládající.'],
     [/^Imbolc$/, 'Brána mezi zimním slunovratem a jarní rovnodenností: Slunce stojí přesně v 15° Vodnáře. Světla znatelně přibývá, pod sněhem se hýbe život. Tradičně čas očisty, světla a prvních záměrů roku.'],
     [/^Beltain$/, 'Brána mezi jarní rovnodenností a letním slunovratem: Slunce v 15° Býka. Vrchol rozkvětu a plodnosti — ohně, tanec, spojení. Tradičně nejradostnější z bran roku.'],
     [/^Lughnasad$/, 'Brána mezi letním slunovratem a podzimní rovnodenností: Slunce v 15° Lva. První sklizeň, chléb z nového obilí, vděčnost za to, co dozrálo, a první tušení, že se rok obrací.'],
@@ -2368,7 +2373,7 @@ ${parts}
       const list = S.filter === 'vse' ? evs : evs.filter(e => e.cat === S.filter);
       const months = {};
       for (const e of list) { const p = K.tzParts(e.date, TZ); const k = `${p.y}-${pad(p.m)}`; (months[k] = months[k] || { y: p.y, m: p.m, items: [] }).items.push(e); }
-      const chips = ['vse', 'zatmeni', 'luna', 'planety', 'hvezdy', 'roje', 'slunce', 'komety'].map(c => `<button type="button" class="chip ${S.filter === c ? 'on' : ''}" data-act="filter" data-f="${c}">${CAT_CZ[c]}</button>`).join('');
+      const chips = ['vse', 'osobni', 'zatmeni', 'luna', 'planety', 'hvezdy', 'roje', 'slunce', 'komety'].map(c => `<button type="button" class="chip ${S.filter === c ? 'on' : ''}" data-act="filter" data-f="${c}">${CAT_CZ[c]}</button>`).join('');
       let html = `<div class="h2">Úkazy · ${esc(settings.loc.name)}</div><p class="note">${S.evAll ? 'Rok dopředu od tohoto měsíce.' : 'Nejbližší tři měsíce.'} Časy jsou v našem čase, viditelnost počítaná pro ${esc(settings.loc.name)} (${fmtNum(settings.loc.lat, 3)} N, ${fmtNum(settings.loc.lon, 3)} E).</p><div class="row" style="gap:6px">${chips}</div>`;
       const allKeys = Object.keys(months).sort();
       const keys = S.evAll ? allKeys : allKeys.slice(0, 3);
@@ -2524,6 +2529,11 @@ ${parts}
       <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p></div>
       ${natalSumHTML(false)}
       <p class="note" style="margin:0 2px 10px">Ťukni na kartu — dozvíš se, co ten bod znamená a jak vychází tobě.</p>
+      ${(() => { const by = +p.y; const yr = np.y; const age = yr - by; const sat = [29, 59, 88].map(x => by + x), jup = []; for (let k = 12; k <= 96; k += 12) jup.push(by + k); const nextS = sat.find(x => x >= yr), nextJ = jup.find(x => x >= yr); const near = (x) => Math.abs(x - yr) <= 1;
+        return `<div class="card small returns"><div class="h3" style="margin-top:0">Tvé velké návraty</div>
+        <p><b>Saturn</b> — ${sat.map(x => `<span class="${near(x) ? 'on' : ''}">${x}</span>`).join(' · ')}${nextS ? ` · další ${nextS}` : ''}. Vrací se na tvé místo přibližně každých 29 let a přeskládává, co je opravdu tvé.</p>
+        <p><b>Jupiter</b> — ${jup.filter(x => Math.abs(x - yr) <= 24).map(x => `<span class="${near(x) ? 'on' : ''}">${x}</span>`).join(' · ')}. Každých 12 let otevře dveře tam, kde máš důvěru.</p>
+        <p class="note" style="margin:6px 0 0">Přesný den návratu najdeš v Úkazech pod <b>tvé cykly</b> — spolu se slunečním návratem (tvůj osobní nový rok) a lunárním návratem každých 27 dní.</p></div>`; })()}
       ${wheelSVG(n)}
       ${chakraHTML(p)}
       <div class="hshead"><svg class="hsstar" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="20" cy="20" r="7"/><path d="M20 3v8M20 29v8M3 20h8M29 20h8"/><path d="M20 13l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor" stroke="none"/></svg><div class="hstitle">Tvůj horoskop</div><div class="hsrule"><i></i><b>✦</b><i></i></div></div>
