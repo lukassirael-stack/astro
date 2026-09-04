@@ -2644,7 +2644,7 @@ ${parts}
   setTimeout(() => { const c = gEv(); if (store.get('kairos_ics', '') && (!c || Date.now() - c.when > 6 * 3600 * 1000)) icsRefresh(true); }, 2500);
   loadKp(false);
   (() => { const sp = $('#splash'); if (!sp) return; const off = () => { sp.classList.add('done'); setTimeout(() => sp.remove(), 650); };
-    requestAnimationFrame(() => setTimeout(off, 3000)); setTimeout(off, 7000); })();
+    requestAnimationFrame(() => setTimeout(off, 1200)); setTimeout(off, 4000); })();
   document.addEventListener('change', (e) => {
     { const s = e.target && e.target.closest && e.target.closest('select[data-act]'); if (s && actions[s.dataset.act]) { actions[s.dataset.act](s, e); return; } }
     if (e.target && e.target.id === 'bkFile' && e.target.files && e.target.files[0]) {

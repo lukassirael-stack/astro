@@ -577,11 +577,11 @@ details.expl .card p:last-child{margin:0}
 .brand-claim{font-size:var(--fs-xs)}
 @media (max-width:420px){.claim{font-size:var(--fs-xs);letter-spacing:.26em}.claim:before,.claim:after{width:44px}}
 #splash{position:fixed;inset:0;z-index:999;display:grid;place-items:center;align-content:center;gap:18px;
-  background:linear-gradient(180deg,#0A1B33 0%,#081527 55%,#050E1C 100%);transition:opacity .55s ease}
-#splash .sp-em{width:min(300px,62vw);height:auto;animation:spIn 1s ease both}
-#splash .bname{animation:spIn 1s .1s ease both}
-#splash .sp-st{width:min(150px,34vw);height:auto;margin:6px 0 2px;animation:spIn 1s .2s ease both}
-#splash .sp-cl{margin-top:10px;animation:spIn 1s .3s ease both}
+  background:#0A1B33;transition:opacity .4s ease}
+#splash .sp-em{width:min(300px,62vw);height:auto;animation:spIn .5s ease both}
+#splash .bname{animation:spIn .5s .06s ease both}
+#splash .sp-st{width:min(150px,34vw);height:auto;margin:6px 0 2px;animation:spIn .5s .12s ease both}
+#splash .sp-cl{margin-top:10px;animation:spIn .5s .18s ease both}
 #splash.done{opacity:0;pointer-events:none}
 @keyframes spIn{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
 .echips{display:flex;flex-wrap:wrap;gap:7px}
