@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v251';
+  const VERSION = 'v252';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -248,6 +248,53 @@
       ${many.map(k => `<p>${NUM_GRID_MANY[k]}.</p>`).join('')}
       ${miss.map(k => `<p class="muted">${NUM_GRID_MISS[k]}.</p>`).join('')}
     </div></details>`;
+  }
+  // ---------- čím procházíš: tranzity jako oblouky se začátkem, vrcholem a koncem ----------
+  const _arcCache = {};
+  function transitArcs(y, m, d) {
+    const key = `${activeId}|${y}-${m}-${d}`; if (_arcCache[key]) return _arcCache[key];
+    const da = analyze(y, m, d); const ref = K.dayStart(y, m, d, TZ);
+    const all = da.background.concat(da.fast).filter(t => t.transit !== 'Moon');
+    const out = all.map(t => {
+      const slow = t.slow; const orbs = rules().orbs || {}; const maxOrb = orbs[t.key] != null ? orbs[t.key] : (orbs.default != null ? orbs.default : 3);
+      const arc = K.transitArc(t.transit, S.natal.points[t.natal].lon, t.angle, ref, maxOrb, slow ? 420 : 45);
+      const total = arc.end - arc.start || 1; const pos = Math.max(0, Math.min(1, (ref - arc.start) / total));
+      const nextExact = arc.exact.find(x => x >= ref) || null, lastExact = [...arc.exact].reverse().find(x => x < ref) || null;
+      return { t, arc, pos, nextExact, lastExact, slow };
+    });
+    out.sort((x, y) => (y.slow - x.slow) || (x.t.orb - y.t.orb));
+    return (_arcCache[key] = out);
+  }
+  function arcPhrase(t) {
+    if (t.key === 'conj') return TX.CONJ[t.transit] || '';
+    return t.kind === 'harm' ? TX.GO[t.transit] : TX.COST[t.transit];
+  }
+  const fmtD = (dt) => { const p = K.tzParts(dt, TZ); return `${p.d}. ${p.m}.`; };
+  const fmtDY = (dt, y) => { const p = K.tzParts(dt, TZ); return p.y === y ? `${p.d}. ${p.m}.` : `${p.d}. ${p.m}. ${p.y}`; };
+  function arcsHTML(y, m, d, opts) {
+    opts = opts || {};
+    const list = transitArcs(y, m, d); if (!list.length) return opts.empty || '';
+    const ref = K.dayStart(y, m, d, TZ);
+    const rows = list.slice(0, opts.max || 8).map(({ t, arc, pos, nextExact, lastExact, slow }) => {
+      const cls = t.key === 'conj' ? (t.weight > 0 ? 'harm' : t.weight < 0 ? 'tense' : '') : t.kind;
+      const days = Math.round((arc.end - ref) / 86400000);
+      const when = nextExact ? (Math.abs(nextExact - ref) < 86400000 ? 'přesně dnes' : `vrchol ${fmtDY(nextExact, y)}`) : (lastExact ? `vrchol byl ${fmtDY(lastExact, y)}` : '');
+      const marks = arc.exact.map(x => `<i style="left:${(100 * (x - arc.start) / ((arc.end - arc.start) || 1)).toFixed(1)}%"></i>`).join('');
+      return `<div class="tarc ${cls} ${slow ? 'slow' : ''}">
+        <div class="tarc-h"><span class="g">${K.BODY_GLYPH[t.transit]}</span><b>${esc(K.BODY_CZ[t.transit])} ${t.glyph} ${esc(NATAL_ACC[t.natal])}</b>${t.retro ? '<span class="rx">℞</span>' : ''}</div>
+        <div class="tarc-p">${esc(arcPhrase(t))}</div>
+        <div class="tarc-bar"><span class="fill" style="width:${(pos * 100).toFixed(1)}%"></span>${marks}<em style="left:${(pos * 100).toFixed(1)}%"></em></div>
+        <div class="tarc-d"><span>od ${fmtDY(arc.start, y)}</span><span>${when}</span><span>do ${fmtDY(arc.end, y)}${days > 0 && days < 400 ? ` · ještě ${days} ${days === 1 ? 'den' : days < 5 ? 'dny' : 'dní'}` : ''}</span></div>
+      </div>`;
+    }).join('');
+    return `<div class="tarcs">${rows}</div>`;
+  }
+  // jedna věta pro kartu Dnes: nejsilnější pomalý tranzit, nebo nejtěsnější rychlý
+  function arcSentence() {
+    const list = transitArcs(np.y, np.m, np.d); if (!list.length) return '';
+    const it = list[0]; const t = it.t; const ref = K.dayStart(np.y, np.m, np.d, TZ);
+    const when = it.nextExact ? (Math.abs(it.nextExact - ref) < 86400000 ? 'dnes je to přesné' : `vrchol ${fmtD(it.nextExact)}`) : (it.lastExact ? `vrchol byl ${fmtD(it.lastExact)}, dozní ${fmtD(it.arc.end)}` : `do ${fmtD(it.arc.end)}`);
+    return `${K.BODY_CZ[t.transit]} ${t.glyph} ${NATAL_ACC[t.natal]} — ${arcPhrase(t)} · ${when}`;
   }
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
@@ -957,6 +1004,7 @@
       catch (e) { prompt('Odkaz na Kompas:', url); }
     },
     toggleKp() { settings.showKp = !settings.showKp; persistSettings(); S.dayCache = {}; renderSettings(); },
+    lookback() { const v = ($('#lookbackDate') || {}).value; if (!v) return; S.lookback = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .lookback'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
     toggleNum() { settings.numerology = settings.numerology === false; persistSettings(); S.dayCache = {}; renderSettings(); },
     toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
     evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
@@ -1257,6 +1305,7 @@
     const phh = K.planetaryHours(np.y, np.m, np.d, observer(), TZ);
     const nd = namedayLine(np.m, np.d);
     const hol = holidayFor(np.y, np.m, np.d);
+    const arcS = arcSentence();
     return `<button type="button" class="hero-today ${da.color}" data-act="jumpDay" data-y="${np.y}" data-m="${np.m}" data-d="${np.d}" aria-label="Otevřít dnešek">
       <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}${hol ? ` <em class="ht-hol ${hol.f ? 'free' : 'trad'}">${esc(hol.n)}</em>` : ''}</span>
       <span class="ht-date ht-date2">${phh ? `<i class="sri">${SUNRISE_I}</i>&nbsp;${K.fmtTime(phh.sunrise, TZ)}&nbsp;&nbsp;–&nbsp;&nbsp;<i class="sri">${SUNSET_I}</i>&nbsp;${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + String(nd).replace(/\s*·\s*SK.*$/i, '') : ''}</span>${wxLine()}${(() => { const sd = sdForDay(np.y, np.m, np.d); return sd.length ? `<span class="ht-sd">${sd.map(x => sdLabel(x, np.y)).join(' · ')}</span>` : ''; })()}
@@ -1268,6 +1317,7 @@
       ${cycOn() && cycFor(K.isoDate(np.y, np.m, np.d)) ? `<span class="ht-div"></span><span class="ht-cyc">${(() => { const c = cycFor(K.isoDate(np.y, np.m, np.d)); return `<i class="cdot" style="background:${c.ph.col}"></i><b>${c.day}. den cyklu</b><span>${esc(c.ph.n)} fáze</span>`; })()}</span>` : ''}
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
       ${orgHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv ht-org" id="orgLine">${orgHTML()}</span>${S.orgHelp ? orgExpHTML() : ''}` : ''}
+      ${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">✺</i><span class="tx"><small class="tvlab">u tebe</small>${esc(arcS)}</span></span>` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
 <linearGradient id="invG" gradientUnits="userSpaceOnUse" x1="40" y1="8" x2="40" y2="72"><stop offset="0" stop-color="#F7E3A8"/><stop offset="1" stop-color="#D9A54A"/></linearGradient>
 <radialGradient id="invBloom" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFEFC8" stop-opacity=".75"/><stop offset=".3" stop-color="#FBD489" stop-opacity=".34"/><stop offset=".62" stop-color="#F3BC63" stop-opacity=".1"/><stop offset="1" stop-color="#F3BC63" stop-opacity="0"/></radialGradient>
@@ -2635,6 +2685,14 @@ ${parts}
     const natalHTML = `
       <div class="nhead"><div class="h2">${esc(p.name)}</div>
       <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p></div>
+      <div class="h3" style="margin-top:6px">Čím teď procházíš</div>
+      <p class="note" style="margin-top:-4px">Tranzity na tvou mapu jako oblouky: kdy začaly, kdy jsou přesné a kdy doznějí. Pomalé planety nahoře nesou období, rychlé dole barví týden.</p>
+      ${arcsHTML(np.y, np.m, np.d, { empty: '<p class="note">Právě teď se tvé mapy nedotýká žádný tranzit v orbisu — klidné pozadí.</p>' })}
+      <details class="lookback"><summary>Ohlédnutí — co bylo ve hře jindy</summary>
+        <div class="row" style="align-items:center;gap:10px;margin:6px 0 10px"><input type="date" id="lookbackDate" class="btn" value="${S.lookback || K.isoDate(np.y, np.m, np.d)}" style="max-width:190px"><button type="button" class="btn ghost small" data-act="lookback">Ukázat</button></div>
+        ${S.lookback ? (() => { const [ly, lm, ld] = S.lookback.split('-').map(Number); return `<p class="small" style="margin:0 0 6px">${ld}. ${lm}. ${ly}</p>${arcsHTML(ly, lm, ld, { empty: '<p class="note">Ten den se tvé mapy nedotýkal žádný tranzit v orbisu.</p>' })}`; })() : '<p class="note">Vyber datum — třeba den, kdy ses stěhoval, začal něco nového nebo se ti něco stalo — a uvidíš, čím jsi tehdy procházel.</p>'}
+      </details>
+      <div class="h3">Tvoje mapa</div>
       ${natalSumHTML(false)}
       <p class="note" style="margin:0 2px 10px">Ťukni na kartu — dozvíš se, co ten bod znamená a jak vychází tobě.</p>
       ${(() => { const by = +p.y; const yr = np.y; const age = yr - by; const sat = [29, 59, 88].map(x => by + x), jup = []; for (let k = 12; k <= 96; k += 12) jup.push(by + k); const nextS = sat.find(x => x >= yr), nextJ = jup.find(x => x >= yr); const near = (x) => Math.abs(x - yr) <= 1;

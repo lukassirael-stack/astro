@@ -449,6 +449,24 @@ function createKairosEngine(A) {
     starOrb: 1, starOrbPhase: 2,
   };
 
+  // Oblouk tranzitu: kdy vstoupil do orbisu, kdy je (byl) přesný a kdy z orbisu vystoupí.
+  // Pomalé planety se přes stupeň vracejí i třikrát — přesné průchody vrací všechny.
+  function transitArc(tb, natalLon, aspAngle, ref, maxOrb, spanDays) {
+    const orbAt = (t) => Math.abs(Math.abs(diff(lonOf(tb, T(t)), natalLon)) - aspAngle);
+    const sgnAt = (t) => Math.abs(diff(lonOf(tb, T(t)), natalLon)) - aspAngle;
+    const day = 86400000; const ref0 = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate(), 12);
+    let start = ref0, end = ref0;
+    for (let i = 1; i <= spanDays; i++) { const t = new Date(ref0.getTime() - i * day); if (orbAt(t) > maxOrb) break; start = t; }
+    for (let i = 1; i <= spanDays; i++) { const t = new Date(ref0.getTime() + i * day); if (orbAt(t) > maxOrb) break; end = t; }
+    const exact = []; let prev = sgnAt(start), tp = start;
+    for (let t = new Date(start.getTime() + day); t <= end; t = new Date(t.getTime() + day)) {
+      const v = sgnAt(t);
+      if (prev * v < 0) { let lo = tp.getTime(), hi = t.getTime(), slo = prev; for (let k = 0; k < 30; k++) { const mid = (lo + hi) / 2; const vm = sgnAt(new Date(mid)); if ((vm < 0) === (slo < 0)) { lo = mid; slo = vm; } else hi = mid; } exact.push(new Date((lo + hi) / 2)); }
+      prev = v; tp = t;
+    }
+    if (!exact.length) { let best = start, bo = orbAt(start); for (let t = start; t <= end; t = new Date(t.getTime() + day)) { const o = orbAt(t); if (o < bo) { bo = o; best = t; } } exact.push(best); }
+    return { start, end, exact, orbNow: orbAt(ref0) };
+  }
   function dayAnalysis(y, m, d, natal, observer, tz, kpForDay, rules) {
     rules = rules || DEFAULT_RULES;
     const ds = dayStart(y, m, d, tz);
@@ -854,7 +872,7 @@ function createKairosEngine(A) {
     SIGNS, SIGN_GLYPH, SIGN_LOC, SIGN_LOC_V, SIGN_GEN, ELEMENT, BODIES, PLANETS_NO_MOON, BODY_CZ, BODY_GLYPH, BODY_GEN, ASPECTS, STARS, METEOR_SHOWERS, CHALDEAN, DAY_RULER, WEEKDAY_CZ, MONTH_CZ, MONTH_GEN, TZ, DEFAULT_RULES,
     norm, diff, tzParts, tzOffsetMin, localToDate, dayStart, addDays, dateKey, fmtTime, fmtDateCz, fmtDateLong, daysInMonth, isoDate,
     lonOf, meanNode, positions, signOf, degInSign, fmtLon, fmtLonText, starLonLat, ascMC, placidus, houseOf, aspectBetween,
-    natalChart, monthContext, moonQuartersBetween, lunarDay, planetaryHours, dayAnalysis, skyEvents, heliacalRising, ephemerisMonth,
+    natalChart, monthContext, moonQuartersBetween, lunarDay, planetaryHours, dayAnalysis, transitArc, skyEvents, heliacalRising, ephemerisMonth,
     parseKpJson, parseOutlook, mergeKp, moonAltitude, sunAltitude, bisect, hourGrid, moonAspectEvents, ingressEvents,
     clearCache: () => { for (const k in _ctxCache) delete _ctxCache[k]; },
   };
