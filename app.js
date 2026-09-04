@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v255';
+  const VERSION = 'v256';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -265,13 +265,21 @@
     out.sort((x, y) => (y.slow - x.slow) || (x.t.orb - y.t.orb));
     return (_arcCache[key] = out);
   }
+  // texty období pro pomalé planety: co období žádá a co dává (měsíce, ne dny)
+  const PERIOD_TXT = {
+    Jupiter: { harm: 'Období otevřených dveří. Věci se daří s menším úsilím, přichází podpora a příležitosti; to, co v této oblasti zaseješ, má prostor růst. Stojí za to říkat ano a nebát se velikosti.', tense: 'Období velkého apetitu. Chce se ti víc, než se vejde — sliby, plány, výdaje. Období dává rozhled a chuť; žádá míru, aby z rozletu zůstalo něco skutečného.', conj: 'Rok nového cyklu růstu v této oblasti. Přichází prostor, důvěra a někdy i štěstí; co začneš teď, s tebou zůstane dvanáct let.' },
+    Saturn: { harm: 'Období, kdy se staví natrvalo. Práce má výsledky, závazky drží, trpělivost se vyplácí. Dává pevnou půdu; žádá poctivost a klid v tempu.', tense: 'Období zkoušky. Co v této oblasti stojí na pevných základech, obstojí a zesílí; co bylo jen zvyk nebo přání, se ukáže. Bývá to náročné a bývá to zakládající — dává zralost a jasno, žádá vytrvalost.', conj: 'Začátek nového cyklu odpovědnosti — Saturn v této oblasti přeskládává, co je opravdu tvé. Období dává dospělost a strukturu, žádá, abys věci vzal vážně a dotáhl.' },
+    Uranus: { harm: 'Období čerstvého vzduchu. Přicházejí nové nápady, lidé a cesty ven ze zajetých kolejí, a jde to lehce. Dává svobodu a překvapení, žádá jen ochotu vykročit.', tense: 'Období, kdy se hýbe zaběhané. Co v této oblasti ztuhlo, se láme — někdy zvenčí, někdy tvým vlastním rozhodnutím. Dává svobodu a pravdu o tom, co tě svazovalo; žádá pružnost a méně lpění.', conj: 'Zlom. Uran v této oblasti probouzí něco, co spalo, a život se tu na čas zrychlí. Období dává nový začátek a jiný pohled; žádá odvahu pustit staré podoby.' },
+    Neptune: { harm: 'Období jemnosti. Sílí intuice, tvořivost a soucit, hranice mezi tebou a světem měknou příjemným způsobem. Dává inspiraci a klid; žádá čas pro ticho, aby bylo slyšet.', tense: 'Období mlhy. V této oblasti je těžší vidět jasně — únava, idealizace, nejasné odhady. Dává citlivost a schopnost pustit iluzi; žádá, aby ses velká rozhodnutí naučil odkládat na jasnější dny a věřil spíš tělu než představám.', conj: 'Období rozpouštění. Co v této oblasti bylo pevné, měkne a mění tvar; přichází sen, inspirace i zmatek. Dává hlubší cit a tvorbu; žádá pevnou půdu jinde — spánek, tělo, rytmus.' },
+    Pluto: { harm: 'Období síly. V této oblasti máš přístup k hloubce a vytrvalosti, kterou jindy nemáš — dá se tu opravdu něco proměnit. Dává tah a pravdivost; žádá, aby síla sloužila něčemu většímu než ovládání.', tense: 'Období přestavby. Pluto tuto oblast pomalu a důkladně rozebírá až na základy; co není pravdivé, neobstojí, a tlak roste tam, kde se drží kontroly. Dává nejtrvalejší proměnu, jakou astrologie zná; žádá pustit řízení a nechat rozpadnout, co se rozpadá.', conj: 'Období smrti a zrození v této oblasti. Něco starého končí do hloubky a něco nového vzniká z kořenů. Dává sílu, kterou po něm už nikdo nevezme; žádá odvahu projít tmou beze spěchu.' },
+  };
   const ASP_VERB = { conj: 'zesiluje', sextile: 'podněcuje', trine: 'podporuje', square: 'tlačí na', opposition: 'zrcadlí' };
   const ASP_NAME = { conj: 'konjunkce', sextile: 'sextil', trine: 'trigon', square: 'kvadratura', opposition: 'opozice' };
   const ASP_HOW = { conj: 'obě témata splývají v jedno', sextile: 'příležitost, která chce malý krok', trine: 'jde to samo, snadno se přehlédne', square: 'tření, které nutí rozhodnout', opposition: 'dvě strany, které chtějí vyvážit' };
   function arcTitle(t) { return `${K.BODY_CZ[t.transit]} ${ASP_VERB[t.key] || t.glyph} ${NATAL_ACC[t.natal]}`; }
   function arcPhrase(t) {
     const base = t.key === 'conj' ? (TX.CONJ[t.transit] || '') : (t.kind === 'harm' ? TX.GO[t.transit] : TX.COST[t.transit]);
-    const dom = TX.DOMAIN[t.natal] ? ` — v oblasti, kde jde o ${TX.DOMAIN[t.natal]}` : '';
+    const dom = TX.DOMAIN[t.natal] ? ` — oblast: ${TX.DOMAIN[t.natal]}` : '';
     return base + dom;
   }
   const fmtD = (dt) => { const p = K.tzParts(dt, TZ); return `${p.d}. ${p.m}.`; };
@@ -280,19 +288,37 @@
     opts = opts || {};
     const list = transitArcs(y, m, d); if (!list.length) return opts.empty || '';
     const ref = K.dayStart(y, m, d, TZ);
-    const rows = list.slice(0, opts.max || 8).map(({ t, arc, pos, nextExact, lastExact, slow }) => {
-      const cls = t.key === 'conj' ? (t.weight > 0 ? 'harm' : t.weight < 0 ? 'tense' : '') : t.kind;
+    // seskupit dotyky téže planety a téhož aspektu, které běží ve stejném období
+    const groups = [];
+    for (const it of list) {
+      const g = groups.find(x => x.t.transit === it.t.transit && x.t.key === it.t.key && Math.abs(x.arc.start - it.arc.start) < 10 * 86400000 && Math.abs(x.arc.end - it.arc.end) < 10 * 86400000);
+      if (g) g.targets.push(it.t.natal); else groups.push({ ...it, targets: [it.t.natal] });
+    }
+    const kindOf = (t) => t.key === 'conj' ? 'conj' : t.kind;
+    const cls = (t) => t.key === 'conj' ? (t.weight > 0 ? 'harm' : t.weight < 0 ? 'tense' : '') : t.kind;
+    const joinT = (arr) => arr.map(k => NATAL_ACC[k]).join(arr.length > 1 ? ' a ' : '');
+    const line = (g) => {
+      const { arc, pos, nextExact, lastExact, t } = g;
       const days = Math.round((arc.end - ref) / 86400000);
-      const when = nextExact ? (Math.abs(nextExact - ref) < 86400000 ? 'přesně dnes' : `vrchol ${fmtDY(nextExact, y)}`) : (lastExact ? `vrchol byl ${fmtDY(lastExact, y)}` : '');
+      const peak = nextExact ? (Math.abs(nextExact - ref) < 86400000 ? 'přesně dnes' : `vrchol ${fmtDY(nextExact, y)}`) : (lastExact ? `vrchol byl ${fmtDY(lastExact, y)}` : '');
       const marks = arc.exact.map(x => `<i style="left:${(100 * (x - arc.start) / ((arc.end - arc.start) || 1)).toFixed(1)}%"></i>`).join('');
-      return `<div class="tarc ${cls} ${slow ? 'slow' : ''}">
-        <div class="tarc-h"><span class="g">${K.BODY_GLYPH[t.transit]}</span><b>${esc(arcTitle(t))}</b>${t.retro ? '<span class="rx" title="retrográdně">℞</span>' : ''}</div>
-        <div class="tarc-p">${esc(arcPhrase(t))}<span class="asp">${t.glyph} ${ASP_NAME[t.key] || ''} · ${ASP_HOW[t.key] || ''}</span></div>
-        <div class="tarc-bar"><span class="fill" style="width:${(pos * 100).toFixed(1)}%"></span>${marks}<em style="left:${(pos * 100).toFixed(1)}%"></em></div>
-        <div class="tarc-d"><span>od ${fmtDY(arc.start, y)}</span><span>${when}</span><span>do ${fmtDY(arc.end, y)}${days > 0 && days < 400 ? ` · ještě ${days} ${days === 1 ? 'den' : days < 5 ? 'dny' : 'dní'}` : ''}</span></div>
+      return `<div class="tarc-bar"><span class="fill" style="width:${(pos * 100).toFixed(1)}%"></span>${marks}<em style="left:${(pos * 100).toFixed(1)}%"></em></div>
+        <div class="tarc-d"><span>${fmtDY(arc.start, y)}</span><span class="pk">${peak}</span><span>${fmtDY(arc.end, y)}${days > 0 && days < 400 ? ` · ještě ${days} ${days === 1 ? 'den' : days < 5 ? 'dny' : 'dní'}` : ''}</span></div>`;
+    };
+    const slowG = groups.filter(g => g.slow), fastG = groups.filter(g => !g.slow);
+    const slowHTML = slowG.map(g => {
+      const t = g.t; const period = (PERIOD_TXT[t.transit] || {})[kindOf(t)] || arcPhrase(t);
+      const doms = g.targets.map(k => TX.DOMAIN[k]).filter(Boolean).join('; ');
+      return `<div class="tarc slow ${cls(t)}">
+        <div class="tarc-h"><span class="g">${K.BODY_GLYPH[t.transit]}</span><b>${esc(K.BODY_CZ[t.transit])} ${ASP_VERB[t.key] || ''} ${esc(joinT(g.targets))}</b>${t.retro ? '<span class="rx" title="retrográdně">℞</span>' : ''}</div>
+        <div class="tarc-p">${esc(period)}${doms ? `<span class="dom">Oblast: ${esc(doms)}.</span>` : ''}<span class="asp">${t.glyph} ${ASP_NAME[t.key] || ''} · ${ASP_HOW[t.key] || ''}</span></div>
+        ${line(g)}
       </div>`;
     }).join('');
-    return `<div class="tarcs">${rows}</div>`;
+    const fastHTML = fastG.length ? `<details class="tfast"><summary>Tento týden · rychlé tranzity (${fastG.length})</summary>${fastG.map(g => { const t = g.t; return `<div class="tarc fast ${cls(t)}">
+        <div class="tarc-h"><span class="g">${K.BODY_GLYPH[t.transit]}</span><b>${esc(K.BODY_CZ[t.transit])} ${ASP_VERB[t.key] || ''} ${esc(joinT(g.targets))}</b></div>
+        <div class="tarc-p">${esc(arcPhrase(t))}</div>${line(g)}</div>`; }).join('')}</details>` : '';
+    return `<div class="tarcs">${slowHTML || '<p class="note">Žádná pomalá planeta se teď tvé mapy nedotýká — klidné pozadí.</p>'}${fastHTML}</div>`;
   }
   // jedna věta pro kartu Dnes: nejsilnější pomalý tranzit, nebo nejtěsnější rychlý
   function arcSentence() {
@@ -770,7 +796,7 @@
   const observer = () => new A.Observer(+settings.loc.lat, +settings.loc.lon, +settings.loc.alt || 0);
   const activeProfile = () => profiles.find(p => p.id === activeId) || profiles[0];
   const rules = () => { const r = JSON.parse(JSON.stringify(K.DEFAULT_RULES)); r.thresholds.harm = +settings.rules.harm; r.thresholds.tense = +settings.rules.tense; r.vocHours = +settings.rules.vocHours; r.starOrb = +settings.rules.starOrb; return r; };
-  const NATAL_ACC = { Sun: 'tvé Slunce', Moon: 'tvou Lunu', Mercury: 'tvůj Merkur', Venus: 'tvou Venuši', Mars: 'tvůj Mars', Jupiter: 'tvůj Jupiter', Saturn: 'tvůj Saturn', Uranus: 'tvůj Uran', Neptune: 'tvůj Neptun', Pluto: 'tvé Pluto', Asc: 'tvůj Ascendent', MC: 'tvé MC' };
+  const NATAL_ACC = { Sun: 'tvé Slunce', Moon: 'tvou Lunu', Mercury: 'tvůj Merkur', Venus: 'tvou Venuši', Mars: 'tvůj Mars', Jupiter: 'tvůj Jupiter', Saturn: 'tvůj Saturn', Uranus: 'tvůj Uran', Neptune: 'tvůj Neptun', Pluto: 'tvé Pluto', Asc: 'tvůj Ascendent', MC: 'tvůj životní směr (MC)' };
   const ASP_LOC = { conj: 'konjunkci', sextile: 'sextilu', square: 'kvadratuře', trine: 'trigonu', opposition: 'opozici' };
   const NATAL_LOC = { Sun: 'tvém Slunci', Moon: 'tvé Luně', Mercury: 'tvém Merkuru', Venus: 'tvé Venuši', Mars: 'tvém Marsu', Jupiter: 'tvém Jupiteru', Saturn: 'tvém Saturnu', Uranus: 'tvém Uranu', Neptune: 'tvém Neptunu', Pluto: 'tvém Plutu', Asc: 'tvém Ascendentu', MC: 'tvém MC' };
   const CONJ_HINT = { Sun: 'zviditelnění, soustředění světla', Mercury: 'myšlenky, zprávy, domluvy', Venus: 'laskavost, krása, vztah', Mars: 'energie, tlak, spěch', Jupiter: 'otevírání, růst, důvěra', Saturn: 'zkouška, struktura, zpomalení', Uranus: 'zvrat, probuzení, změna', Neptune: 'rozpouštění, zjemnění, mlha', Pluto: 'přerod, intenzita, hloubka', Moon: 'citové naladění' };
