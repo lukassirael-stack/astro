@@ -1,6 +1,6 @@
 /* Kairos – service worker. Při každé změně index.html zvedni číslo verze. */
-const CACHE = 'kairos-v259';
-const SHELL = ['./', './index.html', './styles.css?v=259', './kairos-core.js?v=259', './data.js?v=259', './app.js?v=259', './astronomy.browser.min.js', './manifest.webmanifest', './logo.png', './logo-emblem.webp?v=1', './cyklus-dne.webp?v=1', './logo-stars.webp?v=1', './moon-tex.png?v=1', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './sky-day.webp?v=7', './sky-night.webp?v=4', './sky-night-hd2.webp?v=1', './sky-day-hd2.webp?v=1'];
+const CACHE = 'kairos-v260';
+const SHELL = ['./', './index.html', './styles.css?v=260', './kairos-core.js?v=260', './data.js?v=260', './app.js?v=260', './astronomy.browser.min.js', './manifest.webmanifest', './logo.png', './logo-emblem.webp?v=1', './cyklus-dne.webp?v=1', './logo-stars.webp?v=1', './moon-tex.png?v=1', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './sky-day.webp?v=7', './sky-night.webp?v=4', './sky-night-hd2.webp?v=1', './sky-day-hd2.webp?v=1'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL.map((u) => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));

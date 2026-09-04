@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v259';
+  const VERSION = 'v260';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2738,6 +2738,15 @@ ${parts}
     const n = S.natal, p = activeProfile();
     if (!n) { v.innerHTML = noNatalHTML('tvůj horoskop, domy a hvězdy'); return; }
     const keys = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Node', 'Asc', 'MC'];
+    const PT_WHAT = { Sun: 'jádro osobnosti, vůle a životní směr', Moon: 'pocity, potřeby a vnitřní pohoda', Mercury: 'myšlení, řeč a učení', Venus: 'vztahy, hodnoty a smysl pro krásu', Mars: 'síla, odvaha a schopnost jednat', Jupiter: 'růst, důvěra a příležitosti', Saturn: 'řád, odpovědnost a zrání', Uranus: 'svoboda, změna a originalita', Neptune: 'intuice, sen a soucit', Pluto: 'hloubka, moc a proměna', Node: 'směr růstu v tomto životě', Asc: 'jak vstupuješ do světa a jak tě druzí vidí', MC: 'životní směr, povolání a veřejná role' };
+    const ptsCards = keys.map(k => {
+      const pt = n.points[k]; const si = K.signOf(pt.lon); const h = pt.house;
+      const signTxt = k === 'Sun' ? HS.SUN[si] : k === 'Moon' ? HS.MOON[si] : k === 'Asc' ? HS.ASC[si] : (PT_SIGN[k] || [])[si] || '';
+      const houseTxt = (k !== 'Asc' && k !== 'MC' && h && PT_VERB[k]) ? `${PT_VERB[k]} hlavně v oblasti ${HS.HOUSE_AREA[h - 1]} (${h}. dům).` : '';
+      return `<details class="ptcard"><summary><span class="g">${K.BODY_GLYPH[k]}</span><b>${K.BODY_CZ[k]}${k === 'Node' ? ' (uzel)' : ''}</b><span class="sg">${K.SIGN_LOC_V[si]} · ${K.fmtLon(pt.lon)}${pt.retro && k !== 'Node' ? ' R' : ''}${h && k !== 'Asc' && k !== 'MC' ? ` · ${h}. dům` : ''}</span></summary>
+        <div class="ptbody"><p class="what">${PT_WHAT[k] || ''}.</p>${signTxt ? `<p>${signTxt}</p>` : ''}${houseTxt ? `<p class="muted">${houseTxt}</p>` : ''}${pt.retro && k !== 'Node' && k !== 'Sun' && k !== 'Moon' ? '<p class="muted">Retrográdní při narození: toto téma zraje dovnitř a projevuje se později, ale hlouběji.</p>' : ''}</div>
+      </details>`;
+    }).join('');
     const pts = keys.map(k => `<tr><td class="g">${K.BODY_GLYPH[k]}</td><td>${K.BODY_CZ[k]}${k === 'Node' ? ' (střední)' : ''}${k === 'Asc' ? ' <span class="muted small">· hrot 1. domu</span>' : (k === 'MC' ? ' <span class="muted small">· Medium Coeli, hrot 10. domu</span>' : '')}</td><td class="p">${K.fmtLon(n.points[k].lon)}${n.points[k].retro && k !== 'Node' ? '<span class="tone-tense"> R</span>' : ''}</td><td class="muted">${k === 'Asc' || k === 'MC' ? '' : n.points[k].house + '. dům'}</td></tr>`).join('')
       + `<tr><td class="g">Dsc</td><td>Descendent <span class="muted small">· hrot 7. domu, naproti Ascendentu</span></td><td class="p">${K.fmtLon(n.cusps[7])}</td><td class="muted"></td></tr>`
       + `<tr><td class="g">IC</td><td>Imum Coeli <span class="muted small">· hrot 4. domu, naproti MC</span></td><td class="p">${K.fmtLon(n.cusps[4])}</td><td class="muted"></td></tr>`;
@@ -2769,7 +2778,9 @@ ${parts}
       ${natalSumHTML(false)}
       <p class="note" style="margin:0 2px 10px">Ťukni na kartu — dozvíš se, co ten bod znamená a jak vychází tobě.</p>
       <div class="h3">Body nativu</div>
-      <table class="pts">${pts}</table>
+      <p class="note" style="margin-top:-4px">Každý bod otevři — u každého je, co znamená, jak ho máš ve znamení a kde v životě pracuje.</p>
+      ${ptsCards}
+      <details class="expl"><summary>Tabulka poloh</summary><table class="pts">${pts}</table></details>
       <details class="expl"><summary>Co ty body znamenají?</summary><div class="card small">
         <p><b>☉ Slunce</b> — jádro osobnosti, vůle a životní směr · <b>☽ Luna</b> — pocity, potřeby a vnitřní svět · <b>☿ Merkur</b> — myšlení, řeč a domluva · <b>♀ Venuše</b> — láska, vztahy a hodnoty · <b>♂ Mars</b> — energie, odvaha a prosazení · <b>♃ Jupiter</b> — růst, štěstí a příležitosti · <b>♄ Saturn</b> — řád, hranice a životní lekce · <b>♅ Uran</b> — svoboda, změny a originalita · <b>♆ Neptun</b> — intuice, sny a citlivost · <b>♇ Pluto</b> — hloubka a proměna · <b>☊ Uzel</b> — směr, kterým duše roste · <b>Asc</b> — jak působíš navenek · <b>MC</b> — povolání a veřejná role.</p>
         <p class="note">Znamení říká, v jakém ladění bod pracuje. Stupeň je přesná poloha ve znamení. Dům říká, ve které oblasti života se projevuje nejvíc.</p>

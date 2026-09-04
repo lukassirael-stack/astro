@@ -915,3 +915,15 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .ntile b{font-family:var(--display);font-size:var(--fs-l);font-weight:600;line-height:1.2}
 .ntile small{font-size:var(--fs-s);color:var(--muted);line-height:1.35}
 .ntile:active{transform:translateY(1px)}
+
+/* body mapy jako karty */
+.ptcard{margin:0 0 6px;background:var(--glass);border:1px solid var(--hairline);border-radius:12px}
+.ptcard>summary{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:var(--fs-m);color:var(--text);text-transform:none;letter-spacing:0}
+.ptcard>summary::before{content:none}
+.ptcard>summary .g{color:var(--gold);width:18px;text-align:center;font-size:var(--fs-l)}
+.ptcard>summary b{font-weight:600;flex:none}
+.ptcard>summary .sg{margin-left:auto;font-size:var(--fs-s);color:var(--muted);text-align:right}
+.ptbody{padding:0 12px 12px 40px}
+.ptbody p{margin:0 0 8px;line-height:1.6;font-size:var(--fs-m);color:var(--text)}
+.ptbody p.what{font-size:var(--fs-s);color:var(--gold);letter-spacing:.02em}
+.ptbody p.muted{color:var(--muted);font-size:var(--fs-s)}
