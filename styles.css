@@ -927,3 +927,9 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .ptbody p{margin:0 0 8px;line-height:1.6;font-size:var(--fs-m);color:var(--text)}
 .ptbody p.what{font-size:var(--fs-s);color:var(--gold);letter-spacing:.02em}
 .ptbody p.muted{color:var(--muted);font-size:var(--fs-s)}
+
+.stardeep{margin-top:8px;padding:8px 0 0;border-top:1px solid var(--hairline)}
+.stardeep p{margin:0 0 6px;font-size:var(--fs-m);line-height:1.6;color:var(--text)}
+.stardeep p.rod{color:var(--gold);font-family:var(--display);font-size:var(--fs-l)}
+.stardeep p b{color:var(--gold);font-weight:600;margin-right:4px}
+.returns .yrs{color:var(--muted);letter-spacing:.03em}
