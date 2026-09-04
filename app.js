@@ -106,6 +106,43 @@
     _trPending = requestAnimationFrame(() => { _trPending = null; for (const m of muts) for (const n of m.addedNodes) { if (n.nodeType === 1) translateDOM(n); else if (n.nodeType === 3) { const t = skText(n.nodeValue); if (t !== n.nodeValue) n.nodeValue = t; } } });
   }).observe(document.body, { childList: true, subtree: true });
 
+  // ---------- příroda a obloha: zahrádkář, zlatá a modrá hodina, tmavé noci ----------
+  // Lunární zahrádkář: živel znamení Luny říká, která část rostliny je „ve hře"
+  const GARDEN = [
+    ['plodový den', 'oheň', 'setí a sklizeň plodů — rajčata, fazole, obilí, ovoce'],
+    ['kořenový den', 'země', 'kořenová zelenina, brambory, cibule; dobrý i na přesazování'],
+    ['květový den', 'vzduch', 'květiny, brokolice, květák; řez a vazba kytic'],
+    ['listový den', 'voda', 'listová zelenina, saláty, bylinky na list; zalévání a hnojení'],
+  ];
+  function gardenLine(da) {
+    const g = GARDEN[da.moonSign % 4];
+    const grow = da.phaseAngle < 180;
+    return { kind: g[0], el: g[1], tip: g[2], phase: grow ? 'dorůstající Luna — čas sít, sázet a roubovat' : 'couvající Luna — čas sklízet, prořezávat a ošetřovat půdu' };
+  }
+  // zlatá hodina: Slunce mezi −4° a +6°; modrá hodina: mezi −6° a −4°; tmavá noc: konec astronomického soumraku (−18°)
+  const _twCache = {};
+  function twilight(y, m, d, obs) {
+    const k = `${y}-${m}-${d}`; if (_twCache[k]) return _twCache[k];
+    const start = A.MakeTime(K.dayStart(y, m, d, TZ));
+    const at = (dir, alt) => { try { const r = A.SearchAltitude('Sun', obs, dir, start, 1, alt); return r ? r.date : null; } catch (e) { return null; } };
+    const out = { goldAM: [at(+1, -4), at(+1, 6)], goldPM: [at(-1, 6), at(-1, -4)], blueAM: [at(+1, -6), at(+1, -4)], bluePM: [at(-1, -4), at(-1, -6)], astroDawn: at(+1, -18), astroDusk: at(-1, -18) };
+    return (_twCache[k] = out);
+  }
+  // tmavá noc: od konce astronomického soumraku do dalšího svítání je Luna pod obzorem aspoň dvě hodiny
+  function darkNight(y, m, d, obs, moonrise, moonset) {
+    const tw = twilight(y, m, d, obs); if (!tw.astroDusk) return null;
+    const next = K.tzParts(new Date(tw.astroDusk.getTime() + 20 * 3600000), TZ);
+    const tw2 = twilight(next.y, next.m, next.d, obs); if (!tw2.astroDawn) return null;
+    const n0 = tw.astroDusk.getTime(), n1 = tw2.astroDawn.getTime();
+    // poloha Luny během noci po půlhodinách
+    let dark = 0, from = null, to = null;
+    for (let t = n0; t < n1; t += 1800000) {
+      const eq = A.Equator('Moon', A.MakeTime(new Date(t)), obs, true, true); const hz = A.Horizon(A.MakeTime(new Date(t)), obs, eq.ra, eq.dec, 'normal');
+      if (hz.altitude < -2) { dark += 0.5; if (from == null) from = t; to = t + 1800000; } else if (from != null && to != null && dark >= 2) break;
+    }
+    if (dark < 2 || from == null) return null;
+    return { from: new Date(from), to: new Date(Math.min(to, n1)), hours: dark };
+  }
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
   function easterSunday(y) {
@@ -1210,7 +1247,13 @@
         <div><span class="badge ${da.color}">${TX.dayWord(da)}</span></div>
       </div>`}
       ${isToday ? '' : `<p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;% osvětlení</p>
-      <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>${holidayFor(y, m, d) ? `<p class="day-hol ${holidayFor(y, m, d).f ? 'free' : 'trad'}">${esc(holidayLine(y, m, d))}</p>` : ''}`}
+      <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>${holidayFor(y, m, d) ? `<p class="day-hol ${holidayFor(y, m, d).f ? 'free' : 'trad'}">${esc(holidayLine(y, m, d))}</p>` : ''}
+      ${(() => { const tw = twilight(y, m, d, obs); const f = (x) => x ? K.fmtTime(x, TZ) : '–'; const dn = darkNight(y, m, d, obs, moonrise, moonset); const g = gardenLine(da);
+        return `<div class="nature">
+          <p><span class="nl">zlatá hodina</span>${f(tw.goldAM[0])}–${f(tw.goldAM[1])} · ${f(tw.goldPM[0])}–${f(tw.goldPM[1])}<span class="nl">modrá hodina</span>${f(tw.blueAM[0])}–${f(tw.blueAM[1])} · ${f(tw.bluePM[0])}–${f(tw.bluePM[1])}</p>
+          ${dn ? `<p><span class="nl">tmavá noc</span>Luna pod obzorem ${f(dn.from)}–${f(dn.to)} — ${dn.hours >= 4 ? 'Mléčná dráha a slabé hvězdy jsou dobře vidět' : 'krátké okno na hvězdy bez Luny'}</p>` : ''}
+          <p><span class="nl">zahrádkář</span><b>${g.kind}</b> (Luna ${SIGN_LOC[['Beran','Býk','Blíženc','Rak','Lv','Pann','Váh','Štír','Střelc','Kozoroh','Vodnář','Ryb'][da.moonSign]]}) — ${g.tip} · ${g.phase}</p>
+        </div>`; })()}`}
       ${isToday ? '' : (() => { const r = TX.dayReading(da, dayEv); return `<p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p>`; })()}
       ${(() => {
         const key = K.isoDate(y, m, d), sd = sdForDay(y, m, d), mine = pGet(key), gv = gEvByDay(key);
@@ -2175,6 +2218,12 @@ ${parts}
     [/Luna u /i, 'Luna se na obloze přiblíží k planetě nebo jasné hvězdě. Krásný pohled pouhým okem, obvykle jeden večer nebo ráno.'],
     [/obrací do retrogradity/i, 'Planeta se ze Země začne jevit jako couvající. Bývá to čas návratů, revizí a doladění rozdělaného.'],
     [/vrací do přímého pohybu/i, 'Planeta po couvání znovu vykročí vpřed. Odložené věci se rozjíždějí a co se přehodnotilo, dostává směr.'],
+    [/^Imbolc$/, 'Brána mezi zimním slunovratem a jarní rovnodenností: Slunce stojí přesně v 15° Vodnáře. Světla znatelně přibývá, pod sněhem se hýbe život. Tradičně čas očisty, světla a prvních záměrů roku.'],
+    [/^Beltain$/, 'Brána mezi jarní rovnodenností a letním slunovratem: Slunce v 15° Býka. Vrchol rozkvětu a plodnosti — ohně, tanec, spojení. Tradičně nejradostnější z bran roku.'],
+    [/^Lughnasad$/, 'Brána mezi letním slunovratem a podzimní rovnodenností: Slunce v 15° Lva. První sklizeň, chléb z nového obilí, vděčnost za to, co dozrálo, a první tušení, že se rok obrací.'],
+    [/^Samhain$/, 'Brána mezi podzimní rovnodenností a zimním slunovratem: Slunce v 15° Štíra. Konec starého roku v kole, čas předků a ticha, kdy se závoj mezi světy ztenčuje. Dušičky k tomu patří.'],
+    [/Luna v perigeu/i, 'Luna je na své dráze nejblíž Zemi — vypadá o kousek větší a přílivy jsou silnější. Když se to sejde s úplňkem, říká se tomu superúplněk.'],
+    [/Luna v apogeu/i, 'Luna je na své dráze nejdál od Země — zdánlivě menší, přílivy slabší. Úplněk v apogeu je mikroúplněk.'],
     [/kometa|Kometa/i, 'Ledové těleso z okraje sluneční soustavy se přiblížilo ke Slunci a rozsvítilo se. Jasnost komet se odhaduje těžko, tak stojí za to sledovat aktuální zprávy.'],
   ];
   // ---------- ingresy: co která planeta v novém znamení přináší ----------

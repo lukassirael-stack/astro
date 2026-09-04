@@ -586,6 +586,12 @@ function createKairosEngine(A) {
         else if (distKm > 405000) { note += ` · mikroúplněk (${Math.round(distKm / 1000)} tis. km)`; extra.special = 'micro'; }
         if (natal) for (const st of natal.stars.filter(s => s.mine)) { const o = Math.abs(diff(ml, st.lonNow)); if (o <= 2) { note += ` · ✦ na tvé hvězdě ${st.name}`; extra.resonance = true; } }
       }
+      try {
+        if (q.quarter === 0 || q.quarter === 2) {
+          const ap = A.SearchLunarApsis(T(new Date(q.date.getTime() - 2 * 86400000)));
+          if (ap && Math.abs(ap.time.date - q.date) < 36 * 3600000) { if (ap.kind === 0) note += q.quarter === 2 ? ' · superúplněk (Luna blízko perigea)' : ' · Luna blízko perigea, silnější příliv'; else if (q.quarter === 2) note += ' · mikroúplněk (Luna blízko apogea)'; }
+        }
+      } catch (e) { }
       push(q.date, 'luna', names[q.quarter], note, extra);
     }
     // zatmění Luny
@@ -621,6 +627,24 @@ function createKairosEngine(A) {
       const list = [[s.mar_equinox, 'Jarní rovnodennost', 'Slunce vstupuje do Berana · začátek astrologického roku'], [s.jun_solstice, 'Letní slunovrat', 'Slunce vstupuje do Raka · nejdelší den'], [s.sep_equinox, 'Podzimní rovnodennost', 'Slunce vstupuje do Vah'], [s.dec_solstice, 'Zimní slunovrat', 'Slunce vstupuje do Kozoroha · nejdelší noc']];
       for (const [t, title, note] of list) if (t.date >= d0 && t.date < d1) push(t.date, 'slunce', title, note);
     }
+    // Kolo roku: čtyři mezidny přesně v 15° pevných znamení (astronomicky, ne podle data)
+    {
+      const gates = [[315, 'Imbolc', 'Slunce v 15° Vodnáře · brána ke světlu, první náznak jara'], [45, 'Beltain', 'Slunce v 15° Býka · brána léta, vrchol rozkvětu'], [135, 'Lughnasad', 'Slunce v 15° Lva · brána sklizně, první plody'], [225, 'Samhain', 'Slunce v 15° Štíra · brána zimy, čas předků a ticha']];
+      for (const [lon, title, note] of gates) {
+        let t = A.SearchSunLongitude(lon, T(new Date(d0.getTime() - 86400000)), 400);
+        while (t && t.date < d1) { if (t.date >= d0) push(t.date, 'slunce', title, note, { wheel: true }); t = A.SearchSunLongitude(lon, T(new Date(t.date.getTime() + 300 * 86400000)), 400); }
+      }
+    }
+    // Luna nejblíž a nejdál: perigeum a apogeum
+    try {
+      let ap = A.SearchLunarApsis(T(d0));
+      while (ap && ap.time.date < d1) {
+        const peri = ap.kind === 0;
+        const km = Math.round(ap.dist_km / 1000) * 1000;
+        push(ap.time.date, 'luna', peri ? 'Luna v perigeu' : 'Luna v apogeu', `${peri ? 'nejblíž Zemi' : 'nejdál od Země'} · ${km.toLocaleString('cs-CZ')} km`, { apsis: peri ? 'peri' : 'apo' });
+        ap = A.NextLunarApsis(ap);
+      }
+    } catch (e) { }
     // opozice vnějších planet, elongace a konjunkce vnitřních
     for (const b of ['Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']) {
       let t = A.SearchRelativeLongitude(b, 180, T(d0));
