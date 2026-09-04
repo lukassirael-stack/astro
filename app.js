@@ -2164,7 +2164,37 @@ ${parts}
     [/vrací do přímého pohybu/i, 'Planeta po couvání znovu vykročí vpřed. Odložené věci se rozjíždějí a co se přehodnotilo, dostává směr.'],
     [/kometa|Kometa/i, 'Ledové těleso z okraje sluneční soustavy se přiblížilo ke Slunci a rozsvítilo se. Jasnost komet se odhaduje těžko, tak stojí za to sledovat aktuální zprávy.'],
   ];
-  function evWhat(title) { const h = EV_WHAT.find(([re]) => re.test(title)); return h ? h[1] : ''; }
+  // ---------- ingresy: co která planeta v novém znamení přináší ----------
+  const SIGN_KEY = ['Beran','Býk','Blíženc','Rak','Lv','Pann','Váh','Štír','Střelc','Kozoroh','Vodnář','Ryb'];
+  const INGRESS_BODY = {
+    'Slunce': { d: 'zhruba měsíc', t: 'Roční oddíl se láme a s ním celková nálada období. Sluneční znamení určuje, co má příští týdny hlavní slovo.' },
+    'Merkur': { d: 'dva až tři týdny', t: 'Mění se způsob, jakým se domlouváme, píšeme a přemýšlíme — tón hovorů, jednání a rozhodování.' },
+    'Venuše': { d: 'tři až čtyři týdny', t: 'Mění se, co nás přitahuje a co považujeme za krásné — chuť ve vztazích, penězích i pohodlí.' },
+    'Mars': { d: 'šest až sedm týdnů', t: 'Mění se, kudy jde síla a odvaha — čím se pouštíme do věcí a co nás dokáže vytočit.' },
+    'Jupiter': { d: 'asi rok', t: 'Mění se oblast, kde se otevírá prostor a přichází růst. Velký pomalý posun, který ovlivní celý rok.' },
+    'Saturn': { d: 'dva a půl roku', t: 'Mění se oblast, která žádá řád, trpělivost a poctivou práci. Dlouhý úsek, do kterého se dozrává.' },
+    'Uran': { d: 'sedm let', t: 'Mění se pole, kde se hýbe zaběhané a přichází nečekané. Generační posun, který doznívá roky.' },
+    'Neptun': { d: 'čtrnáct let', t: 'Mění se pole, kde se rozpouštějí hranice a sílí představivost i citlivost. Velmi pomalý příliv.' },
+    'Pluton': { d: 'kolem dvaceti let', t: 'Mění se pole hluboké proměny — co se rozpadne, aby mohlo vzniknout znovu. Nejpomalejší z posunů.' },
+    'Luna': { d: 'dva až tři dny', t: 'Mění se barva nálady dne. Nejrychlejší ze všech posunů — projeví se hned a za pár dní je jinak.' },
+  };
+  const SIGN_TONE = {
+    'Beran': 'rozběh, přímost a chuť začínat', 'Býk': 'klid, hmatatelnost a smysl pro trvanlivost',
+    'Blíženc': 'zvědavost, hovory a lehkost', 'Rak': 'péči, domov a citlivost',
+    'Lv': 'srdce, viditelnost a radost z tvoření', 'Pann': 'pořádek, detail a službu věci',
+    'Váh': 'vyváženost, vztahy a smysl pro krásu', 'Štír': 'hloubku, opravdovost a proměnu',
+    'Střelc': 'rozhled, důvěru a chuť za obzor', 'Kozoroh': 'řád, vytrvalost a odpovědnost',
+    'Vodnář': 'nadhled, svobodu a nové cesty', 'Ryb': 'prostupnost, soucit a představivost',
+  };
+  function ingressWhat(title) {
+    const m = title.match(/^(\S+)\s+vstupuje do\s+(.+)$/);
+    if (!m) return '';
+    const body = INGRESS_BODY[m[1]]; if (!body) return '';
+    const key = SIGN_KEY.find(k => m[2].startsWith(k));
+    const tone = key ? SIGN_TONE[key] : '';
+    return `${body.t}${tone ? ` Nové znamení k tomu přidává ${tone}.` : ''} ${m[1]} v něm zůstane ${body.d}.`;
+  }
+  function evWhat(title) { const ing = ingressWhat(title); if (ing) return ing; const h = EV_WHAT.find(([re]) => re.test(title)); return h ? h[1] : ''; }
   function renderEvents() {
     const v = $('#view-ukazy');
     if (!S.natal) { v.innerHTML = noNatalHTML('úkazy roku dopředu a to, jak se dotknou právě tebe'); return; }
