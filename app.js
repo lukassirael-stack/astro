@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v262';
+  const VERSION = 'v263';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2653,8 +2653,9 @@ ${parts}
     const monthEvs = evs.filter(e => ['luna', 'planety', 'slunce', 'zatmeni'].includes(e.cat) && !(e.conj)).map(e => `<li><span class="g">${ico(CAT_ICON[e.cat])}</span><span class="t">${esc(e.title)}<span class="n">${K.fmtDateCz(e.date, TZ)} ${K.fmtTime(e.date, TZ)}${e.note ? ' · ' + esc(e.note) : ''}</span></span></li>`).join('');
     const vocList = ctx.voc.filter(vv => K.tzParts(new Date(vv.to), TZ).m === m && K.tzParts(new Date(vv.to), TZ).y === y).map(vv => `<li><span class="g">∅</span><span class="t">${K.fmtDateCz(new Date(vv.from), TZ)} ${K.fmtTime(new Date(vv.from), TZ)} → ${K.fmtDateCz(new Date(vv.to), TZ)} ${K.fmtTime(new Date(vv.to), TZ)}<span class="n">${vv.lastAspect ? 'poslední aspekt ' + vv.lastAspect.glyph + ' ' + K.BODY_CZ[vv.lastAspect.target] + ' · ' : ''}vstup do ${K.SIGN_GEN[vv.toSign]}</span></span></li>`).join('');
     v.innerHTML = `
-      <div class="monthbar"><button class="navbtn" data-act="ephPrev" aria-label="Předchozí měsíc">‹</button><div class="mn">${K.MONTH_CZ[m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[m - 1].slice(1)}<em>${y}</em></div><div class="row"><button type="button" class="btn ghost small" data-act="ephCsv">Stáhnout CSV</button><button class="navbtn" data-act="ephNext" aria-label="Další měsíc">›</button></div></div>
+      <div class="monthbar"><button class="navbtn" data-act="ephPrev" aria-label="Předchozí měsíc">‹</button><div class="mn">${K.MONTH_CZ[m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[m - 1].slice(1)}<em>${y}</em></div><button class="navbtn" data-act="ephNext" aria-label="Další měsíc">›</button></div>
       <p class="note">Geocentrické tropické polohy o půlnoci našeho času (začátek dne). R = retrográdní pohyb. Řádky zlatě = den novoluní, čtvrti nebo úplňku.</p>
+      <div class="row" style="margin:0 0 10px"><button type="button" class="btn ghost small" data-act="ephCsv">Stáhnout CSV</button></div>
       <div class="eph-wrap">${t}</div>
       <div class="h3">Ingresy, stanice, fáze</div><ul class="list">${monthEvs || '<li class="muted">—</li>'}</ul>
       <div class="h3">Luna bez kurzu</div><ul class="list">${vocList || '<li class="muted">—</li>'}</ul>`;
