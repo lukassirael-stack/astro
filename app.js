@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v267';
+  const VERSION = 'v268';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2948,7 +2948,8 @@ ${parts}
     const kpTxt = S.kpUpdated ? `${kpNow}<div class="small">výhled na ${kpDays} dní · aktualizováno ${K.fmtDateCz(new Date(S.kpUpdated), TZ)} ${K.fmtTime(new Date(S.kpUpdated), TZ)}</div>` : '<div class="small">zatím staženo nic — stáhne se při připojení</div>';
     v.innerHTML = `
       <div class="h2">Profil</div>
-      <div class="row">${profiles.length > 1 ? `<select class="btn profsel" id="profileSelect" aria-label="Aktivní profil">${opts}</select>` : ''}<button type="button" class="btn ghost" data-act="newProfile">Přidat osobu</button>${profiles.length > 1 ? '<button type="button" class="btn ghost" data-act="deleteProfile">Smazat</button>' : ''}</div>
+      ${profiles.length > 1 ? `<div class="row"><select class="btn profsel" id="profileSelect" aria-label="Aktivní profil">${opts}</select><button type="button" class="btn ghost" data-act="deleteProfile">Smazat</button></div>` : ''}
+      <p class="note" style="margin:-2px 0 8px">Kompas je pro jednoho — tvou mapu. Další lidi přidáš v O tobě → Vztahy, bez omezení.</p>
       <form class="form card" id="profileForm" onsubmit="return false">
         <label class="wide">Jméno<input name="name" value="${esc(p.name)}"></label>
         <label>Datum narození<input name="date" type="date" value="${p.y}-${pad(p.m)}-${pad(p.d)}"></label>
@@ -3063,7 +3064,7 @@ ${parts}
       <p class="note" style="margin-top:8px">Sdílení pošle odkaz na Kompas — druhý si ho otevře v prohlížeči a může si ho přidat na plochu stejně jako ty. Tvá data zůstávají jen u tebe; každý začíná se svým nativem.</p>
       <p class="note" data-act="verTap" style="cursor:default">Nebeský kompas ${VERSION}${store.get('kairos_plus', false) ? ' · plná verze' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
       <p class="note">Jazyk aplikace je záměrně „tohle je ve hře, tohoto si všímej“. Žádná barva dne není předpověď a nerozhoduje za tebe.</p></div>`;
-    const sel = $('#profileSelect', v); sel.addEventListener('change', () => actions.switchProfile(sel));
+    const sel = $('#profileSelect', v); if (sel) sel.addEventListener('change', () => actions.switchProfile(sel));
   }
   function saveProfileForm() {
     const f = $('#profileForm');
