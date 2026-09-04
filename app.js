@@ -559,6 +559,10 @@
     '◉': _ic('<circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="7" r="2.4" fill="currentColor"/>'),
     '☄': _ic('<circle cx="9.6" cy="4.4" r="2.4" fill="currentColor"/><path d="M7.6 6.4 2 12M6.4 4.6 1.4 8.8M9.4 7.6 5.2 12.6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>'),
     '♃': _ic('<path d="M3.2 4.2c1.2-2 4.3-1.9 4.3.6 0 1.7-1.8 2.3-3.4 4.4h7.2M8.9 3.4v9" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"/>'),
+    '℞': _ic('<path d="M3.6 12V2.4h3.1a2.6 2.6 0 0 1 0 5.2H3.6m3.2 0 2.3 4.4M6.9 8.4l3.6 3.6M10.5 8.4l-3.6 3.6" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"/>'),
+    '⟳': _ic('<path d="M11.4 7A4.4 4.4 0 1 1 9.8 3.6M9.4 1.6l.6 2.4-2.4.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>'),
+    '☌': _ic('<circle cx="7" cy="8.8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.3 6.5 12.4 3.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'),
+    '☍': _ic('<circle cx="4" cy="10" r="2.4" fill="none" stroke="currentColor" stroke-width="1.15"/><circle cx="10" cy="4" r="2.4" fill="none" stroke="currentColor" stroke-width="1.15"/><path d="M5.7 8.3 8.3 5.7" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/>'),
     '✳': _ic('<path d="M7 1.6v10.8M2.3 4.3l9.4 5.4M2.3 9.7l9.4-5.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'),
   };
   const ico = (g) => ICO[g] || g;
@@ -2180,21 +2184,107 @@ ${parts}
   };
   const SIGN_TONE = {
     'Beran': 'rozběh, přímost a chuť začínat', 'Býk': 'klid, hmatatelnost a smysl pro trvanlivost',
-    'Blíženc': 'zvědavost, hovory a lehkost', 'Rak': 'péči, domov a citlivost',
-    'Lv': 'srdce, viditelnost a radost z tvoření', 'Pann': 'pořádek, detail a službu věci',
-    'Váh': 'vyváženost, vztahy a smysl pro krásu', 'Štír': 'hloubku, opravdovost a proměnu',
-    'Střelc': 'rozhled, důvěru a chuť za obzor', 'Kozoroh': 'řád, vytrvalost a odpovědnost',
-    'Vodnář': 'nadhled, svobodu a nové cesty', 'Ryb': 'prostupnost, soucit a představivost',
+    'Blíženc': 'zvědavost, hovory a lehkost', 'Rak': 'péče, domov a citlivost',
+    'Lv': 'srdce, viditelnost a radost z tvoření', 'Pann': 'pořádek, detail a služba věci',
+    'Váh': 'vyváženost, vztahy a smysl pro krásu', 'Štír': 'hloubka, opravdovost a proměna',
+    'Střelc': 'rozhled, důvěra a chuť za obzor', 'Kozoroh': 'řád, vytrvalost a odpovědnost',
+    'Vodnář': 'nadhled, svoboda a nové cesty', 'Ryb': 'prostupnost, soucit a představivost',
   };
-  function ingressWhat(title) {
-    const m = title.match(/^(\S+)\s+vstupuje do\s+(.+)$/);
-    if (!m) return '';
-    const body = INGRESS_BODY[m[1]]; if (!body) return '';
-    const key = SIGN_KEY.find(k => m[2].startsWith(k));
-    const tone = key ? SIGN_TONE[key] : '';
-    return `${body.t}${tone ? ` Nové znamení k tomu přidává ${tone}.` : ''} ${m[1]} v něm zůstane ${body.d}.`;
+  // ---------- výklady úkazů: konkrétní podle tělesa a znamení ----------
+  const BODY_GLYPH_CZ = { 'Slunce': '☉', 'Luna': '☽', 'Merkur': '☿', 'Venuše': '♀', 'Mars': '♂', 'Jupiter': '♃', 'Saturn': '♄', 'Uran': '♅', 'Neptun': '♆', 'Pluton': '♇' };
+  // téma tělesa v 1. pádu (pro skládané věty)
+  const BODY_THEME = { 'Slunce': 'vůle a životní střed', 'Luna': 'nálada a potřeby', 'Merkur': 'myšlení a řeč', 'Venuše': 'vztahy, krása a hodnoty', 'Mars': 'síla a odvaha', 'Jupiter': 'růst a důvěra', 'Saturn': 'řád a trpělivost', 'Uran': 'změna a svoboda', 'Neptun': 'sen, cit a soucit', 'Pluton': 'hloubka a proměna' };
+  // 2. pád jmen těles v názvech (Luna u Venuše, Konjunkce Venuše a Jupitera)
+  const BODY_FROM_GEN = { 'Slunce': 'Slunce', 'Luny': 'Luna', 'Merkuru': 'Merkur', 'Venuše': 'Venuše', 'Marsu': 'Mars', 'Jupitera': 'Jupiter', 'Saturnu': 'Saturn', 'Uranu': 'Uran', 'Neptunu': 'Neptun', 'Plutona': 'Pluton' };
+  const SIGN_RE = [[/^Beran/, 'Beran'], [/^Býk/, 'Býk'], [/^Blíženc/, 'Blíženc'], [/^Rak/, 'Rak'], [/^L(v|ev)/, 'Lv'], [/^Pann/, 'Pann'], [/^Váh/, 'Váh'], [/^Štír/, 'Štír'], [/^Střel/, 'Střelc'], [/^Kozoroh/, 'Kozoroh'], [/^Vodnář/, 'Vodnář'], [/^Ryb/, 'Ryb']];
+  const SIGN_LOC = { 'Beran': 'v Beranu', 'Býk': 'v Býku', 'Blíženc': 'v Blížencích', 'Rak': 'v Raku', 'Lv': 've Lvu', 'Pann': 'v Panně', 'Váh': 've Vahách', 'Štír': 've Štíru', 'Střelc': 've Střelci', 'Kozoroh': 'v Kozorohu', 'Vodnář': 've Vodnáři', 'Ryb': 'v Rybách' };
+  const signKeyOf = (s) => { const h = SIGN_RE.find(([re]) => re.test(s || '')); return h ? h[1] : null; };
+  const signFromNote = (note) => { const m = (note || '').match(/\d+°(?:\d+′)?\s+([^\s·]+)/); return m ? signKeyOf(m[1]) : null; };
+  const RETRO_BODY = {
+    'Merkur': ['zhruba tři týdny', 'Nejčastěji se to pozná na domluvách, cestách a technice: co jde vyřídit, chce druhé přečtení, a věci z minulosti se vracejí k dořešení. Dobrý čas na revizi, špatný na podpis, který nejde vzít zpět.'],
+    'Venuše': ['zhruba šest týdnů', 'Vracejí se témata vztahů a hodnot: staří známí, nedořešené city, přehodnocení toho, co má pro tebe cenu. Velké kroky ve vztazích a větší nákupy snesou odklad.'],
+    'Mars': ['dva až dva a půl měsíce', 'Síla jde dovnitř místo ven: rozjeté věci zpomalují, tlak vyvolává tření. Dobrý čas dokončovat a trénovat trpělivost, nový boj nezačínat.'],
+    'Jupiter': ['zhruba čtyři měsíce', 'Růst se přesouvá z vnějšího do vnitřního: méně expanze, víc porozumění tomu, co už máš. Velké plány zrají, místo aby se rozjížděly.'],
+    'Saturn': ['zhruba čtyři a půl měsíce', 'Řád se přehodnocuje: struktury, závazky a odpovědnosti procházejí zkouškou, zda ještě drží. Co je pevné, obstojí; co bylo jen zvyk, se ukáže.'],
+    'Uran': ['zhruba pět měsíců', 'Změna se odehrává uvnitř, ne navenek: člověk si teprve uvědomuje, co ho svazuje. Vnější zvraty přijdou až po návratu k přímému pohybu.'],
+    'Neptun': ['zhruba pět a půl měsíce', 'Závoje se odhrnují: co bylo idealizované, se ukáže střízlivěji. Čas na pravdu vůči sobě, dobrý pro tvorbu a vnitřní práci.'],
+    'Pluton': ['zhruba pět a půl měsíce', 'Hluboká proměna zpomalí a prohloubí se: co se má rozpadnout, se rozpadá tiše a zevnitř. Pomalý, ale nejtrvalejší z retrográdních pohybů.'],
+  };
+  const DIRECT_BODY = {
+    'Merkur': 'Domluvy, cesty a technika se zase rozjíždějí; co bylo přehodnoceno, se dá podepsat. Prvních pár dní ještě doznívá, plná rychlost přijde do dvou týdnů.',
+    'Venuše': 'Vztahy a hodnoty se zase dívají dopředu. Co retrograda vrátila k přezkoumání, dostává jasnou odpověď.',
+    'Mars': 'Síla se vrací ven — rozjeté věci znovu nabírají tempo a co se odkládalo, se dá udělat.',
+    'Jupiter': 'Růst se obrací navenek: plány, které měsíce zrály, se dají rozjet.',
+    'Saturn': 'Co obstálo v přezkoumání, se dá stavět dál. Závazky, které přežily, jsou teď pevnější.',
+    'Uran': 'Změna, kterou sis uvědomil, se začíná dít i navenek.',
+    'Neptun': 'Sny a tvorba dostávají zase proud; co ses o sobě dozvěděl, se dá žít.',
+    'Pluton': 'Hluboká proměna dostává směr: co se rozpadlo, uvolňuje místo novému.',
+  };
+  const LUNA_NEAR = {
+    'Venuše': 'Nejjasnější planeta vedle Luny — nejkrásnější z těchto setkání, obvykle za soumraku nebo před svítáním. Tradičně večer pro něhu a smíření.',
+    'Jupiter': 'Zlatavá tečka vedle Luny, dobře viditelná i ve městě. Setkání Luny s planetou růstu — tradičně příznivá chvíle pro velkorysost.',
+    'Mars': 'Načervenalá tečka vedle Luny. Setkání nálady se silou — tradičně den, kdy emoce mají tah, tak s nimi zacházej vědomě.',
+    'Saturn': 'Bledě žlutá tečka vedle Luny. Setkání nálady s řádem — tradičně tišší, vážnější den, dobrý na povinnosti.',
+    'Merkur': 'Drobná tečka u Luny nízko nad obzorem, vidět jen za dobrých podmínek. Nálada a řeč se potkávají — den na rozhovory s citem.',
+    'Uran': 'Pouhým okem nevidíš, v dalekohledu je to modrozelený kotouček. Setkání nálady s nečekaným.',
+    'Neptun': 'Jen v dalekohledu. Nálada se potkává se snem — den citlivější a méně ostrý.',
+    'Pluton': 'Jen ve velkém dalekohledu. Nálada se potkává s hloubkou — den, kdy se ozve, co bylo pod povrchem.',
+  };
+  const OPPO_BODY = {
+    'Mars': 'Mars je v opozici jen jednou za dva roky a tehdy je nejjasnější a největší v dalekohledu. Tradičně vrchol jeho síly — energie a tlak jsou na maximu.',
+    'Jupiter': 'Jupiter je v opozici každý rok, teď je nejjasnější a v dalekohledu ukáže pásy i měsíce. Tradičně vrchol tématu růstu a důvěry.',
+    'Saturn': 'Saturn je v opozici každý rok, teď je nejjasnější a prstence jsou v dalekohledu nejzřetelnější. Tradičně vrchol tématu řádu a trpělivosti.',
+    'Uran': 'Uran je v opozici každý rok; za dobré noci je na hranici viditelnosti pouhým okem, v dalekohledu modrozelený kotouček.',
+    'Neptun': 'Neptun je v opozici každý rok, k vidění jen v dalekohledu jako modravá tečka.',
+  };
+  function evWhatSpecific(title, note) {
+    let m;
+    if ((m = title.match(/^(\S+)\s+vstupuje do\s+(.+)$/))) {
+      const body = INGRESS_BODY[m[1]]; if (!body) return '';
+      const key = signKeyOf(m[2]); const tone = key ? SIGN_TONE[key] : '';
+      return `${body.t}${tone ? ` Nové znamení tomu dává tón: ${tone}.` : ''} ${m[1]} v něm zůstane ${body.d}.`;
+    }
+    if ((m = title.match(/^(\S+) se obrací do retrogradity/))) {
+      const r = RETRO_BODY[m[1]]; const sk = signFromNote(note);
+      return r ? `${m[1]} se ze Země začne jevit jako couvající${sk ? ` — ${SIGN_LOC[sk]}, takže se to nejvíc dotkne témat, která toto znamení nese` : ''}. ${r[1]} Potrvá to ${r[0]}.` : '';
+    }
+    if ((m = title.match(/^(\S+) se vrací do přímého pohybu/))) {
+      const d = DIRECT_BODY[m[1]]; return d ? `${m[1]} po couvání znovu vykročí vpřed. ${d}` : '';
+    }
+    if ((m = title.match(/^Luna u (\S+)$/))) {
+      const b = BODY_FROM_GEN[m[1]]; return b && LUNA_NEAR[b] ? LUNA_NEAR[b] : '';
+    }
+    if ((m = title.match(/^Konjunkce (\S+) a (\S+)$/))) {
+      const b1 = BODY_FROM_GEN[m[1]], b2 = BODY_FROM_GEN[m[2]];
+      if (b1 && b2 && BODY_THEME[b1] && BODY_THEME[b2]) return `${b1} a ${b2} stojí na obloze těsně u sebe, obvykle hezký pohled za soumraku nebo před svítáním. Na několik dní se spojuje, co nese ${b1} (${BODY_THEME[b1]}), s tím, co nese ${b2} (${BODY_THEME[b2]}).`;
+      return '';
+    }
+    if ((m = title.match(/^(\S+) v opozici se Sluncem/))) return OPPO_BODY[m[1]] || '';
+    if ((m = title.match(/^(\S+) – největší (ranní|večerní) elongace/))) {
+      const when = m[2] === 'ranní' ? 'ráno před svítáním nízko nad východním obzorem' : 'večer po západu Slunce nízko nad západním obzorem';
+      return `${m[1]} je teď nejdál od Slunce, jak se z naší strany dostane, a proto ${m[1] === 'Venuše' ? 'září' : 'je vidět'} ${when}. ${m[1] === 'Merkur' ? 'Merkur se jinak drží u Slunce a tohle je jedno z mála oken, kdy ho pouhým okem zahlédneš.' : 'Nejjasnější Venuše roku bývá právě kolem elongace.'}`;
+    }
+    if ((m = title.match(/^(Novoluní|Úplněk|První čtvrt|Poslední čtvrt)$/))) {
+      const sk = signFromNote(note); if (!sk) return '';
+      const base = { 'Novoluní': 'Luna stojí mezi Zemí a Sluncem a na obloze ji nevidíme. Tradičně čas záměrů a nových začátků', 'Úplněk': 'Luna stojí proti Slunci a svítí celou noc. Tradičně čas vrcholu, uvědomění a dokončování', 'První čtvrt': 'Luna je z poloviny osvětlená a dorůstá. Čas, kdy se rozjeté věci lámou do rozhodnutí', 'Poslední čtvrt': 'Luna je z poloviny osvětlená a couvá. Čas úklidu, pouštění a poctivého účtu' }[m[1]];
+      return `${base} — tentokrát ${SIGN_LOC[sk]}, tedy kolem témat, jako je ${SIGN_TONE[sk]}.`;
+    }
+    if (/zatmění Luny/i.test(title)) { const sk = signFromNote(note); return `Země vrhne stín na Lunu a ta se zbarví do měděna. Nastává jen za úplňku a bývá cítit několik týdnů — silnější úplněk se stejným tématem${sk ? `, tentokrát ${SIGN_LOC[sk]}: ${SIGN_TONE[sk]}` : ''}.`; }
+    if (/zatmění Slunce/i.test(title)) { const sk = signFromNote(note); return `Luna zakryje sluneční kotouč. Nastává jen za novoluní a působí jako silný obrat, který doznívá měsíce — nový začátek s velkou vahou${sk ? `, tentokrát ${SIGN_LOC[sk]}: ${SIGN_TONE[sk]}` : ''}.`; }
+    return '';
   }
-  function evWhat(title) { const ing = ingressWhat(title); if (ing) return ing; const h = EV_WHAT.find(([re]) => re.test(title)); return h ? h[1] : ''; }
+  // ikona podle tělesa v názvu; stanice mají vlastní značku
+  function evIcon(e) {
+    const t = e.title || '';
+    if (/se obrací do retrogradity/.test(t)) return '℞';
+    if (/se vrací do přímého pohybu/.test(t)) return '⟳';
+    if (/^Konjunkce /.test(t)) return '☌';
+    if (/v opozici se Sluncem/.test(t)) return '☍';
+    const m = t.match(/^(Slunce|Luna|Merkur|Venuše|Mars|Jupiter|Saturn|Uran|Neptun|Pluton)\b/);
+    if (m && e.cat === 'planety') return BODY_GLYPH_CZ[m[1]];
+    return CAT_ICON[e.cat] || '✧';
+  }
+  function evWhat(title, note) { const sp = evWhatSpecific(title, note); if (sp) return sp; const h = EV_WHAT.find(([re]) => re.test(title)); return h ? h[1] : ''; }
   function renderEvents() {
     const v = $('#view-ukazy');
     if (!S.natal) { v.innerHTML = noNatalHTML('úkazy roku dopředu a to, jak se dotknou právě tebe'); return; }
@@ -2237,7 +2327,7 @@ ${parts}
         html += `<div class="ev-month">${K.MONTH_CZ[mo.m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[mo.m - 1].slice(1)} ${mo.y}</div>`;
         for (const e of shown) {
           const p = K.tzParts(e.date, TZ);
-          html += `<div class="ev ${e.resonance ? 'res' : ''} ${e.date.getTime() < nowMs ? 'gone' : ''}"><div class="dt"><b>${p.d}.</b>${e.cat === 'roje' || e.custom || e.cat === 'hvezdy' && e.title.startsWith('Heliak') ? '' : K.fmtTime(e.date, TZ)}</div><div><div class="ti"><span class="c">${ico(CAT_ICON[e.cat] || '✧')}</span>${esc(e.title)}${evWhat(e.title) ? `<i class="evq" data-act="evWhat" role="button" aria-label="Co to je?">?</i>` : ''}</div>${e.note ? `<div class="no">${esc(e.note)}</div>` : ''}${evWhat(e.title) ? `<div class="evwhat">${esc(evWhat(e.title))}</div>` : ''}</div></div>`;
+          html += `<div class="ev ${e.resonance ? 'res' : ''} ${e.date.getTime() < nowMs ? 'gone' : ''}"><div class="dt"><b>${p.d}.</b>${e.cat === 'roje' || e.custom || e.cat === 'hvezdy' && e.title.startsWith('Heliak') ? '' : K.fmtTime(e.date, TZ)}</div><div><div class="ti"><span class="c">${ico(evIcon(e))}</span>${esc(e.title)}${evWhat(e.title, e.note) ? `<i class="evq" data-act="evWhat" role="button" aria-label="Co to je?">?</i>` : ''}</div>${e.note ? `<div class="no">${esc(e.note)}</div>` : ''}${evWhat(e.title, e.note) ? `<div class="evwhat">${esc(evWhat(e.title, e.note))}</div>` : ''}</div></div>`;
         }
       }
       html += `<p class="note" style="margin-top:18px">Komety, novy a podobné jednorázové úkazy se spočítat nedají – přidáš si je v Nastavení (řádek: datum | název | poznámka).</p>`;
