@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v249';
+  const VERSION = 'v250';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -18,6 +18,7 @@
     themeMark: null,     // jaká byla automatika ve chvíli ruční volby
     clouds: true,
     organs: true,
+    numerology: true,
     country: 'both', // cz | sk | both — svátky a jmeniny
     lang: 'cs', // cs | sk — jazyk rozhraní
   };
@@ -143,6 +144,39 @@
     if (dark < 2 || from == null) return null;
     return { from: new Date(from), to: new Date(Math.min(to, n1)), hours: dark };
   }
+  // ---------- numerologie: životní číslo, osobní rok, měsíc a den ----------
+  const numReduce = (n, keepMaster) => { n = Math.abs(n); while (n > 9) { if (keepMaster && (n === 11 || n === 22 || n === 33)) return n; n = String(n).split('').reduce((s, ch) => s + (+ch), 0); } return n; };
+  const digitsSum = (str) => String(str).split('').reduce((s, ch) => s + (/\d/.test(ch) ? +ch : 0), 0);
+  function numerology(p, y, m, d) {
+    const life = numReduce(digitsSum(`${p.d}${p.m}${p.y}`), true);
+    const year = numReduce(digitsSum(`${p.d}${p.m}${y}`));
+    const month = numReduce(year + m);
+    const day = numReduce(month + d);
+    return { life, year, month, day };
+  }
+  const NUM_LIFE = {
+    1: ['Průkopník', 'Přišel jsi razit cestu. Síla je v samostatnosti, rozhodnosti a odvaze začínat; úkolem je vést bez toho, abys šel sám.'],
+    2: ['Prostředník', 'Přišel jsi spojovat. Síla je v citlivosti, diplomacii a trpělivosti; úkolem je stát za sebou stejně pevně jako za druhými.'],
+    3: ['Tvůrce', 'Přišel jsi vyjadřovat. Síla je v radosti, slově a představivosti; úkolem je dotahovat, co jsi s lehkostí začal.'],
+    4: ['Stavitel', 'Přišel jsi stavět. Síla je v řádu, práci a spolehlivosti; úkolem je nechat do pevných zdí vejít i změnu.'],
+    5: ['Poutník', 'Přišel jsi poznávat. Síla je ve svobodě, pohybu a přizpůsobivosti; úkolem je najít v pohybu střed.'],
+    6: ['Pečovatel', 'Přišel jsi pečovat. Síla je v odpovědnosti, kráse a domově; úkolem je dávat, aniž bys sám zmizel.'],
+    7: ['Hledač', 'Přišel jsi rozumět. Síla je v hloubce, samotě a intuici; úkolem je sdílet, co jsi v tichu našel.'],
+    8: ['Správce', 'Přišel jsi spravovat. Síla je v moci, hmotě a vytrvalosti; úkolem je použít sílu ve prospěch víc než sebe.'],
+    9: ['Dokončovatel', 'Přišel jsi uzavírat. Síla je v soucitu, rozhledu a schopnosti pouštět; úkolem je dovolit si i vlastní nový začátek.'],
+    11: ['Vizionář', 'Zesílená dvojka. Vidíš dál a jemněji než ostatní; úkolem je unést vlastní citlivost a přeložit vizi do srozumitelné řeči.'],
+    22: ['Stavitel velkého', 'Zesílená čtyřka. Umíš dát tvar něčemu, co přesahuje jeden život; úkolem je nezůstat u plánu a opravdu položit základ.'],
+    33: ['Učitel', 'Zesílená šestka. Péče povýšená na poslání; úkolem je učit příkladem a přitom se nevyčerpat.'],
+  };
+  const NUM_YEAR = {
+    1: 'rok začátků — sej, zakládej, rozhoduj se za sebe', 2: 'rok trpělivosti — vztahy, spolupráce, zrání pod povrchem', 3: 'rok rozkvětu — tvorba, slovo, radost, společnost',
+    4: 'rok práce — základy, řád, zdraví, dotahování', 5: 'rok změny — pohyb, cesty, svoboda, nečekané obraty', 6: 'rok domova — péče, rodina, odpovědnost, krása',
+    7: 'rok nitra — samota, studium, ticho, hloubka', 8: 'rok sklizně — peníze, moc, výsledky, zodpovědnost', 9: 'rok uzavírání — pouštění, odpuštění, konec cyklu',
+  };
+  const NUM_DAY = {
+    1: 'začni, rozhodni, jdi první', 2: 'naslouchej, spolupracuj, nespěchej', 3: 'tvoř, mluv, těš se', 4: 'pracuj, uspořádej, dotáhni', 5: 'změň, vyjdi ven, zkus nové',
+    6: 'pečuj, buď doma, sladi', 7: 'ztiš se, přemýšlej, buď sám', 8: 'jednej, spravuj, rozhodni o penězích', 9: 'uzavři, pusť, odpusť',
+  };
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
   function easterSunday(y) {
@@ -851,6 +885,7 @@
       catch (e) { prompt('Odkaz na Kompas:', url); }
     },
     toggleKp() { settings.showKp = !settings.showKp; persistSettings(); S.dayCache = {}; renderSettings(); },
+    toggleNum() { settings.numerology = settings.numerology === false; persistSettings(); S.dayCache = {}; renderSettings(); },
     toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
     evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
     plSel(el) { S.plSel = el.dataset.k; renderJournal(); },
@@ -1253,6 +1288,7 @@
         return `<div class="nature">
           <p><span class="nl">zlatá hodina</span>${f(tw.goldAM[0])}–${f(tw.goldAM[1])} · ${f(tw.goldPM[0])}–${f(tw.goldPM[1])}<span class="nl">modrá hodina</span>${f(tw.blueAM[0])}–${f(tw.blueAM[1])} · ${f(tw.bluePM[0])}–${f(tw.bluePM[1])}</p>
           ${dn ? `<p><span class="nl">tmavá noc</span>Luna pod obzorem ${f(dn.from)}–${f(dn.to)} — ${dn.hours >= 4 ? 'Mléčná dráha a slabé hvězdy jsou dobře vidět' : 'krátké okno na hvězdy bez Luny'}</p>` : ''}
+          ${settings.numerology !== false && S.natal && S.natal.profile ? (() => { const n = numerology(S.natal.profile, y, m, d); return `<p><span class="nl">osobní den</span><b>${n.day}</b> — ${NUM_DAY[n.day]} <small>(osobní rok ${n.year}, měsíc ${n.month})</small></p>`; })() : ''}
           <p><span class="nl">zahrádkář</span><b>${g.kind}</b> (Luna ${SIGN_LOC[['Beran','Býk','Blíženc','Rak','Lv','Pann','Váh','Štír','Střelc','Kozoroh','Vodnář','Ryb'][da.moonSign]]}) — ${g.tip} · ${g.phase}</p>
         </div>`; })()}`}
       ${isToday ? '' : (() => { const r = TX.dayReading(da, dayEv); return `<p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p>`; })()}
@@ -2534,6 +2570,12 @@ ${parts}
         <p><b>Saturn</b> — ${sat.map(x => `<span class="${near(x) ? 'on' : ''}">${x}</span>`).join(' · ')}${nextS ? ` · další ${nextS}` : ''}. Vrací se na tvé místo přibližně každých 29 let a přeskládává, co je opravdu tvé.</p>
         <p><b>Jupiter</b> — ${jup.filter(x => Math.abs(x - yr) <= 24).map(x => `<span class="${near(x) ? 'on' : ''}">${x}</span>`).join(' · ')}. Každých 12 let otevře dveře tam, kde máš důvěru.</p>
         <p class="note" style="margin:6px 0 0">Přesný den návratu najdeš v Úkazech pod <b>tvé cykly</b> — spolu se slunečním návratem (tvůj osobní nový rok) a lunárním návratem každých 27 dní.</p></div>`; })()}
+      ${settings.numerology !== false ? (() => { const n = numerology(p, np.y, np.m, np.d); const L = NUM_LIFE[n.life] || NUM_LIFE[numReduce(n.life)];
+        return `<div class="card small numcard"><div class="h3" style="margin-top:0">Tvá čísla</div>
+        <p><b>Životní číslo ${n.life}</b> · ${L[0]}<br>${L[1]}</p>
+        <p><b>Osobní rok ${n.year}</b> — ${NUM_YEAR[n.year]}.</p>
+        <p><b>Osobní měsíc ${n.month}</b> · <b>osobní den ${n.day}</b> — ${NUM_DAY[n.day]}.</p>
+        <p class="note" style="margin:6px 0 0">Životní číslo je součet číslic data narození (11, 22 a 33 zůstávají jako mistrovská). Osobní rok vychází z tvého dne a měsíce narození a běžného roku; z něj se odvíjí měsíc a den. Osobní den každého dne najdeš v jeho detailu.</p></div>`; })() : ''}
       ${wheelSVG(n)}
       ${chakraHTML(p)}
       <div class="hshead"><svg class="hsstar" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="20" cy="20" r="7"/><path d="M20 3v8M20 29v8M3 20h8M29 20h8"/><path d="M20 13l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor" stroke="none"/></svg><div class="hstitle">Tvůj horoskop</div><div class="hsrule"><i></i><b>✦</b><i></i></div></div>
@@ -2659,6 +2701,7 @@ ${parts}
         <label>Luna bez kurzu – hodin v aktivní části dne (8–22), aby srazila skóre<input name="voc" type="number" step="1" value="${settings.rules.vocHours}"></label>
         <label>Orbis pro tvé hvězdy (°)<input name="starOrb" type="number" step="0.5" value="${settings.rules.starOrb}"></label>
         <label class="wide" style="flex-direction:row;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:var(--fs-m);color:var(--text)"><input type="checkbox" data-act="toggleOrg" ${settings.organs === false ? '' : 'checked'}> Orgánové hodiny v dnešku</label>
+        <label class="wide" style="flex-direction:row;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:var(--fs-m);color:var(--text)"><input type="checkbox" data-act="toggleNum" ${settings.numerology === false ? '' : 'checked'}> Numerologie (životní číslo, osobní rok a den)</label>
         <div class="wide row"><button type="button" class="btn" data-act="saveRules">Uložit pravidla</button></div>
         <details class="expl"><summary>Co ta čísla znamenají? (polopatě)</summary><div class="card">
           <p><b>Jak appka barví dny.</b> Každý den se podívá, jak putující Luna svítí na tvou osobní mapu. Když ladí, den dostává plusové body; když dře, minusové. Součet je skóre dne — vidíš ho v detailu dne.</p>

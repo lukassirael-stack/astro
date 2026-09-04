@@ -853,3 +853,6 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 
 .returns p{margin:0 0 8px;line-height:1.6}
 .returns span.on{color:var(--gold);font-weight:600}
+
+.numcard p{margin:0 0 8px;line-height:1.6}
+.nature small{color:var(--muted);opacity:.85}
