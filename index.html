@@ -25,7 +25,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="styles.css?v=275">
+<link rel="stylesheet" href="styles.css?v=276">
 </head>
 <body>
 <div id="splash" aria-hidden="true"><img class="sp-em" src="logo-emblem.webp?v=1" alt=""><span class="bname"><i class="l1"><b>NEBESKÝ</b></i><i class="l2"><b>KOMPAS</b></i></span><img class="sp-st" src="logo-stars.webp?v=1" alt=""><span class="claim sp-cl"><i>tvůj</i><i class="mid">hvězdný</i><i class="big">kalendář</i></span></div>
@@ -34,7 +34,7 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 <div class="app" id="app">
   <header class="top">
     <h1 class="brand"><img class="logo" src="logo-emblem.webp?v=1" alt="Nebeský kompas — tvůj hvězdný kalendář" width="560" height="448"><span class="bname"><i class="l1"><b>NEBESKÝ</b></i><i class="l2"><b>KOMPAS</b></i></span><img class="bstars" src="logo-stars.webp?v=1" alt="" width="500" height="217"><span class="claim brand-claim"><i>tvůj</i><i class="mid">hvězdný</i><i class="big">kalendář</i></span></h1>
-    <button class="profile-pill" id="profilePill" data-tab="nastaveni" title="Aktivní profil">—</button>
+    <div class="topbtns"><button type="button" class="topbtn" data-act="goGuide" aria-label="Průvodce Kompasem" title="Průvodce">?</button><button type="button" class="topbtn" data-act="shareApp" aria-label="Sdílet Kompas" title="Sdílet"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 1.5v8.5M4.8 4.6 8 1.5l3.2 3.1M3 8.5v4.2a1.3 1.3 0 0 0 1.3 1.3h7.4a1.3 1.3 0 0 0 1.3-1.3V8.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="profile-pill" id="profilePill" data-tab="nastaveni" title="Aktivní profil">—</button></div>
   </header>
   <main>
     <section class="view on" id="view-kalendar"><div class="loading">Počítám nebe…</div></section>
@@ -54,8 +54,8 @@ var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('c
 <div class="toast" id="toast"></div>
 <div class="upbar" id="upbar" role="status"><span><b>Nová verze je připravená</b>Obnov a máš ji hned.</span><button type="button" id="upGo">Obnovit</button><button type="button" class="upx" id="upX" aria-label="Zavřít">×</button></div>
 <script src="astronomy.browser.min.js"></script>
-<script src="kairos-core.js?v=275"></script>
-<script src="data.js?v=275"></script>
-<script src="app.js?v=275"></script>
+<script src="kairos-core.js?v=276"></script>
+<script src="data.js?v=276"></script>
+<script src="app.js?v=276"></script>
 </body>
 </html>

@@ -958,3 +958,9 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .ntile.img{padding:0;min-height:0;display:block;background:none;border:0;box-shadow:0 10px 26px rgba(0,0,0,.35);border-radius:20px;overflow:hidden}
 .ntile.img img{display:block;width:100%;height:auto;border-radius:20px}
 .ntile.img,.ntile.img.main{box-shadow:0 0 26px rgba(243,211,132,.3),0 10px 26px rgba(0,0,0,.35)}
+
+/* horní tlačítka: průvodce, sdílení, profil */
+.topbtns{position:absolute;right:0;top:10px;display:flex;align-items:center;gap:8px;z-index:3}
+.top .topbtns .profile-pill{position:static;top:auto;right:auto}
+.topbtn{width:32px;height:32px;border-radius:50%;border:1px solid var(--line2);background:rgba(8,20,40,.35);color:var(--muted);display:grid;place-items:center;font:inherit;font-size:var(--fs-m);font-weight:600;cursor:pointer;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.topbtn:active{transform:translateY(1px)}
