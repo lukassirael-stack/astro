@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v266';
+  const VERSION = 'v267';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -969,6 +969,16 @@
       verTapState.t = t; verTapState.n++;
       if (verTapState.n >= 7) { verTapState.n = 0; const on = !store.get('kairos_plus', false); store.set('kairos_plus', on); toast(on ? 'Plná verze aktivní ✧' : 'Základní verze.'); renderSettings(); }
     },
+    synPrint() { const d = synDoc(); if (!d) return; const wnd = window.open('', '_blank'); if (wnd) { wnd.document.write(d); wnd.document.close(); } else { const url = URL.createObjectURL(new Blob([d], { type: 'text/html' })); const el = document.createElement('a'); el.href = url; el.download = 'horoskop-dvou-map.html'; el.click(); setTimeout(() => URL.revokeObjectURL(url), 5000); toast('Uloženo jako soubor — otevři ho a vytiskni.'); } },
+    async synShare() {
+      const d = synDoc(); if (!d) return;
+      const tmp = document.createElement('div'); tmp.innerHTML = d.slice(d.indexOf('<div class="wrap">'));
+      tmp.querySelectorAll('.noprint, footer, .hstag').forEach(el => el.remove());
+      tmp.querySelectorAll('h2, h4, p').forEach(el => el.insertAdjacentText('afterend', '\n'));
+      const text = tmp.textContent.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+      try { if (navigator.share) { await navigator.share({ title: 'Horoskop dvou map', text }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+      try { await navigator.clipboard.writeText(text); toast('Text zkopírován — stačí vložit do zprávy.'); } catch (e) { prompt('Text horoskopu:', text); }
+    },
     hsPrint() {
       const doc = horoscopeDoc(S.natal);
       const wnd = window.open('', '_blank');
@@ -1748,32 +1758,52 @@
     return out;
   }
 
+    const PRINT_STYLE = `<style>
+  body{font-family:Georgia,'Times New Roman',serif;color:#1B2436;background:#FDFBF6;margin:0;padding:34px 22px;line-height:1.6}
+  .wrap{max-width:680px;margin:0 auto}
+  header{text-align:center;border-bottom:1px solid #D8CBA8;padding-bottom:18px;margin-bottom:8px}
+  header .brand{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:#9A7B33}
+  header h1{margin:10px 0 4px;font-weight:500;font-size:30px}
+  header .meta{font-size:14px;color:#5A6478}
+  section{page-break-inside:auto;margin-top:26px}
+  h2{font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;color:#9A7B33;border-bottom:1px solid #E7DDC4;padding-bottom:7px;font-weight:600;page-break-after:avoid}
+  .hsp{padding:11px 0;border-bottom:1px solid #EFE8D6;page-break-inside:avoid}
+  .hsp:last-child{border-bottom:0}
+  .hsp h4{margin:0 0 5px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9A7B33;font-weight:600}
+  .hsh{margin:14px 0 0;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9A7B33;font-weight:600}
+  .hsp p{margin:0;font-size:15px}
+  .hstag{display:block;margin-top:5px;font-size:11px;color:#8A93A6;font-family:'Courier New',monospace}
+  footer{margin-top:34px;padding-top:14px;border-top:1px solid #D8CBA8;font-size:12.5px;color:#8A93A6;text-align:center}
+  .noprint{position:fixed;right:16px;top:16px;display:flex;gap:8px}
+  .noprint button{font:inherit;font-size:12.5px;padding:9px 16px;border-radius:999px;border:1px solid #9A7B33;background:#14213C;color:#F2E9D4;cursor:pointer}
+  @media print{.noprint{display:none}body{padding:0;background:#fff}}
+</style>`;
+  function synDoc() {
+    const selRec = S.synId ? synFind(S.synId) : null; if (!selRec || !S.natal) return '';
+    const A = activeProfile();
+    let body;
+    try {
+      const nb = K.natalChart({ ...selRec, lat: +selRec.lat, lon: +selRec.lon, alt: +selRec.alt || 200, y: +selRec.y, m: +selRec.m, d: +selRec.d, hh: +selRec.hh, mm: +selRec.mm, tz: selRec.tz || TZ }, new Date());
+      body = synastry(S.natal, nb, (A.name || 'A').split(' ')[0], (selRec.name || 'B').split(' ')[0]);
+    } catch (e) { return ''; }
+    const meta = (p) => `${p.d}. ${p.m}. ${p.y} v ${p.hh}:${String(p.mm).padStart(2, '0')} · ${esc(p.place || '')}`;
+    return `<!DOCTYPE html><html lang="cs"><head><meta charset="utf-8"><title>Horoskop dvou map — ${esc(A.name)} a ${esc(selRec.name)}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+${PRINT_STYLE}</head><body>
+<div class="noprint"><button onclick="window.print()">Vytisknout / uložit PDF</button></div>
+<div class="wrap">
+<header><div class="brand">Nebeský kompas · horoskop dvou map</div><h1>${esc(A.name)} &amp; ${esc(selRec.name)}</h1><div class="meta">${meta(A)}<br>${meta(selRec)}</div></header>
+<section>${body}</section>
+<footer>Spočítáno v Nebeském kompasu · ${new Date().toLocaleDateString('cs-CZ')}</footer>
+</div></body></html>`;
+  }
   function horoscopeDoc(n) {
     const prof = activeProfile();
     const parts = HS_THEMES.map(t => `<section><h2>${t[1]}</h2>${t[2](n)}</section>`).join('');
     const meta = `${prof.d}. ${prof.m}. ${prof.y} v ${prof.hh}:${String(prof.mm).padStart(2, '0')} · ${esc(prof.place)}`;
     return `<!DOCTYPE html><html lang="cs"><head><meta charset="utf-8"><title>Horoskop — ${esc(prof.name)}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-  body{font-family:Georgia,'Times New Roman',serif;color:#1B2436;background:#FDFBF6;margin:0;padding:34px 22px;line-height:1.6}
-  .wrap{max-width:680px;margin:0 auto}
-  header{text-align:center;border-bottom:1px solid #D8CBA8;padding-bottom:18px;margin-bottom:8px}
-  header .brand{font-size:var(--fs-xs);letter-spacing:.3em;text-transform:uppercase;color:#9A7B33}
-  header h1{margin:10px 0 4px;font-weight:500;font-size:30px}
-  header .meta{font-size:var(--fs-m);color:#5A6478}
-  section{page-break-inside:auto;margin-top:26px}
-  h2{font-size:var(--fs-s);letter-spacing:.22em;text-transform:uppercase;color:#9A7B33;border-bottom:1px solid #E7DDC4;padding-bottom:7px;font-weight:600;page-break-after:avoid}
-  .hsp{padding:11px 0;border-bottom:1px solid #EFE8D6;page-break-inside:avoid}
-  .hsp:last-child{border-bottom:0}
-  .hsp h4{margin:0 0 5px;font-size:var(--fs-xs);letter-spacing:.16em;text-transform:uppercase;color:#9A7B33;font-weight:600}
-  .hsh{margin:14px 0 0;font-size:var(--fs-xs);letter-spacing:.16em;text-transform:uppercase;color:#9A7B33;font-weight:600}
-  .hsp p{margin:0;font-size:var(--fs-b)}
-  .hstag{display:block;margin-top:5px;font-size:var(--fs-xs);color:#8A93A6;font-family:'Courier New',monospace}
-  footer{margin-top:34px;padding-top:14px;border-top:1px solid #D8CBA8;font-size:var(--fs-s);color:#8A93A6;text-align:center}
-  .noprint{position:fixed;right:16px;top:16px;display:flex;gap:8px}
-  .noprint button{font:inherit;font-size:var(--fs-s);padding:9px 16px;border-radius:999px;border:1px solid #9A7B33;background:#14213C;color:#F2E9D4;cursor:pointer}
-  @media print{.noprint{display:none}body{padding:0;background:#fff}}
-</style></head><body>
+${PRINT_STYLE}</head><body>
 <div class="noprint"><button onclick="window.print()">Vytisknout / uložit PDF</button></div>
 <div class="wrap">
 <header><div class="brand">Nebeský kompas · tvůj hvězdný kalendář</div><h1>${esc(prof.name)}</h1><div class="meta">${meta} · domy Placidus · tropický zvěrokruh</div></header>
@@ -1948,7 +1978,8 @@ ${parts}
     if (selRec && !S.synForm) {
       try {
         const nb = K.natalChart({ ...selRec, lat: +selRec.lat, lon: +selRec.lon, alt: +selRec.alt || 200, y: +selRec.y, m: +selRec.m, d: +selRec.d, hh: +selRec.hh, mm: +selRec.mm, tz: selRec.tz || TZ }, new Date());
-        card = `<div class="card hs">${synastry(n, nb, (activeProfile().name || 'A').split(' ')[0], (selRec.name || 'B').split(' ')[0])}</div>`;
+        card = `<div class="card hs">${synastry(n, nb, (activeProfile().name || 'A').split(' ')[0], (selRec.name || 'B').split(' ')[0])}</div>
+        <div class="row" style="margin:-4px 0 14px;gap:8px"><button type="button" class="btn ghost small" data-act="synPrint">Uložit · tisk</button><button type="button" class="btn ghost small" data-act="synShare">Poslat text</button></div>`;
       } catch (e) { card = '<div class="card hs"><div class="hsp"><p>Mapu se nepodařilo spočítat — zkontroluj zadané údaje.</p></div></div>'; }
     }
     return `<div class="h3">Horoskop dvou map</div>
