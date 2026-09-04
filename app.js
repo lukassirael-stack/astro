@@ -2683,6 +2683,8 @@ ${parts}
       const ph = K.planetaryHours(p.y, p.m, p.d, observer(), TZ);
       if (!ph) return 'night';
       const t = dt.getTime(), sr = ph.sunrise.getTime(), ss = ph.sunset.getTime();
+      // dnešní východ a západ si zapamatovat pro úvodní skript, ať appka naskočí rovnou ve správném režimu
+      try { const k = K.isoDate(p.y, p.m, p.d); if (themeForNow._k !== k) { themeForNow._k = k; localStorage.setItem('kairos_sun', JSON.stringify({ k, sr, ss })); } } catch (e) { }
       if (t >= sr - 40 * 60000 && t < ss + 40 * 60000) return 'day';
       return 'night';
     } catch (e) { return 'night'; }
@@ -2755,6 +2757,9 @@ ${parts}
 
   // ===================== start =====================
   applyTheme();
+  // obloha se přehoupne sama, i když appka zůstane otevřená přes východ nebo západ Slunce
+  setInterval(() => { try { applyTheme(); } catch (e) { } }, 60000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { try { applyTheme(); } catch (e) { } } });
   computeNatal();
   setInterval(applyTheme, 240000);
   showTab(['kalendar', 'ukazy', 'diar', 'nativ', 'nastaveni'].includes(store.get('kairos_tab', 'kalendar')) ? store.get('kairos_tab', 'kalendar') : 'kalendar');
