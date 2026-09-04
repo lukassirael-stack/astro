@@ -803,6 +803,15 @@
     goNatal() { showTab('nastaveni'); setTimeout(() => { const f = $('#profileForm'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); },
     setLang(el) { settings.lang = el.value; persistSettings(); if (settings.lang === 'sk') { translateDOM(document.body); } else { restoreCzechDOM(document.body); } showTab(S.tab); },
     setCountry(el) { settings.country = el.value; persistSettings(); for (const k in _holCache) delete _holCache[k]; S.dayCache = {}; renderSettings(); },
+    async shareApp() {
+      const url = location.origin + location.pathname.replace(/index\.html$/, '');
+      const text = 'Nebeský kompas — tvůj hvězdný kalendář. Co je dnes ve hře podle postavení planet, Luny a tvých hvězd.';
+      try {
+        if (navigator.share) { await navigator.share({ title: 'Nebeský kompas', text, url }); return; }
+      } catch (e) { if (e && e.name === 'AbortError') return; }
+      try { await navigator.clipboard.writeText(url); toast('Odkaz zkopírován — stačí ho vložit do zprávy.'); }
+      catch (e) { prompt('Odkaz na Kompas:', url); }
+    },
     toggleKp() { settings.showKp = !settings.showKp; persistSettings(); S.dayCache = {}; renderSettings(); },
     toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
     evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
@@ -2656,7 +2665,8 @@ ${parts}
         <label class="setsel">Jazyk rozhraní<select class="btn" data-act="setLang"><option value="cs" ${(settings.lang || 'cs') === 'cs' ? 'selected' : ''}>čeština</option><option value="sk" ${settings.lang === 'sk' ? 'selected' : ''}>slovenčina</option></select></label>
         <label class="setsel">Svátky a jmeniny<select class="btn" data-act="setCountry"><option value="both" ${(settings.country || 'both') === 'both' ? 'selected' : ''}>Česko i Slovensko</option><option value="cz" ${settings.country === 'cz' ? 'selected' : ''}>Česko</option><option value="sk" ${settings.country === 'sk' ? 'selected' : ''}>Slovensko</option></select></label>
       </div>
-      <div class="row"><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
+      <div class="row"><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn" data-act="shareApp">Sdílet Kompas</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
+      <p class="note" style="margin-top:8px">Sdílení pošle odkaz na Kompas — druhý si ho otevře v prohlížeči a může si ho přidat na plochu stejně jako ty. Tvá data zůstávají jen u tebe; každý začíná se svým nativem.</p>
       <p class="note" data-act="verTap" style="cursor:default">Nebeský kompas ${VERSION}${store.get('kairos_plus', false) ? ' · plná verze' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
       <p class="note">Jazyk aplikace je záměrně „tohle je ve hře, tohoto si všímej“. Žádná barva dne není předpověď a nerozhoduje za tebe.</p></div>`;
     const sel = $('#profileSelect', v); sel.addEventListener('change', () => actions.switchProfile(sel));
