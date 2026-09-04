@@ -933,3 +933,4 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .stardeep p.rod{color:var(--gold);font-family:var(--display);font-size:var(--fs-l)}
 .stardeep p b{color:var(--gold);font-weight:600;margin-right:4px}
 .returns .yrs{color:var(--muted);letter-spacing:.03em}
+.ptcard.asp.harm>summary .g{color:var(--harm)}.ptcard.asp.tense>summary .g{color:var(--tense)}

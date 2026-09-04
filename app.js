@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v261';
+  const VERSION = 'v262';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2756,6 +2756,20 @@ ${parts}
     const asps = [];
     for (let i = 0; i < NA.length; i++) for (let j = i + 1; j < NA.length; j++) { const a = K.aspectBetween(n.points[NA[i]].lon, n.points[NA[j]].lon, { default: 6, sextile: 4 }); if (a) asps.push({ a: NA[i], b: NA[j], ...a }); }
     asps.sort((x, y) => x.orb - y.orb);
+    const PT_SHORT = { Sun: 'Slunce', Moon: 'Luna', Mercury: 'Merkur', Venus: 'Venuše', Mars: 'Mars', Jupiter: 'Jupiter', Saturn: 'Saturn', Uranus: 'Uran', Neptune: 'Neptun', Pluto: 'Pluto', Node: 'uzel', Asc: 'Ascendent', MC: 'životní směr (MC)' };
+    const ASP_KIND_CZ = { conj: ['spojené', 'konjunkce'], sextile: ['v souladu', 'sextil'], trine: ['v souladu', 'trigon'], square: ['v napětí', 'kvadratura'], opposition: ['v protikladu', 'opozice'] };
+    const aspStrength = (o) => o <= 1 ? 'velmi silný' : o <= 3 ? 'silný' : o <= 5 ? 'střední' : 'slabý';
+    const aspText = (x) => {
+      const kind = x.key === 'conj' ? 'c' : x.kind === 'harm' ? 'h' : 't';
+      const pair = ASP_PAIR[`${x.a}|${x.b}`] || ASP_PAIR[`${x.b}|${x.a}`];
+      if (pair && pair[kind]) return pair[kind];
+      const tA = BODY_THEME[x.a] || TX.DOMAIN[x.a] || PT_SHORT[x.a], tB = BODY_THEME[x.b] || TX.DOMAIN[x.b] || PT_SHORT[x.b];
+      if (kind === 'c') return `Kde je jedno, je i druhé: ${tA} a ${tB} u tebe splývají v jednu, silnou kvalitu, kterou z tebe lidé čtou hned.`;
+      if (kind === 'h') return `${tA.charAt(0).toUpperCase() + tA.slice(1)} a ${tB} si u tebe rozumí samy od sebe. Jde to lehce — a právě proto se to dá přehlédnout; vědomě užívané je z toho talent.`;
+      return `${tA.charAt(0).toUpperCase() + tA.slice(1)} a ${tB} se u tebe přetahují. Tření je zdroj: nutí tě hledat vlastní řešení, a zralá podoba je síla, kterou jiní nemají.`;
+    };
+    const aspCards = asps.slice(0, 12).map(x => `<details class="ptcard asp ${x.kind === 'harm' ? 'harm' : x.kind === 'tense' ? 'tense' : ''}"><summary><span class="g">${x.glyph}</span><b>${PT_SHORT[x.a] || K.BODY_CZ[x.a]} a ${PT_SHORT[x.b] || K.BODY_CZ[x.b]}</b><span class="sg">${(ASP_KIND_CZ[x.key] || ['', x.cz])[0]} · ${aspStrength(x.orb)}</span></summary>
+      <div class="ptbody"><p class="what">${(ASP_KIND_CZ[x.key] || ['', x.cz])[1]} · orbis ${fmtOrb(x.orb)}${x.orb <= 1 ? ' · podpis tvé mapy' : ''}</p><p>${esc(aspText(x))}</p></div></details>`).join('');
     const aspHtml = asps.map(a => `<li><span class="g ${a.kind === 'harm' ? 'tone-harm' : a.kind === 'tense' ? 'tone-tense' : ''}">${a.glyph}</span><span class="t">${K.BODY_CZ[a.a]} ${a.cz} ${K.BODY_CZ[a.b]}</span><span class="w">${fmtOrb(a.orb)}</span></li>`).join('');
     const mine = n.stars.filter(s => s.mine).sort((a, b) => b.strength - a.strength);
     const second = n.stars.filter(s => !s.mine && s.strength > 0).sort((a, b) => b.strength - a.strength);
@@ -2790,7 +2804,10 @@ ${parts}
         <p>Nebe se dělí na 12 domů — 12 oblastí života. <b>1</b> já a tělo · <b>2</b> peníze a jistoty · <b>3</b> komunikace a blízké okolí · <b>4</b> domov a rodina · <b>5</b> tvořivost, radost a děti · <b>6</b> každodenní práce a zdraví · <b>7</b> partnerství · <b>8</b> sdílené zdroje a hluboké proměny · <b>9</b> cesty, víra a vzdělání · <b>10</b> povolání a směřování · <b>11</b> přátelé a vize · <b>12</b> nitro, klid a ústraní.</p>
         <p class="note">Hrot je stupeň, kde dům začíná. Který dům čím žiješ, poznáš podle toho, kde stojí tvé planety — viz sloupec „dům" v tabulce výše.</p>
       </div></details>
-      <div class="h3">Aspekty v nativu</div><ul class="list">${aspHtml}</ul>
+      <div class="h3">Aspekty v nativu</div>
+      <p class="note" style="margin-top:-4px">Aspekt je rozhovor dvou bodů tvé mapy. Čím menší číslo (orbis), tím silněji ho žiješ; nejtěsnější jsou podpis tvé mapy.</p>
+      ${aspCards}
+      <details class="expl"><summary>Seznam aspektů</summary><ul class="list">${aspHtml}</ul></details>
       <details class="expl"><summary>Co znamenají aspekty?</summary><div class="card small">
         <p>Aspekt je úhel mezi dvěma body — rozhovor, který spolu vedou. <b>☌ konjunkce (0°)</b> — síly se spojují v jedno silné téma · <b>✶ sextil (60°)</b> — příležitost, které stačí vyjít vstříc · <b>△ trigon (120°)</b> — přirozený dar, plyne to samo · <b>□ kvadratura (90°)</b> — tření, které nutí růst · <b>☍ opozice (180°)</b> — dva protipóly hledající rovnováhu.</p>
         <p class="note">Číslo vpravo je orbis — o kolik stupňů se aspekt liší od přesného úhlu. Čím menší číslo, tím silněji téma působí. Seznam je řazený od nejpřesnějších.</p>
