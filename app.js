@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v276';
+  const VERSION = 'v277';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -74,6 +74,15 @@
   if (!Array.isArray(profiles) || !profiles.length) profiles = [DEFAULT_PROFILE];
   let activeId = store.get('kairos_active', profiles[0].id);
   if (!profiles.find(p => p.id === activeId)) activeId = profiles[0].id;
+  // Kompas je pro jednoho: prázdné výchozí profily („Nový profil", 1. 1. 1990 12:00) se samy uklidí
+  if (profiles.length > 1) {
+    const blank = (q) => q.name === 'Nový profil' && +q.y === 1990 && +q.m === 1 && +q.d === 1 && +q.hh === 12 && +q.mm === 0;
+    const kept = profiles.filter(q => !blank(q));
+    if (kept.length && kept.length < profiles.length) {
+      profiles = kept; store.set('kairos_profiles', profiles);
+      if (!profiles.find(q => q.id === activeId)) { activeId = profiles[0].id; store.set('kairos_active', activeId); }
+    }
+  }
   let settings = deepMerge(DEFAULT_SETTINGS, store.get('kairos_settings', {}));
   function deepMerge(a, b) { const o = Object.assign({}, a); for (const k in b) { if (b[k] && typeof b[k] === 'object' && !Array.isArray(b[k])) o[k] = deepMerge(a[k] || {}, b[k]); else if (b[k] !== undefined) o[k] = b[k]; } return o; }
 
