@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v278';
+  const VERSION = 'v279';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -370,7 +370,7 @@
     }
     const ranges = (arr) => { const out = []; let s = null, p = null; for (const d of arr) { if (s == null) { s = d; p = d; } else if (d === p + 1) p = d; else { out.push(s === p ? `${s}.` : `${s}.–${p}.`); s = d; p = d; } } if (s != null) out.push(s === p ? `${s}.` : `${s}.–${p}.`); return out.join(', '); };
     const GK = ['plodové', 'kořenové', 'květové', 'listové'];
-    return `<details class="nature-month ${S.natureOpen ? 'open' : ''}"${S.natureOpen ? ' open' : ''}><summary>${nm.n} v přírodě a na zahradě · ${nm.t}</summary>
+    return `<div class="nature-month"><div class="h2">${nm.n} ${y}</div><p class="note" style="margin-top:-4px">${nm.t}</p>
       <div class="card">
         <div class="h3" style="margin-top:0">Co se děje venku</div><p>${nm.p}</p>
         <div class="h3">Na zahradě</div><p>${nm.z}</p>
@@ -378,7 +378,7 @@
         <p class="small"><b>Sít a sázet</b> (dorůstá): ${ranges(grow) || '—'}<br><b>Sklízet, prořezávat, ošetřovat půdu</b> (couvá): ${ranges(wane) || '—'}</p>
         <p class="small">${[1, 3, 2, 0].map(k => `<b>${GK[k]} dny</b> ${ranges(kinds[k]) || '—'}`).join(' · ')}</p>
         <p class="note" style="margin-top:6px">Kořenové dny pro kořenovou zeleninu a sázení, listové pro saláty, bylinky a zálivku, květové pro květiny a košťáloviny, plodové pro plody a obilí. Lunární zahrádkář je tradice, počasí a půda mají vždy poslední slovo.</p>
-      </div></details>`;
+      </div></div>`;
   }
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
@@ -842,7 +842,7 @@
   };
   const ico = (g) => ICO[g] || g;
   const CAT_ICON = { luna: '☽', zatmeni: '◉', slunce: '☉', planety: '♃', roje: '☄', hvezdy: '✦', komety: '✧', osobni: '✺' };
-  const CAT_CZ = { vse: 'vše', luna: 'Luna', zatmeni: 'zatmění', slunce: 'Slunce', planety: 'planety', roje: 'roje', hvezdy: 'hvězdy', komety: 'komety', osobni: 'tvé cykly' };
+  const CAT_CZ = { vse: 'vše', luna: 'Luna', zatmeni: 'zatmění', slunce: 'Slunce', planety: 'planety', roje: 'roje', hvezdy: 'hvězdy', komety: 'komety', osobni: 'tvé cykly', priroda: 'příroda' };
   const TODAY_KEY = K.isoDate(np.y, np.m, np.d);
 
   function toast(msg) { const t = $('#toast'); t.textContent = tr(msg); t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 2600); }
@@ -1348,11 +1348,9 @@
         <button type="button" class="legend-close" data-act="closeLegend">▲ &nbsp;Sbalit vysvětlivky</button>
       </details>
 
-      ${natureMonthHTML(y, m)}
       <div class="day" id="dayDetail">${dayDetailHTML(S.sel.y, S.sel.m, S.sel.d, evByDay)}</div>
       ${electHTML()}
       ${arcHTML()}`;
-    const nmEl = v.querySelector('.nature-month'); if (nmEl) nmEl.addEventListener('toggle', () => { S.natureOpen = nmEl.open; });
     const ar = v.querySelector('.arc');
     if (ar) ar.addEventListener('toggle', () => {
       S.arcOpen = ar.open;
@@ -2653,8 +2651,15 @@ ${parts}
       const list = S.filter === 'vse' ? evs : evs.filter(e => e.cat === S.filter);
       const months = {};
       for (const e of list) { const p = K.tzParts(e.date, TZ); const k = `${p.y}-${pad(p.m)}`; (months[k] = months[k] || { y: p.y, m: p.m, items: [] }).items.push(e); }
-      const chips = ['vse', 'osobni', 'zatmeni', 'luna', 'planety', 'hvezdy', 'roje', 'slunce', 'komety'].map(c => `<button type="button" class="chip ${S.filter === c ? 'on' : ''}" data-act="filter" data-f="${c}">${CAT_CZ[c]}</button>`).join('');
+      const chips = ['vse', 'osobni', 'priroda', 'zatmeni', 'luna', 'planety', 'hvezdy', 'roje', 'slunce', 'komety'].map(c => `<button type="button" class="chip ${S.filter === c ? 'on' : ''}" data-act="filter" data-f="${c}">${CAT_CZ[c]}</button>`).join('');
       let html = `<div class="h2">Úkazy · ${esc(settings.loc.name)}</div><p class="note">${S.evAll ? 'Rok dopředu od tohoto měsíce.' : 'Nejbližší tři měsíce.'} Časy jsou v našem čase, viditelnost počítaná pro ${esc(settings.loc.name)} (${fmtNum(settings.loc.lat, 3)} N, ${fmtNum(settings.loc.lon, 3)} E).</p><div class="row" style="gap:6px">${chips}</div>`;
+      if (S.filter === 'priroda') {
+        // přírodní kalendář: měsíce v zobrazeném rozsahu
+        const cnt = S.evAll ? 12 : 3; let yy = np.y, mm = np.m;
+        for (let i = 0; i < cnt; i++) { html += natureMonthHTML(yy, mm); mm++; if (mm > 12) { mm = 1; yy++; } }
+        html += `<div class="row" style="justify-content:center;margin:12px 0"><button type="button" class="btn ghost small" data-act="${S.evAll ? 'evLess' : 'evAll'}">${S.evAll ? 'Zobrazit jen tři měsíce' : 'Zobrazit celý rok'}</button></div>`;
+        v.innerHTML = html; return;
+      }
       const allKeys = Object.keys(months).sort();
       const keys = S.evAll ? allKeys : allKeys.slice(0, 3);
       if (!keys.length) html += '<p class="muted">V této kategorii nic není.</p>';
