@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v263';
+  const VERSION = 'v264';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2848,19 +2848,19 @@ ${parts}
       <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p></div>`;
     const view = S.natalView && S.natalView !== 'ty' ? S.natalView : 'menu';
     const TILES = [
-      ['prochazis', '✺', 'Čím teď procházíš', 'tranzity jako oblouky, ohlédnutí'],
-      ['mapa', '☉', 'Tvoje mapa', 'Slunce, Luna, ascendent, body, domy, aspekty'],
-      ['horoskop', '✦', 'Tvůj horoskop', 'kapitoly o tobě, čakra roku, tisk'],
-      ['hvezdy', '★', 'Tvé hvězdy', 'stálice na tvých bodech'],
-      ['vztahy', '☌', 'Vztahy', 'jak si tvá mapa rozumí s druhými'],
-      ['navraty', '⟳', 'Velké návraty', 'Saturn, Jupiter, Uran a uzly v tvém životě'],
-      ['cakra', '◉', 'Čakra roku', 'kterou čakrou letos procházíš'],
+      ['mapa', '☉', 'Tvoje mapa', 'Slunce, Luna, ascendent, body, domy, aspekty', 'main'],
+      ['prochazis', '✺', 'Čím teď procházíš', 'tranzity jako oblouky, ohlédnutí', 'main'],
+      ['vztahy', '♡', 'Vztahy', 'jak si tvá mapa rozumí s druhými'],
+      ['horoskop', '✦', 'Tvůj horoskop', 'kapitoly o tobě, tisk'],
       ['cisla', '8', 'Tvá čísla', 'životní číslo, osobní rok, hlubší rozbor'],
+      ['cakra', '◉', 'Čakra roku', 'kterou čakrou letos procházíš'],
+      ['navraty', '⟳', 'Velké návraty', 'Saturn, Jupiter, Uran a uzly v tvém životě'],
+      ['hvezdy', '★', 'Tvé hvězdy', 'stálice na tvých bodech'],
       ['efemeridy', '≡', 'Efemeridy', 'tabulky pro astrologa'],
     ].filter(t => t[0] !== 'cisla' || settings.numerology !== false);
     if (view === 'menu') {
       const arcS = arcSentence();
-      v.innerHTML = natalHead + (arcS ? `<p class="nnow"><span class="tvlab">u tebe teď</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES.map(([id, ic, t, sub]) => `<button type="button" class="ntile" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small></button>`).join('')}</div>`;
+      v.innerHTML = natalHead + (arcS ? `<p class="nnow"><span class="tvlab">u tebe teď</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES.map(([id, ic, t, sub, kind]) => `<button type="button" class="ntile ${kind || ''}" data-act="natalView" data-v="${id}" style="--art:url('tile-${id}.webp?v=1')"><span class="art"></span><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>`).join('')}</div>`;
       return;
     }
     const tile = TILES.find(t => t[0] === view) || TILES[0];
