@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v252';
+  const VERSION = 'v253';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1004,6 +1004,7 @@
       catch (e) { prompt('Odkaz na Kompas:', url); }
     },
     toggleKp() { settings.showKp = !settings.showKp; persistSettings(); S.dayCache = {}; renderSettings(); },
+    natalView(el) { S.natalView = el.dataset.v; renderNatal(); window.scrollTo({ top: 0 }); },
     lookback() { const v = ($('#lookbackDate') || {}).value; if (!v) return; S.lookback = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .lookback'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
     toggleNum() { settings.numerology = settings.numerology === false; persistSettings(); S.dayCache = {}; renderSettings(); },
     toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
@@ -1876,7 +1877,7 @@ ${parts}
         card = `<div class="card hs">${synastry(n, nb, (activeProfile().name || 'A').split(' ')[0], (selRec.name || 'B').split(' ')[0])}</div>`;
       } catch (e) { card = '<div class="card hs"><div class="hsp"><p>Mapu se nepodařilo spočítat — zkontroluj zadané údaje.</p></div></div>'; }
     }
-    return `<div class="h3">Partnerský horoskop</div>
+    return `<div class="h3">Horoskop dvou map</div>
       <div class="row echips" style="margin-bottom:8px"><span class="elbl">${esc(activeProfile().name)} ×</span>${others.map(chip).join('')}${partners.map(chip).join('')}<button type="button" class="chip" data-act="synAdd">＋ přidat osobu</button>${isPartner && !S.synForm ? `<button type="button" class="chip" data-act="synEdit" title="Upravit údaje">✎</button><button type="button" class="chip" data-act="synDel" title="Odebrat osobu">×</button>` : ''}</div>
       ${form}
       ${!S.synForm && !selRec ? `<p class="note">Vyber, s kým mapu porovnat, nebo přidej osobu — jen pro srovnání, bez zakládání profilu.</p>` : ''}
@@ -2713,7 +2714,6 @@ ${parts}
       <div class="hsgrid">${HS_ORDER.map((k, i) => [HS_THEMES.find(x => x[0] === k), HS_SPAN[i]]).filter(x => x[0]).map(([t, sp]) => `<button type="button" class="hsb ${(S.hsTheme || 'rok') === t[0] ? 'on' : ''}" style="--sp:${sp}" data-act="hsTheme" data-t="${t[0]}"><i class="hsi">${hsIcon(t[0])}</i><span>${t[1]}</span></button>`).join('')}
       <button type="button" class="hsb hsprint" style="--sp:6" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení"><i class="hsi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8.4 10.6L12 14.2l3.6-3.6"/><path d="M5 17.6h14"/></svg></i><span>Uložit · tisk</span></button></div>
       <div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'rok')) || HS_THEMES[0])[2](n)}</div>
-      ${synSectionHTML(n)}
       <div class="h3">Body nativu</div>
       <table class="pts">${pts}</table>
       <details class="expl"><summary>Co ty body znamenají?</summary><div class="card small">
@@ -2738,7 +2738,16 @@ ${parts}
       <div class="h3">Efemeridy</div>
       <details><summary>Měsíční tabulka poloh, ingresy, Luna bez kurzu, export</summary><div id="ephHost"></div></details>
       <p class="note" style="margin-top:16px">Rezonanční dny v kalendáři (✦) vznikají, když Slunce, Venuše, Merkur či Mars stojí na tvé hvězdě (orbis ${fmtNum(settings.rules.starOrb, 1)}°), když přes ni přechází Luna, nebo když na ní nastane novoluní či úplněk (orbis 2°).</p>`;
-    v.innerHTML = natalHTML;
+    const view = S.natalView || 'ty';
+    const tabs = `<div class="row nvtabs"><button type="button" class="chip ${view === 'ty' ? 'on' : ''}" data-act="natalView" data-v="ty">Ty</button><button type="button" class="chip ${view === 'vztahy' ? 'on' : ''}" data-act="natalView" data-v="vztahy">Vztahy</button></div>`;
+    if (view === 'vztahy') {
+      v.innerHTML = tabs + `
+      <div class="h2">Vztahy</div>
+      <p class="note" style="margin-top:-2px">Jak si tvá mapa rozumí s mapami lidí kolem tebe — partner, děti, rodiče, přátelé, kolegové. Přidej datum, čas a místo narození druhého a Kompas přečte, kde se vaše mapy potkávají samy a kde to chce práci.</p>
+      ${synSectionHTML(n)}`;
+      return;
+    }
+    v.innerHTML = tabs + natalHTML;
     renderEphemeris();
   }
   function wheelSVG(n) {

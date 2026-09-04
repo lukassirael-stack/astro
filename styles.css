@@ -887,3 +887,6 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .tarc-d span:nth-child(2){color:var(--text)}
 .hero-today .ht-arc .ht-ic.arc{color:var(--gold);font-style:normal}
 .lookback{margin:4px 0 16px}
+
+.nvtabs{gap:8px;margin:2px 0 10px}
+.nvtabs .chip{flex:1;justify-content:center;text-align:center;padding:10px 12px;font-size:var(--fs-m)}
