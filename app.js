@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v280';
+  const VERSION = 'v281';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -639,20 +639,54 @@
     const base = x.t === 'narozeniny' ? 'narozeniny' : x.t === 'vyroci' ? 'výročí' : '';
     return `${SD_EMO[x.t] || '✦'} ${esc(x.name)}${base ? ' — ' + base : ''}${yrs != null && yrs > 0 ? ` (${yrs})` : ''}`;
   }
+  const WX_CZ = (c) => c == null ? '' : c === 0 ? 'jasno' : c === 1 ? 'skoro jasno' : c === 2 ? 'polojasno' : c === 3 ? 'zataženo' : c <= 48 ? 'mlha' : c <= 57 ? 'mrholení' : c <= 67 ? 'déšť' : c <= 77 ? 'sněžení' : c <= 82 ? 'přeháňky' : c <= 86 ? 'sněhové přeháňky' : 'bouřka';
   async function wxRefresh() {
     try {
-      const pr = activeProfile(); if (!pr || pr.lat == null) return;
-      const u = `https://api.open-meteo.com/v1/forecast?latitude=${+pr.lat}&longitude=${+pr.lon}&current=temperature_2m,weather_code&daily=temperature_2m_min,temperature_2m_max&forecast_days=1&timezone=${encodeURIComponent(TZ)}`;
+      const loc = settings.loc && settings.loc.lat != null ? settings.loc : activeProfile(); if (!loc || loc.lat == null) return;
+      const u = `https://api.open-meteo.com/v1/forecast?latitude=${+loc.lat}&longitude=${+loc.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,cloud_cover,surface_pressure&hourly=temperature_2m,precipitation_probability,cloud_cover,surface_pressure,uv_index,weather_code&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,uv_index_max,weather_code&forecast_days=3&past_hours=24&timezone=${encodeURIComponent(TZ)}`;
       const r = await fetch(u); if (!r.ok) return;
       const j = await r.json();
-      store.set('kairos_wx', { when: Date.now(), t: Math.round(j.current.temperature_2m), c: j.current.weather_code, tmin: Math.round(j.daily.temperature_2m_min[0]), tmax: Math.round(j.daily.temperature_2m_max[0]) });
+      const H = j.hourly, D = j.daily, C = j.current;
+      store.set('kairos_wx', {
+        when: Date.now(), t: Math.round(C.temperature_2m), feels: Math.round(C.apparent_temperature), c: C.weather_code, wind: Math.round(C.wind_speed_10m), cloud: C.cloud_cover, p: Math.round(C.surface_pressure),
+        tmin: Math.round(D.temperature_2m_min[0]), tmax: Math.round(D.temperature_2m_max[0]),
+        days: D.time.map((t, i) => ({ d: t, tmin: Math.round(D.temperature_2m_min[i]), tmax: Math.round(D.temperature_2m_max[i]), rain: D.precipitation_sum[i], pop: D.precipitation_probability_max[i], wind: Math.round(D.wind_speed_10m_max[i]), uv: D.uv_index_max[i] != null ? Math.round(D.uv_index_max[i]) : null, c: D.weather_code[i] })),
+        hours: H.time.map((t, i) => ({ t, temp: H.temperature_2m[i], pop: H.precipitation_probability[i], cloud: H.cloud_cover[i], p: H.surface_pressure[i], uv: H.uv_index[i], c: H.weather_code[i] })),
+      });
       if (S.tab === 'kalendar') renderCalendar();
     } catch (e) { }
   }
   function wxLine() {
     const w = wxGet();
     if (!w || Date.now() - w.when > 3 * 3600 * 1000) return '';
-    return `<span class="ht-wx" title="venku teď"><i>${WX_EMO(w.c)}</i><b>${w.t}<span class="dg">°</span></b></span>`;
+    return `<span class="ht-wx" title="venku teď · ${WX_CZ(w.c)}"><i>${WX_EMO(w.c)}</i><b>${w.t}<span class="dg">°</span></b><small>${w.tmin}° / ${w.tmax}°</small></span>`;
+  }
+  // předpověď pro detail dne: dnes až pozítří; noc pro hvězdy, tlak, UV
+  function wxDetailHTML(y, m, d, tw, dn) {
+    const w = wxGet(); if (!w || !w.days || Date.now() - w.when > 6 * 3600 * 1000) return '';
+    const key = K.isoDate(y, m, d); const di = w.days.findIndex(x => x.d === key); if (di < 0) return '';
+    const day = w.days[di]; const isToday = di === 0;
+    const hrs = (w.hours || []).filter(h => h.t.startsWith(key));
+    const at = (hh) => hrs.find(h => +h.t.slice(11, 13) === hh);
+    const rainWin = hrs.filter(h => h.pop >= 50).map(h => +h.t.slice(11, 13));
+    const rainTxt = rainWin.length ? `déšť pravděpodobný ${rainWin[0]}–${rainWin[rainWin.length - 1] + 1} h` : (day.pop >= 30 ? `déšť možný (${day.pop} %)` : 'bez deště');
+    // noc pro hvězdy: oblačnost mezi koncem soumraku a půlnocí (a dál do rána z dalšího dne, pokud je v datech)
+    let night = '';
+    if (tw && tw.astroDusk) {
+      const h0 = tw.astroDusk.getHours(); const nightH = (w.hours || []).filter(h => { const dd = h.t.slice(0, 10), hh = +h.t.slice(11, 13); return (dd === key && hh >= h0) || (dd > key && dd === w.days[di + 1]?.d && hh <= 4); });
+      if (nightH.length) { const avg = Math.round(nightH.reduce((s, h) => s + h.cloud, 0) / nightH.length); night = avg <= 25 ? `jasná noc (oblačnost ${avg} %) — ${dn ? 'hvězdy bez Luny, ideální' : 'hvězdy i Luna dobře vidět'}` : avg <= 60 ? `polojasná noc (oblačnost ${avg} %) — mezi mraky` : `zatažená noc (oblačnost ${avg} %)`; }
+    }
+    // tlak: trend za posledních 24 h (jen dnes)
+    let pres = '';
+    if (isToday && w.hours && w.hours.length > 24) { const now = new Date(); const idx = w.hours.findIndex(h => new Date(h.t) > now); const cur = w.hours[Math.max(0, idx - 1)], prev = w.hours[Math.max(0, idx - 25)]; if (cur && prev) { const dp = Math.round(cur.p - prev.p); pres = `tlak ${Math.round(cur.p)} hPa, za 24 h ${dp > 0 ? '+' : ''}${dp} hPa${Math.abs(dp) >= 6 ? (dp < 0 ? ' — rychlý pokles, citlivější den pro hlavu a spánek' : ' — rychlý vzestup, čerstvý vzduch') : ''}`; } }
+    const uv = day.uv != null ? `UV ${day.uv}${day.uv >= 6 ? ' — v poledne chránit kůži' : day.uv >= 3 ? ' — střední' : ' — nízké'}` : '';
+    return `<div class="wxd">
+      <p><span class="nl">počasí</span><b>${WX_EMO(day.c)} ${WX_CZ(day.c)}</b> · ${day.tmin}° až ${day.tmax}°${isToday ? ` · teď ${w.t}° (pocitově ${w.feels}°)` : ''} · vítr do ${day.wind} km/h</p>
+      <p><span class="nl">déšť</span>${rainTxt}${day.rain > 0 ? ` · celkem ${day.rain} mm` : ''}</p>
+      ${night ? `<p><span class="nl">noc</span>${night}</p>` : ''}
+      ${pres ? `<p><span class="nl">tlak</span>${pres}</p>` : ''}
+      ${uv ? `<p><span class="nl">slunce</span>${uv}</p>` : ''}
+    </div>`;
   }
   async function reconcileMedia() {
     const db = await MDB.open(); if (!db) return;
@@ -1506,7 +1540,7 @@
       ${isToday ? '' : `<p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;% osvětlení</p>
       <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>${holidayFor(y, m, d) ? `<p class="day-hol ${holidayFor(y, m, d).f ? 'free' : 'trad'}">${esc(holidayLine(y, m, d))}</p>` : ''}
       ${(() => { const tw = twilight(y, m, d, obs); const f = (x) => x ? K.fmtTime(x, TZ) : '–'; const dn = darkNight(y, m, d, obs, moonrise, moonset); const g = gardenLine(da);
-        return `<div class="nature">
+        return `${wxDetailHTML(y, m, d, tw, dn)}<div class="nature">
           <p><span class="nl">zlatá hodina</span>${f(tw.goldAM[0])}–${f(tw.goldAM[1])} · ${f(tw.goldPM[0])}–${f(tw.goldPM[1])}<span class="nl">modrá hodina</span>${f(tw.blueAM[0])}–${f(tw.blueAM[1])} · ${f(tw.bluePM[0])}–${f(tw.bluePM[1])}</p>
           ${dn ? `<p><span class="nl">tmavá noc</span>Luna pod obzorem ${f(dn.from)}–${f(dn.to)} — ${dn.hours >= 4 ? 'Mléčná dráha a slabé hvězdy jsou dobře vidět' : 'krátké okno na hvězdy bez Luny'}</p>` : ''}
           ${settings.numerology !== false && S.natal && S.natal.profile ? (() => { const n = numerology(S.natal.profile, y, m, d); return `<p><span class="nl">osobní den</span><b>${n.day}</b> — ${NUM_DAY[n.day]} <small>(osobní rok ${n.year}, měsíc ${n.month})</small></p>`; })() : ''}
@@ -3191,6 +3225,7 @@ ${parts}
   showTab(['kalendar', 'ukazy', 'diar', 'nativ', 'nastaveni'].includes(store.get('kairos_tab', 'kalendar')) ? store.get('kairos_tab', 'kalendar') : 'kalendar');
   setTimeout(reconcileMedia, 1200);
   setTimeout(() => { const w = wxGet(); if (!w || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); }, 800);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { const w = wxGet(); if (!w || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); } });
   setInterval(() => { const el = $('#tatvaLine'); if (el) { const h = tattvaHTML(); if (h) el.innerHTML = h; } const eo = $('#orgLine'); if (eo) { const g = orgHTML(); if (g) eo.innerHTML = g; } }, 30000);
   setTimeout(() => { const c = gEv(); if (store.get('kairos_ics', '') && (!c || Date.now() - c.when > 6 * 3600 * 1000)) icsRefresh(true); }, 2500);
   loadKp(false);

@@ -971,3 +971,10 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .nature-month .card p{margin:0 0 10px;line-height:1.62;color:var(--text)}
 .nature-month .card p.small{color:var(--muted)}
 .nature-month .card p b{color:var(--gold);font-weight:600}
+
+/* počasí v detailu dne */
+.wxd{margin:2px 0 8px;padding:8px 12px;border-left:2px solid rgba(127,182,221,.45);font-size:var(--fs-s);color:var(--muted);line-height:1.55}
+.wxd p{margin:0 0 4px}
+.wxd .nl{display:inline-block;min-width:96px;margin-right:6px;color:var(--c-throat);letter-spacing:.06em;text-transform:uppercase;font-size:var(--fs-xs)}
+.wxd b{color:var(--text);font-weight:600}
+.hero-today .ht-wx small{margin-left:6px;font-size:var(--fs-xs);color:var(--inst-muted)}
