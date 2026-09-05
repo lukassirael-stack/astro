@@ -249,7 +249,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .hero-today .ht-medal>svg.moon{filter:drop-shadow(0 0 14px rgba(239,200,120,.5)) drop-shadow(0 0 30px rgba(239,200,120,.25))}
 .hero-today .ht-word{position:relative;padding-bottom:8px}
 .hero-today .wflo{position:absolute;left:2px;bottom:-4px;width:min(180px,86%);height:14px;color:#D9B96E;opacity:.8}
-.hero-today .ht-wx{position:absolute;top:12px;right:23px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.hero-today .ht-wx{position:absolute;top:14px;right:18px;height:96px;justify-content:center;display:flex;flex-direction:column;align-items:center;gap:1px}
 .hero-today .ht-wx .dg{font-size:.62em;vertical-align:.3em;margin-left:1px}
 .hero-today .sri{font-style:normal;color:var(--inst-gold);opacity:.85;display:inline-block;transform:translateY(1.5px)}
 .hero-today .ht-tv .ht-ic.tv svg{width:16px;height:16px}
