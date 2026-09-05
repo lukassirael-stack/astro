@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v287';
+  const VERSION = 'v288';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -670,7 +670,7 @@
     const today = wxDetailHTML(np.y, np.m, np.d, tw, dn);
     const next = (w.days || []).slice(1, 3).map(dd => { const p = dd.d.split('-').map(Number); const wd = K.tzParts(K.dayStart(p[0], p[1], p[2], TZ), TZ).wd; const n = K.WEEKDAY_CZ[wd]; return `<p class="wxnext"><span class="wdn">${n.charAt(0).toUpperCase() + n.slice(1)}</span><span class="wxt"><i>${WX_EMO(dd.c)}</i> <b>${WX_CZ(dd.c)}</b> · ${dd.tmin}° až ${dd.tmax}°${dd.pop >= 30 ? ` · déšť ${dd.pop} %` : ''}${dd.wind >= 30 ? ` · vítr ${dd.wind} km/h` : ''}</span></p>`; }).join('');
     const loc = settings.loc && settings.loc.name ? settings.loc.name : '';
-    return `<div class="wxcard"><div class="wxhead"><b>Počasí${loc ? ` · ${esc(loc)}` : ''}</b><small>aktualizováno ${K.fmtTime(new Date(w.when), TZ)} · <u data-act="wxPlace" role="button">změnit místo</u></small></div>${today}</div><div class="wxcard wxdays">${next}</div>`;
+    return `<div class="wxcard"><div class="wxhead"><b>Počasí${loc ? ` · ${esc(loc)}` : ''}</b><small>${K.fmtTime(new Date(w.when), TZ)}</small></div><div class="wxsub"><u data-act="wxPlace" role="button">změnit místo ›</u></div>${today}</div><div class="wxcard wxdays">${next}</div>`;
   }
   // předpověď pro detail dne: dnes až pozítří; noc pro hvězdy, tlak, UV
   function wxDetailHTML(y, m, d, tw, dn) {

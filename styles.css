@@ -1000,3 +1000,8 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .wxpanel.top{margin:8px 0 4px;padding:0;background:none;border-radius:0}
 
 .wxhead small u{text-decoration:none;color:#7FB6DD;cursor:pointer;border-bottom:1px dotted rgba(127,182,221,.6)}
+.wxsub{margin:-2px 0 6px;text-align:right}
+.wxsub u{text-decoration:none;color:#7FB6DD;font-size:var(--fs-xs);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.wxpanel span[data-b].wxsub{display:block}
+.hero-today .ht-date:first-of-type{font-size:var(--fs-s);font-weight:600;color:var(--inst-text);letter-spacing:.16em}
+.hero-today .ht-date:first-of-type .ht-hol{font-weight:500}
