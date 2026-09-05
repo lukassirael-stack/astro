@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v316';
+  const VERSION = 'v317';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -239,6 +239,49 @@
     const age = y - p.y;
     return { life, bday: p.d, karma, pins, chal, ages, cycles, cnt, age };
   }
+  // hlubší vrstva: devítiletý cyklus, osobní měsíce, číslo postoje, univerzální rok
+  const NUM_YEAR_LONG = {
+    1: 'Začátek nového devítiletého cyklu. Sej, co chceš sklízet do roku 2034: nové projekty, nové místo, nová role. Energie jde dopředu, samostatnost roste; co teď založíš, ponese celý cyklus. Odkládání se letos nevyplácí.',
+    2: 'Rok zrání a vztahů. Co jsi loni založil, potřebuje čas, trpělivost a spolupráci; výsledky přijdou později, než bys chtěl. Dobrý rok pro partnerství, dohody a citlivé věci, které nesnesou tlak.',
+    3: 'Rok rozkvětu a vyjádření. Tvorba, slovo, společnost, radost — co bylo dva roky pod povrchem, se hlásí ven. Riziko je roztříštěnost; dokonči to, co začneš, a užij si, že jde o lehký rok.',
+    4: 'Rok práce a základů. Cyklus dostává tvar: řád, disciplína, zdraví, finance, hmotné věci. Bývá to nejpracovitější rok devítiletky a leckdy nejtěžší, ale to, co v něm postavíš, vydrží nejdéle.',
+    5: 'Rok změny a svobody. Uprostřed cyklu přichází pohyb: cesty, nové lidi, nečekané obraty, chuť vybočit. Dobrý rok pro změnu, kterou jsi odkládal; horší pro sliby, které nemůžeš dodržet.',
+    6: 'Rok domova a odpovědnosti. Rodina, vztahy, péče, krása — pozornost jde k lidem a k místu, kde žiješ. Často rok svateb, dětí, stěhování a rozhodnutí o závazcích. Dávej, ale znej míru.',
+    7: 'Rok nitra. Cyklus se ztišuje: studium, samota, otázky po smyslu, zdraví. Vnější věci jdou pomaleji a to je správně; tenhle rok se nesklízí, tenhle rok se rozumí.',
+    8: 'Rok sklizně a moci. Přichází, co sis zasloužil — peníze, uznání, výsledky, nebo účet za to, co bylo odbyté. Rok velkých rozhodnutí v hmotě a v odpovědnosti za víc lidí než sebe.',
+    9: 'Rok uzavírání. Poslední rok cyklu: dokončovat, pouštět, odpouštět, uklidit. Co nechceš do dalšího cyklu nést, propusť teď. Nové věci počkají na jedničku; letos se sklízí, co bylo, a dělá se místo.',
+  };
+  const NUM_MONTH = { 1: 'začátky, iniciativa', 2: 'čekání, spolupráce', 3: 'tvorba, společnost', 4: 'práce, řád', 5: 'změna, pohyb', 6: 'domov, péče', 7: 'ticho, nitro', 8: 'výsledky, peníze', 9: 'uzavírání, pouštění' };
+  const NUM_ATT = {
+    1: 'Číslo postoje 1: na první pohled působíš samostatně a rozhodně, jako někdo, kdo ví, kam jde.', 2: 'Číslo postoje 2: působíš vstřícně a citlivě; lidé se ti snadno svěří.', 3: 'Číslo postoje 3: působíš vesele a výřečně; přinášíš do místnosti lehkost.',
+    4: 'Číslo postoje 4: působíš spolehlivě a věcně; lidé se na tebe spolehnou dřív, než tě znají.', 5: 'Číslo postoje 5: působíš živě a nezávisle; přitahuješ změnou a pohybem.', 6: 'Číslo postoje 6: působíš laskavě a pečujícím dojmem; lidé u tebe hledají zázemí.',
+    7: 'Číslo postoje 7: působíš zdrženlivě a hloubavě; druzí cítí, že přemýšlíš.', 8: 'Číslo postoje 8: působíš silně a schopně; lidé ti přisuzují autoritu.', 9: 'Číslo postoje 9: působíš velkoryse a otevřeně; jako někdo, kdo rozumí.',
+  };
+  const NUM_PIN_LONG = {
+    1: 'Období samostatnosti. Život tě staví do situací, kde se musíš rozhodnout sám a jít první — často bez podpory, na kterou bys čekal. Roste vůle, sebedůvěra a schopnost vést. Dar období je vlastní cesta; past je tvrdost a osamělost, když se samostatnost změní ve vzdor.',
+    2: 'Období vztahů a trpělivosti. Věci se dějí skrz druhé — partnery, spolupráci, dohody — a vlastní tempo musí ustoupit společnému. Roste citlivost, diplomacie a umění čekat. Dar období je hloubka vztahů; past je ztráta sebe v ohledech na ostatní.',
+    3: 'Období vyjádření. Život přeje tvorbě, slovu, společnosti a radosti; talent se dostává ven a bývá viděn. Roste lehkost, přátelství a schopnost těšit. Dar období je rozkvět; past je roztříštěnost a nedokončené věci.',
+    4: 'Období práce. Život žádá řád, vytrvalost a péči o hmotné — základy, zdraví, finance, rodinu. Bývá nejpracovitější ze všech období a ne vždy vděčné. Dar období je pevná půda na zbytek života; past je zatvrdnutí a únava z povinností.',
+    5: 'Období změny. Život přináší pohyb, cesty, nové lidi a nečekané obraty; stará jistota se hýbe. Roste svoboda, přizpůsobivost a chuť žít. Dar období je rozšíření obzoru; past je neklid a útěk před závazky.',
+    6: 'Období domova. Život se točí kolem rodiny, vztahů, péče a odpovědnosti za druhé; často děti, partnerství, rodiče, dům. Roste laskavost a smysl pro krásu. Dar období je hluboké zázemí; past je obětování sebe a kontrola v přestrojení za péči.',
+    7: 'Období nitra. Život se ztišuje: studium, samota, duchovní hledání, někdy nemoc nebo ústraní, které vede dovnitř. Roste moudrost, intuice a nezávislost na vnějším potlesku. Dar období je porozumění; past je odcizení a chlad.',
+    8: 'Období sklizně. Život přináší hmotu, moc, výsledky a odpovědnost za víc lidí než za sebe — firmu, majetek, vedení. Roste síla, rozhodnost a schopnost spravovat. Dar období je naplnění v hmotě; past je tvrdost a měření všeho penězi.',
+    9: 'Období uzavírání a služby. Život žádá pouštět, odpouštět, sloužit a vidět celek; osobní zájmy ustupují širšímu. Roste soucit, rozhled a schopnost nechat jít. Dar období je moudrost a lehkost; past je smutek z konců a lpění na tom, co odchází.',
+  };
+  function numCycleHTML(p) {
+    const yr = np.y; const rows = [];
+    for (let y = yr - 1; y <= yr + 8; y++) { const n = numReduce(digitsSum(`${p.d}${p.m}${y}`)); rows.push({ y, n }); }
+    const cur = rows.find(r => r.y === yr); const posInCycle = cur.n; const cycleStart = yr - (posInCycle - 1), cycleEnd = cycleStart + 8;
+    const months = []; for (let m = 1; m <= 12; m++) months.push({ m, n: numReduce(cur.n + m) });
+    const att = numReduce((+p.d) + (+p.m)); const uni = numReduce(digitsSum(String(yr)));
+    return `<div class="h3">Devítiletý cyklus</div>
+      <p class="note" style="margin-top:-4px">Osobní roky jdou po devíti: 1 začíná, 9 uzavírá. Jsi v <b>${posInCycle}. roce</b> cyklu ${cycleStart}–${cycleEnd}.</p>
+      <p class="numlong">${NUM_YEAR_LONG[cur.n]}</p>
+      <div class="numcyc">${rows.map(r => `<span class="${r.y === yr ? 'on' : ''} ${r.n === 1 ? 'start' : ''}"><b>${r.y}</b><i>${r.n}</i><small>${NUM_MONTH[r.n].split(',')[0]}</small></span>`).join('')}</div>
+      <div class="h3">Osobní měsíce ${yr}</div>
+      <div class="nummon">${months.map(x => `<span class="${x.m === np.m ? 'on' : ''}"><b>${K.MONTH_CZ[x.m - 1].slice(0, 3)}</b><i>${x.n}</i><small>${NUM_MONTH[x.n]}</small></span>`).join('')}</div>
+      <p class="note" style="margin-top:8px">${NUM_ATT[att]} Univerzální rok ${yr} je <b>${uni}</b> — ${NUM_MONTH[uni]} pro všechny; tvůj osobní rok ${cur.n} se do něj promítá.</p>`;
+  }
   function numerologyDeepHTML(p) {
     const n = numerologyDeep(p, np.y);
     const cur = n.ages.findIndex(([a, b]) => n.age >= a && (b == null || n.age <= b));
@@ -249,7 +292,8 @@
       ${n.karma.length ? n.karma.map(k => `<p class="karma">${NUM_KARMA[k]}</p>`).join('') : '<p class="note">V tvém datu se žádné z karmických čísel 13, 14, 16 a 19 neobjevuje — bez dluhu z minula, lekce si vybíráš sám.</p>'}
       <div class="h3">Vrcholy a výzvy</div>
       <p class="note" style="margin-top:-4px">Čtyři období života; každé má svůj vrchol (co období nese) a výzvu (co v něm zraje). Věky vycházejí z tvého životního čísla.</p>
-      ${n.pins.map((pn, i) => `<p class="${i === cur ? 'now' : ''}"><b>${i + 1}. období${i === cur ? ' · teď' : ''}</b> <small>${n.ages[i][1] == null ? `od ${n.ages[i][0]} let` : `${n.ages[i][0]}–${n.ages[i][1]} let`}</small><br>vrchol ${pn} — ${NUM_PIN[pn]}<br>${NUM_CHAL[n.chal[i]]}</p>`).join('')}
+      ${n.pins.map((pn, i) => { const same = i > 0 && n.pins[i - 1] === pn && n.chal[i - 1] === n.chal[i]; return `<p class="${i === cur ? 'now' : ''}"><b>${i + 1}. období${i === cur ? ' · teď' : ''}</b> <small>${n.ages[i][1] == null ? `od ${n.ages[i][0]} let` : `${n.ages[i][0]}–${n.ages[i][1]} let`}</small><br><b>vrchol ${pn}</b> — ${same ? `téma ${NUM_PIN[pn].split(' — ')[0]} pokračuje a prohlubuje se: co v předchozím období začalo, tady dozrává v plné síle.` : NUM_PIN_LONG[pn]}<br><b>výzva ${n.chal[i]}</b> — ${NUM_CHAL[n.chal[i]].replace(/^výzva \S+ — /, '')}</p>`; }).join('')}
+      ${numCycleHTML(p)}
       <div class="h3">Tři životní období</div>
       ${n.cycles.map(([v, a, b], i) => `<p><b>${['Mládí', 'Střed', 'Zralost'][i]}</b> <small>${b == null ? `od ${a} let` : `${a}–${b} let`}</small> — ${v}: ${NUM_YEAR[v].replace(/^rok /, '')}.</p>`).join('')}
       <div class="h3">Mřížka data narození</div>

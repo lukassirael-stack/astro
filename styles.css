@@ -1083,3 +1083,12 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .catgrid .chip.cat .cico{width:22px;height:22px}
 .catgrid .chip.cat img.cico{width:28px;height:28px;object-fit:contain;filter:none}
 .catgrid .chip.cat.on img.cico{filter:sepia(1) saturate(2.6) hue-rotate(5deg) brightness(1.05)}
+
+.numlong{line-height:1.65}
+.numcyc,.nummon{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0 4px}
+.nummon{grid-template-columns:repeat(4,1fr)}
+.numcyc span,.nummon span{display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 4px;border:1px solid var(--hairline);border-radius:10px;font-size:var(--fs-xs);color:var(--muted);text-align:center}
+.numcyc span b,.nummon span b{color:var(--text);font-weight:500}
+.numcyc span i,.nummon span i{font-style:normal;font-family:var(--display);font-size:var(--fs-l);color:var(--gold);line-height:1.1}
+.numcyc span.on,.nummon span.on{border-color:var(--gold);background:var(--gold-soft)}
+.numcyc span.start{border-style:dashed}
