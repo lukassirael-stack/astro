@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v310';
+  const VERSION = 'v311';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2787,7 +2787,7 @@ ${parts}
       const months = {};
       for (const e of list) { const p = K.tzParts(e.date, TZ); const k = `${p.y}-${pad(p.m)}`; (months[k] = months[k] || { y: p.y, m: p.m, items: [] }).items.push(e); }
       const chips = ['vse', 'osobni', 'priroda', 'zatmeni', 'luna', 'planety', 'hvezdy', 'roje', 'slunce', 'komety'].map(c => `<button type="button" class="chip cat ${S.filter === c ? 'on' : ''}" data-act="filter" data-f="${c}">${catIcon(c)}${CAT_CZ[c]}</button>`).join('');
-      let html = `<div class="h2">Úkazy · ${esc(settings.loc.name)}</div><p class="note">${S.evAll ? 'Rok dopředu od tohoto měsíce.' : 'Nejbližší tři měsíce.'} Časy jsou v našem čase, viditelnost počítaná pro ${esc(settings.loc.name)} (${fmtNum(settings.loc.lat, 3)} N, ${fmtNum(settings.loc.lon, 3)} E).</p><div class="row" style="gap:6px">${chips}</div>`;
+      let html = `<div class="h2">Úkazy · ${esc(settings.loc.name)}</div><p class="note">${S.evAll ? 'Rok dopředu od tohoto měsíce.' : 'Nejbližší tři měsíce.'} Časy jsou v našem čase, viditelnost počítaná pro ${esc(settings.loc.name)} (${fmtNum(settings.loc.lat, 3)} N, ${fmtNum(settings.loc.lon, 3)} E).</p><div class="catgrid">${chips}</div>`;
       if (S.filter === 'priroda') {
         // přírodní kalendář: měsíce v zobrazeném rozsahu
         const cnt = S.evAll ? 12 : 3; let yy = np.y, mm = np.m;
