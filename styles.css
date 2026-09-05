@@ -978,3 +978,13 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .wxd .nl{display:inline-block;min-width:96px;margin-right:6px;color:var(--c-throat);letter-spacing:.06em;text-transform:uppercase;font-size:var(--fs-xs)}
 .wxd b{color:var(--text);font-weight:600}
 .hero-today .ht-wx small{margin-left:6px;font-size:var(--fs-xs);color:var(--inst-muted)}
+
+/* počasí v kartě Dnes */
+.hero-today .ht-wx{font:inherit;cursor:pointer;border-radius:10px;padding:2px 6px;transition:background .15s}
+.hero-today .ht-wx.open,.hero-today .ht-wx:active{background:rgba(127,182,221,.16)}
+.wxpanel{display:block;padding:2px 0 4px}
+.wxhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 4px 12px}
+.wxhead b{font-family:var(--display);font-size:var(--fs-l);font-weight:500;color:var(--text)}
+.wxhead small{font-size:var(--fs-xs);color:var(--inst-muted);letter-spacing:.04em}
+.wxpanel .wxd{border-left-color:rgba(127,182,221,.5)}
+.wxnext .nl{text-transform:capitalize;letter-spacing:.02em}

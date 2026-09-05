@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v281';
+  const VERSION = 'v282';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -659,7 +659,16 @@
   function wxLine() {
     const w = wxGet();
     if (!w || Date.now() - w.when > 3 * 3600 * 1000) return '';
-    return `<span class="ht-wx" title="venku teď · ${WX_CZ(w.c)}"><i>${WX_EMO(w.c)}</i><b>${w.t}<span class="dg">°</span></b><small>${w.tmin}° / ${w.tmax}°</small></span>`;
+    return `<button type="button" class="ht-wx ${S.wxOpen ? 'open' : ''}" data-act="wxToggle" title="venku teď · ${WX_CZ(w.c)}" aria-expanded="${!!S.wxOpen}"><i>${WX_EMO(w.c)}</i><b>${w.t}<span class="dg">°</span></b><small>${w.tmin}° / ${w.tmax}°</small></button>`;
+  }
+  function wxPanelHTML() {
+    const w = wxGet();
+    if (!w || !w.days) { wxRefresh(); return '<p class="note" style="margin:0">Stahuji předpověď…</p>'; }
+    const obs = observer(); const tw = twilight(np.y, np.m, np.d, obs); const dn = (() => { try { return darkNight(np.y, np.m, np.d, obs); } catch (e) { return null; } })();
+    const today = wxDetailHTML(np.y, np.m, np.d, tw, dn);
+    const next = (w.days || []).slice(1, 3).map(dd => { const p = dd.d.split('-').map(Number); const wd = K.tzParts(K.dayStart(p[0], p[1], p[2], TZ), TZ).wd; return `<p class="wxnext"><span class="nl">${K.WEEKDAY_CZ[wd]}</span><b>${WX_EMO(dd.c)} ${WX_CZ(dd.c)}</b> · ${dd.tmin}° až ${dd.tmax}°${dd.pop >= 30 ? ` · déšť ${dd.pop} %` : ''}${dd.wind >= 30 ? ` · vítr ${dd.wind} km/h` : ''}</p>`; }).join('');
+    const loc = settings.loc && settings.loc.name ? settings.loc.name : '';
+    return `<div class="wxhead"><b>Počasí${loc ? ` · ${esc(loc)}` : ''}</b><small>aktualizováno ${K.fmtTime(new Date(w.when), TZ)}</small></div>${today}<div class="wxd">${next}</div>`;
   }
   // předpověď pro detail dne: dnes až pozítří; noc pro hvězdy, tlak, UV
   function wxDetailHTML(y, m, d, tw, dn) {
@@ -1131,6 +1140,7 @@
       try { await navigator.clipboard.writeText(url); toast('Odkaz zkopírován — stačí ho vložit do zprávy.'); }
       catch (e) { prompt('Odkaz na Kompas:', url); }
     },
+    wxToggle() { S.wxOpen = !S.wxOpen; renderCalendar(); },
     toggleKp() { settings.showKp = !settings.showKp; persistSettings(); S.dayCache = {}; renderSettings(); },
     guide() { S.guide = true; renderSettings(); window.scrollTo({ top: 0 }); },
     goGuide() { S.guide = true; showTab('nastaveni'); },
@@ -1450,6 +1460,7 @@
       ${cycOn() && cycFor(K.isoDate(np.y, np.m, np.d)) ? `<span class="ht-div"></span><span class="ht-cyc">${(() => { const c = cycFor(K.isoDate(np.y, np.m, np.d)); return `<i class="cdot" style="background:${c.ph.col}"></i><b>${c.day}. den cyklu</b><span>${esc(c.ph.n)} fáze</span>`; })()}</span>` : ''}
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
       ${orgHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv ht-org" id="orgLine">${orgHTML()}</span>${S.orgHelp ? orgExpHTML() : ''}` : ''}
+      ${S.wxOpen ? `<span class="ht-div"></span><div class="wxpanel">${wxPanelHTML()}</div>` : ''}
       ${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">${ico('✺')}</i><b>u tebe</b><span class="tx">${esc(arcS)}</span><i class="tvq" data-act="goArcs" role="button" aria-label="Čím teď procházíš">›</i></span>` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
 <linearGradient id="invG" gradientUnits="userSpaceOnUse" x1="40" y1="8" x2="40" y2="72"><stop offset="0" stop-color="#F7E3A8"/><stop offset="1" stop-color="#D9A54A"/></linearGradient>
@@ -3224,7 +3235,7 @@ ${parts}
   setInterval(applyTheme, 240000);
   showTab(['kalendar', 'ukazy', 'diar', 'nativ', 'nastaveni'].includes(store.get('kairos_tab', 'kalendar')) ? store.get('kairos_tab', 'kalendar') : 'kalendar');
   setTimeout(reconcileMedia, 1200);
-  setTimeout(() => { const w = wxGet(); if (!w || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); }, 800);
+  setTimeout(() => { const w = wxGet(); if (!w || !w.days || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); }, 800);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { const w = wxGet(); if (!w || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); } });
   setInterval(() => { const el = $('#tatvaLine'); if (el) { const h = tattvaHTML(); if (h) el.innerHTML = h; } const eo = $('#orgLine'); if (eo) { const g = orgHTML(); if (g) eo.innerHTML = g; } }, 30000);
   setTimeout(() => { const c = gEv(); if (store.get('kairos_ics', '') && (!c || Date.now() - c.when > 6 * 3600 * 1000)) icsRefresh(true); }, 2500);
