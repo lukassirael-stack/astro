@@ -1005,3 +1005,7 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .wxpanel span[data-b].wxsub{display:block}
 .hero-today .ht-date:first-of-type{font-size:var(--fs-s);font-weight:600;color:var(--inst-text);letter-spacing:.16em}
 .hero-today .ht-date:first-of-type .ht-hol{font-weight:500}
+
+/* Zpět po přechodu jinam */
+.backbtn{position:fixed;left:max(12px,env(safe-area-inset-left));bottom:calc(84px + env(safe-area-inset-bottom));z-index:29;padding:9px 14px;border-radius:999px;border:1px solid rgba(240,200,116,.6);background:rgba(8,20,40,.82);color:var(--gold);font:inherit;font-size:var(--fs-s);letter-spacing:.06em;box-shadow:0 6px 18px rgba(0,0,0,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .2s,transform .2s}
+.backbtn.on{opacity:1;transform:none;pointer-events:auto}

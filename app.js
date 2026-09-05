@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v290';
+  const VERSION = 'v291';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -992,9 +992,26 @@
     tabTapAt = Date.now();
     if (S.tab !== t.dataset.tab) showTab(t.dataset.tab);
   }, { passive: true });
+  // ---------- Zpět: pamatuje, odkud člověk přišel, když ho klepnutí odvede jinam ----------
+  const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goArcs', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
+  let navBack = null;
+  function navPush() { navBack = { tab: S.tab, y: window.scrollY, natalView: S.natalView, guide: S.guide, sel: S.sel && { ...S.sel }, ym: { y: S.y, m: S.m } }; showBack(true); }
+  function showBack(on) { const b = $('#backBtn'); if (b) b.classList.toggle('on', !!on && !!navBack); }
+  function navPop() {
+    const n = navBack; if (!n) return; navBack = null; showBack(false);
+    S.natalView = n.natalView; S.guide = n.guide; if (n.sel) S.sel = n.sel; if (n.ym) { S.y = n.ym.y; S.m = n.ym.m; }
+    if (S.tab !== n.tab) showTab(n.tab); else { const run = ({ kalendar: renderCalendar, ukazy: renderEvents, diar: renderJournal, nativ: renderNatal, nastaveni: renderSettings })[S.tab]; if (run) run(); }
+    setTimeout(() => window.scrollTo({ top: n.y, behavior: 'smooth' }), 120);
+  }
   document.addEventListener('click', (e) => {
-    const t = e.target.closest('[data-tab]'); if (t) { if (Date.now() - tabTapAt > 900) showTab(t.dataset.tab); return; }
-    const act = e.target.closest('[data-act]'); if (act && act.tagName !== 'SELECT') { actions[act.dataset.act](act, e); }
+    const t = e.target.closest('[data-tab]'); if (t) { if (Date.now() - tabTapAt > 900) { navBack = null; showBack(false); showTab(t.dataset.tab); } return; }
+    if (e.target.closest('#backBtn')) { navPop(); return; }
+    const act = e.target.closest('[data-act]');
+    if (act && act.tagName !== 'SELECT') {
+      const name = act.dataset.act;
+      if (NAV_ACTS.has(name) && !(name === 'natalView' && act.dataset.v === 'menu')) navPush();
+      actions[name](act, e);
+    }
   });
 
   const actions = {
