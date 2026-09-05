@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v309';
+  const VERSION = 'v310';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -909,6 +909,19 @@
   };
   const ico = (g) => ICO[g] || g;
   const CAT_ICON = { luna: '☽', zatmeni: '◉', slunce: '☉', planety: '♃', roje: '☄', hvezdy: '✦', komety: '✧', osobni: '✺' };
+  const CAT_SVG = {
+    vse: '<path d="M8 1.5c.4 2.8 2.1 4.5 4.9 4.9-2.8.4-4.5 2.1-4.9 4.9C7.6 8.5 5.9 6.8 3.1 6.4 5.9 6 7.6 4.3 8 1.5Z" fill="currentColor"/><path d="M13 10.5c.2 1.2 1 2 2.2 2.2-1.2.2-2 1-2.2 2.2-.2-1.2-1-2-2.2-2.2 1.2-.2 2-1 2.2-2.2Z" fill="currentColor" opacity=".8"/>',
+    osobni: '<ellipse cx="8" cy="8" rx="6" ry="3.6" fill="none" stroke="currentColor" stroke-width="1.1" transform="rotate(-30 8 8)"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="12.9" cy="4.9" r="1.1" fill="currentColor"/>',
+    priroda: '<path d="M13 3c-5.5 0-9 3-9.5 8.5 0 0 3.5.5 6-1.5S13 5 13 3Z" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><path d="M3.8 12.8C6 9.5 8.5 7.5 11 6" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>',
+    zatmeni: '<circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M8 3a5 5 0 0 0 0 10 4 4 0 0 1 0-10Z" fill="currentColor"/>',
+    luna: '<path d="M10.5 2.2a6 6 0 1 0 3.3 9.6A4.6 4.6 0 0 1 10.5 2.2Z" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/>',
+    planety: '<circle cx="8" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.1"/><ellipse cx="8" cy="8" rx="7" ry="2.2" fill="none" stroke="currentColor" stroke-width="1" transform="rotate(-20 8 8)"/>',
+    hvezdy: '<path d="M6 2.5c.3 2.2 1.6 3.5 3.8 3.8C7.6 6.6 6.3 7.9 6 10.1 5.7 7.9 4.4 6.6 2.2 6.3 4.4 6 5.7 4.7 6 2.5Z" fill="currentColor"/><path d="M12 8.5c.2 1.4 1 2.2 2.4 2.4-1.4.2-2.2 1-2.4 2.4-.2-1.4-1-2.2-2.4-2.4 1.4-.2 2.2-1 2.4-2.4Z" fill="currentColor" opacity=".8"/>',
+    roje: '<path d="M12.5 2.5 5 10M14 6.5 8.5 12M10 2 3.5 8.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="4.6" cy="10.4" r="1.3" fill="currentColor"/><circle cx="8.2" cy="12.3" r="1.1" fill="currentColor"/><circle cx="3.2" cy="8.8" r=".9" fill="currentColor"/>',
+    slunce: '<circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>',
+    komety: '<circle cx="4.5" cy="11.5" r="2.4" fill="currentColor"/><path d="M6.5 9.5 14 2M8.8 11.2 14.5 6M5 8.2 11 2.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".85"/>',
+  };
+  const catIcon = (c) => CAT_SVG[c] ? `<svg class="cico" viewBox="0 0 16 16" aria-hidden="true">${CAT_SVG[c]}</svg>` : '';
   const CAT_CZ = { vse: 'vše', luna: 'Luna', zatmeni: 'zatmění', slunce: 'Slunce', planety: 'planety', roje: 'roje', hvezdy: 'hvězdy', komety: 'komety', osobni: 'tvé cykly', priroda: 'příroda' };
   const TODAY_KEY = K.isoDate(np.y, np.m, np.d);
 
@@ -2773,7 +2786,7 @@ ${parts}
       const list = S.filter === 'vse' ? evs : evs.filter(e => e.cat === S.filter);
       const months = {};
       for (const e of list) { const p = K.tzParts(e.date, TZ); const k = `${p.y}-${pad(p.m)}`; (months[k] = months[k] || { y: p.y, m: p.m, items: [] }).items.push(e); }
-      const chips = ['vse', 'osobni', 'priroda', 'zatmeni', 'luna', 'planety', 'hvezdy', 'roje', 'slunce', 'komety'].map(c => `<button type="button" class="chip ${S.filter === c ? 'on' : ''}" data-act="filter" data-f="${c}">${CAT_CZ[c]}</button>`).join('');
+      const chips = ['vse', 'osobni', 'priroda', 'zatmeni', 'luna', 'planety', 'hvezdy', 'roje', 'slunce', 'komety'].map(c => `<button type="button" class="chip cat ${S.filter === c ? 'on' : ''}" data-act="filter" data-f="${c}">${catIcon(c)}${CAT_CZ[c]}</button>`).join('');
       let html = `<div class="h2">Úkazy · ${esc(settings.loc.name)}</div><p class="note">${S.evAll ? 'Rok dopředu od tohoto měsíce.' : 'Nejbližší tři měsíce.'} Časy jsou v našem čase, viditelnost počítaná pro ${esc(settings.loc.name)} (${fmtNum(settings.loc.lat, 3)} N, ${fmtNum(settings.loc.lon, 3)} E).</p><div class="row" style="gap:6px">${chips}</div>`;
       if (S.filter === 'priroda') {
         // přírodní kalendář: měsíce v zobrazeném rozsahu

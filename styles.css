@@ -1060,3 +1060,8 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 @media (max-width:400px){.hero-today .ht-row.ht-tv{grid-template-columns:36px minmax(0,1fr) auto}}
 .brand{cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 .brand:active .logo{transform:scale(.985)}
+
+/* čipy kategorií s ikonami */
+.chip.cat{display:inline-flex;align-items:center;gap:8px;padding:10px 14px 10px 12px;border-radius:14px;font-size:var(--fs-s);letter-spacing:.03em;text-transform:none}
+.chip .cico{width:20px;height:20px;flex:none;color:#BFD9F5;filter:drop-shadow(0 0 4px rgba(150,200,255,.55))}
+.chip.on .cico{color:#FFE9A8;filter:drop-shadow(0 0 5px rgba(240,200,116,.7))}
