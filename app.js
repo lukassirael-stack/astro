@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v320';
+  const VERSION = 'v321';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -45,7 +45,7 @@
   // (stažené Kp, počasí, kalendář z Googlu, otevřená záložka) zůstávají zvlášť,
   // protože se dají kdykoli stáhnout znovu.
   const STATE_KEY = 'kairos_state', STATE_V = 1;
-  const USER_KEYS = ['settings', 'profiles', 'active', 'journal', 'plan', 'cyc', 'cyc_on', 'days', 'days_seen', 'partners', 'ics', 'plus'];
+  const USER_KEYS = ['settings', 'profiles', 'active', 'journal', 'plan', 'cyc', 'cyc_on', 'days', 'days_seen', 'partners', 'ics', 'plus', 'dir'];
   const rawGet = (k, def) => { try { const v = localStorage.getItem(k); return v == null ? def : JSON.parse(v); } catch (e) { return def; } };
   const rawSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } };
   const rawDel = (k) => { try { localStorage.removeItem(k); } catch (e) { } };
@@ -557,6 +557,111 @@
     }
     return out;
   }
+  // ---------- Tvůj směr: záměr s termínem, okna podle oblohy, kroky, deníček, sklizeň ----------
+  const DIR_AREAS = {
+    prace: { n: 'práce a poslání', houses: [10, 6, 2], pts: ['MC', 'Saturn', 'Jupiter', 'Sun'], months: [1, 4, 8], kw: /pr[aá]c|zam[eě]st|firm|podnik|kari[eé]r|byznys|projekt|klient|obchod|živnost|zivnost|profes|povol[aá]n/i },
+    vztahy: { n: 'vztahy a láska', houses: [7, 5, 11], pts: ['Venus', 'Moon', 'Asc'], months: [2, 6], kw: /vztah|partner|l[aá]sk|man[žz]el|rodin|p[řr][aá]tel|d[ěe]ti|syn|dcer|ot[ce]|m[aá]m|manž|rozvod|seznám/i },
+    telo: { n: 'tělo a zdraví', houses: [1, 6], pts: ['Mars', 'Sun', 'Asc'], months: [4, 5, 1], kw: /t[ěe]l|zdrav|form|hubn|v[aá]h|sport|b[ěe]h|cvi[čc]|p[uů]st|spán|jíd|strav|energi|kondic/i },
+    tvorba: { n: 'tvorba a výraz', houses: [5, 3], pts: ['Venus', 'Mercury', 'Sun'], months: [3, 5], kw: /tvo[řr]|ps[aá]t|knih|hudb|malov|um[ěe]n|projev|vyj[aá]d|blog|nat[oá][čc]|kurz|u[čc]it|p[řr]edn/i },
+    domov: { n: 'domov a kořeny', houses: [4], pts: ['Moon', 'Venus'], months: [4, 6], kw: /dom[ov]|byt|st[ěe]hov|bydl|zahrad|pozem|rekonstr|rodn|ko[řr]en/i },
+    nitro: { n: 'nitro a duchovní cesta', houses: [12, 9], pts: ['Neptune', 'Jupiter', 'Moon'], months: [7, 9], kw: /klid|medit|duch|v[ií]r|smysl|ticho|nitr|modl|du[šs]|odpou|uzdrav|vnit[řr]|sebe/i },
+    hmota: { n: 'peníze a hmota', houses: [2, 8], pts: ['Jupiter', 'Saturn', 'Venus'], months: [8, 4], kw: /pen[ěe]z|finan|dluh|spo[řr]|investi|maj[eě]t|p[řr][ií]j|vyd[ěe]l|koup|prod[ea]j|hypot/i },
+  };
+  const dirGet = () => store.get('kairos_dir', { active: null, archive: [] });
+  const dirSave = (d) => store.set('kairos_dir', d);
+  function dirGuessArea(text) { for (const [k, v] of Object.entries(DIR_AREAS)) if (v.kw.test(text)) return k; return null; }
+  const dirKey = (dt) => { const p = K.tzParts(dt, TZ); return K.isoDate(p.y, p.m, p.d); };
+  // okna mezi zápisem a termínem: pomalé tranzity na body oblasti, novy a úplňky v domech oblasti, osobní měsíce oblasti, závěr
+  function dirWindows(D) {
+    if (!D || !S.natal) return [];
+    const area = DIR_AREAS[D.area] || DIR_AREAS.prace; const from = new Date(); const to = new Date(D.deadline + 'T23:59:59');
+    if (to <= from) return [];
+    const out = []; const n = S.natal;
+    // a) pomalé tranzity
+    try {
+      const p = K.tzParts(from, TZ); const arcs = transitArcs(p.y, p.m, p.d).filter(it => it.slow && area.pts.includes(it.t.natal));
+      for (const it of arcs) { const t = it.t; const st = it.arc.start > from ? it.arc.start : from; const en = it.arc.end < to ? it.arc.end : to; if (en <= st) continue;
+        const kind = t.key === 'conj' ? 'conj' : t.kind; const peak = it.nextExact || it.lastExact;
+        out.push({ kind: kind === 'tense' ? 'test' : 'open', from: st, to: en, peak, title: `${K.BODY_CZ[t.transit]} ${ASP_VERB[t.key]} ${NATAL_ACC[t.natal]}`, fact: `${ASP_NAME[t.key]} · ${fmtDY(it.arc.start, p.y)}–${fmtDY(it.arc.end, p.y)}${peak ? ` · přesně ${fmtDY(peak, p.y)}` : ''}`, text: (PERIOD_TXT[t.transit] || {})[kind] || arcPhrase(t) });
+      }
+    } catch (e) { }
+    // b) novy a úplňky v domech oblasti
+    try {
+      for (const q of K.moonQuartersBetween(from, to)) { if (q.quarter !== 0 && q.quarter !== 2) continue; const ml = K.lonOf('Moon', A.MakeTime(q.date)); const h = K.houseOf(ml, n.cusps); if (!area.houses.includes(h)) continue;
+        const nov = q.quarter === 0; const d = new Date(q.date);
+        out.push({ kind: nov ? 'seed' : 'harvest', from: new Date(d.getTime() - 86400000), to: new Date(d.getTime() + 2 * 86400000), peak: d, title: `${nov ? 'Novoluní' : 'Úplněk'} v ${h}. domě`, fact: `${fmtDY(d, from.getFullYear())} · dům oblasti ${area.n}`, text: nov ? 'Nov v domě tvého záměru: nejlepší chvíle vyslovit krok a začít ho — malý, ale skutečný.' : 'Úplněk v domě tvého záměru: co jsi rozjel, se ukáže v plném světle; den na vidění výsledku a dokončení.' });
+      }
+    } catch (e) { }
+    // c) osobní měsíce oblasti
+    try {
+      const prof = activeProfile(); let y = from.getFullYear(), m = from.getMonth() + 1;
+      for (let i = 0; i < 24; i++) { const st = new Date(y, m - 1, 1), en = new Date(y, m, 0, 23, 59); if (st > to) break; if (en >= from) { const nm = numerology(prof, y, m, 1); if (area.months.includes(nm.month)) out.push({ kind: 'month', from: st < from ? from : st, to: en < to ? en : to, peak: null, title: `Osobní měsíc ${nm.month}`, fact: `${K.MONTH_CZ[m - 1]} ${y} · ${NUM_MONTH[nm.month]}`, text: `Měsíc, jehož číslo ladí s tvým záměrem: ${NUM_MONTH[nm.month]}. Přirozený čas dát mu prostor.` }); }
+        m++; if (m > 12) { m = 1; y++; } }
+    } catch (e) { }
+    // d) závěr: posledních 7 dní před termínem
+    out.push({ kind: 'close', from: new Date(to.getTime() - 7 * 86400000), to, peak: to, title: 'Závěr a sklizeň', fact: `týden před termínem ${D.deadline.split('-').reverse().join('. ')}`, text: 'Poslední týden patří dokončování a pohledu zpět — a pak sklizni.' });
+    out.sort((x, y) => x.from - y.from);
+    // slít překryvy stejného druhu, omezit na 6 nejsilnějších podle druhu (tranzit > nov > měsíc)
+    const pri = { open: 0, test: 0, seed: 1, harvest: 1, month: 2, close: 0 };
+    return out.sort((x, y) => (pri[x.kind] - pri[y.kind]) || (x.from - y.from)).slice(0, 7).sort((x, y) => x.from - y.from);
+  }
+  function dirActiveWindow(D, dt) { const ws = D && D.windows ? D.windows : []; return ws.find(w => dt >= new Date(w.from) && dt <= new Date(w.to)) || null; }
+  const DIR_KIND = { open: ['otevřené dveře', '✦'], test: ['zkouška', '✳'], seed: ['setba', '●'], harvest: ['sklizeň', '○'], month: ['tvůj měsíc', '8'], close: ['závěr', '⟳'] };
+  function dirRecompute(D) { D.windows = dirWindows(D).map(w => ({ ...w, from: new Date(w.from).toISOString(), to: new Date(w.to).toISOString(), peak: w.peak ? new Date(w.peak).toISOString() : null })); return D; }
+  function dirHTML() {
+    const d = dirGet(); const D = d.active;
+    if (!D) {
+      const q = K.moonQuartersBetween(new Date(), new Date(Date.now() + 40 * 86400000)).find(x => x.quarter === 0);
+      const p = activeProfile(); const pd = numerology(p, np.y, np.m, np.d).day;
+      return `<div class="card dirform">
+        <p class="lede">Záměr je směr, ne úkol: kam chceš dojít a do kdy. Kompas pak čte oblohu skrz něj — najde okna, kdy jde tvému směru nejsnáz, ozve se jen tehdy, a pomůže ti kroky položit do správných dnů.</p>
+        <label class="wide">Můj záměr<textarea id="dirText" rows="3" placeholder="Do jara změnit práci na něco, kde budu víc venku…"></textarea></label>
+        <label>Do kdy<input type="date" id="dirDeadline" class="btn" style="width:100%"></label>
+        <label class="wide">Oblast <small>(Kompas ji odhadne z textu, můžeš upravit)</small><span class="row" id="dirAreas" style="gap:6px;flex-wrap:wrap;margin-top:6px">${Object.entries(DIR_AREAS).map(([k, v]) => `<button type="button" class="chip small" data-act="dirArea" data-a="${k}">${v.n}</button>`).join('')}</span></label>
+        <div class="row" style="margin-top:8px"><button type="button" class="btn primary" data-act="dirSave">Zapsat záměr</button></div>
+        <p class="note" style="margin:8px 0 0">Tradičně se záměr zapisuje o novu${q ? ` — nejbližší je ${fmtDY(q.date, np.y)}` : ''}${pd === 1 ? '; a dnes máš osobní den 1, den začátků' : ''}. Klidně ho ale zapiš hned; obloha se dá dohnat.</p>
+      </div>`;
+    }
+    const now = new Date(); const dl = new Date(D.deadline + 'T23:59:59'); const daysLeft = Math.max(0, Math.round((dl - now) / 86400000));
+    const total = Math.max(1, (dl - new Date(D.created)) / 86400000); const pos = Math.max(0, Math.min(1, (now - new Date(D.created)) / 86400000 / total));
+    const ws = D.windows || []; const act = dirActiveWindow(D, now);
+    const wrow = (w, i) => { const on = act && act.title === w.title && act.from === w.from; const [lab, ic] = DIR_KIND[w.kind] || ['', '']; return `<details class="ptcard dirwin ${w.kind} ${on ? 'now' : ''}" ${on ? 'open' : ''}><summary><span class="g">${ic}</span><b>${esc(w.title)}</b><span class="sg">${lab}${on ? ' · teď' : ''} · ${fmtDY(new Date(w.from), np.y)}–${fmtDY(new Date(w.to), np.y)}</span></summary><div class="ptbody"><p>${esc(w.ai || w.text)}</p><p class="what">${esc(w.fact)}</p></div></details>`; };
+    const steps = D.steps || [];
+    const srow = (st) => `<div class="dirstep ${st.done ? 'done' : ''}"><button type="button" class="chk" data-act="dirStepToggle" data-id="${st.id}" aria-label="Hotovo">${st.done ? '✓' : ''}</button><span class="txt">${esc(st.text)}${st.date ? `<small> · ${st.date.split('-').reverse().join('. ')}</small>` : ''}</span>${st.done ? '' : `<button type="button" class="mini" data-act="dirStepPlan" data-id="${st.id}" title="Naplánovat na vhodný den">→ vhodný den</button>`}<button type="button" class="mini x" data-act="dirStepDel" data-id="${st.id}" aria-label="Smazat">×</button></div>`;
+    const jkeys = Object.keys(journal).filter(k => journal[k] && journal[k].dir).sort().reverse().slice(0, 30);
+    const jrow = (k) => { const e = journal[k]; const [y, m, dd] = k.split('-').map(Number); let col = ''; try { col = analyze(y, m, dd).color; } catch (x) { } return `<div class="dirj ${col}"><b>${dd}. ${m}. ${y}</b>${e.rate != null ? ` <i>${RATES.find(r => r[0] === e.rate) ? RATES.find(r => r[0] === e.rate)[1] : ''}</i>` : ''}<p>${esc(e.note || '')}</p></div>`; };
+    return `<div class="card dirhead">
+      <p class="dirtext">${esc(D.text)}</p>
+      <p class="small"><b>${DIR_AREAS[D.area] ? DIR_AREAS[D.area].n : ''}</b> · zapsáno ${D.created.slice(0, 10).split('-').reverse().join('. ')} · termín ${D.deadline.split('-').reverse().join('. ')} · <b>${daysLeft} ${daysLeft === 1 ? 'den' : daysLeft < 5 ? 'dny' : 'dní'}</b></p>
+      <div class="tarc-bar"><span class="fill" style="width:${(pos * 100).toFixed(1)}%"></span>${ws.map(w => { const f = (new Date(w.from) - new Date(D.created)) / 86400000 / total, t = (new Date(w.to) - new Date(D.created)) / 86400000 / total; return `<b class="win ${w.kind}" style="left:${(Math.max(0, f) * 100).toFixed(1)}%;width:${(Math.max(1, (Math.min(1, t) - Math.max(0, f)) * 100)).toFixed(1)}%"></b>`; }).join('')}<em style="left:${(pos * 100).toFixed(1)}%"></em></div>
+      ${act ? `<p class="dirnow">${DIR_KIND[act.kind][1]} <b>${esc(act.title)}</b> — ${esc(act.ai || act.text)}</p>` : `<p class="note" style="margin:6px 0 0">Teď je mezi okny — čas na tiché kroky a přípravu. Další okno: ${ws.find(w => new Date(w.from) > now) ? `${esc(ws.find(w => new Date(w.from) > now).title)} od ${fmtDY(new Date(ws.find(w => new Date(w.from) > now).from), np.y)}` : 'závěr'}.</p>`}
+    </div>
+    <div class="h3">Okna na cestě</div>
+    <p class="note" style="margin-top:-4px">Kdy obloha a čísla přejí právě tomuhle směru. Kompas se ozve jen na jejich začátku.</p>
+    ${ws.length ? ws.map(wrow).join('') : '<p class="note">Do termínu nenašel Kompas žádné výrazné okno — zbývá čas na kroky, které nepotřebují oporu oblohy.</p>'}
+    <div class="h3">Kroky</div>
+    <p class="note" style="margin-top:-4px">Co pro to uděláš. Krok jde odškrtnout, nebo položit do nejbližšího vhodného dne v okně — objeví se ráno v plánu.</p>
+    <div class="dirsteps">${steps.map(srow).join('')}</div>
+    <div class="row" style="gap:8px;margin:6px 0 14px"><input id="dirStepText" placeholder="nový krok…" style="flex:1;min-width:0"><button type="button" class="btn ghost small" data-act="dirStepAdd">Přidat</button></div>
+    <div class="h3">Deníček směru</div>
+    <p class="note" style="margin-top:-4px">Zápisy z Diáře označené jako <em>k mému směru</em>. Píše se v Diáři, tady se čtou pohromadě.</p>
+    ${jkeys.length ? jkeys.map(jrow).join('') : '<p class="note">Zatím bez zápisu. Až budeš dnes psát do Diáře, zaškrtni <em>k mému směru</em>.</p>'}
+    <div class="row" style="gap:8px;margin:8px 0 18px"><button type="button" class="btn ghost small" data-act="goDiarToday">✎ zapsat dnes</button><button type="button" class="btn ghost small" data-act="dirRecalc">přepočítat okna</button><button type="button" class="btn ghost small" data-act="dirClose">Uzavřít a sklidit</button></div>
+    ${d.archive && d.archive.length ? `<details class="expl"><summary>Dřívější směry (${d.archive.length})</summary>${d.archive.slice().reverse().map(x => `<div class="card small"><p class="dirtext" style="font-size:var(--fs-m)">${esc(x.text)}</p><p class="small">${x.created.slice(0, 10).split('-').reverse().join('. ')} → ${x.closed ? x.closed.slice(0, 10).split('-').reverse().join('. ') : ''} · ${x.outcome || ''} · kroků hotovo ${(x.steps || []).filter(s => s.done).length}/${(x.steps || []).length} · zápisů ${x.entries || 0}</p>${x.harvest ? `<p class="small muted">${esc(x.harvest)}</p>` : ''}</div>`).join('')}</details>` : ''}`;
+  }
+  function dirCloseHTML() {
+    const d = dirGet(); const D = d.active; if (!D) return '';
+    const steps = D.steps || []; const done = steps.filter(s => s.done).length;
+    const jk = Object.keys(journal).filter(k => journal[k] && journal[k].dir && k >= D.created.slice(0, 10)); const rates = jk.map(k => journal[k].rate).filter(r => r != null);
+    const avg = rates.length ? (rates.reduce((a, b) => a + b, 0) / rates.length) : null;
+    return `<div class="card dirharv">
+      <div class="h3" style="margin-top:0">Sklizeň</div>
+      <p class="dirtext">${esc(D.text)}</p>
+      <p>Od ${D.created.slice(0, 10).split('-').reverse().join('. ')} do dneška: <b>${done} z ${steps.length}</b> kroků hotovo, <b>${jk.length}</b> zápisů k směru${avg != null ? `, dny se směrem ti vycházely v průměru <b>${avg > 0 ? '+' : ''}${avg.toFixed(1)}</b>` : ''}. Oken na cestě bylo ${(D.windows || []).length}.</p>
+      <label class="wide">Co si z toho neseš<textarea id="dirHarvest" rows="3" placeholder="pár slov na závěr…"></textarea></label>
+      <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn" data-act="dirFinish" data-o="naplněno">Naplněno</button><button type="button" class="btn ghost" data-act="dirFinish" data-o="nechávám">Nechávám být</button><button type="button" class="btn ghost" data-act="dirFinish" data-o="přeměněno">Přeměnit v nový směr</button><button type="button" class="btn ghost small" data-act="natalView" data-v="smer">zpět</button></div>
+    </div>`;
+  }
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
   function easterSunday(y) {
@@ -1017,7 +1122,8 @@
   function jSet(key, patch) {
     const cur = journal[key] || {};
     const next = Object.assign({}, cur, patch);
-    if (!next.note && next.rate == null && !(next.media && next.media.length)) delete journal[key]; else journal[key] = next;
+    if (next.note != null && !next.note.trim()) next.note = '';
+    if (!next.note && next.rate == null && !(next.media && next.media.length) && !next.dir) delete journal[key]; else journal[key] = next;
     store.set('kairos_journal', journal);
   }
 
@@ -1191,7 +1297,7 @@
     if (Date.now() - tabTapAt > 400) tabTap(t);
   }, { passive: true });
   // ---------- Zpět: pamatuje, odkud člověk přišel, když ho klepnutí odvede jinam ----------
-  const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goNature', 'goArcs', 'numQuick', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
+  const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goNature', 'goDir', 'goDiarToday', 'dirClose', 'goArcs', 'numQuick', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
   let navBack = null;
   function navPush() { navBack = { tab: S.tab, y: window.scrollY, natalView: S.natalView, guide: S.guide, sel: S.sel && { ...S.sel }, ym: { y: S.y, m: S.m } }; showBack(true); }
   function showBack(on) { const vis = !!on && !!navBack; const b = $('#backBtn'); if (b) b.classList.toggle('on', vis); document.body.classList.toggle('hasback', vis); }
@@ -1352,6 +1458,7 @@
       if (S.tab === 'diar') renderJournal(); else renderCalendar();
     },
     noteBlur(el) { jSet(el.dataset.k, { note: el.value.trim() }); },
+    jDir(el) { const k = el.dataset.k; const cur = jGet(k) || {}; jSet(k, { dir: !!el.checked, note: cur.note || (el.checked ? ' ' : '') }); },
     sdAdd() {
       const name = $('#sdName').value.trim(), date = $('#sdDate').value;
       if (!name || !date) { toast('Vyplň jméno i datum.'); return; }
@@ -1388,7 +1495,38 @@
       S.y = np.y; S.m = np.m; S.sel = { y: np.y, m: np.m, d: np.d }; S.wxOpen = false; S.tvHelp = false; S.orgHelp = false; S.elek.open = false; S.natalView = 'menu'; S.guide = false; navBack = null; showBack(false);
       showTab('kalendar'); window.scrollTo({ top: 0, behavior: 'smooth' });
     },
+    goDir() { S.natalView = 'smer'; showTab('nativ'); },
     goNature() { S.filter = 'priroda'; showTab('ukazy'); },
+    dirArea(el) { S.dirArea = el.dataset.a; document.querySelectorAll('#dirAreas .chip').forEach(c => c.classList.toggle('on', c.dataset.a === el.dataset.a)); },
+    dirSave() {
+      const text = ($('#dirText') || {}).value || ''; const dl = ($('#dirDeadline') || {}).value || '';
+      if (text.trim().length < 3) { toast('Napiš záměr aspoň pár slovy.'); return; }
+      if (!dl) { toast('Vyber, do kdy.'); return; }
+      const area = S.dirArea || dirGuessArea(text) || 'nitro';
+      const d = dirGet(); d.active = dirRecompute({ id: 'd' + Date.now(), text: text.trim(), area, deadline: dl, created: new Date().toISOString(), steps: [], windows: [] }); dirSave(d);
+      S.dirArea = null; toast('Záměr zapsán. Kompas našel ' + d.active.windows.length + ' ' + (d.active.windows.length === 1 ? 'okno' : d.active.windows.length < 5 ? 'okna' : 'oken') + '.'); renderNatal();
+    },
+    dirRecalc() { const d = dirGet(); if (!d.active) return; dirRecompute(d.active); dirSave(d); renderNatal(); },
+    dirStepAdd() { const t = (($('#dirStepText') || {}).value || '').trim(); if (!t) return; const d = dirGet(); if (!d.active) return; (d.active.steps = d.active.steps || []).push({ id: 's' + Date.now(), text: t, done: false }); dirSave(d); renderNatal(); },
+    dirStepToggle(el) { const d = dirGet(); const st = (d.active.steps || []).find(x => x.id === el.dataset.id); if (st) { st.done = !st.done; dirSave(d); renderNatal(); } },
+    dirStepDel(el) { const d = dirGet(); d.active.steps = (d.active.steps || []).filter(x => x.id !== el.dataset.id); dirSave(d); renderNatal(); },
+    dirStepPlan(el) {
+      const d = dirGet(); const st = (d.active.steps || []).find(x => x.id === el.dataset.id); if (!st) return;
+      // nejbližší den v nějakém okně s nejlepší barvou; jinak nejbližší příznivý den do 14 dní
+      const now = new Date(); const ws = (d.active.windows || []).map(w => [new Date(w.from), new Date(w.to)]); let best = null;
+      for (let i = 0; i < 45; i++) { const dt = new Date(now.getTime() + i * 86400000); const p = K.tzParts(dt, TZ); let da; try { da = analyze(p.y, p.m, p.d); } catch (e) { continue; }
+        const inWin = ws.some(([f, t]) => dt >= f && dt <= t); const score = da.score + (inWin ? 3 : 0) - i * 0.15;
+        if (!best || score > best.score) best = { score, key: K.isoDate(p.y, p.m, p.d), inWin }; if (inWin && da.score >= 2) break; }
+      if (!best) return;
+      st.date = best.key; dirSave(d); pAdd(best.key, { id: 'p' + Date.now(), name: st.text, t: '', dir: true }); toast(`Krok naplánován na ${best.key.split('-').reverse().join('. ')}${best.inWin ? ' — v okně' : ''}.`); renderNatal();
+    },
+    dirClose() { S.natalView = 'smerClose'; renderNatal(); window.scrollTo({ top: 0 }); },
+    dirFinish(el) {
+      const d = dirGet(); if (!d.active) return; const D = d.active; D.closed = new Date().toISOString(); D.outcome = el.dataset.o; D.harvest = (($('#dirHarvest') || {}).value || '').trim();
+      D.entries = Object.keys(journal).filter(k => journal[k] && journal[k].dir && k >= D.created.slice(0, 10)).length;
+      (d.archive = d.archive || []).push(D); d.active = null; dirSave(d); toast('Směr uzavřen.'); S.natalView = 'smer'; renderNatal(); window.scrollTo({ top: 0 });
+    },
+    goDiarToday() { S.plSel = K.isoDate(np.y, np.m, np.d); S.plY = np.y; S.plM = np.m; showTab('diar'); },
     goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; renderNatal(); window.scrollTo({ top: 0 }); },
     numQuick() { const v = ($('#numQuickDate') || {}).value; if (!v) return; S.numQuick = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .numquick'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
@@ -1707,6 +1845,7 @@
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp" data-act="noop">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
       ${orgHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv ht-org" id="orgLine">${orgHTML()}</span>${S.orgHelp ? orgExpHTML() : ''}` : ''}
       ${(() => { const e = natureNow(np.m, np.d); return e ? `<span class="ht-div"></span><span class="ht-row ht-nat"><i class="ht-ic nat">☘</i><b>příroda</b><span class="tx">${esc(e[1])}</span><i class="tvq" data-act="goNature" role="button" aria-label="Příroda v Úkazech">›</i></span>` : ''; })()}
+      ${(() => { const d = dirGet(); const w = d.active ? dirActiveWindow(d.active, new Date()) : null; return w ? `<span class="ht-div"></span><span class="ht-row ht-dir"><i class="ht-ic dir">➶</i><b>tvůj směr</b><span class="tx"><b>${esc(w.title)}</b> — ${esc(w.ai || w.text)}</span><i class="tvq" data-act="goDir" role="button" aria-label="Tvůj směr">›</i></span>` : ''; })()}
       ${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">${ico('✺')}</i><b>u tebe</b><span class="tx">${esc(arcS)}</span><i class="tvq" data-act="goArcs" role="button" aria-label="Čím teď procházíš">›</i></span>` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
 <linearGradient id="invG" gradientUnits="userSpaceOnUse" x1="40" y1="8" x2="40" y2="72"><stop offset="0" stop-color="#F7E3A8"/><stop offset="1" stop-color="#D9A54A"/></linearGradient>
@@ -2547,6 +2686,7 @@ ${parts}
     const chips = RATES.map(r => `<button type="button" class="rate ${r.cls} ${e.rate === r.v ? 'on' : ''}" data-act="rate" data-k="${key}" data-v="${r.v}">${r.label}</button>`).join('');
     return `<div class="panel jr">
       <textarea id="jNote" class="jnote" data-k="${key}" rows="3" placeholder="Chceš si něco z dneška poznamenat? Co se stalo, jak ti bylo, co vyšlo.">${esc(e.note || '')}</textarea>
+      ${dirGet().active ? `<label class="dirflag"><input type="checkbox" data-act="jDir" data-k="${key}" ${e.dir ? 'checked' : ''}> k mému směru <small>· ${esc(dirGet().active.text.slice(0, 40))}${dirGet().active.text.length > 40 ? '…' : ''}</small></label>` : ''}
       ${(e.media && e.media.length) ? `<div class="jmedia">${e.media.map(m => m.t === 'i'
         ? `<span class="jmit"><img data-mid="${m.id}" alt="fotka ke dni" data-act="jmView" data-mid2="${m.id}"><button type="button" class="jmx" data-act="jmDel" data-k="${key}" data-id="${m.id}" title="Smazat">×</button></span>`
         : `<span class="jmau"><audio data-mid="${m.id}" controls preload="none"></audio><button type="button" class="jmx" data-act="jmDel" data-k="${key}" data-id="${m.id}" title="Smazat">×</button></span>`).join('')}</div>` : ''}
@@ -3201,6 +3341,7 @@ ${parts}
       <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p></div>`;
     const view = S.natalView && S.natalView !== 'ty' ? S.natalView : 'menu';
     const TILES = [
+      ['smer', '➶', 'Tvůj směr', 'záměr, okna, kroky, deníček', 'main', 'nolmg'],
       ['mapa', '☉', 'Tvoje mapa', 'Slunce, Luna, ascendent, body, domy, aspekty', 'main'],
       ['prochazis', '✺', 'Čím teď procházíš', 'tranzity jako oblouky, ohlédnutí', 'main'],
       ['vztahy', '♡', 'Vztahy', 'jak si tvá mapa rozumí s druhými'],
@@ -3212,11 +3353,13 @@ ${parts}
     ].filter(t => t[0] !== 'cisla' || settings.numerology !== false);
     if (view === 'menu') {
       const arcS = arcSentence();
-      v.innerHTML = natalHead + (arcS ? `<p class="nnow"><span class="tvlab">u tebe teď</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES.map(([id, ic, t, sub, kind]) => `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=7" alt="" width="420" height="317"></button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
+      v.innerHTML = natalHead + (arcS ? `<p class="nnow"><span class="tvlab">u tebe teď</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES.map(([id, ic, t, sub, kind, noimg]) => noimg ? `<button type="button" class="ntile txt ${kind || ''}" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>` : `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=7" alt="" width="420" height="317"></button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
       return;
     }
-    const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : TILES[0]);
+    const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : view === 'smerClose' ? ['smer', '➶', 'Sklizeň', ''] : TILES[0]);
     const back = `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
+    if (view === 'smer') { v.innerHTML = back + dirHTML(); return; }
+    if (view === 'smerClose') { v.innerHTML = back.replace('data-v="menu"', 'data-v="smer"') + dirCloseHTML(); return; }
     if (view === 'vztahy') {
       v.innerHTML = back + `<p class="note" style="margin-top:-2px">Jak si tvá mapa rozumí s mapami lidí kolem tebe — partner, děti, rodiče, přátelé, kolegové. Přidej datum, čas a místo narození druhého a Kompas přečte, kde se vaše mapy potkávají samy a kde to chce práci.</p>${synSectionHTML(n)}`;
       return;

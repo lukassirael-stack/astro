@@ -1097,3 +1097,34 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))}
 .ptcard.numarea>summary .g{font-size:var(--fs-l)}
 .ptcard.numarea .ptbody{padding-left:12px}
+
+/* Tvůj směr */
+.ntile.txt{min-height:150px;padding:16px 16px 14px}
+.ntile.txt .ic{position:absolute;left:16px;top:12px;font-size:32px;color:#F3D384;line-height:1;text-shadow:0 0 14px rgba(243,211,132,.55)}
+.ntile.txt b{position:relative;font-family:var(--display);font-size:24px;font-weight:500;color:#FFF7E6;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.ntile.txt small{position:relative;font-size:var(--fs-s);color:#CFDBEE;padding-right:22px}
+.ntile.txt .chev{position:absolute;right:14px;bottom:12px;font-size:26px;color:#F3D384;font-weight:600}
+.dirform textarea,.dirharv textarea{width:100%;min-height:76px;resize:vertical}
+.dirform .lede{font-size:var(--fs-b);line-height:1.6;color:var(--text);margin:0 0 12px}
+.dirhead .dirtext,.dirharv .dirtext{font-family:var(--display);font-size:var(--fs-xl);line-height:1.3;color:#FFF6E4;margin:0 0 6px}
+.dirhead .tarc-bar{margin:12px 0 10px}
+.dirhead .tarc-bar .win{position:absolute;top:-2px;height:10px;border-radius:5px;opacity:.75;background:var(--harm)}
+.dirhead .tarc-bar .win.test{background:var(--tense)}.dirhead .tarc-bar .win.seed,.dirhead .tarc-bar .win.harvest{background:#7FB6DD}.dirhead .tarc-bar .win.month{background:#C9A9E0}.dirhead .tarc-bar .win.close{background:var(--gold)}
+.dirnow{margin:6px 0 0;line-height:1.55;color:var(--text)}
+.dirwin.now{border-color:var(--gold);background:var(--gold-soft)}
+.dirsteps{display:flex;flex-direction:column;gap:6px;margin:4px 0}
+.dirstep{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--glass);border:1px solid var(--hairline);border-radius:12px}
+.dirstep .chk{width:26px;height:26px;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--gold);font:inherit;cursor:pointer;flex:none}
+.dirstep.done .chk{background:var(--gold);color:#1e1706}
+.dirstep .txt{flex:1;min-width:0;line-height:1.4}
+.dirstep.done .txt{text-decoration:line-through;color:var(--muted)}
+.dirstep .txt small{color:var(--muted)}
+.dirstep .mini{border:1px solid var(--hairline);background:transparent;color:var(--muted);font:inherit;font-size:var(--fs-xs);padding:5px 8px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.dirstep .mini.x{padding:5px 8px;font-size:var(--fs-m);line-height:1}
+.dirj{padding:8px 10px 8px 12px;margin:0 0 6px;border-left:3px solid var(--hairline);background:var(--glass);border-radius:0 10px 10px 0}
+.dirj b{font-size:var(--fs-s);color:var(--gold)}.dirj i{font-style:normal;font-size:var(--fs-xs);color:var(--muted);margin-left:6px}
+.dirj p{margin:2px 0 0;line-height:1.5}
+.dirj.priznivy,.dirj.vlidny{border-left-color:var(--harm)}.dirj.narocny,.dirj.pomalejsi{border-left-color:var(--tense)}
+.hero-today .ht-ic.dir{color:var(--gold);font-style:normal}
+.dirflag{display:flex;align-items:center;gap:8px;margin:8px 0 2px;font-size:var(--fs-s);color:var(--text);cursor:pointer;text-transform:none;letter-spacing:0}
+.dirflag small{color:var(--muted)}
