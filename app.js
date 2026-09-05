@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v297';
+  const VERSION = 'v298';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -3002,7 +3002,7 @@ ${parts}
       return;
     }
     const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : TILES[0]);
-    const back = `<div class="row" style="align-items:center;gap:10px;margin:2px 0 8px"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
+    const back = `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
     if (view === 'vztahy') {
       v.innerHTML = back + `<p class="note" style="margin-top:-2px">Jak si tvá mapa rozumí s mapami lidí kolem tebe — partner, děti, rodiče, přátelé, kolegové. Přidej datum, čas a místo narození druhého a Kompas přečte, kde se vaše mapy potkávají samy a kde to chce práci.</p>${synSectionHTML(n)}`;
       return;
