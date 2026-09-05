@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v293';
+  const VERSION = 'v294';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -643,7 +643,7 @@
   async function wxRefresh() {
     try {
       const loc = settings.loc && settings.loc.lat != null ? settings.loc : activeProfile(); if (!loc || loc.lat == null) return;
-      const u = `https://api.open-meteo.com/v1/forecast?latitude=${+loc.lat}&longitude=${+loc.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,cloud_cover,surface_pressure&hourly=temperature_2m,precipitation_probability,cloud_cover,surface_pressure,uv_index,weather_code&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,uv_index_max,weather_code&forecast_days=3&past_hours=24&timezone=${encodeURIComponent(TZ)}`;
+      const u = `https://api.open-meteo.com/v1/forecast?latitude=${+loc.lat}&longitude=${+loc.lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,cloud_cover,surface_pressure&hourly=temperature_2m,precipitation_probability,cloud_cover,surface_pressure,uv_index,weather_code&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,uv_index_max,weather_code&forecast_days=7&past_hours=24&timezone=${encodeURIComponent(TZ)}`;
       const r = await fetch(u); if (!r.ok) return;
       const j = await r.json();
       const H = j.hourly, D = j.daily, C = j.current;
@@ -651,7 +651,7 @@
         when: Date.now(), t: Math.round(C.temperature_2m), feels: Math.round(C.apparent_temperature), c: C.weather_code, wind: Math.round(C.wind_speed_10m), cloud: C.cloud_cover, p: Math.round(C.surface_pressure),
         tmin: Math.round(D.temperature_2m_min[0]), tmax: Math.round(D.temperature_2m_max[0]),
         days: D.time.map((t, i) => ({ d: t, tmin: Math.round(D.temperature_2m_min[i]), tmax: Math.round(D.temperature_2m_max[i]), rain: D.precipitation_sum[i], pop: D.precipitation_probability_max[i], wind: Math.round(D.wind_speed_10m_max[i]), uv: D.uv_index_max[i] != null ? Math.round(D.uv_index_max[i]) : null, c: D.weather_code[i] })),
-        hours: H.time.map((t, i) => ({ t, temp: H.temperature_2m[i], pop: H.precipitation_probability[i], cloud: H.cloud_cover[i], p: H.surface_pressure[i], uv: H.uv_index[i], c: H.weather_code[i] })),
+        hours: H.time.slice(0, 24 + 72).map((t, i) => ({ t, temp: H.temperature_2m[i], pop: H.precipitation_probability[i], cloud: H.cloud_cover[i], p: H.surface_pressure[i], uv: H.uv_index[i], c: H.weather_code[i] })),
       });
       if (S.tab === 'kalendar') renderCalendar();
     } catch (e) { }
@@ -668,9 +668,11 @@
     if (!w || !w.days) { wxRefresh(); return '<p class="note" style="margin:0">Stahuji předpověď…</p>'; }
     const obs = observer(); const tw = twilight(np.y, np.m, np.d, obs); const dn = (() => { try { return darkNight(np.y, np.m, np.d, obs); } catch (e) { return null; } })();
     const today = wxDetailHTML(np.y, np.m, np.d, tw, dn);
-    const next = (w.days || []).slice(1, 3).map(dd => { const p = dd.d.split('-').map(Number); const wd = K.tzParts(K.dayStart(p[0], p[1], p[2], TZ), TZ).wd; const n = K.WEEKDAY_CZ[wd]; return `<p class="wxnext"><span class="wdn">${n.charAt(0).toUpperCase() + n.slice(1)}</span><span class="wxt"><i>${WX_EMO(dd.c)}</i> <b>${WX_CZ(dd.c)}</b> · ${dd.tmin}° až ${dd.tmax}°${dd.pop >= 30 ? ` · déšť ${dd.pop} %` : ''}${dd.wind >= 30 ? ` · vítr ${dd.wind} km/h` : ''}</span></p>`; }).join('');
+    const nowH = new Date(); const hs = (w.hours || []).filter(h => new Date(h.t) >= nowH).slice(0, 24).filter((h, i) => i % 2 === 0);
+    const strip = hs.length ? `<div class="wxstrip">${hs.map(h => `<span class="wxh"><small>${h.t.slice(11, 13)}</small><i>${WX_EMO(h.c)}</i><b>${Math.round(h.temp)}°</b>${h.pop >= 30 ? `<em>${h.pop} %</em>` : '<em></em>'}</span>`).join('')}</div>` : '';
+    const next = (w.days || []).slice(1, 7).map(dd => { const p = dd.d.split('-').map(Number); const wd = K.tzParts(K.dayStart(p[0], p[1], p[2], TZ), TZ).wd; const n = K.WEEKDAY_CZ[wd]; return `<p class="wxnext"><span class="wdn">${n.charAt(0).toUpperCase() + n.slice(1)}</span><span class="wxt"><i>${WX_EMO(dd.c)}</i> <b>${WX_CZ(dd.c)}</b> · ${dd.tmin}° až ${dd.tmax}°${dd.pop >= 30 ? ` · déšť ${dd.pop} %` : ''}${dd.wind >= 30 ? ` · vítr ${dd.wind} km/h` : ''}</span></p>`; }).join('');
     const loc = settings.loc && settings.loc.name ? settings.loc.name : '';
-    return `<div class="wxcard"><div class="wxhead"><b>Počasí${loc ? ` · ${esc(loc)}` : ''}</b><small>${K.fmtTime(new Date(w.when), TZ)}</small></div><div class="wxsub"><u data-act="wxPlace" role="button">změnit místo ›</u></div>${today}</div><div class="wxcard wxdays">${next}</div>`;
+    return `<div class="wxcard"><div class="wxhead"><b>Počasí${loc ? ` · ${esc(loc)}` : ''}</b><small>${K.fmtTime(new Date(w.when), TZ)}</small></div><div class="wxsub"><u data-act="wxPlace" role="button">změnit místo ›</u></div>${today}${strip}</div><div class="wxcard wxdays">${next}</div>`;
   }
   // předpověď pro detail dne: dnes až pozítří; noc pro hvězdy, tlak, UV
   function wxDetailHTML(y, m, d, tw, dn) {
@@ -1389,7 +1391,7 @@
       const hasP = pGet(key).length > 0;
       const isPast = key < TODAY_KEY;
       cellArr.push({ key, html: `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${holidayFor(y, m, d) && holidayFor(y, m, d).f ? 'free' : ''} ${isPast ? 'past' : ''} ${hasJ ? 'noted' : ''} ${hasP ? 'planned' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
-        <span class="d">${d}</span><span class="mk">${mk}</span>${(() => { const h = holidayFor(y, m, d); return h ? `<span class="hol ${h.f ? 'free' : 'trad'}" title="${esc(h.n)}"></span>` : ''; })()}${sdForDay(y, m, d).length ? '<span class="sdmark" title="významný den">🎂</span>' : ''}${gEvByDay(key).length ? '<span class="gdot" title="událost z Google kalendáře"></span>' : ''}${hasP || hasJ ? `<span class="marks">${hasP ? `<span class="pc" title="zapsané plány">${pGet(key).length}</span>` : ''}${hasJ ? '<span class="pen" title="zápis dne">✎</span>' : ''}</span>` : ''}${moonSVG(da.phaseAngle, 12, q ? (q.quarter === 2 ? 'moon full' : 'moon new') : 'moon')}
+        <span class="d">${d}</span><span class="mk">${mk}</span>${(() => { const w = wxGet(); const dd = w && w.days ? w.days.find(x => x.d === K.isoDate(y, m, d)) : null; return dd ? `<span class="wxc" title="${WX_CZ(dd.c)} · ${dd.tmin}° až ${dd.tmax}°"><i>${WX_EMO(dd.c)}</i>${dd.tmax}°</span>` : ''; })()}${(() => { const h = holidayFor(y, m, d); return h ? `<span class="hol ${h.f ? 'free' : 'trad'}" title="${esc(h.n)}"></span>` : ''; })()}${sdForDay(y, m, d).length ? '<span class="sdmark" title="významný den">🎂</span>' : ''}${gEvByDay(key).length ? '<span class="gdot" title="událost z Google kalendáře"></span>' : ''}${hasP || hasJ ? `<span class="marks">${hasP ? `<span class="pc" title="zapsané plány">${pGet(key).length}</span>` : ''}${hasJ ? '<span class="pen" title="zápis dne">✎</span>' : ''}</span>` : ''}${moonSVG(da.phaseAngle, 12, q ? (q.quarter === 2 ? 'moon full' : 'moon new') : 'moon')}
       </button>` });
     }
     // uplynulé celé týdny aktuálního měsíce sbalit
