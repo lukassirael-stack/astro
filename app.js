@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v314';
+  const VERSION = 'v315';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -398,6 +398,41 @@
     let hit = NATURE_DAYS[NATURE_DAYS.length - 1];
     for (const e of NATURE_DAYS) { if (e[0] <= key) hit = e; else break; }
     return hit;
+  }
+  // ---------- komety automaticky: /api/comets (MPC + JPL Horizons), viditelnost pro tvé místo ----------
+  function cometsGet() { return store.get('kairos_comets', null); }
+  async function cometsRefresh() {
+    try {
+      const r = await fetch('/api/comets'); if (!r.ok) return;
+      const j = await r.json(); if (!j || !j.comets) return;
+      store.set('kairos_comets', { when: Date.now(), comets: j.comets });
+      S.evCache = {}; if (S.tab === 'ukazy') renderEvents();
+    } catch (e) { }
+  }
+  // pro každou kometu jasnější než 8,5 mag: v každém měsíci nejlepší večer nebo ráno (výška nad obzorem po soumraku / před svítáním)
+  function autoCometEvents(d0, d1) {
+    const data = cometsGet(); if (!data || !data.comets || !data.comets.length) return [];
+    const obs = observer(); const out = [];
+    for (const c of data.comets) {
+      const best = {};
+      for (const e of c.eph) {
+        if (e.mag == null || e.mag > 8.5) continue;
+        const dt = new Date(e.d.replace(/^(\d{4})-(\w{3})-(\d{2})$/, (m, y, mon, d) => `${y}-${String(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(mon) + 1).padStart(2, '0')}-${d}`) + 'T12:00:00Z');
+        if (isNaN(dt) || dt < d0 || dt >= d1) continue;
+        const p = K.tzParts(dt, TZ); let tw; try { tw = twilight(p.y, p.m, p.d, obs); } catch (x) { continue; }
+        const tries = [['večer po soumraku', tw.astroDusk], ['ráno před svítáním', tw.astroDawn]];
+        for (const [lab, t] of tries) {
+          if (!t) continue;
+          const tt = A.MakeTime(t); const hz = A.Horizon(tt, obs, e.ra / 15, e.dec, 'normal');
+          if (hz.altitude < 12) continue;
+          const dir = ['S', 'SV', 'V', 'JV', 'J', 'JZ', 'Z', 'SZ'][Math.round(hz.azimuth / 45) % 8];
+          const mk = `${p.y}-${p.m}`; const score = hz.altitude - Math.max(0, e.mag - 5) * 4;
+          if (!best[mk] || score > best[mk].score) best[mk] = { score, date: new Date(t.getTime() + 1800000), lab, alt: Math.round(hz.altitude), dir, mag: e.mag, el: e.el, p };
+        }
+      }
+      for (const b of Object.values(best)) out.push({ date: b.date, cat: 'komety', title: `Kometa ${c.name ? c.name.split('(')[0].trim() : ''}${c.des ? ` (${c.des})` : ''}`.replace('Kometa  (', 'Kometa ('), note: `${b.mag} mag · ${b.lab} ${b.alt}° nad obzorem (${b.dir})${b.el != null ? ` · ${b.el}° od Slunce` : ''} · nejlepší den měsíce pro ${esc(settings.loc.name)}`, auto: true });
+    }
+    return out;
   }
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
@@ -2642,6 +2677,7 @@ ${parts}
     [/^Samhain$/, 'Brána mezi podzimní rovnodenností a zimním slunovratem: Slunce v 15° Štíra. Konec starého roku v kole, čas předků a ticha, kdy se závoj mezi světy ztenčuje. Dušičky k tomu patří.'],
     [/Luna v perigeu/i, 'Luna je na své dráze nejblíž Zemi — vypadá o kousek větší a přílivy jsou silnější. Když se to sejde s úplňkem, říká se tomu superúplněk.'],
     [/Luna v apogeu/i, 'Luna je na své dráze nejdál od Země — zdánlivě menší, přílivy slabší. Úplněk v apogeu je mikroúplněk.'],
+    [/^Kometa /, 'Kometa je z dat Minor Planet Center a JPL: jasnost (mag) je odhad — čím menší číslo, tím jasnější; pod 6 mag jde vidět pouhým okem z tmavého místa, do 8,5 mag triedrem. Výška a směr platí pro tvé místo v uvedený čas. Komety bývají nevyzpytatelné, může být jasnější i slabší.'],
     [/kometa|Kometa/i, 'Ledové těleso z okraje sluneční soustavy se přiblížilo ke Slunci a rozsvítilo se. Jasnost komet se odhaduje těžko, tak stojí za to sledovat aktuální zprávy.'],
   ];
   // ---------- ingresy: co která planeta v novém znamení přináší ----------
@@ -2766,13 +2802,13 @@ ${parts}
     if (!S.natal) { v.innerHTML = noNatalHTML('úkazy roku dopředu a to, jak se dotknou právě tebe'); return; }
     v.innerHTML = '<div class="loading">Počítám oblohu na rok dopředu…</div>';
     setTimeout(() => {
-      const key = `y|${activeId}|${np.y}-${np.m}|${settings.loc.lat},${settings.loc.lon}|${(settings.comets || '').length}`;
+      const key = `y|${activeId}|${np.y}-${np.m}|${settings.loc.lat},${settings.loc.lon}|${(settings.comets || '').length}|${(cometsGet() || {}).when || 0}`;
       let evs = S.evCache[key];
       if (!evs) {
         const d0 = K.dayStart(np.y, np.m, 1, TZ);
         const endM = np.m === 12 ? 1 : np.m + 1, endY = np.m === 12 ? np.y + 1 : np.y;
         const d1 = K.dayStart(endY + 1, endM, 1, TZ);
-        evs = K.skyEvents(d0, d1, observer(), S.natal, TZ).concat(cometEvents(d0, d1));
+        evs = K.skyEvents(d0, d1, observer(), S.natal, TZ).concat(cometEvents(d0, d1)).concat(autoCometEvents(d0, d1));
         // heliakické východy tvých hvězd
         for (const st of S.natal.stars.filter(s => s.mine || s.strength > 0)) {
           for (const yy of [np.y, np.y + 1]) {
@@ -2813,7 +2849,7 @@ ${parts}
           html += `<div class="ev ${e.resonance ? 'res' : ''} ${e.date.getTime() < nowMs ? 'gone' : ''}"><div class="dt"><b>${p.d}.</b>${e.cat === 'roje' || e.custom || e.cat === 'hvezdy' && e.title.startsWith('Heliak') ? '' : K.fmtTime(e.date, TZ)}</div><div><div class="ti"><span class="c">${ico(evIcon(e))}</span>${esc(e.title)}${evWhat(e.title, e.note) ? `<i class="evq" data-act="evWhat" role="button" aria-label="Co to je?">?</i>` : ''}</div>${e.note ? `<div class="no">${esc(e.note)}</div>` : ''}${evWhat(e.title, e.note) ? `<div class="evwhat">${esc(evWhat(e.title, e.note))}</div>` : ''}</div></div>`;
         }
       }
-      html += `<p class="note" style="margin-top:18px">Komety, novy a podobné jednorázové úkazy se spočítat nedají – přidáš si je v Nastavení (řádek: datum | název | poznámka).</p>`;
+      html += `<p class="note" style="margin-top:18px">Jasné komety se doplňují samy z dat Minor Planet Center a JPL (jednou za 12 hodin); novy a vlastní úkazy si přidáš v Nastavení (řádek: datum | název | poznámka).</p>`;
       if (!S.evAll && allKeys.length > 3) html += `<div class="row" style="justify-content:center;margin:12px 0 4px"><button type="button" class="btn ghost" data-act="evAll">Zobrazit celý rok</button></div>`;
       else if (S.evAll && allKeys.length > 3) html += `<div class="row" style="justify-content:center;margin:12px 0 4px"><button type="button" class="btn ghost" data-act="evLess">Zobrazit jen tři měsíce</button></div>`;
       v.innerHTML = html;
@@ -3329,6 +3365,7 @@ ${parts}
   showTab(['kalendar', 'ukazy', 'diar', 'nativ', 'nastaveni'].includes(store.get('kairos_tab', 'kalendar')) ? store.get('kairos_tab', 'kalendar') : 'kalendar');
   setTimeout(reconcileMedia, 1200);
   setTimeout(() => { const w = wxGet(); if (!w || !w.days || w.days.length < 7 || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); }, 800);
+  setTimeout(() => { const c = cometsGet(); if (!c || Date.now() - c.when > 12 * 3600 * 1000) cometsRefresh(); }, 2500);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { const w = wxGet(); if (!w || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); } });
   setInterval(() => { const el = $('#tatvaLine'); if (el) { const h = tattvaHTML(); if (h) el.innerHTML = h; } const eo = $('#orgLine'); if (eo) { const g = orgHTML(); if (g) eo.innerHTML = g; } }, 30000);
   setTimeout(() => { const c = gEv(); if (store.get('kairos_ics', '') && (!c || Date.now() - c.when > 6 * 3600 * 1000)) icsRefresh(true); }, 2500);
