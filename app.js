@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v318';
+  const VERSION = 'v319';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1186,7 +1186,7 @@
   const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goNature', 'goArcs', 'numQuick', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
   let navBack = null;
   function navPush() { navBack = { tab: S.tab, y: window.scrollY, natalView: S.natalView, guide: S.guide, sel: S.sel && { ...S.sel }, ym: { y: S.y, m: S.m } }; showBack(true); }
-  function showBack(on) { const b = $('#backBtn'); if (b) b.classList.toggle('on', !!on && !!navBack); }
+  function showBack(on) { const vis = !!on && !!navBack; const b = $('#backBtn'); if (b) b.classList.toggle('on', vis); document.body.classList.toggle('hasback', vis); }
   function navPop() {
     const n = navBack; if (!n) return; navBack = null; showBack(false);
     S.natalView = n.natalView; S.guide = n.guide; if (n.sel) S.sel = n.sel; if (n.ym) { S.y = n.ym.y; S.m = n.ym.m; }

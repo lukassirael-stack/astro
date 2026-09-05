@@ -1094,3 +1094,4 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .numcyc span.start{border-style:dashed}
 .numpair p{margin:0 0 8px;line-height:1.6}
 .numquick{margin:4px 0 14px}
+body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))}
