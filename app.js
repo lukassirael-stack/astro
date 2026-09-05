@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v315';
+  const VERSION = 'v316';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1153,7 +1153,7 @@
     ephPrev() { S.eph.m--; if (S.eph.m < 1) { S.eph.m = 12; S.eph.y--; } renderEphemeris(); },
     ephNext() { S.eph.m++; if (S.eph.m > 12) { S.eph.m = 1; S.eph.y++; } renderEphemeris(); },
     ephCsv() { downloadCsv(); },
-    filter(el) { S.filter = el.dataset.f; renderEvents(); },
+    filter(el) { S.filter = el.dataset.f; renderEvents(); setTimeout(() => { const g = $('#view-ukazy .catgrid'); if (g) { const y = g.getBoundingClientRect().top + window.scrollY - 8; window.scrollTo({ top: y, behavior: 'smooth' }); } }, 60); },
     saveProfile() { saveProfileForm(); },
     newProfile() {
       const FREE_PROFILES = 2;
