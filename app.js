@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v288';
+  const VERSION = 'v289';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1070,20 +1070,38 @@
     switchProfile(el) { activeId = el.value; store.set('kairos_active', activeId); computeNatal(); renderSettings(); toast('Profil přepnut: ' + activeProfile().name); },
     deleteProfile() { if (profiles.length < 2) { toast('Poslední profil nejde smazat.'); return; } if (!confirm('Smazat profil ' + activeProfile().name + '?')) return; profiles = profiles.filter(p => p.id !== activeId); activeId = profiles[0].id; persistProfiles(); computeNatal(); renderSettings(); },
     locate(el) {
-      if (!navigator.geolocation) { toast('Tvůj prohlížeč polohu neumí — vyplň souřadnice ručně.'); return; }
+      if (!navigator.geolocation) { toast('Tvůj prohlížeč polohu neumí — vyhledej místo podle jména.'); return; }
       const orig = el.textContent; el.disabled = true; el.textContent = 'Zjišťuji…';
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const f = $('#locForm');
-        $('[name=llat]', f).value = pos.coords.latitude.toFixed(4);
-        $('[name=llon]', f).value = pos.coords.longitude.toFixed(4);
-        if (pos.coords.altitude != null && !isNaN(pos.coords.altitude)) $('[name=lalt]', f).value = Math.round(pos.coords.altitude);
-        el.disabled = false; el.textContent = orig;
-        toast('Souřadnice vyplněny — pojmenuj místo a ulož.');
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = +pos.coords.latitude.toFixed(4), lon = +pos.coords.longitude.toFixed(4);
+        const alt = pos.coords.altitude != null && !isNaN(pos.coords.altitude) ? Math.round(pos.coords.altitude) : (settings.loc.alt || 0);
+        let name = '';
+        try { const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=12&accept-language=cs`); if (r.ok) { const j = await r.json(); const ad = j.address || {}; name = ad.village || ad.town || ad.city || ad.municipality || ad.hamlet || j.name || ''; } } catch (e) { }
+        if (!name) name = `${lat.toFixed(2)} N, ${lon.toFixed(2)} E`;
+        settings.loc = { name, lat, lon, alt };
+        persistSettings(); S.dayCache = {}; S.evCache = {}; applyTheme(); renderSettings(); wxRefresh();
+        toast('Místo: ' + name + '.');
       }, (err) => {
         el.disabled = false; el.textContent = orig;
         const m = err.code === 1 ? 'Povolení k poloze zamítnuto.' : err.code === 3 ? 'Zjišťování polohy trvalo příliš dlouho.' : 'Polohu se nepodařilo zjistit.';
-        toast(m + ' Vyplň souřadnice ručně.');
+        toast(m + ' Vyhledej místo podle jména.');
       }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 600000 });
+    },
+    async locSearch() {
+      const q = ($('#locQuery') || {}).value; if (!q || q.trim().length < 2) return;
+      const box = $('#locResults'); if (box) box.innerHTML = '<p class="note">Hledám…</p>';
+      try {
+        const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q.trim())}&count=6&language=cs&format=json`);
+        const j = await r.json(); const res = j.results || [];
+        if (!box) return;
+        if (!res.length) { box.innerHTML = '<p class="note">Nic jsem nenašel — zkus jiný tvar jména.</p>'; return; }
+        box.innerHTML = res.map((x, i) => `<button type="button" class="chip" data-act="locPick" data-name="${esc(x.name)}" data-lat="${x.latitude}" data-lon="${x.longitude}" data-alt="${x.elevation != null ? Math.round(x.elevation) : 0}">${esc(x.name)}${x.admin1 ? ` · ${esc(x.admin1)}` : ''}${x.country_code ? ` (${esc(x.country_code)})` : ''}</button>`).join(' ');
+      } catch (e) { if (box) box.innerHTML = '<p class="note">Vyhledávání se nepodařilo — zkus to za chvíli, nebo zadej souřadnice.</p>'; }
+    },
+    locPick(el) {
+      settings.loc = { name: el.dataset.name, lat: +(+el.dataset.lat).toFixed(4), lon: +(+el.dataset.lon).toFixed(4), alt: +el.dataset.alt || 0 };
+      persistSettings(); S.dayCache = {}; S.evCache = {}; applyTheme(); renderSettings(); wxRefresh();
+      toast('Místo: ' + settings.loc.name + '.');
     },
     pickPlace(el) {
       const pl = PLACES[+el.dataset.i];
@@ -3034,11 +3052,14 @@ ${parts}
       <form class="form card" id="locForm" onsubmit="return false">
         <div class="wide row" style="gap:6px">${PLACES.map((pl, i) => `<button type="button" class="chip ${settings.loc.name === pl.name ? 'on' : ''}" data-act="pickPlace" data-i="${i}">${esc(pl.name)}</button>`).join('')}</div>
         <div class="wide row" style="margin-top:2px"><button type="button" class="btn primary" data-act="locate">Zjistit moji polohu</button></div>
+        <label class="wide">Hledat místo<span class="row" style="gap:8px;text-transform:none;letter-spacing:0"><input id="locQuery" placeholder="obec, město…" style="flex:1"><button type="button" class="btn ghost small" data-act="locSearch">Hledat</button></span></label>
+        <div class="wide" id="locResults"></div>
+        <details class="expl wide"><summary>Souřadnice ručně</summary>
         <label class="wide">Název<input name="lname" value="${esc(settings.loc.name)}"></label>
         <label>Šířka (N)<input name="llat" type="number" step="0.0001" value="${settings.loc.lat}"></label>
         <label>Délka (E)<input name="llon" type="number" step="0.0001" value="${settings.loc.lon}"></label>
         <label>Nadm. výška (m)<input name="lalt" type="number" value="${settings.loc.alt}"></label>
-        <div class="wide row"><button type="button" class="btn" data-act="saveLoc">Uložit místo</button></div>
+        <div class="wide row"><button type="button" class="btn" data-act="saveLoc">Uložit místo</button></div></details>
         <p class="note wide">Podle tohoto místa se počítá východ a západ Slunce a Luny, planetární hodiny, lunární den, viditelnost zatmění a úkazů, heliakické východy tvých hvězd a přepínání oblohy podle denní doby. Polohy planet, aspekty a tranzity k nativu na místě nezávisí — ty jsou stejné pro celou Zemi. Místo narození v profilu neměň, to je snímek nebe nad místem, kde jsi se narodil.</p>
         <p class="note wide">Časy se zobrazují v českém čase (Europe/Prague) i pro vzdálená místa.</p>
       </form>
@@ -3246,6 +3267,7 @@ ${parts}
   loadKp(false);
   (() => { const sp = $('#splash'); if (!sp) return; const off = () => { sp.classList.add('done'); setTimeout(() => sp.remove(), 650); };
     requestAnimationFrame(() => setTimeout(off, 1200)); setTimeout(off, 4000); })();
+  document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.id === 'locQuery') { e.preventDefault(); actions.locSearch(); } });
   document.addEventListener('change', (e) => {
     { const s = e.target && e.target.closest && e.target.closest('select[data-act]'); if (s && actions[s.dataset.act]) { actions[s.dataset.act](s, e); return; } }
     if (e.target && e.target.id === 'bkFile' && e.target.files && e.target.files[0]) {
