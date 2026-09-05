@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v303';
+  const VERSION = 'v304';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1615,7 +1615,8 @@
       <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>${holidayFor(y, m, d) ? `<p class="day-hol ${holidayFor(y, m, d).f ? 'free' : 'trad'}">${esc(holidayLine(y, m, d))}</p>` : ''}
       ${(() => { const tw = twilight(y, m, d, obs); const f = (x) => x ? K.fmtTime(x, TZ) : '–'; const dn = darkNight(y, m, d, obs, moonrise, moonset); const g = gardenLine(da);
         return `${wxDetailHTML(y, m, d, tw, dn)}<div class="nature">
-          <p><span class="nl">zlatá hodina</span>${f(tw.goldAM[0])}–${f(tw.goldAM[1])} · ${f(tw.goldPM[0])}–${f(tw.goldPM[1])}<span class="nl">modrá hodina</span>${f(tw.blueAM[0])}–${f(tw.blueAM[1])} · ${f(tw.bluePM[0])}–${f(tw.bluePM[1])}</p>
+          <p><span class="nl">zlatá hodina</span>${f(tw.goldAM[0])}–${f(tw.goldAM[1])} · ${f(tw.goldPM[0])}–${f(tw.goldPM[1])} <small>— nízké teplé slunce po východu a před západem</small></p>
+          <p><span class="nl">modrá hodina</span>${f(tw.blueAM[0])}–${f(tw.blueAM[1])} · ${f(tw.bluePM[0])}–${f(tw.bluePM[1])} <small>— soumrak, kdy je Slunce těsně pod obzorem a obloha sytě modrá</small></p>
           ${dn ? `<p><span class="nl">tmavá noc</span>Luna pod obzorem ${f(dn.from)}–${f(dn.to)} — ${dn.hours >= 4 ? 'Mléčná dráha a slabé hvězdy jsou dobře vidět' : 'krátké okno na hvězdy bez Luny'}</p>` : ''}
           ${settings.numerology !== false && S.natal && S.natal.profile ? (() => { const n = numerology(S.natal.profile, y, m, d); return `<p><span class="nl">osobní den</span><b>${n.day}</b> — ${NUM_DAY[n.day]} <small>(osobní rok ${n.year}, měsíc ${n.month})</small></p>`; })() : ''}
           ${(() => { const e = natureNow(m, d); return e ? `<p><span class="nl">příroda teď</span>${esc(e[1])}</p>` : ''; })()}
