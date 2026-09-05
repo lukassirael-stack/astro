@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v300';
+  const VERSION = 'v301';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -374,11 +374,20 @@
       <div class="card">
         <div class="h3" style="margin-top:0">Co se děje venku</div><p>${nm.p}</p>
         <div class="h3">Na zahradě</div><p>${nm.z}</p>
+        <div class="h3">Den po dni</div>
+        <div class="ndays">${NATURE_DAYS.filter(e => +e[0].slice(0, 2) === m).map(e => `<p><b>${+e[0].slice(3)}. ${m}.</b> ${esc(e[1])}</p>`).join('')}</div>
         <div class="h3">Podle Luny tento měsíc</div>
         <p class="small"><b>Sít a sázet</b> (dorůstá): ${ranges(grow) || '—'}<br><b>Sklízet, prořezávat, ošetřovat půdu</b> (couvá): ${ranges(wane) || '—'}</p>
         <p class="small">${[1, 3, 2, 0].map(k => `<b>${GK[k]} dny</b> ${ranges(kinds[k]) || '—'}`).join(' · ')}</p>
         <p class="note" style="margin-top:6px">Kořenové dny pro kořenovou zeleninu a sázení, listové pro saláty, bylinky a zálivku, květové pro květiny a košťáloviny, plodové pro plody a obilí. Lunární zahrádkář je tradice, počasí a půda mají vždy poslední slovo.</p>
       </div></div>`;
+  }
+  // ---------- příroda po třech dnech ----------
+  function natureNow(m, d) {
+    const key = `${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    let hit = NATURE_DAYS[NATURE_DAYS.length - 1];
+    for (const e of NATURE_DAYS) { if (e[0] <= key) hit = e; else break; }
+    return hit;
   }
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
@@ -1597,6 +1606,7 @@
           <p><span class="nl">zlatá hodina</span>${f(tw.goldAM[0])}–${f(tw.goldAM[1])} · ${f(tw.goldPM[0])}–${f(tw.goldPM[1])}<span class="nl">modrá hodina</span>${f(tw.blueAM[0])}–${f(tw.blueAM[1])} · ${f(tw.bluePM[0])}–${f(tw.bluePM[1])}</p>
           ${dn ? `<p><span class="nl">tmavá noc</span>Luna pod obzorem ${f(dn.from)}–${f(dn.to)} — ${dn.hours >= 4 ? 'Mléčná dráha a slabé hvězdy jsou dobře vidět' : 'krátké okno na hvězdy bez Luny'}</p>` : ''}
           ${settings.numerology !== false && S.natal && S.natal.profile ? (() => { const n = numerology(S.natal.profile, y, m, d); return `<p><span class="nl">osobní den</span><b>${n.day}</b> — ${NUM_DAY[n.day]} <small>(osobní rok ${n.year}, měsíc ${n.month})</small></p>`; })() : ''}
+          ${(() => { const e = natureNow(m, d); return e ? `<p><span class="nl">příroda teď</span>${esc(e[1])}</p>` : ''; })()}
           <p><span class="nl">zahrádkář</span><b>${g.kind}</b> (Luna ${SIGN_LOC[['Beran','Býk','Blíženc','Rak','Lv','Pann','Váh','Štír','Střelc','Kozoroh','Vodnář','Ryb'][da.moonSign]]}) — ${g.tip} · ${g.phase}</p>
         </div>`; })()}`}
       ${isToday ? '' : (() => { const r = TX.dayReading(da, dayEv); return `<p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p>`; })()}

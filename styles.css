@@ -1035,3 +1035,5 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 [data-theme="day"] .view > .note{padding:10px 12px;border-radius:12px;color:var(--text)}
 [data-theme="day"] .view > .h2{text-shadow:0 1px 2px rgba(3,18,45,.9),0 0 14px rgba(3,18,45,.7)}
 [data-theme="day"] .view > .h3{text-shadow:0 1px 2px rgba(3,18,45,.9),0 0 12px rgba(3,18,45,.6)}
+.ndays p{margin:0 0 6px;font-size:var(--fs-s);line-height:1.55;color:var(--muted)}
+.ndays p b{color:var(--gold);font-weight:600;margin-right:4px}
