@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v313';
+  const VERSION = 'v314';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -921,7 +921,7 @@
     slunce: '<circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>',
     komety: '<circle cx="4.5" cy="11.5" r="2.4" fill="currentColor"/><path d="M6.5 9.5 14 2M8.8 11.2 14.5 6M5 8.2 11 2.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".85"/>',
   };
-  const catIcon = (c) => CAT_SVG[c] ? `<svg class="cico" viewBox="0 0 16 16" aria-hidden="true">${CAT_SVG[c]}</svg>` : '';
+  const catIcon = (c) => CAT_SVG[c] ? `<img class="cico" src="cat-${c}.webp?v=1" alt="" width="28" height="28">` : '';
   const CAT_CZ = { vse: 'vše', luna: 'Luna', zatmeni: 'zatmění', slunce: 'Slunce', planety: 'planety', roje: 'roje', hvezdy: 'hvězdy', komety: 'komety', osobni: 'tvé cykly', priroda: 'příroda' };
   const TODAY_KEY = K.isoDate(np.y, np.m, np.d);
 

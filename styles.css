@@ -1081,3 +1081,5 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .catgrid{gap:10px}
 .catgrid .chip.cat{min-height:46px;padding:8px 12px;border-radius:18px;font-size:var(--fs-m)}
 .catgrid .chip.cat .cico{width:22px;height:22px}
+.catgrid .chip.cat img.cico{width:28px;height:28px;object-fit:contain;filter:none}
+.catgrid .chip.cat.on img.cico{filter:sepia(1) saturate(2.6) hue-rotate(5deg) brightness(1.05)}
