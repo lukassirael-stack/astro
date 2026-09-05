@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v319';
+  const VERSION = 'v320';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -352,6 +352,14 @@
       <p><b>Osobní rok ${n.year}</b> — ${NUM_YEAR[n.year]}.${cur >= 0 ? ` <b>${cur + 1}. období</b> života: vrchol ${deep.pins[cur]}, ${NUM_PIN[deep.pins[cur]]}.` : ''}</p>
       ${settings.numerology !== false && S.natal ? (() => { const me = numerology(activeProfile(), np.y, np.m, np.d); const la = numReduce(me.life), lb = numReduce(n.life); const key = la <= lb ? `${la}|${lb}` : `${lb}|${la}`; return `<p><b>S tebou (${la} a ${lb})</b> — ${NUM_PAIR[key] || ''}.</p>`; })() : ''}
     </div>`;
+  }
+  function numAreasHTML(p) {
+    const n = numerology(p, np.y, np.m, np.d); const base = numReduce(n.life);
+    const master = n.life > 9 ? ` <small>(mistrovské ${n.life} čte svůj základ ${base} — s větším rozsahem i větším nárokem)</small>` : '';
+    const A = [['osobnost', '☉', 'Osobnost'], ['vztahy', '♡', 'Vztahy a láska'], ['prace', '✦', 'Práce a poslání'], ['penize', '8', 'Peníze a hmota'], ['zdravi', '☘', 'Zdraví a tělo'], ['duchovni', '★', 'Duchovní cesta']];
+    return `<div class="h3">Oblasti života podle čísel</div>
+      <p class="note" style="margin-top:-4px">Šest oblastí čtených z tvého životního čísla ${n.life}${master}. Vedle horoskopu druhý pohled na tytéž otázky — kde se shodnou, tam je to jisté.</p>
+      ${A.map(([k, ic, t]) => `<details class="ptcard numarea"><summary><span class="g">${ic}</span><b>${t}</b></summary><div class="ptbody"><p>${esc((NUM_AREAS[k] || {})[base] || '')}</p></div></details>`).join('')}`;
   }
   function numerologyDeepHTML(p) {
     const n = numerologyDeep(p, np.y);
@@ -3179,7 +3187,7 @@ ${parts}
         <p><b>Životní číslo ${n.life}</b> · ${L[0]}<br>${L[1]}</p>
         <p><b>Osobní rok ${n.year}</b> — ${NUM_YEAR[n.year]}.</p>
         <p><b>Osobní měsíc ${n.month}</b> · <b>osobní den ${n.day}</b> — ${NUM_DAY[n.day]}.</p>
-        <p class="note" style="margin:6px 0 0">Životní číslo je součet číslic data narození (11, 22 a 33 zůstávají jako mistrovská). Osobní rok vychází z tvého dne a měsíce narození a běžného roku; z něj se odvíjí měsíc a den. Osobní den každého dne najdeš v jeho detailu.</p></div>${numerologyDeepHTML(p)}
+        <p class="note" style="margin:6px 0 0">Životní číslo je součet číslic data narození (11, 22 a 33 zůstávají jako mistrovská). Osobní rok vychází z tvého dne a měsíce narození a běžného roku; z něj se odvíjí měsíc a den. Osobní den každého dne najdeš v jeho detailu.</p></div>${numAreasHTML(p)}${numerologyDeepHTML(p)}
         <details class="numquick"><summary>Čísla pro kohokoli — z data narození</summary>
           <div class="row" style="align-items:center;gap:10px;margin:6px 0 8px"><input type="date" id="numQuickDate" class="btn" value="${S.numQuick || ''}" style="flex:1;min-width:0;max-width:240px"><button type="button" class="btn ghost small" data-act="numQuick">Spočítat</button></div>
           <p class="note" style="margin:0 0 8px">Jednorázový výpočet pro přátele nebo hosty — nikam se neukládá. Trvalé porovnání s blízkými najdeš ve Vztazích.</p>
