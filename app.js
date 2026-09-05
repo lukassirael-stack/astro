@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v296';
+  const VERSION = 'v297';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -665,7 +665,7 @@
   const inlineTags = (h) => h.replace(/<div\b/g, '<span data-b="1"').replace(/<\/div>/g, '</span>').replace(/<p\b/g, '<span data-p="1"').replace(/<\/p>/g, '</span>');
   function wxPanelHTML() {
     const w = wxGet();
-    if (!w || !w.days) { wxRefresh(); return '<p class="note" style="margin:0">Stahuji předpověď…</p>'; }
+    if (!w || !w.days || w.days.length < 7) { wxRefresh(); if (!w || !w.days) return '<p class="note" style="margin:0">Stahuji předpověď…</p>'; }
     const obs = observer(); const tw = twilight(np.y, np.m, np.d, obs); const dn = (() => { try { return darkNight(np.y, np.m, np.d, obs); } catch (e) { return null; } })();
     const today = wxDetailHTML(np.y, np.m, np.d, tw, dn);
     const nowH = new Date(); const hs = (w.hours || []).filter(h => new Date(h.t) >= nowH).slice(0, 24);
@@ -3280,7 +3280,7 @@ ${parts}
   setInterval(applyTheme, 240000);
   showTab(['kalendar', 'ukazy', 'diar', 'nativ', 'nastaveni'].includes(store.get('kairos_tab', 'kalendar')) ? store.get('kairos_tab', 'kalendar') : 'kalendar');
   setTimeout(reconcileMedia, 1200);
-  setTimeout(() => { const w = wxGet(); if (!w || !w.days || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); }, 800);
+  setTimeout(() => { const w = wxGet(); if (!w || !w.days || w.days.length < 7 || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); }, 800);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { const w = wxGet(); if (!w || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); } });
   setInterval(() => { const el = $('#tatvaLine'); if (el) { const h = tattvaHTML(); if (h) el.innerHTML = h; } const eo = $('#orgLine'); if (eo) { const g = orgHTML(); if (g) eo.innerHTML = g; } }, 30000);
   setTimeout(() => { const c = gEv(); if (store.get('kairos_ics', '') && (!c || Date.now() - c.when > 6 * 3600 * 1000)) icsRefresh(true); }, 2500);
