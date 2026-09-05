@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v308';
+  const VERSION = 'v309';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1006,12 +1006,18 @@
   }
   // přepnutí už na dotek: první ťuknutí nesmí jen zastavit setrvačné rolování
   let tabTapAt = 0;
+  const tabTap = (t) => { tabTapAt = Date.now(); navBack = null; showBack(false); if (S.tab !== t.dataset.tab) showTab(t.dataset.tab); else window.scrollTo({ top: 0, behavior: 'smooth' }); };
   document.addEventListener('pointerdown', (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     const t = e.target.closest('[data-tab]');
     if (!t) return;
-    tabTapAt = Date.now();
-    if (S.tab !== t.dataset.tab) showTab(t.dataset.tab);
+    tabTap(t);
+  }, { passive: true });
+  // když dotek jen zastavil setrvačné rolování a pointerdown se ztratil, chytí to konec doteku
+  document.addEventListener('touchend', (e) => {
+    const t = e.target && e.target.closest ? e.target.closest('[data-tab]') : null;
+    if (!t) return;
+    if (Date.now() - tabTapAt > 400) tabTap(t);
   }, { passive: true });
   // ---------- Zpět: pamatuje, odkud člověk přišel, když ho klepnutí odvede jinam ----------
   const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goNature', 'goArcs', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
