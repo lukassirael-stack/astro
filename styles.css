@@ -1092,3 +1092,5 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .numcyc span i,.nummon span i{font-style:normal;font-family:var(--display);font-size:var(--fs-l);color:var(--gold);line-height:1.1}
 .numcyc span.on,.nummon span.on{border-color:var(--gold);background:var(--gold-soft)}
 .numcyc span.start{border-style:dashed}
+.numpair p{margin:0 0 8px;line-height:1.6}
+.numquick{margin:4px 0 14px}

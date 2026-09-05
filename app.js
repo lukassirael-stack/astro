@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v317';
+  const VERSION = 'v318';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -281,6 +281,77 @@
       <div class="h3">Osobní měsíce ${yr}</div>
       <div class="nummon">${months.map(x => `<span class="${x.m === np.m ? 'on' : ''}"><b>${K.MONTH_CZ[x.m - 1].slice(0, 3)}</b><i>${x.n}</i><small>${NUM_MONTH[x.n]}</small></span>`).join('')}</div>
       <p class="note" style="margin-top:8px">${NUM_ATT[att]} Univerzální rok ${yr} je <b>${uni}</b> — ${NUM_MONTH[uni]} pro všechny; tvůj osobní rok ${cur.n} se do něj promítá.</p>`;
+  }
+  // numerologie pro blízké: čísla druhé osoby a soulad životních čísel
+  const NUM_PAIR = {
+    '1|1': 'dvě samostatné vůle — silný tah, když jdete stejným směrem, a boj o vedení, když ne',
+    '1|2': 'vůdce a citlivý partner — funguje, když jednička chrání a dvojka říká, co potřebuje',
+    '1|3': 'energie a radost — živý pár, který se baví; hlídat, aby jeden nepřekřičel druhého',
+    '1|4': 'tah a řád — jednička rozjíždí, čtyřka staví; pevné, když si čtyřka nepřipadá jen jako zázemí',
+    '1|5': 'dvě svobody — dobrodružství a nezávislost; závazek chce vědomé rozhodnutí',
+    '1|6': 'vůle a péče — šestka dává domov, jednička směr; napětí, když šestka pečuje víc, než je vítáno',
+    '1|7': 'čin a hloubka — vzájemný respekt, každý ve svém světě; potřebuje čas o samotě pro sedmičku',
+    '1|8': 'dvě síly — mocné spojenectví v práci, doma soutěž; rozdělte si území',
+    '1|9': 'já a celek — devítka rozšiřuje obzor, jednička dává tah; učí se od sebe, když se neposuzují',
+    '2|2': 'dva citliví — hluboké porozumění a klid; někdo z vás musí občas rozhodnout',
+    '2|3': 'cit a lehkost — trojka rozveselí, dvojka uklidní; hlídat, aby dvojka nezmizela za trojkou',
+    '2|4': 'cit a základ — jedno z nejstálejších spojení: dvojka cítí, čtyřka drží',
+    '2|5': 'klid a pohyb — pětka potřebuje prostor, dvojka blízkost; ladí se domluvou, ne mlčením',
+    '2|6': 'dva pečující — domov, něha a klid; oba dávají, oba se musí učit přijímat',
+    '2|7': 'cit a ticho — jemné, hluboké, potřebuje slova, protože oba mlčí rádi',
+    '2|8': 'cit a síla — osmička chrání a staví, dvojka zjemňuje; funguje, když osmička naslouchá',
+    '2|9': 'cit a soucit — laskavé spojení; devítka občas odplouvá k celku, dvojka to cítí',
+    '3|3': 'dva tvůrci — radost, společnost, nápady; kdo dotáhne, co jste společně začali?',
+    '3|4': 'lehkost a řád — trojka rozjasní, čtyřka ukotví; každý musí ocenit, co dává ten druhý',
+    '3|5': 'radost a svoboda — nejživější dvojice; hluboko se jde až s vědomým zpomalením',
+    '3|6': 'tvorba a domov — krásný, teplý pár; šestka chce závazek dřív než trojka',
+    '3|7': 'slovo a ticho — trojka mluví, sedmička přemýšlí; obohacující, když si dáte prostor',
+    '3|8': 'radost a výkon — osmička staví, trojka oslavuje; napětí kolem peněz a vážnosti',
+    '3|9': 'dva otevření — velkorysost, humor, rozhled; oba potřebují, aby někdo hlídal praktické',
+    '4|4': 'dva stavitelé — jistota, práce, stálost; nezapomeňte na hru a změnu',
+    '4|5': 'řád a změna — nejtěžší dvojice na sladění, a proto nejvíc učí: čtyřka trpělivost, pětka volnost',
+    '4|6': 'základ a péče — domov jako pevnost; klasické rodinné spojení',
+    '4|7': 'práce a hloubka — tiché, spolehlivé, každý ve svém; obohatí vás sdílený smysl',
+    '4|8': 'řád a moc — silné v podnikání a hmotě; hlídat, aby vztah nebyl jen projekt',
+    '4|9': 'stálost a rozhled — čtyřka drží, devítka vidí dál; učí se od sebe pomalu',
+    '5|5': 'dvě svobody — vzrušující, pohyblivé; závazek jen dobrovolně a nahlas',
+    '5|6': 'svoboda a domov — pětka chce ven, šestka dovnitř; ladí se, když má každý své území',
+    '5|7': 'pohyb a ticho — oba nezávislí, oba potřebují prostor; funguje jako dva rovnocenní',
+    '5|8': 'změna a síla — dynamické, ambiciózní; soutěž o to, kdo řídí',
+    '5|9': 'svoboda a soucit — dobrodružství se smyslem; oba se snadno rozptýlí',
+    '6|6': 'dva pečující — domov nade vše; učte se přijímat stejně, jako dáváte',
+    '6|7': 'péče a hloubka — šestka chce blízkost, sedmička samotu; rovnováha chce domluvu',
+    '6|8': 'domov a moc — šestka staví hnízdo, osmička je zajistí; klasické stabilní spojení',
+    '6|9': 'péče a soucit — oba dávají; devítka celku, šestka rodině — občas se to přetahuje',
+    '7|7': 'dva hledači — hluboké ticho a porozumění beze slov; svět venku vám může chybět',
+    '7|8': 'hloubka a hmota — protiklady, které se učí: sedmička smysl, osmička výsledek',
+    '7|9': 'nitro a celek — duchovní spojení, málo praktické; někdo musí platit účty',
+    '8|8': 'dvě síly — impérium, když táhnete spolu; boj, když ne',
+    '8|9': 'moc a soucit — osmička staví, devítka rozdává; pevné, když se domluvíte, čemu to slouží',
+    '9|9': 'dva soucitní — velkorysé, moudré spojení; hlídat, aby zbylo i pro vás dva',
+  };
+  function numPairHTML(pA, pB, nameA, nameB) {
+    const a = numerology(pA, np.y, np.m, np.d), b = numerology(pB, np.y, np.m, np.d);
+    const la = numReduce(a.life), lb = numReduce(b.life); const key = la <= lb ? `${la}|${lb}` : `${lb}|${la}`;
+    const L = (n) => NUM_LIFE[n] ? NUM_LIFE[n][0] : '';
+    return `<div class="card small numpair"><div class="h3" style="margin-top:0">Vaše čísla</div>
+      <p><b>${esc(nameA)}</b> — životní číslo ${a.life} (${L(a.life)}), osobní rok ${a.year}: ${NUM_YEAR[a.year].replace(/^rok /, '')}.</p>
+      <p><b>${esc(nameB)}</b> — životní číslo ${b.life} (${L(b.life)}), osobní rok ${b.year}: ${NUM_YEAR[b.year].replace(/^rok /, '')}.</p>
+      <p><b>Životní čísla ${la} a ${lb}</b> — ${NUM_PAIR[key] || 'dvě různé cesty, které se učí jedna od druhé'}.</p>
+      <p class="note" style="margin:6px 0 0">Osobní roky říkají, v jaké fázi je každý z vás letos — když jeden zavírá (9) a druhý začíná (1), jdete každý jinou rychlostí a to samo o sobě vysvětluje hodně.</p></div>`;
+  }
+  // jednorázový výpočet z libovolného data — pro hosty, přátele, bez ukládání
+  function numQuickHTML() {
+    const v = S.numQuick; if (!v) return '';
+    const [y, m, d] = v.split('-').map(Number); if (!y) return '';
+    const p = { y, m, d }; const n = numerology(p, np.y, np.m, np.d); const L = NUM_LIFE[n.life] || NUM_LIFE[numReduce(n.life)];
+    const deep = numerologyDeep(p, np.y); const cur = deep.ages.findIndex(([x, z]) => deep.age >= x && (z == null || deep.age <= z));
+    return `<div class="card small numpair"><p><b>${d}. ${m}. ${y}</b> · ${deep.age} let</p>
+      <p><b>Životní číslo ${n.life}</b> · ${L[0]} — ${L[1]}</p>
+      <p><b>Číslo narozeniny ${d}</b> — ${NUM_BDAY[d]}.</p>
+      <p><b>Osobní rok ${n.year}</b> — ${NUM_YEAR[n.year]}.${cur >= 0 ? ` <b>${cur + 1}. období</b> života: vrchol ${deep.pins[cur]}, ${NUM_PIN[deep.pins[cur]]}.` : ''}</p>
+      ${settings.numerology !== false && S.natal ? (() => { const me = numerology(activeProfile(), np.y, np.m, np.d); const la = numReduce(me.life), lb = numReduce(n.life); const key = la <= lb ? `${la}|${lb}` : `${lb}|${la}`; return `<p><b>S tebou (${la} a ${lb})</b> — ${NUM_PAIR[key] || ''}.</p>`; })() : ''}
+    </div>`;
   }
   function numerologyDeepHTML(p) {
     const n = numerologyDeep(p, np.y);
@@ -1112,7 +1183,7 @@
     if (Date.now() - tabTapAt > 400) tabTap(t);
   }, { passive: true });
   // ---------- Zpět: pamatuje, odkud člověk přišel, když ho klepnutí odvede jinam ----------
-  const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goNature', 'goArcs', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
+  const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goNature', 'goArcs', 'numQuick', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
   let navBack = null;
   function navPush() { navBack = { tab: S.tab, y: window.scrollY, natalView: S.natalView, guide: S.guide, sel: S.sel && { ...S.sel }, ym: { y: S.y, m: S.m } }; showBack(true); }
   function showBack(on) { const b = $('#backBtn'); if (b) b.classList.toggle('on', !!on && !!navBack); }
@@ -1312,6 +1383,7 @@
     goNature() { S.filter = 'priroda'; showTab('ukazy'); },
     goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; renderNatal(); window.scrollTo({ top: 0 }); },
+    numQuick() { const v = ($('#numQuickDate') || {}).value; if (!v) return; S.numQuick = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .numquick'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
     lookback() { const v = ($('#lookbackDate') || {}).value; if (!v) return; S.lookback = v; S.natalView = 'prochazis'; renderNatal(); setTimeout(() => { const el = $('#view-nativ .lookback'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
     toggleNum() { settings.numerology = settings.numerology === false; persistSettings(); S.dayCache = {}; renderSettings(); },
     toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
@@ -2207,7 +2279,8 @@ ${parts}
       try {
         const nb = K.natalChart({ ...selRec, lat: +selRec.lat, lon: +selRec.lon, alt: +selRec.alt || 200, y: +selRec.y, m: +selRec.m, d: +selRec.d, hh: +selRec.hh, mm: +selRec.mm, tz: selRec.tz || TZ }, new Date());
         card = `<div class="card hs">${synastry(n, nb, (activeProfile().name || 'A').split(' ')[0], (selRec.name || 'B').split(' ')[0])}</div>
-        <div class="row" style="margin:-4px 0 14px;gap:8px"><button type="button" class="btn ghost small" data-act="synPrint">Uložit · tisk</button><button type="button" class="btn ghost small" data-act="synShare">Poslat text</button></div>`;
+        <div class="row" style="margin:-4px 0 14px;gap:8px"><button type="button" class="btn ghost small" data-act="synPrint">Uložit · tisk</button><button type="button" class="btn ghost small" data-act="synShare">Poslat text</button></div>
+        ${settings.numerology !== false ? numPairHTML(activeProfile(), selRec, (activeProfile().name || 'ty').split(' ')[0], (selRec.name || 'druhý').split(' ')[0]) : ''}`;
       } catch (e) { card = '<div class="card hs"><div class="hsp"><p>Mapu se nepodařilo spočítat — zkontroluj zadané údaje.</p></div></div>'; }
     }
     return `<div class="h3">Horoskop dvou map</div>
@@ -3106,7 +3179,12 @@ ${parts}
         <p><b>Životní číslo ${n.life}</b> · ${L[0]}<br>${L[1]}</p>
         <p><b>Osobní rok ${n.year}</b> — ${NUM_YEAR[n.year]}.</p>
         <p><b>Osobní měsíc ${n.month}</b> · <b>osobní den ${n.day}</b> — ${NUM_DAY[n.day]}.</p>
-        <p class="note" style="margin:6px 0 0">Životní číslo je součet číslic data narození (11, 22 a 33 zůstávají jako mistrovská). Osobní rok vychází z tvého dne a měsíce narození a běžného roku; z něj se odvíjí měsíc a den. Osobní den každého dne najdeš v jeho detailu.</p></div>${numerologyDeepHTML(p)}`; })() : ''}`,
+        <p class="note" style="margin:6px 0 0">Životní číslo je součet číslic data narození (11, 22 a 33 zůstávají jako mistrovská). Osobní rok vychází z tvého dne a měsíce narození a běžného roku; z něj se odvíjí měsíc a den. Osobní den každého dne najdeš v jeho detailu.</p></div>${numerologyDeepHTML(p)}
+        <details class="numquick"><summary>Čísla pro kohokoli — z data narození</summary>
+          <div class="row" style="align-items:center;gap:10px;margin:6px 0 8px"><input type="date" id="numQuickDate" class="btn" value="${S.numQuick || ''}" style="flex:1;min-width:0;max-width:240px"><button type="button" class="btn ghost small" data-act="numQuick">Spočítat</button></div>
+          <p class="note" style="margin:0 0 8px">Jednorázový výpočet pro přátele nebo hosty — nikam se neukládá. Trvalé porovnání s blízkými najdeš ve Vztazích.</p>
+          ${numQuickHTML()}
+        </details>`; })() : ''}`,
       cakra: `${chakraHTML(p)}`,
       efemeridy: `<p class="note" style="margin-top:-2px">Měsíční tabulka poloh v poledne, ingresy, Luna bez kurzu a export do CSV — pro toho, kdo chce vidět čísla.</p><div id="ephHost"></div>
       <p class="note" style="margin-top:16px">Rezonanční dny v kalendáři (✦) vznikají, když Slunce, Venuše, Merkur či Mars stojí na tvé hvězdě (orbis ${fmtNum(settings.rules.starOrb, 1)}°), když přes ni přechází Luna, nebo když na ní nastane novoluní či úplněk (orbis 2°).</p>`,
