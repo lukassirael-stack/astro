@@ -988,3 +988,7 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .wxhead small{font-size:var(--fs-xs);color:var(--inst-muted);letter-spacing:.04em}
 .wxpanel .wxd{border-left-color:rgba(127,182,221,.5)}
 .wxnext .nl{text-transform:capitalize;letter-spacing:.02em}
+
+.wxpanel span[data-b],.wxpanel span[data-p]{display:block}
+.wxpanel span[data-p]{margin:0 0 4px}
+.wxpanel .wxhead{display:flex}
