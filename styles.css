@@ -993,3 +993,5 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .wxpanel span[data-b],.wxpanel span[data-p]{display:block}
 .wxpanel span[data-p]{margin:0 0 4px}
 .wxpanel .wxhead{display:flex}
+.wxpanel.top{margin:10px 0 6px;padding:10px 0 4px;background:rgba(127,182,221,.08);border-radius:12px}
+.wxpanel.top .wxhead{margin-left:12px}

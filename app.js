@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v284';
+  const VERSION = 'v285';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1454,6 +1454,7 @@
     return `<button type="button" class="hero-today ${da.color}" data-act="jumpDay" data-y="${np.y}" data-m="${np.m}" data-d="${np.d}" aria-label="Otevřít dnešek">
       <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}${hol ? ` <em class="ht-hol ${hol.f ? 'free' : 'trad'}">${esc(hol.n)}</em>` : ''}</span>
       <span class="ht-date ht-date2">${phh ? `<i class="sri">${SUNRISE_I}</i>&nbsp;${K.fmtTime(phh.sunrise, TZ)}&nbsp;&nbsp;–&nbsp;&nbsp;<i class="sri">${SUNSET_I}</i>&nbsp;${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + String(nd).replace(/\s*·\s*SK.*$/i, '') : ''}</span>${wxLine()}${(() => { const sd = sdForDay(np.y, np.m, np.d); return sd.length ? `<span class="ht-sd">${sd.map(x => sdLabel(x, np.y)).join(' · ')}</span>` : ''; })()}
+      ${S.wxOpen ? `<span class="wxpanel top">${inlineTags(wxPanelHTML())}</span><span class="ht-div"></span>` : ''}
       <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}<svg class="wflo" viewBox="0 0 180 14" aria-hidden="true"><path d="M4 8 C 50 2, 80 12, 176 6" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M88 4.6 90.6 7.2 88 9.8 85.4 7.2Z" fill="currentColor" opacity=".8"/></svg></span></span>
       <span class="ht-moon"><span class="ht-medal"><svg class="mring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="37" fill="none" stroke="rgba(239,200,120,.7)" stroke-width=".9"/><circle cx="60" cy="60" r="42" fill="none" stroke="rgba(239,200,120,.42)" stroke-width=".8"/></svg>${moonSVG(da.phaseAngle, 38, 'moon hm')}</span> Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
       <span class="ht-div"></span>
@@ -1462,7 +1463,6 @@
       ${cycOn() && cycFor(K.isoDate(np.y, np.m, np.d)) ? `<span class="ht-div"></span><span class="ht-cyc">${(() => { const c = cycFor(K.isoDate(np.y, np.m, np.d)); return `<i class="cdot" style="background:${c.ph.col}"></i><b>${c.day}. den cyklu</b><span>${esc(c.ph.n)} fáze</span>`; })()}</span>` : ''}
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
       ${orgHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv ht-org" id="orgLine">${orgHTML()}</span>${S.orgHelp ? orgExpHTML() : ''}` : ''}
-      ${S.wxOpen ? `<span class="ht-div"></span><span class="wxpanel">${inlineTags(wxPanelHTML())}</span>` : ''}
       ${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">${ico('✺')}</i><b>u tebe</b><span class="tx">${esc(arcS)}</span><i class="tvq" data-act="goArcs" role="button" aria-label="Čím teď procházíš">›</i></span>` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
 <linearGradient id="invG" gradientUnits="userSpaceOnUse" x1="40" y1="8" x2="40" y2="72"><stop offset="0" stop-color="#F7E3A8"/><stop offset="1" stop-color="#D9A54A"/></linearGradient>
