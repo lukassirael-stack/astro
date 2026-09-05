@@ -1022,3 +1022,8 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .wxpanel span[data-p].wxh{display:flex}
 .cell .wxc{position:absolute;right:5px;top:4px;display:flex;align-items:center;gap:2px;font-size:9px;line-height:1;color:var(--muted);opacity:.85}
 .cell .wxc i{font-style:normal;font-size:11px}
+.wxpanel,.wxpanel *{cursor:default;-webkit-tap-highlight-color:transparent}
+.wxpanel .wxnext,.wxpanel .wxnext *,.wxpanel .wxsub u{cursor:pointer}
+.wxpanel .wxnext:active{background:rgba(127,182,221,.12)}
+.wxnext::after{content:'›';color:var(--gold);margin-left:auto;padding-left:8px;font-size:var(--fs-l)}
+.wxnext{grid-template-columns:96px 1fr auto}
