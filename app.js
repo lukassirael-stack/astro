@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v285';
+  const VERSION = 'v286';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -668,9 +668,9 @@
     if (!w || !w.days) { wxRefresh(); return '<p class="note" style="margin:0">Stahuji předpověď…</p>'; }
     const obs = observer(); const tw = twilight(np.y, np.m, np.d, obs); const dn = (() => { try { return darkNight(np.y, np.m, np.d, obs); } catch (e) { return null; } })();
     const today = wxDetailHTML(np.y, np.m, np.d, tw, dn);
-    const next = (w.days || []).slice(1, 3).map(dd => { const p = dd.d.split('-').map(Number); const wd = K.tzParts(K.dayStart(p[0], p[1], p[2], TZ), TZ).wd; return `<p class="wxnext"><span class="nl">${K.WEEKDAY_CZ[wd]}</span><b>${WX_EMO(dd.c)} ${WX_CZ(dd.c)}</b> · ${dd.tmin}° až ${dd.tmax}°${dd.pop >= 30 ? ` · déšť ${dd.pop} %` : ''}${dd.wind >= 30 ? ` · vítr ${dd.wind} km/h` : ''}</p>`; }).join('');
+    const next = (w.days || []).slice(1, 3).map(dd => { const p = dd.d.split('-').map(Number); const wd = K.tzParts(K.dayStart(p[0], p[1], p[2], TZ), TZ).wd; const n = K.WEEKDAY_CZ[wd]; return `<p class="wxnext"><span class="wdn">${n.charAt(0).toUpperCase() + n.slice(1)}</span><span class="wxt"><i>${WX_EMO(dd.c)}</i> <b>${WX_CZ(dd.c)}</b> · ${dd.tmin}° až ${dd.tmax}°${dd.pop >= 30 ? ` · déšť ${dd.pop} %` : ''}${dd.wind >= 30 ? ` · vítr ${dd.wind} km/h` : ''}</span></p>`; }).join('');
     const loc = settings.loc && settings.loc.name ? settings.loc.name : '';
-    return `<div class="wxhead"><b>Počasí${loc ? ` · ${esc(loc)}` : ''}</b><small>aktualizováno ${K.fmtTime(new Date(w.when), TZ)}</small></div>${today}<div class="wxd">${next}</div>`;
+    return `<div class="wxcard"><div class="wxhead"><b>Počasí${loc ? ` · ${esc(loc)}` : ''}</b><small>aktualizováno ${K.fmtTime(new Date(w.when), TZ)}</small></div>${today}</div><div class="wxcard wxdays">${next}</div>`;
   }
   // předpověď pro detail dne: dnes až pozítří; noc pro hvězdy, tlak, UV
   function wxDetailHTML(y, m, d, tw, dn) {
@@ -691,12 +691,13 @@
     let pres = '';
     if (isToday && w.hours && w.hours.length > 24) { const now = new Date(); const idx = w.hours.findIndex(h => new Date(h.t) > now); const cur = w.hours[Math.max(0, idx - 1)], prev = w.hours[Math.max(0, idx - 25)]; if (cur && prev) { const dp = Math.round(cur.p - prev.p); pres = `tlak ${Math.round(cur.p)} hPa, za 24 h ${dp > 0 ? '+' : ''}${dp} hPa${Math.abs(dp) >= 6 ? (dp < 0 ? ' — rychlý pokles, citlivější den pro hlavu a spánek' : ' — rychlý vzestup, čerstvý vzduch') : ''}`; } }
     const uv = day.uv != null ? `UV ${day.uv}${day.uv >= 6 ? ' — v poledne chránit kůži' : day.uv >= 3 ? ' — střední' : ' — nízké'}` : '';
+    const row = (ic, lab, txt) => `<p class="wxrow"><i class="wxb">${ic}</i><span class="nl">${lab}</span><span class="wxt">${txt}</span></p>`;
     return `<div class="wxd">
-      <p><span class="nl">počasí</span><b>${WX_EMO(day.c)} ${WX_CZ(day.c)}</b> · ${day.tmin}° až ${day.tmax}°${isToday ? ` · teď ${w.t}° (pocitově ${w.feels}°)` : ''} · vítr do ${day.wind} km/h</p>
-      <p><span class="nl">déšť</span>${rainTxt}${day.rain > 0 ? ` · celkem ${day.rain} mm` : ''}</p>
-      ${night ? `<p><span class="nl">noc</span>${night}</p>` : ''}
-      ${pres ? `<p><span class="nl">tlak</span>${pres}</p>` : ''}
-      ${uv ? `<p><span class="nl">slunce</span>${uv}</p>` : ''}
+      ${row(WX_EMO(day.c), 'počasí', `<b>${WX_CZ(day.c)}</b> · ${day.tmin}° až ${day.tmax}°${isToday ? ` · teď ${w.t}° (pocitově ${w.feels}°)` : ''} · vítr do ${day.wind} km/h`)}
+      ${row('💧', 'déšť', `${rainTxt}${day.rain > 0 ? ` · celkem ${day.rain} mm` : ''}`)}
+      ${night ? row('🌙', 'noc', night) : ''}
+      ${pres ? row('🧭', 'tlak', pres) : ''}
+      ${uv ? row('☀️', 'slunce', uv) : ''}
     </div>`;
   }
   async function reconcileMedia() {
