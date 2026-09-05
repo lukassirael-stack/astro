@@ -325,7 +325,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .tvinfo p{margin:8px 2px 0;font-size:var(--fs-m);line-height:1.55;color:var(--muted)}
 .hero-today .ht-wx i{font-style:normal;font-size:var(--fs-xl);line-height:1.1}
 .hero-today .ht-wx b{font-family:var(--display);font-size:var(--fs-xl);font-weight:600;letter-spacing:.01em;color:#F8F5EB;text-shadow:0 1px 6px rgba(3,8,22,.7);line-height:1.15}
-.hero-today .ht-date{padding-right:50px}
+.hero-today .ht-date{padding-right:108px}
 .hero-today .ht-head{display:flex;align-items:center;gap:8px;margin:16px 0 12px}
 .hero-today .ht-moon .ht-medal{margin:4px 12px 4px 0}
 
@@ -999,3 +999,4 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .wxpanel span[data-b].wxhead{display:flex}
 .wxpanel.top{margin:8px 0 4px;padding:0;background:none;border-radius:0}
 
+.wxhead small u{text-decoration:none;color:#7FB6DD;cursor:pointer;border-bottom:1px dotted rgba(127,182,221,.6)}
