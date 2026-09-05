@@ -1071,3 +1071,11 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 @media (min-width:520px){.catgrid{grid-template-columns:repeat(5,1fr)}}
 .catgrid .chip.cat{justify-content:flex-start;width:100%;padding:10px 12px;min-height:44px}
 .catgrid .chip.cat .cico{width:20px;height:20px}
+
+/* čipy kategorií podle předlohy: silnější sklo, světlý luminiscenční okraj, větší ikony s dosvitem */
+.catgrid .chip.cat{position:relative;min-height:54px;padding:10px 14px;border-radius:22px;gap:10px;border:1.5px solid rgba(205,228,255,.75);background:linear-gradient(180deg,rgba(120,160,215,.28) 0%,rgba(40,70,120,.22) 55%,rgba(12,28,60,.45) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -2px 6px rgba(0,0,0,.25),0 0 0 1px rgba(120,170,235,.18),0 8px 18px rgba(0,0,0,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:var(--fs-b);color:#EAF3FF;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.catgrid .chip.cat::before{left:6%;right:6%;top:2px;height:44%;border-radius:20px 20px 50% 50%;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0))}
+.catgrid .chip.cat .cico{width:26px;height:26px;color:#DDEEFF;filter:drop-shadow(0 0 3px rgba(210,235,255,.95)) drop-shadow(0 0 8px rgba(120,190,255,.7))}
+.catgrid .chip.cat.on{border-color:#F3D384;color:#FFF3D6;background:linear-gradient(180deg,rgba(240,200,116,.32) 0%,rgba(150,110,45,.22) 55%,rgba(60,42,14,.45) 100%);box-shadow:inset 0 1px 0 rgba(255,240,200,.6),inset 0 -2px 6px rgba(0,0,0,.25),0 0 0 1px rgba(243,211,132,.35),0 0 20px rgba(243,211,132,.45),0 8px 18px rgba(0,0,0,.35)}
+.catgrid .chip.cat.on .cico{color:#FFE9A8;filter:drop-shadow(0 0 3px rgba(255,235,180,.95)) drop-shadow(0 0 9px rgba(243,211,132,.8))}
+.catgrid{gap:10px}
