@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v306';
+  const VERSION = 'v307';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1612,7 +1612,7 @@
         <div><span class="badge ${da.color}">${TX.dayWord(da)}</span></div>
       </div>`}
       ${isToday ? '' : `<p class="day-moon">${moonSVG(da.phaseAngle, 13)} Luna ${K.SIGN_LOC_V[da.moonSign]} · ${TX.phaseText(da.phaseAngle).name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;% osvětlení</p>
-      <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>${holidayFor(y, m, d) ? `<p class="day-hol ${holidayFor(y, m, d).f ? 'free' : 'trad'}">${esc(holidayLine(y, m, d))}</p>` : ''}
+      <p class="day-sun">☉ východ ${K.fmtTime(ph.sunrise, TZ)} · západ ${K.fmtTime(ph.sunset, TZ)}${namedayLine(m, d) ? ' &nbsp;·&nbsp; ' + namedayLine(m, d) : ''}</p>${holidayFor(y, m, d) ? `<p class="day-hol ${holidayFor(y, m, d).f ? 'free' : 'trad'}">${esc(holidayLine(y, m, d))}</p>` : ''}`}
       ${(() => { const tw = twilight(y, m, d, obs); const f = (x) => x ? K.fmtTime(x, TZ) : '–'; const dn = darkNight(y, m, d, obs, moonrise, moonset); const g = gardenLine(da);
         return `${wxDetailHTML(y, m, d, tw, dn)}<div class="nature">
           <p><span class="nl">zlatá hodina</span>${f(tw.goldAM[0])}–${f(tw.goldAM[1])} · ${f(tw.goldPM[0])}–${f(tw.goldPM[1])} <small>— nízké teplé slunce po východu a před západem</small></p>
@@ -1621,7 +1621,8 @@
           ${settings.numerology !== false && S.natal && S.natal.profile ? (() => { const n = numerology(S.natal.profile, y, m, d); return `<p><span class="nl">osobní den</span><b>${n.day}</b> — ${NUM_DAY[n.day]} <small>(osobní rok ${n.year}, měsíc ${n.month})</small></p>`; })() : ''}
           ${(() => { const e = natureNow(m, d); return e ? `<p><span class="nl">příroda teď</span>${esc(e[1])}</p>` : ''; })()}
           <p><span class="nl">zahrádkář</span><b>${g.kind}</b> (Luna ${SIGN_LOC[['Beran','Býk','Blíženc','Rak','Lv','Pann','Váh','Štír','Střelc','Kozoroh','Vodnář','Ryb'][da.moonSign]]}) — ${g.tip} · ${g.phase}</p>
-        </div>`; })()}`}
+        </div>`; })()}
+
       ${isToday ? '' : (() => { const r = TX.dayReading(da, dayEv); return `<p class="lede">${esc(r.text)}</p><p class="lede-sig">${esc(r.sign)}</p>`; })()}
       ${(() => {
         const key = K.isoDate(y, m, d), sd = sdForDay(y, m, d), mine = pGet(key), gv = gEvByDay(key);
