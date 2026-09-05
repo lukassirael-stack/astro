@@ -957,9 +957,10 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .linkbtn{background:none;border:0;padding:6px 8px;color:var(--gold);font:inherit;font-size:var(--fs-s);letter-spacing:.03em;cursor:pointer;opacity:.85}
 
 /* karty O tobě jako hotové obrazy */
-.ntile.img{padding:0;min-height:0;display:block;background:none;border:0;box-shadow:0 10px 26px rgba(0,0,0,.35);border-radius:20px;overflow:hidden}
-.ntile.img img{display:block;width:100%;height:auto;border-radius:20px}
-.ntile.img,.ntile.img.main{box-shadow:0 0 26px rgba(243,211,132,.3),0 10px 26px rgba(0,0,0,.35)}
+.ntile.img{padding:0;min-height:0;display:block;background:#0B1A33;border:1.5px solid #F3D384;border-radius:20px;overflow:hidden;position:relative}
+.ntile.img img{display:block;width:100%;height:auto;border-radius:18px}
+.ntile.img::after{content:'';position:absolute;inset:0;border-radius:18px;box-shadow:inset 0 0 0 1px rgba(255,244,214,.35),inset 0 0 14px rgba(243,211,132,.25);pointer-events:none}
+.ntile.img,.ntile.img.main{box-shadow:0 0 22px rgba(243,211,132,.38),0 10px 26px rgba(0,0,0,.35)}
 
 /* horní tlačítka: průvodce, sdílení, profil */
 .topbtns{position:absolute;right:0;top:10px;display:flex;align-items:center;gap:8px;z-index:3}
