@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v294';
+  const VERSION = 'v295';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -668,11 +668,11 @@
     if (!w || !w.days) { wxRefresh(); return '<p class="note" style="margin:0">Stahuji předpověď…</p>'; }
     const obs = observer(); const tw = twilight(np.y, np.m, np.d, obs); const dn = (() => { try { return darkNight(np.y, np.m, np.d, obs); } catch (e) { return null; } })();
     const today = wxDetailHTML(np.y, np.m, np.d, tw, dn);
-    const nowH = new Date(); const hs = (w.hours || []).filter(h => new Date(h.t) >= nowH).slice(0, 24).filter((h, i) => i % 2 === 0);
+    const nowH = new Date(); const hs = (w.hours || []).filter(h => new Date(h.t) >= nowH).slice(0, 24);
     const strip = hs.length ? `<div class="wxstrip">${hs.map(h => `<span class="wxh"><small>${h.t.slice(11, 13)}</small><i>${WX_EMO(h.c)}</i><b>${Math.round(h.temp)}°</b>${h.pop >= 30 ? `<em>${h.pop} %</em>` : '<em></em>'}</span>`).join('')}</div>` : '';
     const next = (w.days || []).slice(1, 7).map(dd => { const p = dd.d.split('-').map(Number); const wd = K.tzParts(K.dayStart(p[0], p[1], p[2], TZ), TZ).wd; const n = K.WEEKDAY_CZ[wd]; return `<p class="wxnext"><span class="wdn">${n.charAt(0).toUpperCase() + n.slice(1)}</span><span class="wxt"><i>${WX_EMO(dd.c)}</i> <b>${WX_CZ(dd.c)}</b> · ${dd.tmin}° až ${dd.tmax}°${dd.pop >= 30 ? ` · déšť ${dd.pop} %` : ''}${dd.wind >= 30 ? ` · vítr ${dd.wind} km/h` : ''}</span></p>`; }).join('');
     const loc = settings.loc && settings.loc.name ? settings.loc.name : '';
-    return `<div class="wxcard"><div class="wxhead"><b>Počasí${loc ? ` · ${esc(loc)}` : ''}</b><small>${K.fmtTime(new Date(w.when), TZ)}</small></div><div class="wxsub"><u data-act="wxPlace" role="button">změnit místo ›</u></div>${today}${strip}</div><div class="wxcard wxdays">${next}</div>`;
+    return `<div class="wxcard"><div class="wxhead"><b>Počasí${loc ? ` · ${esc(loc)}` : ''}</b><small>${K.fmtTime(new Date(w.when), TZ)}</small></div><div class="wxsub"><u data-act="wxPlace" role="button">změnit místo ›</u></div>${today}${strip}</div><div class="wxcard wxdays"><div class="wxhead"><b>Příštích šest dní</b></div>${next}</div>`;
   }
   // předpověď pro detail dne: dnes až pozítří; noc pro hvězdy, tlak, UV
   function wxDetailHTML(y, m, d, tw, dn) {

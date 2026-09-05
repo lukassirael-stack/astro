@@ -997,7 +997,7 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .wxpanel span[data-p].wxrow{display:grid}
 .wxpanel span[data-p].wxnext{display:grid}
 .wxpanel span[data-b].wxhead{display:flex}
-.wxpanel.top{margin:8px 0 4px;padding:0;background:none;border-radius:0}
+.wxpanel.top{margin:30px 0 4px;padding:0;background:none;border-radius:0}
 
 .wxhead small u{text-decoration:none;color:#7FB6DD;cursor:pointer;border-bottom:1px dotted rgba(127,182,221,.6)}
 .wxsub{margin:-2px 0 6px;text-align:right}
@@ -1013,7 +1013,7 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 /* hodinový pás a týden */
 .wxstrip{display:flex;gap:6px;overflow-x:auto;padding:10px 2px 4px;margin-top:6px;scrollbar-width:none}
 .wxstrip::-webkit-scrollbar{display:none}
-.wxh{flex:none;width:48px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
+.wxh{flex:none;width:44px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08)}
 .wxh small{font-size:var(--fs-xs);color:var(--muted);letter-spacing:.04em}
 .wxh i{font-style:normal;font-size:18px;line-height:1.1}
 .wxh b{font-size:var(--fs-m);color:var(--text);font-weight:600}
