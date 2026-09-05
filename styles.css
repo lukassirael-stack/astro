@@ -1038,3 +1038,12 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .ndays p{margin:0 0 6px;font-size:var(--fs-s);line-height:1.55;color:var(--muted)}
 .ndays p b{color:var(--gold);font-weight:600;margin-right:4px}
 .hero-today .ht-ic.nat{color:var(--c-heart);font-style:normal}
+
+/* řádky karty Dnes ve stejném rytmu jako tatva a tělo: ikona | popisek nad textem | otazník */
+.hero-today .ht-row:not(.ht-tv){display:grid;grid-template-columns:42px minmax(0,1fr) auto;column-gap:12px;row-gap:2px;align-items:center}
+.hero-today .ht-row:not(.ht-tv) .ht-ic{grid-column:1;grid-row:1 / span 2;align-self:center}
+.hero-today .ht-row:not(.ht-tv) b{grid-column:2;grid-row:1;width:auto;white-space:normal;letter-spacing:.14em;color:var(--inst-muted)}
+.hero-today .ht-row:not(.ht-tv) .tx{grid-column:2;grid-row:2;padding-left:0;line-height:1.45}
+.hero-today .ht-row:not(.ht-tv) .tvq{grid-column:3;grid-row:1 / span 2;align-self:center;margin-left:0}
+.hero-today .ht-go b{color:var(--harm)}.hero-today .ht-cost b{color:var(--tense)}
+@media (max-width:400px){.hero-today .ht-row:not(.ht-tv){grid-template-columns:36px minmax(0,1fr) auto}}
