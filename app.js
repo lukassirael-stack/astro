@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v302';
+  const VERSION = 'v303';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -332,9 +332,19 @@
   // jedna věta pro kartu Dnes: nejsilnější pomalý tranzit, nebo nejtěsnější rychlý
   function arcSentence() {
     const list = transitArcs(np.y, np.m, np.d); if (!list.length) return '';
-    const it = list[0]; const t = it.t; const ref = K.dayStart(np.y, np.m, np.d, TZ);
-    const when = it.nextExact ? (Math.abs(it.nextExact - ref) < 86400000 ? 'dnes je to přesné' : `vrchol ${fmtD(it.nextExact)}`) : (it.lastExact ? `vrchol byl ${fmtD(it.lastExact)}, dozní ${fmtD(it.arc.end)}` : `do ${fmtD(it.arc.end)}`);
-    return `${arcTitle(t)} · ${when}`;
+    const ref = K.dayStart(np.y, np.m, np.d, TZ);
+    const exactToday = (it) => it.nextExact && Math.abs(it.nextExact - ref) < 86400000;
+    // karta Dnes je o dnešku: nejdřív rychlé planety, pomalé jen v den přesného průchodu
+    const fast = list.filter(it => !it.slow).sort((x, y) => x.t.orb - y.t.orb);
+    const slowExact = list.filter(it => it.slow && exactToday(it));
+    const it = slowExact[0] || fast[0];
+    if (it) {
+      const t = it.t;
+      const when = exactToday(it) ? 'přesně dnes' : (it.nextExact ? `vrchol ${fmtD(it.nextExact)}` : `do ${fmtD(it.arc.end)}`);
+      return `${arcTitle(t)} — ${arcPhrase(t).split(' — ')[0]} · ${when}`;
+    }
+    const bg = list.find(it => it.slow);
+    return bg ? `dnes bez rychlého tranzitu · pozadí: ${arcTitle(bg.t)} (do ${fmtD(bg.arc.end)})` : '';
   }
   // ---------- Průvodce Kompasem ----------
   function guideHTML() {
