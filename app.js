@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v307';
+  const VERSION = 'v308';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1206,6 +1206,11 @@
     guide() { S.guide = true; renderSettings(); window.scrollTo({ top: 0 }); },
     goGuide() { S.guide = true; showTab('nastaveni'); },
     guideBack() { S.guide = false; renderSettings(); window.scrollTo({ top: 0 }); },
+    home() {
+      // logo: návrat na úvod — dnešek, kalendář na dnešní měsíc, sbalené vrstvy, nahoru; při delším podržení obnoví appku
+      S.y = np.y; S.m = np.m; S.sel = { y: np.y, m: np.m, d: np.d }; S.wxOpen = false; S.tvHelp = false; S.orgHelp = false; S.elek.open = false; S.natalView = 'menu'; S.guide = false; navBack = null; showBack(false);
+      showTab('kalendar'); window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
     goNature() { S.filter = 'priroda'; showTab('ukazy'); },
     goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; renderNatal(); window.scrollTo({ top: 0 }); },
@@ -3311,6 +3316,11 @@ ${parts}
   loadKp(false);
   (() => { const sp = $('#splash'); if (!sp) return; const off = () => { sp.classList.add('done'); setTimeout(() => sp.remove(), 650); };
     requestAnimationFrame(() => setTimeout(off, 1200)); setTimeout(off, 4000); })();
+  (() => { const b = document.querySelector('.brand'); if (!b) return; let t = null;
+    const start = () => { t = setTimeout(() => { t = null; toast('Obnovuji Kompas…'); setTimeout(() => location.reload(), 300); }, 900); };
+    const stop = () => { if (t) { clearTimeout(t); t = null; } };
+    b.addEventListener('touchstart', start, { passive: true }); b.addEventListener('touchend', stop); b.addEventListener('touchmove', stop); b.addEventListener('touchcancel', stop);
+    b.addEventListener('mousedown', start); b.addEventListener('mouseup', stop); b.addEventListener('mouseleave', stop); })();
   document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.id === 'locQuery') { e.preventDefault(); actions.locSearch(); } });
   document.addEventListener('change', (e) => {
     { const s = e.target && e.target.closest && e.target.closest('select[data-act]'); if (s && actions[s.dataset.act]) { actions[s.dataset.act](s, e); return; } }

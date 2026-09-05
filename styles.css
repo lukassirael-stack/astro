@@ -1058,3 +1058,5 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .hero-today .ht-tv .tvq{grid-column:3;grid-row:1 / span 2;align-self:center;margin-left:0}
 .hero-today .ht-row .ht-ic{align-self:center}
 @media (max-width:400px){.hero-today .ht-row.ht-tv{grid-template-columns:36px minmax(0,1fr) auto}}
+.brand{cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.brand:active .logo{transform:scale(.985)}
