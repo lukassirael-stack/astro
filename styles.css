@@ -1047,3 +1047,14 @@ table.pts td.p{font-family:var(--mono);white-space:nowrap}
 .hero-today .ht-row:not(.ht-tv) .tvq{grid-column:3;grid-row:1 / span 2;align-self:center;margin-left:0}
 .hero-today .ht-go b{color:var(--harm)}.hero-today .ht-cost b{color:var(--tense)}
 @media (max-width:400px){.hero-today .ht-row:not(.ht-tv){grid-template-columns:36px minmax(0,1fr) auto}}
+
+/* tatva a tělo ve stejném rytmu: ikona | popisek, název, čas / text | otazník */
+.hero-today .ht-row.ht-tv{display:grid;grid-template-columns:42px minmax(0,1fr) auto;column-gap:12px;row-gap:2px;align-items:center}
+.hero-today .ht-row.ht-tv .ht-ic{grid-column:1;grid-row:1 / span 2;align-self:center}
+.hero-today .ht-tv .tvn{grid-column:2;grid-row:1;max-width:none;width:auto;display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:0 8px;white-space:normal}
+.hero-today .ht-tv .tvn .tvlab{flex-basis:100%;margin-bottom:1px}
+.hero-today .ht-tv .tvn small{font-size:var(--fs-xs)}
+.hero-today .ht-tv .tx{grid-column:2;grid-row:2;padding-left:0;line-height:1.45}
+.hero-today .ht-tv .tvq{grid-column:3;grid-row:1 / span 2;align-self:center;margin-left:0}
+.hero-today .ht-row .ht-ic{align-self:center}
+@media (max-width:400px){.hero-today .ht-row.ht-tv{grid-template-columns:36px minmax(0,1fr) auto}}
