@@ -53,7 +53,7 @@ const SK_UI = {
   'dnes': 'dnes', 'Dnes': 'Dnes', 'Dnes podrobně': 'Dnes podrobne', 'tatva': 'tatva', 'tělo': 'telo',
   'Nejbližší dny': 'Najbližšie dni', 'Denní rytmus': 'Denný rytmus', 'Průběh dne': 'Priebeh dňa', 'Pás dne': 'Pás dňa',
   'Program dne': 'Program dňa', 'Program': 'Program', 'Co dnes jde': 'Čo dnes ide', 'Co bude stát víc sil': 'Čo bude stáť viac síl',
-  'Podporuje': 'Podporuje', 'Nepříznivé': 'Nepriaznivé', 'Pozvánka dne': 'Pozvánka dňa', 'Podrobnosti — pro astrologa': 'Podrobnosti — pre astrológa',
+  'Podporuje': 'Podporuje', 'Nepříznivé': 'Nepriaznivé', 'Krok dne': 'Krok dňa', 'Podrobnosti — pro astrologa': 'Podrobnosti — pre astrológa',
   'Zvýrazněné je nejbližší, co tě dnes čeká.': 'Zvýraznené je najbližšie, čo ťa dnes čaká.',
   'Dnes se na obloze nic výrazného neděje.': 'Dnes sa na oblohe nič výrazné nedeje.',
   'Co značky znamenají?': 'Čo znamenajú značky?', 'Zelený proužek': 'Zelený prúžok', 'Lososový proužek': 'Lososový prúžok',
