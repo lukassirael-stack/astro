@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v329';
+  const VERSION = 'v330';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -817,35 +817,36 @@
     return `<span class="tvexp orgexp" data-act="noop">Orgánové hodiny čínské medicíny dělí den na dvanáct dvouhodin, kterými postupně prochází čchi. Dvouhodina srdce leží kolem poledne, a proto je tady kruh ukotvený na <b>skutečnou kulminaci Slunce</b> pro tvé místo (dnes ${K.fmtTime(x.noon, TZ)}) — časy se tak přes rok posouvají spolu se Sluncem.<span class="orglist">${rows}</span>Ber to jako tichou orientaci v rytmu dne, kterou potvrdíš vlastním pozorováním.</span>`;
   }
   const DAY_TASKS = [
-    ['Odkládáš první krok? Dnes je den ho udělat — pět minut stačí.', 'Neseš rozdělanou věc? Dnes je den ji uzavřít: dokonči ji, nebo ji vědomě polož.'],
-    ['Chtějí tvé ruce tvořit? Dnes je den pro hmatatelnou práci — uvař, oprav, zasaď.', 'Hromadí se doma věci? Dnes je den něco spotřebovat a udělat místo.'],
-    ['Myslíš na někoho? Dnes je den se ozvat — zavolej nebo napiš.', 'Čekají na tebe zprávy? Dnes je den v nich udělat čisto.'],
-    ['Volá tě domov? Dnes je den udělat jedno místo hezčí.', 'Máš doma své lidi? Dnes je den jim věnovat večer.'],
-    ['Vytvořil jsi něco, co svět ještě neviděl? Dnes je den to ukázat.', 'Drží tě někdo dlouho a věrně? Dnes je den mu nahlas poděkovat.'],
-    ['Ruší tě jedno neuklizené místo? Dnes je den ho srovnat — šuplík stačí.', 'Přetéká ti seznam? Dnes je den vybrat tři věci: dvě udělej, jednu vyřaď.'],
-    ['Odkládáš setkání? Dnes je den ho domluvit.', 'Máš něco na srdci? Dnes je den to říct — napiš, poděkuj, usmiř se.'],
-    ['Nosíš v sobě něco nevysloveného? Dnes je den to pojmenovat pravým jménem.', 'Neseš něco, co už dávno netěší? Dnes je den to pustit.'],
-    ['Láká tě něco nového? Dnes je den si na to vzít deset minut.', 'Mluvíš o cestě? Dnes je den naplánovat její první krok.'],
-    ['Stavíš něco velkého? Dnes je den to posunout o jeden krok.', 'Která povinnost visí nejdéle? Dnes je den ji dokončit.'],
-    ['Jedeš v zajetých kolejích? Dnes je den udělat jednu věc jinak.', 'Bere ti něco čas bez užitku? Dnes je den si ho vzít zpět.'],
-    ['Kdy jsi byl naposled v tichu? Dnes je den si dopřát půl hodiny jen pro sebe.', 'Spěcháš na dokončení? Dnes je den to udělat jemně a beze spěchu.'],
+    ['Odkládáš první krok? Udělej ho dnes — pět minut stačí.', 'Neseš rozdělanou věc? Dnes ji uzavři: dokonči ji, nebo ji vědomě polož.'],
+    ['Chtějí tvé ruce tvořit? Dej jim dnes hmatatelnou práci — uvař, oprav, zasaď.', 'Hromadí se doma věci? Dnes něco spotřebuj a udělej místo.'],
+    ['Myslíš na někoho? Ozvi se mu dnes — zavolej nebo napiš.', 'Čekají na tebe zprávy? Udělej si v nich dnes čisto.'],
+    ['Volá tě domov? Udělej dnes jedno místo v něm hezčí.', 'Jsou doma tví blízcí? Věnuj jim dnes večer.'],
+    ['Stvořil jsi něco, co svět ještě neviděl? Dnes to ukaž.', 'Drží tě někdo dlouho a věrně? Poděkuj mu dnes nahlas.'],
+    ['Ruší tě jedno neuklizené místo? Srovnej ho dnes — šuplík stačí.', 'Přetéká ti seznam? Vyber dnes tři věci: dvě udělej, jednu vyřaď.'],
+    ['Odkládáš setkání? Domluv ho dnes.', 'Máš něco na srdci? Řekni to dnes — napiš, poděkuj, usmiř se.'],
+    ['Nosíš v sobě něco nevysloveného? Pojmenuj to dnes pravým jménem.', 'Neseš něco, co už dávno netěší? Pusť to dnes.'],
+    ['Láká tě něco nového? Dej tomu dnes deset minut.', 'Mluvíš o cestě? Naplánuj dnes její první krok.'],
+    ['Stavíš něco velkého? Posuň to dnes o jeden krok.', 'Která povinnost visí nejdéle? Dnes ji dokonči.'],
+    ['Jedeš v zajetých kolejích? Udělej dnes jednu věc jinak.', 'Bere ti něco čas bez užitku? Vezmi si ho dnes zpět.'],
+    ['Kdy jsi byl naposled v tichu? Dopřej si dnes půl hodiny jen pro sebe.', 'Spěcháš s dokončením? Udělej to dnes jemně a beze spěchu.'],
   ];
   // podle vládce dne v týdnu (ne Slunce, po Luna, út Mars, st Merkur, čt Jupiter, pá Venuše, so Saturn): [dorůstající, couvající]
+  // podle vládce dne v týdnu (ne Slunce, po Luna, út Mars, st Merkur, čt Jupiter, pá Venuše, so Saturn): [dorůstající, couvající]
   const WEEKDAY_TASKS = [
-    ['Co ti dnes dodá světlo? Dnes je den udělat jednu věc jen proto, že tě těší.', 'Kde jsi tento týden zářil? Dnes je den to v klidu docenit a odpočinout.'],
-    ['Co potřebuje tvé tělo? Dnes je den mu dát, oč si říká — spánek, teplo, jídlo.', 'Co tě v týdnu rozhodilo? Dnes je den to nechat usednout.'],
-    ['Co vyžaduje odvahu? Dnes je den do toho jít první.', 'Co tě zbytečně dráždí? Dnes je den ušetřit sílu na to podstatné.'],
-    ['Co chceš vyřídit? Dnes je den na hovory, maily a domluvy.', 'Které slovo bylo navíc? Dnes je den mluvit míň a poslouchat víc.'],
-    ['Kam chceš růst? Dnes je den udělat krok, který má rozměr.', 'Za co jsi vděčný? Dnes je den to říct nahlas.'],
-    ['Co je krásné a čeká na tebe? Dnes je den si to dopřát.', 'Co si zaslouží péči? Dnes je den ji věnovat — sobě nebo místu, kde žiješ.'],
-    ['Co chce řád? Dnes je den nastavit jedno pravidlo a držet ho.', 'Co dlouho vleče nohy? Dnes je den to uzavřít, nebo pustit.'],
+    ['Co ti dodává světlo? Udělej dnes jednu věc jen proto, že tě těší.', 'Kde jsi tento týden zářil? Doceň to dnes v klidu a odpočiň si.'],
+    ['Co potřebuje tvé tělo? Dej mu dnes, oč si říká — spánek, teplo, jídlo.', 'Co tě v týdnu rozhodilo? Nech to dnes usednout.'],
+    ['Co vyžaduje odvahu? Jdi do toho dnes první.', 'Co tě zbytečně dráždí? Ušetři dnes sílu na to podstatné.'],
+    ['Co chceš vyřídit? Dnes je na hovory, maily a domluvy dobře.', 'Které slovo bylo navíc? Dnes míň mluv a víc poslouchej.'],
+    ['Kam chceš růst? Udělej dnes krok, který má rozměr.', 'Za co jsi vděčný? Řekni to dnes nahlas.'],
+    ['Co je krásné a čeká na tebe? Dopřej si to dnes.', 'Co si zaslouží péči? Věnuj ji dnes — sobě nebo místu, kde žiješ.'],
+    ['Co chce řád? Nastav dnes jedno pravidlo a drž ho.', 'Co dlouho vleče nohy? Dnes to uzavři, nebo pusť.'],
   ];
   // podle živlu znamení Luny (oheň, země, vzduch, voda): [dorůstající, couvající]
   const ELEMENT_TASKS = [
-    ['Hoří v tobě něco? Dnes je den to rozdmýchat — začni.', 'Kde už není co dohořívat? Dnes je den nechat oheň klidně dohasnout.'],
-    ['Co chce pevný základ? Dnes je den ho položit — malý a skutečný.', 'Co je hotové? Dnes je den to sklidit a uklidit po sobě.'],
-    ['Jaká myšlenka se vrací? Dnes je den ji napsat a poslat dál.', 'Kde je moc slov? Dnes je den vybrat jen ta pravá.'],
-    ['Co cítíš pod povrchem? Dnes je den tomu dát prostor.', 'Co odplouvá? Dnes je den to nechat jít a neohlížet se.'],
+    ['Hoří v tobě něco? Rozdmýchej to dnes — začni.', 'Kde už není co dohořívat? Nech dnes oheň klidně dohasnout.'],
+    ['Co chce pevný základ? Polož ho dnes — malý a skutečný.', 'Co je hotové? Skliď to dnes a ukliď po sobě.'],
+    ['Jaká myšlenka se vrací? Napiš ji dnes a pošli dál.', 'Kde je moc slov? Vyber dnes jen ta pravá.'],
+    ['Co cítíš pod povrchem? Dej tomu dnes prostor.', 'Co odplouvá? Nech to dnes jít a neohlížej se.'],
   ];
   function taskOfDay(da) {
     const pa = da.phaseAngle;
