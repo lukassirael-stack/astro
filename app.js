@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v327';
+  const VERSION = 'v328';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2698,7 +2698,7 @@ ${parts}
           <span class="badge ${r.da.color}">${TX.dayWord(r.da)}</span>
           <span class="ew">${esc(r.why.join(' · ') || 'bez zvláštních výhrad')}</span>
         </button></li>`).join('')}</ul>` : '<p class="small muted" style="margin:8px 0 0">V tomhle rozmezí žádný vyloženě vhodný den nevychází — zkus delší rozsah.</p>';
-        body += `<p class="note">Nejlepší dny pro: ${cfg.subLabel.toLowerCase()} — seřazeno podle data; ✦✦✦ značí nejsilnější dny z výběru. Vybráno podle skóre dne s příplatky za to, co dané věci svědčí; vyřazeny dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.venusNoRetro ? ', retrográdní Venuše' : ''}${cfg.marsNoRetro ? ', retrográdního Marsu' : ''}${cfg.avoidMoonSigns ? `, Luny ${cfg.avoidMoonSigns.map(s => K.SIGN_LOC_V[s]).join(' a ')}${cfg.areaLabel ? ` (${cfg.areaLabel})` : cfg.subLabel === 'Zubař' ? ' (hlava a zuby)' : ''}` : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ', okolí úplňku' : ''}${cfg.weekday ? ', víkendů' : ''}.${cfg.moonSigns ? ` Přednost mají dny s Lunou ${cfg.moonSigns.map(s => K.SIGN_LOC_V[s]).join(', ')}.` : ''}${cfg.dayRuler != null ? ` Bonus pro ${['neděli (den Slunce)', 'pondělí (den Luny)', 'úterý (den Marsu)', 'středu (den Merkuru)', 'čtvrtek (den Jupitera)', 'pátek (den Venuše)', 'sobotu (den Saturnu)'][cfg.dayRuler]}.` : ''}${cfg.health ? ' Jen orientačně — termín zákroku se vždy řídí tím, co řekne lékař.' : ''}</p>`;
+        body += `<p class="note">Nejlepší dny pro: ${cfg.subLabel.toLowerCase()} — seřazeno podle data; ✦✦✦ značí nejsilnější dny z výběru. Vybráno podle skóre dne s příplatky za to, co dané věci svědčí; vyřazeny dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.venusNoRetro ? ', retrográdní Venuše' : ''}${cfg.marsNoRetro ? ', retrográdního Marsu' : ''}${cfg.avoidMoonSigns ? `, Luny ${cfg.avoidMoonSigns.map(s => K.SIGN_LOC_V[s]).join(' a ')}${cfg.areaLabel ? ` (${cfg.areaLabel})` : cfg.subLabel === 'Zubař' ? ' (hlava a zuby)' : ''}` : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ', okolí úplňku' : ''}${cfg.weekday ? ', víkendů' : ''}.${cfg.moonSigns ? ` Přednost mají dny s Lunou ${cfg.moonSigns.map(s => K.SIGN_LOC_V[s]).join(', ')}.` : ''}${cfg.dayRuler != null ? ` Bonus pro ${['neděli (den Slunce)', 'pondělí (den Luny)', 'úterý (den Marsu)', 'středu (den Merkuru)', 'čtvrtek (den Jupitera)', 'pátek (den Venuše)', 'sobotu (den Saturnu)'][cfg.dayRuler]}.` : ''}${cfg.health ? ' Tohle je jen doporučení podle tradičních pravidel. Rozhodnutí o termínu zákroku dělá každý na základě vlastního vyhodnocení a na vlastní odpovědnost — a vždy s tím, co řekne lékař.' : ''}</p>`;
       }
     }
     const head = `<button type="button" class="eltoggle ${S.elek.open ? 'open' : ''}" data-act="elekToggle" aria-expanded="${S.elek.open}">Najít vhodný den <i>${S.elek.open ? '▾' : '▸'}</i></button>`;
