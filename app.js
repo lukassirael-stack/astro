@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v325';
+  const VERSION = 'v326';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2587,7 +2587,7 @@ ${parts}
       ['vyjednavani', 'Vyjednávání', { moonSigns: [6, 2], dayRuler: 3, weekday: 1 }],
       ['citlive', 'Citlivé téma', { waterSign: 1, venusSign: 1, dayRuler: 1, airSign: 0 }],
       ['zadost', 'Žádost · prosba', { wax: 1, moonSigns: [8, 4], dayRuler: 4 }]] },
-    { id: 'zakrok', label: 'Plánovaný zákrok', rules: { wane: 1, avoidFull: 1, noKp: 1, noRetro: 1, marsNoRetro: 1, vocPlus: 1, health: 1 }, subs: [['operace', 'Zákrok · operace', { bodyArea: 1 }], ['zubar', 'Zubař', { avoidMoonSigns: [0, 1] }], ['vysetreni', 'Vyšetření · kontrola', { wane: 0, avoidFull: 0, marsNoRetro: 0, noKp: 0, vocPlus: .5 }]] },
+    { id: 'zakrok', label: 'Plánovaný zákrok', rules: { wane: 1, avoidFull: 1, noKp: 1, noRetro: 1, marsNoRetro: 1, vocPlus: 1, health: 1 }, subs: [['operace', 'Zákrok · operace', { bodyArea: 1 }], ['zubar', 'Zubař', { avoidMoonSigns: [0, 1], moonSigns: [2, 5, 11], moonSignsW: .3 }], ['vysetreni', 'Vyšetření · kontrola', { wane: 0, avoidFull: 0, marsNoRetro: 0, noKp: 0, vocPlus: .5 }]] },
   ];
   // části těla podle tradičního přiřazení znamením — Luna v daném znamení se pro zákrok té části vynechává
   const BODY_SIGNS = [['hlava, oči, obličej', 0], ['krk, hrdlo, štítná žláza', 1], ['ramena, paže, ruce, plíce', 2], ['hrudník, prsa, žaludek', 3], ['srdce, páteř, záda', 4], ['břicho, střeva, slinivka', 5], ['ledviny, bedra, kůže', 6], ['pohlavní orgány, močový měchýř, konečník', 7], ['kyčle, stehna, játra', 8], ['kolena, kosti, klouby, zuby', 9], ['lýtka, kotníky, cévy', 10], ['chodidla, lymfa', 11]];
@@ -2630,6 +2630,8 @@ ${parts}
     if (cfg.dayRuler != null && wd === cfg.dayRuler) { sc += .5; why.push(`den ${['Slunce', 'Luny', 'Marsu', 'Merkuru', 'Jupitera', 'Venuše', 'Saturnu'][wd]}`); }
     if (cfg.jupiterNoRetro && da.pos.Jupiter && da.pos.Jupiter.retro) { sc -= .5; why.push('Jupiter retrográdní'); }
     if (cfg.avoidScorpioMoon && da.moonSign === 7) { sc -= 1; why.push('Luna ve Štíru — tradičně nevhodná pro tuto věc'); }
+    // via combusta (15° Vah – 15° Štíra): tradičně nešťastný úsek Luny pro začátky
+    if (!cfg.health) { const ml = da.pos && da.pos.Moon ? da.pos.Moon.lon : null; if (ml != null && ml >= 195 && ml < 225) { sc -= .5; why.push('Luna ve spálené cestě'); } }
     if (da.color === 'harm') why.unshift('celkově příznivý den');
     return { key, y, m, d, sc, da, why };
   }
