@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v322';
+  const VERSION = 'v323';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1118,6 +1118,8 @@
   function cmpPlan(a, b) { if (!a.t && !b.t) return 0; if (!a.t) return 1; if (!b.t) return -1; return a.t.localeCompare(b.t); }
   const planMs = (key, t) => { const [y, m, d] = key.split('-').map(Number); const [hh, mm] = (t || '00:00').split(':').map(Number); return K.localToDate(y, m, d, hh, mm, TZ).getTime(); };
 
+  // úklid po odloženém záměru: zápisy jen s příznakem směru a bez obsahu
+  for (const k of Object.keys(journal)) { const e = journal[k]; if (e && e.dir && !e.note && e.rate == null && !(e.media && e.media.length)) delete journal[k]; }
   const jGet = (key) => journal[key] || null;
   function jSet(key, patch) {
     const cur = journal[key] || {};
