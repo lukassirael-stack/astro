@@ -1128,3 +1128,10 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .hero-today .ht-ic.dir{color:var(--gold);font-style:normal}
 .dirflag{display:flex;align-items:center;gap:8px;margin:8px 0 2px;font-size:var(--fs-s);color:var(--text);cursor:pointer;text-transform:none;letter-spacing:0}
 .dirflag small{color:var(--muted)}
+
+/* sdělení z Oázy */
+.msgcard{position:relative;margin:0 0 14px;padding:14px 40px 14px 16px;border-radius:16px;border:1px solid rgba(240,200,116,.6);background:linear-gradient(180deg,rgba(240,200,116,.14),rgba(20,40,80,.5));box-shadow:0 0 18px rgba(240,200,116,.15),0 8px 22px rgba(0,0,0,.3)}
+.msgcard b{display:block;font-family:var(--display);font-size:var(--fs-l);color:#FFF3D6;margin-bottom:4px}
+.msgcard p{margin:0;line-height:1.55;color:var(--text)}
+.msgcard .btn{margin-top:10px;display:inline-block;text-decoration:none}
+.msgx{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:50%;border:0;background:transparent;color:var(--muted);font-size:var(--fs-xl);line-height:1;cursor:pointer}

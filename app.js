@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v332';
+  const VERSION = 'v333';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -661,6 +661,22 @@
       <label class="wide">Co si z toho neseš<textarea id="dirHarvest" rows="3" placeholder="pár slov na závěr…"></textarea></label>
       <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn" data-act="dirFinish" data-o="naplněno">Naplněno</button><button type="button" class="btn ghost" data-act="dirFinish" data-o="nechávám">Nechávám být</button><button type="button" class="btn ghost" data-act="dirFinish" data-o="přeměněno">Přeměnit v nový směr</button><button type="button" class="btn ghost small" data-act="natalView" data-v="smer">zpět</button></div>
     </div>`;
+  }
+  // ---------- sdělení z Oázy: tabulka kompas_zpravy v Supabase, každá zpráva se ukáže jednou ----------
+  const MSG_URL = 'https://myybuesoourgpbouwwst.supabase.co/rest/v1/kompas_zpravy?select=id,nadpis,text,tlacitko,odkaz&order=id.desc&limit=5';
+  const MSG_KEY = 'sb_publishable_v9E-GhERgU5JCvE0D-l65A_QB2S2yux';
+  const msgSeen = () => rawGet('kairos_msgs_seen', []);
+  async function msgsRefresh() {
+    try {
+      const r = await fetch(MSG_URL, { headers: { apikey: MSG_KEY, Authorization: 'Bearer ' + MSG_KEY } }); if (!r.ok) return;
+      const list = await r.json(); rawSet('kairos_msgs', { when: Date.now(), list: Array.isArray(list) ? list : [] });
+      if (S.tab === 'kalendar') renderCalendar();
+    } catch (e) { }
+  }
+  function msgsHTML() {
+    const m = rawGet('kairos_msgs', null); if (!m || !m.list) return '';
+    const seen = msgSeen(); const fresh = m.list.filter(x => !seen.includes(x.id)).slice(0, 2);
+    return fresh.map(x => `<div class="msgcard" data-act="noop"><button type="button" class="msgx" data-act="msgClose" data-id="${x.id}" aria-label="Zavřít">×</button><b>${esc(x.nadpis)}</b><p>${esc(x.text)}</p>${x.tlacitko && x.odkaz ? `<a class="btn small" href="${esc(x.odkaz)}" target="_blank" rel="noopener">${esc(x.tlacitko)}</a>` : ''}</div>`).join('');
   }
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
@@ -1539,6 +1555,7 @@
       (d.archive = d.archive || []).push(D); d.active = null; dirSave(d); toast('Směr uzavřen.'); S.natalView = 'smer'; renderNatal(); window.scrollTo({ top: 0 });
     },
     goDiarToday() { S.plSel = K.isoDate(np.y, np.m, np.d); S.plY = np.y; S.plM = np.m; showTab('diar'); },
+    msgClose(el) { const seen = msgSeen(); const id = +el.dataset.id; if (!seen.includes(id)) seen.push(id); rawSet('kairos_msgs_seen', seen.slice(-200)); renderCalendar(); },
     goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; renderNatal(); window.scrollTo({ top: 0 }); },
     numQuick() { const v = ($('#numQuickDate') || {}).value; if (!v) return; S.numQuick = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .numquick'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
@@ -1764,6 +1781,7 @@
     if (isCurMonth && (hiddenDays || S.showPast)) pastBar = `<div class="pastbar"><button type="button" class="chip small" data-act="pastToggle">${S.showPast ? '▴ skrýt uplynulé dny' : `▾ zobrazit ${hiddenDays} uplynulých dnů`}</button></div>`;
     v.innerHTML = `
       ${natalSumHTML(true)}
+      ${msgsHTML()}
       ${todayHeroHTML()}
       ${aheadHTML()}
       ${todayReadHTML()}
@@ -3693,6 +3711,7 @@ ${parts}
   setTimeout(reconcileMedia, 1200);
   setTimeout(() => { const w = wxGet(); if (!w || !w.days || w.days.length < 7 || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); }, 800);
   setTimeout(() => { const c = cometsGet(); if (!c || Date.now() - c.when > 12 * 3600 * 1000) cometsRefresh(); }, 2500);
+  setTimeout(() => { const m = rawGet('kairos_msgs', null); if (!m || Date.now() - m.when > 6 * 3600 * 1000) msgsRefresh(); }, 1500);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { const w = wxGet(); if (!w || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); } });
   setInterval(() => { const el = $('#tatvaLine'); if (el) { const h = tattvaHTML(); if (h) el.innerHTML = h; } const eo = $('#orgLine'); if (eo) { const g = orgHTML(); if (g) eo.innerHTML = g; } }, 30000);
   setTimeout(() => { const c = gEv(); if (store.get('kairos_ics', '') && (!c || Date.now() - c.when > 6 * 3600 * 1000)) icsRefresh(true); }, 2500);
