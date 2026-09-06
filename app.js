@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v323';
+  const VERSION = 'v324';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1321,6 +1321,7 @@
   });
 
   const actions = {
+    elekArea(el) { S.elek.area = el.dataset.s === '' ? null : +el.dataset.s; S.elek.results = null; renderCalendar(); },
     elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); if (S.elek.open) setTimeout(() => { const p = $('#view-kalendar .eltoggle'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 40); },
     hsTheme(el) { const cur = S.hsTheme || 'rok'; S.hsTheme = cur === el.dataset.t ? 'none' : el.dataset.t; renderNatal(); if (S.hsTheme !== 'none') setTimeout(() => { const c = $('#view-nativ .card.hs'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); },
     // (hydratace médií se volá po renderCalendar níže)
@@ -2558,13 +2559,17 @@ ${parts}
     { id: 'bydleni', label: 'Stěhování a bydlení', rules: { wax: .5, noKp: 1, retroMinus: .5 }, subs: [['stehovani', 'Stěhování'], ['najem', 'Nové bydlení · nájem']] },
     { id: 'cesta', label: 'Cesta a dovolená', rules: { noKp: 1, retroMinus: 1 }, subs: [['odjezd', 'Odjezd na cestu'], ['dovolena', 'Dovolená'], ['presun', 'Přesun · logistika']] },
     { id: 'rozhovor', label: 'Důležitý rozhovor', rules: { noRetro: 1, vocPlus: 1, airSign: 1 }, subs: [['vyjednavani', 'Vyjednávání'], ['citlive', 'Citlivé téma'], ['zadost', 'Žádost · prosba']] },
-    { id: 'zakrok', label: 'Plánovaný zákrok', rules: { wane: 1, avoidFull: 1, noKp: 1, noRetro: 1, marsNoRetro: 1, vocPlus: 1, health: 1 }, subs: [['operace', 'Zákrok · operace'], ['zubar', 'Zubař', { avoidMoonSigns: [0, 6] }]] },
+    { id: 'zakrok', label: 'Plánovaný zákrok', rules: { wane: 1, avoidFull: 1, noKp: 1, noRetro: 1, marsNoRetro: 1, vocPlus: 1, health: 1 }, subs: [['operace', 'Zákrok · operace', { bodyArea: 1 }], ['zubar', 'Zubař', { avoidMoonSigns: [0, 1] }], ['vysetreni', 'Vyšetření · kontrola', { wane: 0, avoidFull: 0, marsNoRetro: 0, noKp: 0, vocPlus: .5 }]] },
   ];
+  // části těla podle tradičního přiřazení znamením — Luna v daném znamení se pro zákrok té části vynechává
+  const BODY_SIGNS = [['hlava, oči, obličej', 0], ['krk, hrdlo, štítná žláza', 1], ['ramena, paže, ruce, plíce', 2], ['hrudník, prsa, žaludek', 3], ['srdce, páteř, záda', 4], ['břicho, střeva, slinivka', 5], ['ledviny, bedra, kůže', 6], ['pohlavní orgány, močový měchýř, konečník', 7], ['kyčle, stehna, játra', 8], ['kolena, kosti, klouby, zuby', 9], ['lýtka, kotníky, cévy', 10], ['chodidla, lymfa', 11]];
   function electCfg() {
     const cat = ELECT_CATS.find(c => c.id === S.elek.cat);
     if (!cat) return null;
     const sub = cat.subs.find(x => x[0] === S.elek.sub) || cat.subs[0];
-    return { ...cat.rules, ...(sub[2] || {}), catLabel: cat.label, subLabel: sub[1], health: cat.rules.health };
+    const cfg = { ...cat.rules, ...(sub[2] || {}), catLabel: cat.label, subLabel: sub[1], health: cat.rules.health };
+    if (cfg.bodyArea && S.elek.area != null) { const s = +S.elek.area; cfg.avoidMoonSigns = [s]; cfg.areaLabel = BODY_SIGNS[s][0]; }
+    return cfg;
   }
   function electDay(cfg, y, m, d, evs) {
     const da = analyze(y, m, d);
@@ -2639,6 +2644,7 @@ ${parts}
     if (cat) {
       const subOn = (cat.subs.find(x => x[0] === S.elek.sub) || cat.subs[0])[0];
       body += `<div class="row echips sub">${cat.subs.map(x => `<button type="button" class="chip small ${subOn === x[0] ? 'on' : ''}" data-act="elekSub" data-s="${x[0]}">${x[1]}</button>`).join('')}</div>`;
+      if (subOn === 'operace') body += `<div class="row echips sub"><span class="elbl">Část těla</span>${BODY_SIGNS.map(([lab, s]) => `<button type="button" class="chip small ${+S.elek.area === s ? 'on' : ''}" data-act="elekArea" data-s="${s}">${lab.split(',')[0]}</button>`).join('')}<button type="button" class="chip small ${S.elek.area == null ? 'on' : ''}" data-act="elekArea" data-s="">bez určení</button></div>`;
       body += `<div class="row echips span"><span class="elbl">Rozsah</span>${[14, 30, 60, 90].map(n => `<button type="button" class="chip small ${+S.elek.span === n ? 'on' : ''}" data-act="elekSpan" data-n="${n}">${n} dní</button>`).join('')}<label class="chip small elcust ${[14, 30, 60, 90].includes(+S.elek.span) ? '' : 'on'}">vlastní: <input id="elekCustom" type="number" min="7" max="400" step="1" value="${[14, 30, 60, 90].includes(+S.elek.span) ? '' : S.elek.span}" placeholder="365"> dnů</label></div>`;
       const cfg = electCfg();
       if (S.elek.progress != null) body += `<p class="small muted" style="margin:10px 0 0">Prohledávám nebe… <span id="elekProgress">${S.elek.progress} %</span></p>`;
@@ -2650,7 +2656,7 @@ ${parts}
           <span class="badge ${r.da.color}">${TX.dayWord(r.da)}</span>
           <span class="ew">${esc(r.why.join(' · ') || 'bez zvláštních výhrad')}</span>
         </button></li>`).join('')}</ul>` : '<p class="small muted" style="margin:8px 0 0">V tomhle rozmezí žádný vyloženě vhodný den nevychází — zkus delší rozsah.</p>';
-        body += `<p class="note">Nejlepší dny pro: ${cfg.subLabel.toLowerCase()} — seřazeno podle data; ✦✦✦ značí nejsilnější dny z výběru. Vybráno podle skóre dne s příplatky za to, co dané věci svědčí; vyřazeny dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.venusNoRetro ? ', retrográdní Venuše' : ''}${cfg.marsNoRetro ? ', retrográdního Marsu' : ''}${cfg.avoidMoonSigns ? ', Luny ve znamení operované části těla (Beran/Váhy)' : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ' a okolí úplňku' : ''}.${cfg.health ? ' Jen orientačně — termín zákroku se vždy řídí tím, co řekne lékař.' : ''}</p>`;
+        body += `<p class="note">Nejlepší dny pro: ${cfg.subLabel.toLowerCase()} — seřazeno podle data; ✦✦✦ značí nejsilnější dny z výběru. Vybráno podle skóre dne s příplatky za to, co dané věci svědčí; vyřazeny dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.venusNoRetro ? ', retrográdní Venuše' : ''}${cfg.marsNoRetro ? ', retrográdního Marsu' : ''}${cfg.avoidMoonSigns ? `, Luny ${cfg.avoidMoonSigns.map(s => K.SIGN_LOC_V[s]).join(' a ')}${cfg.areaLabel ? ` (${cfg.areaLabel})` : cfg.subLabel === 'Zubař' ? ' (hlava a zuby)' : ''}` : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ' a okolí úplňku' : ''}.${cfg.health ? ' Jen orientačně — termín zákroku se vždy řídí tím, co řekne lékař.' : ''}</p>`;
       }
     }
     const head = `<button type="button" class="eltoggle ${S.elek.open ? 'open' : ''}" data-act="elekToggle" aria-expanded="${S.elek.open}">Najít vhodný den <i>${S.elek.open ? '▾' : '▸'}</i></button>`;
