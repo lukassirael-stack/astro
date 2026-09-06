@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v321';
+  const VERSION = 'v322';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1845,7 +1845,6 @@
       ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp" data-act="noop">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
       ${orgHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv ht-org" id="orgLine">${orgHTML()}</span>${S.orgHelp ? orgExpHTML() : ''}` : ''}
       ${(() => { const e = natureNow(np.m, np.d); return e ? `<span class="ht-div"></span><span class="ht-row ht-nat"><i class="ht-ic nat">☘</i><b>příroda</b><span class="tx">${esc(e[1])}</span><i class="tvq" data-act="goNature" role="button" aria-label="Příroda v Úkazech">›</i></span>` : ''; })()}
-      ${(() => { const d = dirGet(); const w = d.active ? dirActiveWindow(d.active, new Date()) : null; return w ? `<span class="ht-div"></span><span class="ht-row ht-dir"><i class="ht-ic dir">➶</i><b>tvůj směr</b><span class="tx"><b>${esc(w.title)}</b> — ${esc(w.ai || w.text)}</span><i class="tvq" data-act="goDir" role="button" aria-label="Tvůj směr">›</i></span>` : ''; })()}
       ${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">${ico('✺')}</i><b>u tebe</b><span class="tx">${esc(arcS)}</span><i class="tvq" data-act="goArcs" role="button" aria-label="Čím teď procházíš">›</i></span>` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
 <linearGradient id="invG" gradientUnits="userSpaceOnUse" x1="40" y1="8" x2="40" y2="72"><stop offset="0" stop-color="#F7E3A8"/><stop offset="1" stop-color="#D9A54A"/></linearGradient>
@@ -2686,7 +2685,6 @@ ${parts}
     const chips = RATES.map(r => `<button type="button" class="rate ${r.cls} ${e.rate === r.v ? 'on' : ''}" data-act="rate" data-k="${key}" data-v="${r.v}">${r.label}</button>`).join('');
     return `<div class="panel jr">
       <textarea id="jNote" class="jnote" data-k="${key}" rows="3" placeholder="Chceš si něco z dneška poznamenat? Co se stalo, jak ti bylo, co vyšlo.">${esc(e.note || '')}</textarea>
-      ${dirGet().active ? `<label class="dirflag"><input type="checkbox" data-act="jDir" data-k="${key}" ${e.dir ? 'checked' : ''}> k mému směru <small>· ${esc(dirGet().active.text.slice(0, 40))}${dirGet().active.text.length > 40 ? '…' : ''}</small></label>` : ''}
       ${(e.media && e.media.length) ? `<div class="jmedia">${e.media.map(m => m.t === 'i'
         ? `<span class="jmit"><img data-mid="${m.id}" alt="fotka ke dni" data-act="jmView" data-mid2="${m.id}"><button type="button" class="jmx" data-act="jmDel" data-k="${key}" data-id="${m.id}" title="Smazat">×</button></span>`
         : `<span class="jmau"><audio data-mid="${m.id}" controls preload="none"></audio><button type="button" class="jmx" data-act="jmDel" data-k="${key}" data-id="${m.id}" title="Smazat">×</button></span>`).join('')}</div>` : ''}
@@ -3341,7 +3339,6 @@ ${parts}
       <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p></div>`;
     const view = S.natalView && S.natalView !== 'ty' ? S.natalView : 'menu';
     const TILES = [
-      ['smer', '➶', 'Tvůj směr', 'záměr, okna, kroky, deníček', 'main', 'nolmg'],
       ['mapa', '☉', 'Tvoje mapa', 'Slunce, Luna, ascendent, body, domy, aspekty', 'main'],
       ['prochazis', '✺', 'Čím teď procházíš', 'tranzity jako oblouky, ohlédnutí', 'main'],
       ['vztahy', '♡', 'Vztahy', 'jak si tvá mapa rozumí s druhými'],
@@ -3358,8 +3355,6 @@ ${parts}
     }
     const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : view === 'smerClose' ? ['smer', '➶', 'Sklizeň', ''] : TILES[0]);
     const back = `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
-    if (view === 'smer') { v.innerHTML = back + dirHTML(); return; }
-    if (view === 'smerClose') { v.innerHTML = back.replace('data-v="menu"', 'data-v="smer"') + dirCloseHTML(); return; }
     if (view === 'vztahy') {
       v.innerHTML = back + `<p class="note" style="margin-top:-2px">Jak si tvá mapa rozumí s mapami lidí kolem tebe — partner, děti, rodiče, přátelé, kolegové. Přidej datum, čas a místo narození druhého a Kompas přečte, kde se vaše mapy potkávají samy a kde to chce práci.</p>${synSectionHTML(n)}`;
       return;
