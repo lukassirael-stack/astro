@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v324';
+  const VERSION = 'v325';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2551,14 +2551,42 @@ ${parts}
 
   // ===================== najít vhodný den (elekce) =====================
   const ELECT_CATS = [
-    { id: 'smlouva', label: 'Smlouva a dohoda', rules: { noRetro: 1, vocPlus: 1, wax: .5 }, subs: [['podpis', 'Podpis smlouvy'], ['urad', 'Úřad · žádost'], ['dohoda', 'Důležitá dohoda']] },
-    { id: 'penize', label: 'Peníze a větší nákup', rules: { noRetro: 1, wax: 1 }, subs: [['nakup', 'Větší nákup'], ['investice', 'Investice'], ['uver', 'Úvěr · financování'], ['koupe', 'Koupě auta · nemovitosti']] },
-    { id: 'projekt', label: 'Projekt a podnikání', rules: { newMoon: 1, vocPlus: 1 }, subs: [['zacit', 'Začít projekt'], ['web', 'Spustit web'], ['provoz', 'Otevřít provoz'], ['produkt', 'Představit produkt']] },
-    { id: 'prace', label: 'Práce a kariéra', rules: { noRetro: 1, wax: .5 }, subs: [['pohovor', 'Pohovor'], ['nastup', 'Nástup'], ['zvyseni', 'Žádost o zvýšení'], ['prezentace', 'Prezentace · vystoupení'], ['zkouska', 'Zkouška · přihláška']] },
-    { id: 'laska', label: 'Láska a vztahy', rules: { wax: .5, venusSign: 1, venusNoRetro: 1 }, subs: [['rande', 'Rande'], ['setkani', 'Důležité setkání'], ['zasnuby', 'Zásnuby'], ['svatba', 'Svatba', { vocPlus: 1 }]] },
-    { id: 'bydleni', label: 'Stěhování a bydlení', rules: { wax: .5, noKp: 1, retroMinus: .5 }, subs: [['stehovani', 'Stěhování'], ['najem', 'Nové bydlení · nájem']] },
-    { id: 'cesta', label: 'Cesta a dovolená', rules: { noKp: 1, retroMinus: 1 }, subs: [['odjezd', 'Odjezd na cestu'], ['dovolena', 'Dovolená'], ['presun', 'Přesun · logistika']] },
-    { id: 'rozhovor', label: 'Důležitý rozhovor', rules: { noRetro: 1, vocPlus: 1, airSign: 1 }, subs: [['vyjednavani', 'Vyjednávání'], ['citlive', 'Citlivé téma'], ['zadost', 'Žádost · prosba']] },
+    { id: 'smlouva', label: 'Smlouva a dohoda', rules: { noRetro: 1, vocPlus: 1, wax: .5 }, subs: [
+      ['podpis', 'Podpis smlouvy', { fixed: 1, earthSign: 1 }],
+      ['urad', 'Úřad · žádost', { weekday: 1, earthSign: 1, dayRuler: 4 }],
+      ['dohoda', 'Důležitá dohoda', { airSign: 1, venusSign: 1, dayRuler: 5 }]] },
+    { id: 'penize', label: 'Peníze a větší nákup', rules: { noRetro: 1, wax: 1 }, subs: [
+      ['nakup', 'Větší nákup', { venusNoRetro: 1, moonSigns: [1, 6], dayRuler: 5 }],
+      ['investice', 'Investice', { jupiterNoRetro: 1, fixed: 1, dayRuler: 4 }],
+      ['uver', 'Úvěr · financování', { weekday: 1, earthSign: 1, avoidScorpioMoon: 1 }],
+      ['koupe', 'Koupě auta · nemovitosti', { venusNoRetro: 1, moonSigns: [1, 3, 9], fixed: 1 }]] },
+    { id: 'projekt', label: 'Projekt a podnikání', rules: { newMoon: 1, vocPlus: 1 }, subs: [
+      ['zacit', 'Začít projekt', { fireSign: 1, dayRuler: 0 }],
+      ['web', 'Spustit web', { noRetro: 1, airSign: 1, dayRuler: 3 }],
+      ['provoz', 'Otevřít provoz', { fixed: 1, earthSign: 1, weekday: 1 }],
+      ['produkt', 'Představit produkt', { noRetro: 1, moonSigns: [4, 6, 2], dayRuler: 0 }]] },
+    { id: 'prace', label: 'Práce a kariéra', rules: { noRetro: 1, wax: .5 }, subs: [
+      ['pohovor', 'Pohovor', { weekday: 1, airSign: 1, dayRuler: 3 }],
+      ['nastup', 'Nástup', { weekday: 1, fixed: 1, newMoon: .5 }],
+      ['zvyseni', 'Žádost o zvýšení', { weekday: 1, jupiterNoRetro: 1, dayRuler: 4, moonSigns: [4, 9] }],
+      ['prezentace', 'Prezentace · vystoupení', { fireSign: 1, airSign: 1, dayRuler: 0, vocPlus: 1 }],
+      ['zkouska', 'Zkouška · přihláška', { earthSign: 1, airSign: 1, dayRuler: 3, vocPlus: 1 }]] },
+    { id: 'laska', label: 'Láska a vztahy', rules: { wax: .5, venusSign: 1, venusNoRetro: 1 }, subs: [
+      ['rande', 'Rande', { dayRuler: 5, fireSign: .5, waterSign: 1 }],
+      ['setkani', 'Důležité setkání', { airSign: 1, vocPlus: 1 }],
+      ['zasnuby', 'Zásnuby', { moonSigns: [1, 6, 3], avoidScorpioMoon: 1, dayRuler: 5, vocPlus: 1 }],
+      ['svatba', 'Svatba', { moonSigns: [1, 6, 3, 4], avoidScorpioMoon: 1, vocPlus: 1, noRetro: 1, wax: 1 }]] },
+    { id: 'bydleni', label: 'Stěhování a bydlení', rules: { wax: .5, noKp: 1, retroMinus: .5 }, subs: [
+      ['stehovani', 'Stěhování', { fixed: 1, moonSigns: [1, 3], weekday: 0 }],
+      ['najem', 'Nové bydlení · nájem', { moonSigns: [3, 1, 9], noRetro: 1, dayRuler: 1 }]] },
+    { id: 'cesta', label: 'Cesta a dovolená', rules: { noKp: 1, retroMinus: 1 }, subs: [
+      ['odjezd', 'Odjezd na cestu', { mutable: 1, airSign: .5, dayRuler: 3, vocPlus: 1 }],
+      ['dovolena', 'Dovolená', { waterSign: 1, moonSigns: [8, 11], dayRuler: 4 }],
+      ['presun', 'Přesun · logistika', { noRetro: 1, earthSign: 1, fixed: .5, weekday: 1 }]] },
+    { id: 'rozhovor', label: 'Důležitý rozhovor', rules: { noRetro: 1, vocPlus: 1, airSign: 1 }, subs: [
+      ['vyjednavani', 'Vyjednávání', { moonSigns: [6, 2], dayRuler: 3, weekday: 1 }],
+      ['citlive', 'Citlivé téma', { waterSign: 1, venusSign: 1, dayRuler: 1, airSign: 0 }],
+      ['zadost', 'Žádost · prosba', { wax: 1, moonSigns: [8, 4], dayRuler: 4 }]] },
     { id: 'zakrok', label: 'Plánovaný zákrok', rules: { wane: 1, avoidFull: 1, noKp: 1, noRetro: 1, marsNoRetro: 1, vocPlus: 1, health: 1 }, subs: [['operace', 'Zákrok · operace', { bodyArea: 1 }], ['zubar', 'Zubař', { avoidMoonSigns: [0, 1] }], ['vysetreni', 'Vyšetření · kontrola', { wane: 0, avoidFull: 0, marsNoRetro: 0, noKp: 0, vocPlus: .5 }]] },
   ];
   // části těla podle tradičního přiřazení znamením — Luna v daném znamení se pro zákrok té části vynechává
@@ -2590,6 +2618,18 @@ ${parts}
     if (cfg.airSign && (da.moonSign === 2 || da.moonSign === 6 || da.moonSign === 10)) { sc += .5; why.push('Luna ve vzdušném znamení'); }
     if (cfg.vocPlus && !da.voc.length) { sc += .5; why.push('Luna celý den v kurzu'); }
     if (cfg.retroMinus && da.mercuryRetro) { sc -= cfg.retroMinus; why.push('Merkur retrográdní'); }
+    const FIXED = [1, 4, 7, 10], EARTH = [1, 5, 9], WATER = [3, 7, 11], FIRE = [0, 4, 8], MUTABLE = [2, 5, 8, 11];
+    const wd = K.tzParts(da.noon, TZ).wd;
+    if (cfg.moonSigns && cfg.moonSigns.includes(da.moonSign)) { sc += cfg.moonSignsW || 1; why.push(`Luna ${K.SIGN_LOC_V[da.moonSign]} — svědčí této věci`); }
+    if (cfg.fixed && FIXED.includes(da.moonSign)) { sc += .5; why.push('Luna v pevném znamení — stálost'); }
+    if (cfg.earthSign && EARTH.includes(da.moonSign)) { sc += .5; why.push('Luna v zemském znamení — praktičnost'); }
+    if (cfg.waterSign && WATER.includes(da.moonSign)) { sc += .5; why.push('Luna ve vodním znamení — cit'); }
+    if (cfg.fireSign && FIRE.includes(da.moonSign)) { sc += .5; why.push('Luna v ohnivém znamení — odvaha'); }
+    if (cfg.mutable && MUTABLE.includes(da.moonSign)) { sc += .5; why.push('Luna v proměnlivém znamení — pohyb'); }
+    if (cfg.weekday && (wd === 0 || wd === 6)) return null;
+    if (cfg.dayRuler != null && wd === cfg.dayRuler) { sc += .5; why.push(`den ${['Slunce', 'Luny', 'Marsu', 'Merkuru', 'Jupitera', 'Venuše', 'Saturnu'][wd]}`); }
+    if (cfg.jupiterNoRetro && da.pos.Jupiter && da.pos.Jupiter.retro) { sc -= .5; why.push('Jupiter retrográdní'); }
+    if (cfg.avoidScorpioMoon && da.moonSign === 7) { sc -= 1; why.push('Luna ve Štíru — tradičně nevhodná pro tuto věc'); }
     if (da.color === 'harm') why.unshift('celkově příznivý den');
     return { key, y, m, d, sc, da, why };
   }
@@ -2656,7 +2696,7 @@ ${parts}
           <span class="badge ${r.da.color}">${TX.dayWord(r.da)}</span>
           <span class="ew">${esc(r.why.join(' · ') || 'bez zvláštních výhrad')}</span>
         </button></li>`).join('')}</ul>` : '<p class="small muted" style="margin:8px 0 0">V tomhle rozmezí žádný vyloženě vhodný den nevychází — zkus delší rozsah.</p>';
-        body += `<p class="note">Nejlepší dny pro: ${cfg.subLabel.toLowerCase()} — seřazeno podle data; ✦✦✦ značí nejsilnější dny z výběru. Vybráno podle skóre dne s příplatky za to, co dané věci svědčí; vyřazeny dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.venusNoRetro ? ', retrográdní Venuše' : ''}${cfg.marsNoRetro ? ', retrográdního Marsu' : ''}${cfg.avoidMoonSigns ? `, Luny ${cfg.avoidMoonSigns.map(s => K.SIGN_LOC_V[s]).join(' a ')}${cfg.areaLabel ? ` (${cfg.areaLabel})` : cfg.subLabel === 'Zubař' ? ' (hlava a zuby)' : ''}` : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ' a okolí úplňku' : ''}.${cfg.health ? ' Jen orientačně — termín zákroku se vždy řídí tím, co řekne lékař.' : ''}</p>`;
+        body += `<p class="note">Nejlepší dny pro: ${cfg.subLabel.toLowerCase()} — seřazeno podle data; ✦✦✦ značí nejsilnější dny z výběru. Vybráno podle skóre dne s příplatky za to, co dané věci svědčí; vyřazeny dny zatmění${cfg.noRetro ? ', retrográdního Merkuru' : ''}${cfg.venusNoRetro ? ', retrográdní Venuše' : ''}${cfg.marsNoRetro ? ', retrográdního Marsu' : ''}${cfg.avoidMoonSigns ? `, Luny ${cfg.avoidMoonSigns.map(s => K.SIGN_LOC_V[s]).join(' a ')}${cfg.areaLabel ? ` (${cfg.areaLabel})` : cfg.subLabel === 'Zubař' ? ' (hlava a zuby)' : ''}` : ''}${cfg.noKp ? ', geomagnetických bouří' : ''}${cfg.avoidFull ? ', okolí úplňku' : ''}${cfg.weekday ? ', víkendů' : ''}.${cfg.moonSigns ? ` Přednost mají dny s Lunou ${cfg.moonSigns.map(s => K.SIGN_LOC_V[s]).join(', ')}.` : ''}${cfg.dayRuler != null ? ` Bonus pro ${['neděli (den Slunce)', 'pondělí (den Luny)', 'úterý (den Marsu)', 'středu (den Merkuru)', 'čtvrtek (den Jupitera)', 'pátek (den Venuše)', 'sobotu (den Saturnu)'][cfg.dayRuler]}.` : ''}${cfg.health ? ' Jen orientačně — termín zákroku se vždy řídí tím, co řekne lékař.' : ''}</p>`;
       }
     }
     const head = `<button type="button" class="eltoggle ${S.elek.open ? 'open' : ''}" data-act="elekToggle" aria-expanded="${S.elek.open}">Najít vhodný den <i>${S.elek.open ? '▾' : '▸'}</i></button>`;
