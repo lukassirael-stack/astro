@@ -1135,3 +1135,10 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .msgcard p{margin:0;line-height:1.55;color:var(--text)}
 .msgcard .btn{margin-top:10px;display:inline-block;text-decoration:none}
 .msgx{position:absolute;right:8px;top:8px;width:30px;height:30px;border-radius:50%;border:0;background:transparent;color:var(--muted);font-size:var(--fs-xl);line-height:1;cursor:pointer}
+
+.mrhead .lede{font-size:var(--fs-b);line-height:1.62;color:var(--text);margin:0}
+.ptcard.mr{padding:0}
+.ptcard.mr .mrs{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:var(--fs-m);color:var(--text);list-style:none}
+.ptcard.mr .mrs .g{color:var(--gold);width:18px;text-align:center}
+.ptcard.mr .mrs .sg{margin-left:auto;font-size:var(--fs-s);color:var(--muted)}
+#view-nativ .monthbar{margin:4px 0 12px}

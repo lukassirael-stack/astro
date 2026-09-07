@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v333';
+  const VERSION = 'v334';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -678,6 +678,52 @@
     const seen = msgSeen(); const fresh = m.list.filter(x => !seen.includes(x.id)).slice(0, 2);
     return fresh.map(x => `<div class="msgcard" data-act="noop"><button type="button" class="msgx" data-act="msgClose" data-id="${x.id}" aria-label="Zavřít">×</button><b>${esc(x.nadpis)}</b><p>${esc(x.text)}</p>${x.tlacitko && x.odkaz ? `<a class="btn small" href="${esc(x.odkaz)}" target="_blank" rel="noopener">${esc(x.tlacitko)}</a>` : ''}</div>`).join('');
   }
+  // ---------- Tvůj měsíc: osobní měsíční čtení z lunací v domech, vstupů planet do domů, retrogradit a klíčových dnů ----------
+  function monthReading(y, m) {
+    const n = S.natal; if (!n) return null;
+    const prof = activeProfile(); const first = K.dayStart(y, m, 1, TZ); const nd = K.daysInMonth(y, m); const last = K.dayStart(y, m, nd, TZ); const d1 = new Date(last.getTime() + 86400000);
+    const out = { y, m, lun: [], moves: [], retro: [], slow: [], best: [], hard: [], num: numerology(prof, y, m, 1) };
+    const HA = HS.HOUSE_AREA;
+    // lunace v domech
+    for (const q of K.moonQuartersBetween(first, d1)) { if (q.quarter !== 0 && q.quarter !== 2) continue; const ml = K.lonOf('Moon', A.MakeTime(q.date)); const h = K.houseOf(ml, n.cusps); const p = K.tzParts(q.date, TZ); out.lun.push({ nov: q.quarter === 0, d: p.d, h, sign: K.signOf(ml), text: LUNATION_HOUSE[q.quarter === 0 ? 'nov' : 'uplnek'][h - 1] }); }
+    // vstupy rychlých planet do domů + retrogradita
+    const bodies = ['Sun', 'Mercury', 'Venus', 'Mars']; const pos = {}; let prevRetro = {};
+    for (let dd = 1; dd <= nd; dd++) {
+      const t = A.MakeTime(K.dayStart(y, m, dd, TZ)); for (const b of bodies) { const lon = K.lonOf(b, t); const h = K.houseOf(lon, n.cusps); if (pos[b] != null && pos[b] !== h && dd > 1) out.moves.push({ b, d: dd, h, sign: K.signOf(lon) }); pos[b] = h; }
+      let da; try { da = analyze(y, m, dd); } catch (e) { continue; }
+      for (const b of ['Mercury', 'Venus', 'Mars']) { const r = !!(da.pos[b] && da.pos[b].retro); if (dd === 1 && r) out.retro.push({ b, from: 1, to: null, h: pos[b] }); else if (r && !prevRetro[b]) out.retro.push({ b, from: dd, to: null, h: pos[b] }); else if (!r && prevRetro[b]) { const x = out.retro.find(z => z.b === b && z.to == null); if (x) x.to = dd; } prevRetro[b] = r; }
+      const sc = da.score; out.best.push({ d: dd, sc, col: da.color }); 
+    }
+    out.hard = out.best.filter(x => x.sc <= -1.5).sort((a, b) => a.sc - b.sc).slice(0, 3).sort((a, b) => a.d - b.d);
+    out.best = out.best.filter(x => x.sc >= 2).sort((a, b) => b.sc - a.sc).slice(0, 4).sort((a, b) => a.d - b.d);
+    // pomalé tranzity aktivní uprostřed měsíce
+    try { const mid = Math.min(15, nd); out.slow = transitArcs(y, m, mid).filter(it => it.slow).slice(0, 3); } catch (e) { }
+    return out;
+  }
+  function monthReadingHTML(y, m) {
+    const r = monthReading(y, m); if (!r) return '';
+    const HA = HS.HOUSE_AREA; const mon = K.MONTH_CZ[m - 1]; const monG = K.MONTH_GEN[m - 1];
+    const sunSign = K.signOf(K.lonOf('Sun', A.MakeTime(K.dayStart(y, m, 15, TZ))));
+    const dd = (d) => `${d}. ${m}.`;
+    const lun = r.lun.map(l => `<div class="ptcard mr"><div class="mrs"><span class="g">${l.nov ? '●' : '○'}</span><b>${l.nov ? 'Novoluní' : 'Úplněk'} ${dd(l.d)}</b><span class="sg">${K.SIGN_LOC_V[l.sign]} · ${l.h}. dům</span></div><div class="ptbody"><p>${esc(l.text)}</p><p class="what">oblast: ${esc(HA[l.h - 1])}</p></div></div>`).join('');
+    const moves = r.moves.map(x => `<p><b>${K.BODY_CZ[x.b]}</b> vstupuje ${dd(x.d)} do tvého ${x.h}. domu — ${esc((PT_VERB[x.b] || 'téma').replace(/^Tvá |^Tvé |^Tvůj /, '').replace(/^(\S)/, (c) => c.toLowerCase()))} se přesouvá do oblasti ${esc(HA[x.h - 1])}.</p>`).join('');
+    const retro = r.retro.map(x => `<p><b>${K.BODY_CZ[x.b]} retrográdní</b> ${x.from === 1 ? 'celý začátek měsíce' : `od ${dd(x.from)}`}${x.to ? ` do ${dd(x.to)}` : x.from === 1 ? '' : ' až do konce měsíce'} v tvém ${x.h}. domě — ${esc(RETRO_BODY[x.b] ? RETRO_BODY[x.b][1].split('. ')[0] + '.' : 'věci v této oblasti se vracejí k dořešení.')} Oblast: ${esc(HA[x.h - 1])}.</p>`).join('');
+    const slow = r.slow.map(it => { const t = it.t; return `<p><b>${esc(arcTitle(t))}</b> — ${esc(((PERIOD_TXT[t.transit] || {})[t.key === 'conj' ? 'conj' : t.kind] || arcPhrase(t)).split('. ').slice(0, 2).join('. '))}.</p>`; }).join('');
+    const best = r.best.map(x => `<button type="button" class="chip small" data-act="jumpDay" data-y="${y}" data-m="${m}" data-d="${x.d}">${dd(x.d)}</button>`).join(' ');
+    const hard = r.hard.map(x => `<button type="button" class="chip small" data-act="jumpDay" data-y="${y}" data-m="${m}" data-d="${x.d}">${dd(x.d)}</button>`).join(' ');
+    return `<div class="card mrhead"><p class="lede">${mon} ${y}: Slunce ${K.SIGN_LOC_V[sunSign]}, tvůj osobní měsíc <b>${r.num.month}</b> — ${NUM_MONTH[r.num.month]}. ${r.lun.length ? `Nov a úplněk padnou do ${[...new Set(r.lun.map(l => l.h))].map(h => `${h}. domu`).join(' a ')}, takže měsíc má těžiště v oblasti ${esc(HA[r.lun[0].h - 1])}.` : ''}</p></div>
+      <div class="h3">Pozadí měsíce</div>
+      ${slow || '<p class="note">Žádná pomalá planeta se tvé mapy tento měsíc výrazně nedotýká — klidné pozadí.</p>'}
+      <div class="h3">Nov a úplněk v tvé mapě</div>
+      ${lun || '<p class="note">Tento měsíc bez novu a úplňku.</p>'}
+      <div class="h3">Co se v měsíci hýbe</div>
+      ${moves || '<p class="note">Rychlé planety zůstávají ve svých domech.</p>'}
+      ${retro}
+      <div class="h3">Klíčové dny</div>
+      <p class="small"><b>Nejpříznivější:</b> ${best || '—'}</p>
+      <p class="small"><b>Náročnější:</b> ${hard || 'žádný výrazně náročný'}</p>
+      <p class="note" style="margin-top:10px">Čtení skládá Kompas z tvé mapy a oblohy měsíce: pomalé planety jako pozadí, nov a úplněk jako začátek a vrchol, vstupy rychlých planet do domů jako přesuny pozornosti. Detail každého dne najdeš klepnutím.</p>`;
+  }
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
   function easterSunday(y) {
@@ -1324,7 +1370,7 @@
     if (Date.now() - tabTapAt > 400) tabTap(t);
   }, { passive: true });
   // ---------- Zpět: pamatuje, odkud člověk přišel, když ho klepnutí odvede jinam ----------
-  const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goNature', 'goDir', 'goDiarToday', 'dirClose', 'goArcs', 'numQuick', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
+  const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goMonthRead', 'goNature', 'goDir', 'goDiarToday', 'dirClose', 'goArcs', 'numQuick', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
   let navBack = null;
   function navPush() { navBack = { tab: S.tab, y: window.scrollY, natalView: S.natalView, guide: S.guide, sel: S.sel && { ...S.sel }, ym: { y: S.y, m: S.m } }; showBack(true); }
   function showBack(on) { const vis = !!on && !!navBack; const b = $('#backBtn'); if (b) b.classList.toggle('on', vis); document.body.classList.toggle('hasback', vis); }
@@ -1524,6 +1570,7 @@
       showTab('kalendar'); window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     goDir() { S.natalView = 'smer'; showTab('nativ'); },
+    goMonthRead(el) { S.mrY = +el.dataset.y; S.mrM = +el.dataset.m; S.natalView = 'mesic'; showTab('nativ'); },
     goNature() { S.filter = 'priroda'; showTab('ukazy'); },
     dirArea(el) { S.dirArea = el.dataset.a; document.querySelectorAll('#dirAreas .chip').forEach(c => c.classList.toggle('on', c.dataset.a === el.dataset.a)); },
     dirSave() {
@@ -1556,6 +1603,8 @@
     },
     goDiarToday() { S.plSel = K.isoDate(np.y, np.m, np.d); S.plY = np.y; S.plM = np.m; showTab('diar'); },
     msgClose(el) { const seen = msgSeen(); const id = +el.dataset.id; if (!seen.includes(id)) seen.push(id); rawSet('kairos_msgs_seen', seen.slice(-200)); renderCalendar(); },
+    mrPrev() { let y = S.mrY || np.y, m = (S.mrM || np.m) - 1; if (m < 1) { m = 12; y--; } S.mrY = y; S.mrM = m; renderNatal(); },
+    mrNext() { let y = S.mrY || np.y, m = (S.mrM || np.m) + 1; if (m > 12) { m = 1; y++; } S.mrY = y; S.mrM = m; renderNatal(); },
     goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; renderNatal(); window.scrollTo({ top: 0 }); },
     numQuick() { const v = ($('#numQuickDate') || {}).value; if (!v) return; S.numQuick = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .numquick'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
@@ -1788,7 +1837,7 @@
       <div class="monthbar">
         <button class="navbtn" data-act="prevMonth" aria-label="Předchozí měsíc">‹</button>
         <div class="mn">${K.MONTH_CZ[m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[m - 1].slice(1)}<em>${y}</em></div>
-        <div class="row"><button type="button" class="btn ghost small" data-act="today">Dnes</button><button class="navbtn" data-act="nextMonth" aria-label="Další měsíc">›</button></div>
+        <div class="row"><button type="button" class="btn ghost small" data-act="goMonthRead" data-y="${y}" data-m="${m}" title="Osobní čtení měsíce">☽ můj měsíc</button><button type="button" class="btn ghost small" data-act="today">Dnes</button><button class="navbtn" data-act="nextMonth" aria-label="Další měsíc">›</button></div>
       </div>
       ${!store.get('kairos_days_seen', false) && !sdAll().length ? `<div class="card sdask"><p style="margin:2px 0 8px">Chceš si zapsat <b>významné dny</b> — narozeniny, výročí, důležitá data? Ráno ti pak zlatě zasvítí v kartě Dnes.</p><div class="row"><button type="button" class="btn primary small" data-act="sdGo">Přidat dny</button><button type="button" class="btn ghost small" data-act="sdLater">Teď ne</button></div></div>` : ''}
       ${pastBar}
@@ -3416,6 +3465,7 @@ ${parts}
       <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p></div>`;
     const view = S.natalView && S.natalView !== 'ty' ? S.natalView : 'menu';
     const TILES = [
+      ['mesic', '☽', 'Tvůj měsíc', 'osobní čtení měsíce: nov a úplněk v tvé mapě, přesuny, klíčové dny', 'main', 'noimg'],
       ['mapa', '☉', 'Tvoje mapa', 'Slunce, Luna, ascendent, body, domy, aspekty', 'main'],
       ['prochazis', '✺', 'Čím teď procházíš', 'tranzity jako oblouky, ohlédnutí', 'main'],
       ['vztahy', '♡', 'Vztahy', 'jak si tvá mapa rozumí s druhými'],
@@ -3432,6 +3482,11 @@ ${parts}
     }
     const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : view === 'smerClose' ? ['smer', '➶', 'Sklizeň', ''] : TILES[0]);
     const back = `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
+    if (view === 'mesic') {
+      const my = S.mrY || np.y, mm = S.mrM || np.m;
+      v.innerHTML = back + `<div class="monthbar"><button class="navbtn" data-act="mrPrev" aria-label="Předchozí měsíc">‹</button><div class="mn">${K.MONTH_CZ[mm - 1].charAt(0).toUpperCase() + K.MONTH_CZ[mm - 1].slice(1)}<em>${my}</em></div><button class="navbtn" data-act="mrNext" aria-label="Další měsíc">›</button></div>` + monthReadingHTML(my, mm);
+      return;
+    }
     if (view === 'vztahy') {
       v.innerHTML = back + `<p class="note" style="margin-top:-2px">Jak si tvá mapa rozumí s mapami lidí kolem tebe — partner, děti, rodiče, přátelé, kolegové. Přidej datum, čas a místo narození druhého a Kompas přečte, kde se vaše mapy potkávají samy a kde to chce práci.</p>${synSectionHTML(n)}`;
       return;
