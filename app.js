@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v335';
+  const VERSION = 'v336';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -782,7 +782,7 @@
       <div class="luntab">${lun.map(l => `<div class="lunrow"><span class="lm">${K.MONTH_CZ[l.mm - 1].slice(0, 3)}</span><span class="lg">${l.nov ? '●' : '○'}</span><span class="ld">${l.d}. ${l.mm}.</span><span class="lh">${l.h}. dům · ${esc(HS.HOUSE_AREA[l.h - 1].split(',')[0])}</span></div>`).join('')}</div>
       <p class="note" style="margin-top:10px">Roční čtení je pozadí: pomalé planety dávají roku téma, lunace ho po měsících konkrétně rozvádějí. Podrobnosti měsíce po měsíci najdeš v měsíčním horoskopu.</p>`;
   }
-  const HS_SUBS = [['zivot', '∞', 'Celoživotní', 'kdo jsi — kapitoly z tvé mapy'], ['den', '☉', 'Denní', 'čtení dne, tip, co se tě dotýká'], ['tyden', '≡', 'Týdenní', 'sedm dní jako oblouk'], ['mesic', '☽', 'Měsíční', 'nov a úplněk v tvé mapě, přesuny, klíčové dny'], ['rok', '✦', 'Roční', 'témata roku, pomalé planety, lunace']];
+  const HS_SUBS = [['zivot', '∞', 'Celoživotní', 'kapitoly života: osobnost, vztahy, práce, peníze, zdraví…'], ['den', '☉', 'Denní', 'čtení dne, tip, co se tě dotýká'], ['tyden', '≡', 'Týdenní', 'sedm dní jako oblouk'], ['mesic', '☽', 'Měsíční', 'nov a úplněk v tvé mapě, přesuny, klíčové dny'], ['rok', '✦', 'Roční', 'témata roku, pomalé planety, lunace']];
   function hsHubHTML() {
     return `<div class="ntiles">${HS_SUBS.map(([id, ic, t, sub]) => `<button type="button" class="ntile txt ${id === 'zivot' ? 'main' : ''}" data-act="hsView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>`).join('')}</div>`;
   }
