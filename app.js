@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v339';
+  const VERSION = 'v340';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -713,15 +713,13 @@
     const hard = r.hard.map(x => `<button type="button" class="chip small" data-act="jumpDay" data-y="${y}" data-m="${m}" data-d="${x.d}">${dd(x.d)}</button>`).join(' ');
     return `<div class="card mrhead"><p class="lede">${mon} ${y}: Slunce ${K.SIGN_LOC_V[sunSign]}, tvůj osobní měsíc <b>${r.num.month}</b> — ${NUM_MONTH[r.num.month]}. ${r.lun.length ? `Nov a úplněk padnou do ${[...new Set(r.lun.map(l => l.h))].map(h => `${h}. domu`).join(' a ')}, takže měsíc má těžiště v oblasti ${esc(HA[r.lun[0].h - 1])}.` : ''}</p></div>
       <div class="h3">Pozadí měsíce</div>
-      ${slow || '<p class="note">Žádná pomalá planeta se tvé mapy tento měsíc výrazně nedotýká — klidné pozadí.</p>'}
+      <div class="card rd">${slow || '<p class="note" style="margin:0">Žádná pomalá planeta se tvé mapy tento měsíc výrazně nedotýká — klidné pozadí.</p>'}</div>
       <div class="h3">Nov a úplněk v tvé mapě</div>
       ${lun || '<p class="note">Tento měsíc bez novu a úplňku.</p>'}
       <div class="h3">Co se v měsíci hýbe</div>
-      ${moves || '<p class="note">Rychlé planety zůstávají ve svých domech.</p>'}
-      ${retro}
+      <div class="card rd">${moves || '<p class="note" style="margin:0">Rychlé planety zůstávají ve svých domech.</p>'}${retro}</div>
       <div class="h3">Klíčové dny</div>
-      <p class="small"><b>Nejpříznivější:</b> ${best || '—'}</p>
-      <p class="small"><b>Náročnější:</b> ${hard || 'žádný výrazně náročný'}</p>
+      <div class="card rd"><p class="small" style="margin:0 0 8px"><b>Nejpříznivější:</b> ${best || '—'}</p><p class="small" style="margin:0"><b>Náročnější:</b> ${hard || 'žádný výrazně náročný'}</p></div>
       <p class="note" style="margin-top:10px">Čtení skládá Kompas z tvé mapy a oblohy měsíce: pomalé planety jako pozadí, nov a úplněk jako začátek a vrchol, vstupy rychlých planet do domů jako přesuny pozornosti. Detail každého dne najdeš klepnutím.</p>`;
   }
   // ---------- Tvůj horoskop: denní, týdenní, roční čtení (měsíční je monthReadingHTML) ----------
@@ -737,13 +735,13 @@
     const wd = K.tzParts(da.noon, TZ).wd;
     return `<div class="card mrhead"><p class="lede"><b>${K.WEEKDAY_CZ[wd]} ${d}. ${K.MONTH_GEN[m - 1]}</b> je <b>${dayWord(da)} den</b>. ${esc(rd.text)}</p><p class="small muted" style="margin:6px 0 0">${esc(rd.sign)}</p></div>
       <div class="h3">Luna a nálada dne</div>
-      <p>Luna ${K.SIGN_LOC_V[da.moonSign]} · ${esc(phT.name.replace(' Luna', ''))} · ${Math.round(da.illum * 100)} %${da.voc && da.voc.length ? ' · část dne bez kurzu' : ''}.</p>
-      ${go.length ? `<div class="h3">Podporuje</div><p>${esc(go.map(x => x.text || x).join(', '))}</p>` : ''}
-      ${cost.length ? `<div class="h3">Bude stát víc sil</div><p>${esc(cost.map(x => x.text || x).join(', '))}</p>` : ''}
+      <div class="card rd"><p style="margin:0">Luna ${K.SIGN_LOC_V[da.moonSign]} · ${esc(phT.name.replace(' Luna', ''))} · ${Math.round(da.illum * 100)} %${da.voc && da.voc.length ? ' · část dne bez kurzu' : ''}.</p></div>
+      ${go.length ? `<div class="h3">Podporuje</div><div class="card rd"><p style="margin:0">${esc(go.map(x => x.text || x).join(', '))}</p></div>` : ''}
+      ${cost.length ? `<div class="h3">Bude stát víc sil</div><div class="card rd"><p style="margin:0">${esc(cost.map(x => x.text || x).join(', '))}</p></div>` : ''}
       <div class="h3">U tebe</div>
-      ${arcs.length ? arcs.map(it => `<p><b>${esc(arcTitle(it.t))}</b> — ${esc(arcPhrase(it.t))}</p>`).join('') : '<p class="note">Dnes se tvé mapy nedotýká žádný rychlý tranzit.</p>'}
+      <div class="card rd">${arcs.length ? arcs.map(it => `<p><b>${esc(arcTitle(it.t))}</b> — ${esc(arcPhrase(it.t))}</p>`).join('') : '<p class="note" style="margin:0">Dnes se tvé mapy nedotýká žádný rychlý tranzit.</p>'}</div>
       <div class="h3">Nebeský tip</div>
-      <p>${esc(tip.t)} <span class="small muted">· ${esc(tip.sig)}</span></p>
+      <div class="card rd"><p style="margin:0">${esc(tip.t)} <span class="small muted">· ${esc(tip.sig)}</span></p></div>
       <p class="note" style="margin-top:10px"><button type="button" class="linkbtn" data-act="jumpDay" data-y="${y}" data-m="${m}" data-d="${d}">otevřít den v kalendáři ›</button></p>`;
   }
   function weekReadingHTML(y, m, d) {
@@ -779,7 +777,7 @@
       <div class="h3">Pomalé planety v tvé mapě během roku</div>
       ${slow.length ? slow.map(it => { const t = it.t; const kind = t.key === 'conj' ? 'conj' : t.kind; return `<div class="ptcard mr"><div class="mrs"><span class="g">${K.BODY_GLYPH[t.transit]}</span><b>${esc(arcTitle(t))}</b><span class="sg">${fmtDY(it.arc.start, y)} – ${fmtDY(it.arc.end, y)}</span></div><div class="ptbody"><p>${esc((PERIOD_TXT[t.transit] || {})[kind] || arcPhrase(t))}</p></div></div>`; }).join('') : '<p class="note">Žádná pomalá planeta se tvé mapy v tomto roce výrazně nedotýká.</p>'}
       <div class="h3">Nov a úplněk v tvé mapě po měsících</div>
-      <div class="luntab">${lun.map(l => `<div class="lunrow"><span class="lm">${K.MONTH_CZ[l.mm - 1].slice(0, 3)}</span><span class="lg">${l.nov ? '●' : '○'}</span><span class="ld">${l.d}. ${l.mm}.</span><span class="lh">${l.h}. dům · ${esc(HS.HOUSE_AREA[l.h - 1].split(',')[0])}</span></div>`).join('')}</div>
+      <div class="card rd luntab">${lun.map(l => `<div class="lunrow"><span class="lm">${K.MONTH_CZ[l.mm - 1].slice(0, 3)}</span><span class="lg">${l.nov ? '●' : '○'}</span><span class="ld">${l.d}. ${l.mm}.</span><span class="lh">${l.h}. dům · ${esc(HS.HOUSE_AREA[l.h - 1].split(',')[0])}</span></div>`).join('')}</div>
       <p class="note" style="margin-top:10px">Roční čtení je pozadí: pomalé planety dávají roku téma, lunace ho po měsících konkrétně rozvádějí. Podrobnosti měsíce po měsíci najdeš v měsíčním horoskopu.</p>`;
   }
   const HS_SUBS = [['zivot', '∞', 'Celoživotní', 'kapitoly života: osobnost, vztahy, práce, peníze, zdraví…'], ['den', '☉', 'Denní', 'čtení dne, tip, co se tě dotýká'], ['tyden', '≡', 'Týdenní', 'sedm dní jako oblouk'], ['mesic', '☽', 'Měsíční', 'nov a úplněk v tvé mapě, přesuny, klíčové dny'], ['rok', '✦', 'Roční', 'témata roku, pomalé planety, lunace']];
