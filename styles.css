@@ -1152,3 +1152,8 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .luntab{display:flex;flex-direction:column;gap:4px}
 .lunrow{display:grid;grid-template-columns:36px 18px 56px 1fr;gap:8px;align-items:center;font-size:var(--fs-s);color:var(--muted);padding:5px 8px;border-bottom:1px solid var(--hairline)}
 .lunrow .lm{text-transform:uppercase;letter-spacing:.06em;font-size:var(--fs-xs)}.lunrow .lg{color:var(--gold)}.lunrow .ld{color:var(--text)}
+
+/* panel počasí začíná vždy pod dlaždicí, i na širším displeji s kratší hlavičkou */
+.hero-today .ht-wx{z-index:6}
+.wxpanel.top{margin-top:34px}
+@media (min-width:600px){.wxpanel.top{margin-top:56px}}
