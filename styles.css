@@ -1157,3 +1157,12 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .hero-today .ht-wx{z-index:6}
 .wxpanel.top{margin-top:34px}
 @media (min-width:600px){.wxpanel.top{margin-top:56px}}
+
+/* časová čtení pod kapitolami horoskopu */
+.hstime{margin:14px 0 18px;padding:12px 12px 10px;border:1px solid rgba(127,182,221,.45);border-radius:14px;background:linear-gradient(180deg,rgba(127,182,221,.12),rgba(20,40,80,.35))}
+.hstlab{display:block;font-size:var(--fs-xs);letter-spacing:.14em;text-transform:uppercase;color:#9FC9EE;margin:0 0 8px 2px}
+.hstrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.hstbtn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:12px;border:1px solid rgba(127,182,221,.5);background:rgba(20,40,80,.45);color:#EAF3FF;font:inherit;font-size:var(--fs-s);cursor:pointer}
+.hstbtn i{font-style:normal;font-size:var(--fs-xl);color:#BFE0FF;line-height:1;text-shadow:0 0 8px rgba(127,182,221,.6)}
+.hstbtn:active{transform:translateY(1px)}
+@media (max-width:380px){.hstrow{grid-template-columns:repeat(2,1fr)}}
