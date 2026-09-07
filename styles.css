@@ -1142,3 +1142,13 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .ptcard.mr .mrs .g{color:var(--gold);width:18px;text-align:center}
 .ptcard.mr .mrs .sg{margin-left:auto;font-size:var(--fs-s);color:var(--muted)}
 #view-nativ .monthbar{margin:4px 0 12px}
+
+.wkday{padding:10px 12px;margin:0 0 8px;border-left:3px solid var(--hairline);background:var(--glass);border-radius:0 12px 12px 0;cursor:pointer}
+.wkday.harm,.wkday.mild{border-left-color:var(--harm)}.wkday.tense,.wkday.slow{border-left-color:var(--tense)}
+.wkday .wkh{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.wkday .wkh b{color:var(--text)}.wkday .wkc{font-size:var(--fs-xs);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.wkday p{margin:4px 0 2px;line-height:1.5}
+.wkday small{color:var(--muted)}
+.luntab{display:flex;flex-direction:column;gap:4px}
+.lunrow{display:grid;grid-template-columns:36px 18px 56px 1fr;gap:8px;align-items:center;font-size:var(--fs-s);color:var(--muted);padding:5px 8px;border-bottom:1px solid var(--hairline)}
+.lunrow .lm{text-transform:uppercase;letter-spacing:.06em;font-size:var(--fs-xs)}.lunrow .lg{color:var(--gold)}.lunrow .ld{color:var(--text)}
