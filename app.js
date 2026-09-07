@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v338';
+  const VERSION = 'v339';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);

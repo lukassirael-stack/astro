@@ -1166,3 +1166,6 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .hstbtn i{font-style:normal;font-size:var(--fs-xl);color:#BFE0FF;line-height:1;text-shadow:0 0 8px rgba(127,182,221,.6)}
 .hstbtn:active{transform:translateY(1px)}
 @media (max-width:380px){.hstrow{grid-template-columns:repeat(2,1fr)}}
+.hstime{grid-column:1 / -1;width:100%;--sp:6}
+.hstlab{color:#CFE6FF;text-shadow:0 1px 3px rgba(3,18,45,.8)}
+.hstbtn{padding:12px 8px;font-size:var(--fs-m)}
