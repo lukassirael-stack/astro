@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v360';
+  const VERSION = 'v361';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -869,6 +869,18 @@
       <div class="card rd"><p><b>${esc(tzTitle(today))}</b> · ${esc(today.nawal[1])} — ${esc(rel)}.</p></div>
       <div class="h3">Tvé dny</div>
       <div class="card rd"><p><b>Den tvého nawalu</b> (${esc(t.nawal[0])}, každých 20 dní): ${fd(ns)}</p><p><b>Tvůj tón</b> (${t.tone}, každých 13 dní): ${fd(nt)}</p><p><b>Tvůj kin</b> — mayské narozeniny, jednou za 260 dní: ${fd(nk)}</p><p><b>Kalendářní kruh</b> — nawal a tón se v den narození potkají po 52 letech${daysTo > 0 ? `: ${ret}${daysTo < 400 ? ` (za ${daysTo} dní)` : ''}` : `: bylo ${ret}, další ${ret + 52}`}. Tradičně práh, kdy se člověk stává starším rodu.</p></div>
+      <details class="expl" open><summary>Pojmy, které tu potkáš</summary>
+        <div class="glos">
+          <p><b>Tzolk'in</b> — mayský posvátný počet 260 dnů: 13 tónů × 20 nawalů, každý den má jedinečnou dvojici. Běží nepřetržitě přes dva tisíce let.</p>
+          <p><b>Nawal</b> — kiché slovo pro ducha či znamení dne; dvacet nawalů se střídá pořád dokola (Imix, Ik', Ak'bal… Ajaw). Nawal narození je pro Maye to, co pro nás sluneční znamení.</p>
+          <p><b>Tón</b> — číslo 1 až 13, které nawal doprovází a dává mu tempo: jednička začíná, sedmička ladí, třináctka dovršuje. Stejný tón se vrací každých 13 dní.</p>
+          <p><b>Kin</b> — „den" a zároveň pořadové číslo 1–260 v Tzolk'inu; tvůj kin je dvojice nawal + tón v den narození a vrací se každých 260 dní.</p>
+          <p><b>Mayský kříž</b> — čtyři průvodci nawalu narození podle kiché tradice: nawal <em>početí</em> (7 znamení zpět — síla, ze které přicházíš), nawal <em>osudu</em> (7 vpřed — kam tě to vede), <em>levá ruka</em> (9 zpět — co tě chrání) a <em>pravá ruka</em> (9 vpřed — co ti pomáhá).</p>
+          <p><b>Nositel roku</b> — nawal prvního dne mayského slunečního roku (Haab, 365 dní); nese celý rok a střídají se jen čtyři: Ik', Manik', Eb, Kab'an.</p>
+          <p><b>Haab</b> — mayský sluneční rok: 18 měsíců po 20 dnech a 5 dní navíc. Spolu s Tzolk'inem tvoří Kalendářní kruh.</p>
+          <p><b>Kalendářní kruh</b> — 52 let, po kterých se stejná dvojice Tzolk'in + Haab sejde znovu; tradičně práh zralosti, kdy se člověk stává starším rodu.</p>
+          <p><b>Pravý počet a korelace GMT 584283</b> — způsob, jak se mayské dny přepočítávají na náš kalendář; je to ten, který používají žijící mayští počtáři i věda, a podle něhož bylo 21. 12. 2012 dnem 4 Ajaw.</p>
+        </div></details>
       <details class="expl"><summary>Dvacet nawalů</summary>${TZ_NAWAL.map((n, i) => `<p class="small"><b>${esc(n[0])}</b> · ${esc(n[1])} — ${esc(n[2])}</p>`).join('')}</details>
       <p class="note" style="margin-top:10px">Tzolk'in je mayský posvátný počet 260 dnů (13 tónů × 20 nawalů), který dodnes vedou kiché počtáři v Guatemale. Kompas používá pravý počet s korelací GMT 584283 — stejný, jakým Mayové spočítali 21. 12. 2012 jako 4 Ajaw.</p>`;
   }

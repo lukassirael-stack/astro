@@ -1219,3 +1219,5 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .cnpil small{font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .cnpil b{font-family:var(--display);font-size:var(--fs-l);font-weight:500;color:#FFF3D6}
 .cnpil span{font-size:var(--fs-s);color:var(--muted)}
+.glos p{margin:0 0 8px;line-height:1.55;font-size:var(--fs-s);color:var(--muted)}
+.glos p b{color:var(--gold)}.glos p em{font-style:normal;color:var(--text)}
