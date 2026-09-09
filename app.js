@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v370';
+  const VERSION = 'v371';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -869,19 +869,24 @@
   function tzBearer(y, m, d) { const n = jdnOf(y, m, d) - 584283; const h = ((n + 348) % 365 + 365) % 365; const start = n - h; const sign = ((start + 19) % 20 + 20) % 20; const tone = (((start + 3) % 13) + 13) % 13 + 1; return { sign, tone, nawal: TZ_NAWAL[sign], key: TZ_NAWAL[sign][0].replace(/'/g, '') }; }
   function mayaHTML(p) {
     const t = tzolkin(+p.y, +p.m, +p.d); const today = tzolkin(np.y, np.m, np.d);
-    const cross = [['Početí · odkud přicházíš', (t.sign - 7 + 20) % 20], ['Osud · kam míříš', (t.sign + 7) % 20], ['Levá ruka · co tě chrání', (t.sign - 9 + 40) % 20], ['Pravá ruka · co ti pomáhá', (t.sign + 9) % 20]];
+    const cross = [
+      ['Odkud přicházíš', 'nawal početí', (t.sign - 7 + 20) % 20, (n) => `Než ses narodil, nesl tě ${n[0]} — ${n[1].split(' · ')[0].toLowerCase()}. Je to síla, ze které vycházíš, tvé zázemí a to, co máš v sobě odjakživa, i když si to neuvědomuješ.`],
+      ['Kam míříš', 'nawal osudu', (t.sign + 7) % 20, (n) => `Tvá cesta vede k nawalu ${n[0]} — ${n[1].split(' · ')[0].toLowerCase()}. To je směr, kterým tě život táhne, a vlastnosti, do kterých dorůstáš s věkem.`],
+      ['Co tě chrání', 'levá ruka', (t.sign - 9 + 40) % 20, (n) => `Po levé ruce máš ${n[0]} — ${n[1].split(' · ')[0].toLowerCase()}. Tahle síla stojí při tobě v těžkých chvílích; když nevíš kudy, sáhni po ní.`],
+      ['Co ti pomáhá', 'pravá ruka', (t.sign + 9) % 20, (n) => `Po pravé ruce máš ${n[0]} — ${n[1].split(' · ')[0].toLowerCase()}. To je dar, který ti jde snadno a kterým pomáháš druhým; často ho bereš jako samozřejmost.`],
+    ];
     const bb = tzBearer(+p.y, +p.m, +p.d), by = tzBearer(np.y, np.m, np.d);
     const nk = tzNext(p, 'kin'), ns = tzNext(p, 'sign'), nt = tzNext(p, 'tone');
     const fd = (x) => x ? `${x.q.d}. ${x.q.m}.${x.q.y !== np.y ? ` ${x.q.y}` : ''} (za ${x.i} ${x.i === 1 ? 'den' : x.i < 5 ? 'dny' : 'dní'})` : '—';
     const ret = +p.y + 52; const daysTo = Math.round((K.dayStart(ret, +p.m, +p.d, TZ) - new Date()) / 86400000);
-    const per = tzPersonal(p, np.y, np.m, np.d); const inCross = cross.find(([, si]) => si === today.sign);
-    const rel = per ? per.text : inCross ? `dnes vládne ${TZ_NAWAL[today.sign][0]}, jeden z nawalů tvého kříže (${inCross[0].split(' · ')[0].toLowerCase()})` : `dnes vládne ${TZ_NAWAL[today.sign][0]} — ${TZ_NAWAL[today.sign][2].split('. ')[1] || ''}`;
+    const per = tzPersonal(p, np.y, np.m, np.d); const inCross = cross.find(([, , si]) => si === today.sign);
+    const rel = per ? per.text : inCross ? `Dnes vládne ${TZ_NAWAL[today.sign][0]}, jeden z nawalů tvého kříže — ${inCross[0].toLowerCase()}. Den, kdy je ti tahle síla blíž než jindy.` : `Dnes vládne ${TZ_NAWAL[today.sign][0]}. ${TZ_NAWAL[today.sign][2]}`;
     return `<div class="card mrhead"><p class="tzk"><b>${esc(tzTitle(t))}</b> · kin ${t.kin} · ${esc(t.nawal[1])}</p><p class="lede" style="margin:4px 0 0">${esc(t.nawal[3])}</p></div>
       <div class="h3">Tvůj tón ${t.tone}</div>
       <div class="card rd"><p>${esc(TZ_TONE_LONG[t.tone - 1])}</p></div>
       <div class="h3">Mayský kříž</div>
-      <p class="note" style="margin-top:-4px">Kiché počtáři čtou k nawalu narození čtyři průvodce: nawal početí, nawal osudu a dva nawaly po rukou.</p>
-      ${cross.map(([lab, si]) => `<div class="ptcard mr"><div class="mrs"><span class="g">◈</span><b>${esc(lab)}</b><span class="sg">${esc(TZ_NAWAL[si][0])}</span></div><div class="ptbody"><p>${esc(TZ_NAWAL[si][1])} — ${esc(TZ_NAWAL[si][2])}</p></div></div>`).join('')}
+      <p class="note" style="margin-top:-4px">Mayové neberou člověka jen podle dne narození. Kiché počtáři k němu dopočítají čtyři další nawaly, které ho obklopují jako čtyři světové strany — odkud přišel, kam jde, co ho chrání a co mu pomáhá. Dohromady tomu říkají kříž.</p>
+      ${cross.map(([lab, sub, si, fn]) => `<div class="ptcard mr"><div class="mrs"><span class="g">◈</span><b>${esc(lab)}</b><span class="sg">${esc(TZ_NAWAL[si][0])} · ${esc(sub)}</span></div><div class="ptbody"><p>${esc(fn(TZ_NAWAL[si]))}</p><p class="small muted" style="margin:0">${esc(TZ_NAWAL[si][2])}</p></div></div>`).join('')}
       <div class="h3">Nositel tvého roku</div>
       <div class="card rd"><p><b>${esc(bb.nawal[0])}</b> nesl rok tvého narození — ${esc(TZ_BEARER[bb.key] || bb.nawal[2])}</p><p class="small muted" style="margin:0">Letošní rok nese <b>${esc(by.nawal[0])}</b>: ${esc(TZ_BEARER[by.key] || by.nawal[2])}</p></div>
       <div class="h3">Dnes v Tzolk'inu</div>
