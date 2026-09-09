@@ -1198,3 +1198,11 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .hero-today .ht-ic.tz{color:#C9A9E0;font-style:normal}
 .tzcard .tzk{font-family:var(--display);font-size:var(--fs-l);color:#FFF3D6;margin:0 0 6px}
 .tzcard p{margin:0 0 8px;line-height:1.6}
+
+/* tatva a tělo jsou okamžik, ne den: jemný pás a pulzující bod „teď" */
+.hero-today .ht-row.ht-tv{background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(255,255,255,.015));border-radius:12px;margin:2px -8px;padding:8px 8px;width:calc(100% + 16px)}
+.hero-today .ht-tv .tvn .tvlab{display:flex;align-items:center;gap:6px}
+.hero-today .ht-tv .tvn .tvlab::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.9;animation:htpulse 2.4s ease-in-out infinite}
+.hero-today .ht-tv .tvn .tvlab::after{content:'teď';font-weight:500;letter-spacing:.08em;text-transform:none;opacity:.7;font-size:var(--fs-xs)}
+@keyframes htpulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+@media (prefers-reduced-motion:reduce){.hero-today .ht-tv .tvn .tvlab::before{animation:none}}
