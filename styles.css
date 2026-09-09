@@ -1195,3 +1195,6 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .hero-today .ht-por .tx em{font-style:normal;color:var(--inst-muted);font-size:var(--fs-s)}
 .ev.todayev{border:1px solid var(--gold);border-radius:14px;background:var(--gold-soft);padding:10px 12px;box-shadow:0 0 16px rgba(240,200,116,.25)}
 .ev.todayev .ti{color:#FFF3D6}
+.hero-today .ht-ic.tz{color:#C9A9E0;font-style:normal}
+.tzcard .tzk{font-family:var(--display);font-size:var(--fs-l);color:#FFF3D6;margin:0 0 6px}
+.tzcard p{margin:0 0 8px;line-height:1.6}

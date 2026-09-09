@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v348';
+  const VERSION = 'v349';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -795,6 +795,7 @@
     ['telo', 'Tělo', 'orgánové hodiny ukotvené na poledne'],
     ['portal', 'Portály', 'zrcadlová data, mistrovské a osobní dny'],
     ['priroda', 'Příroda', 'co se právě děje venku'],
+    ['tzolkin', 'Tzolk\'in', 'mayský nawal a tón dne (pravý počet)'],
   ];
   const LAYER_SETS = {
     jednoduchy: ['pocasi'],
@@ -803,6 +804,20 @@
   };
   const layerOn = (id) => { const v = settings.layers; if (!Array.isArray(v)) return true; return v.includes(id); };
   function layersSet(list) { settings.layers = list.slice(); persistSettings(); S.dayCache = {}; }
+  // ---------- Tzolk'in (pravý počet, GMT 584283) ----------
+  function jdnOf(y, m, d) { const a = Math.floor((14 - m) / 12), yy = y + 4800 - a, mm = m + 12 * a - 3; return d + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045; }
+  function tzolkin(y, m, d) { const n = jdnOf(y, m, d) - 584283; const sign = ((n + 19) % 20 + 20) % 20; const tone = (((n + 3) % 13) + 13) % 13 + 1; const kin = (((n + 159) % 260) + 260) % 260 + 1; return { sign, tone, kin, nawal: TZ_NAWAL[sign] }; }
+  const tzTitle = (t) => `${t.tone} ${t.nawal[0]}`;
+  function tzLineHTML(y, m, d) { const t = tzolkin(y, m, d); return `<b>${esc(tzTitle(t))}</b> (${esc(t.nawal[1])}) · tón ${t.tone}: ${esc(TZ_TONE[t.tone - 1])} — ${esc(t.nawal[2])}`; }
+  function tzPersonalHTML(p) {
+    const t = tzolkin(+p.y, +p.m, +p.d); const age = np.y - p.y; const ret = +p.y + 52; const ret2 = +p.y + 104;
+    const daysTo = Math.round((K.dayStart(ret, +p.m, +p.d, TZ) - new Date()) / 86400000);
+    return `<div class="card small tzcard"><div class="h3" style="margin-top:0">Tvůj nawal · Tzolk'in</div>
+      <p class="tzk"><b>${esc(tzTitle(t))}</b> · kin ${t.kin} · ${esc(t.nawal[1])}</p>
+      <p>${esc(t.nawal[3])}</p>
+      <p class="small muted">Tón ${t.tone} — ${esc(TZ_TONE[t.tone - 1])}. Tzolk'in je mayský posvátný počet 260 dnů (13 tónů × 20 nawalů), který dodnes vedou kiché počtáři v Guatemale; Kompas používá pravý počet s korelací GMT 584283.</p>
+      <p class="small"><b>Kalendářní kruh:</b> tvůj nawal a tón se v jeden den potkají znovu po 52 letech${daysTo > 0 ? ` — ${ret}${daysTo < 400 ? ` (za ${daysTo} dní)` : ''}` : ` — bylo ${ret}, další ${ret2}`}. Tradičně práh, kdy se člověk stává starším rodu a předává, co ví.</p></div>`;
+  }
   // ---------- portálové dny: zrcadlová data, mistrovské součty, osobní portály ----------
   const numRed1 = (n, keep) => { n = Math.abs(n); while (n > 9) { if (keep && (n === 11 || n === 22 || n === 33)) return n; n = String(n).split('').reduce((s, c) => s + (+c), 0); } return n; };
   function portalsFor(y, m, d) {
@@ -1351,6 +1366,7 @@
     '☌': _ic('<circle cx="7" cy="8.8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.3 6.5 12.4 3.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'),
     '☍': _ic('<circle cx="4" cy="10" r="2.4" fill="none" stroke="currentColor" stroke-width="1.15"/><circle cx="10" cy="4" r="2.4" fill="none" stroke="currentColor" stroke-width="1.15"/><path d="M5.7 8.3 8.3 5.7" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/>'),
     '✺': _ic('<circle cx="7" cy="7" r="2.2" fill="currentColor"/><path d="M7 1.2v2.4M7 10.4v2.4M1.2 7h2.4M10.4 7h2.4M2.9 2.9l1.7 1.7M9.4 9.4l1.7 1.7M2.9 11.1l1.7-1.7M9.4 4.6l1.7-1.7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>'),
+    '◈': _ic('<path d="M7 1.2 12.8 7 7 12.8 1.2 7Z" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/><path d="M7 4.2 9.8 7 7 9.8 4.2 7Z" fill="currentColor"/>'),
     '⬡': _ic('<path d="M7 1.4 12.2 4.4v6L7 13.4 1.8 10.4v-6Z" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/><circle cx="7" cy="7.4" r="1.6" fill="currentColor"/>'),
     '✳': _ic('<path d="M7 1.6v10.8M2.3 4.3l9.4 5.4M2.3 9.7l9.4-5.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'),
   };
@@ -2044,6 +2060,7 @@
       ${layerOn('tatva') && tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp" data-act="noop">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
       ${layerOn('telo') && orgHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv ht-org" id="orgLine">${orgHTML()}</span>${S.orgHelp ? orgExpHTML() : ''}` : ''}
       ${(() => { if (!layerOn('priroda')) return ''; const e = natureNow(np.m, np.d); return e ? `<span class="ht-div"></span><span class="ht-row ht-nat"><i class="ht-ic nat">☘</i><b>příroda</b><span class="tx">${esc(e[1])}</span><i class="tvq" data-act="goNature" role="button" aria-label="Příroda v Úkazech">›</i></span>` : ''; })()}
+      ${layerOn('tzolkin') ? `<span class="ht-div"></span><span class="ht-row ht-tz"><i class="ht-ic tz">${ico('◈')}</i><b>nawal</b><span class="tx">${tzLineHTML(np.y, np.m, np.d)}</span></span>` : ''}
       ${(() => { if (!layerOn('portal')) return ''; const ps = portalsFor(np.y, np.m, np.d); if (!ps.length) return ''; const x = ps[0]; return `<span class="ht-div"></span><span class="ht-row ht-por"><i class="ht-ic por">${ico('⬡')}</i><b>portál</b><span class="tx"><b>${esc(x.title)}</b> — ${esc(x.text.split('. ')[0])}.${ps.length > 1 ? ` <em>+ ${ps.length - 1} další</em>` : ''}</span><i class="tvq" data-act="goPortal" role="button" aria-label="Portály v Úkazech">›</i></span>`; })()}
       ${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">${ico('✺')}</i><b>u tebe</b><span class="tx">${esc(arcS)}</span><i class="tvq" data-act="goArcs" role="button" aria-label="Čím teď procházíš">›</i></span>` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
@@ -2140,6 +2157,7 @@
           <p><span class="nl">modrá hodina</span>${f(tw.blueAM[0])}–${f(tw.blueAM[1])} · ${f(tw.bluePM[0])}–${f(tw.bluePM[1])} <small>— soumrak, kdy je Slunce těsně pod obzorem a obloha sytě modrá</small></p>
           ${dn ? `<p><span class="nl">tmavá noc</span>Luna pod obzorem ${f(dn.from)}–${f(dn.to)} — ${dn.hours >= 4 ? 'Mléčná dráha a slabé hvězdy jsou dobře vidět' : 'krátké okno na hvězdy bez Luny'}</p>` : ''}
           ${settings.numerology !== false && S.natal && S.natal.profile ? (() => { const n = numerology(S.natal.profile, y, m, d); return `<p><span class="nl">osobní den</span><b>${n.day}</b> — ${NUM_DAY[n.day]} <small>(osobní rok ${n.year}, měsíc ${n.month})</small></p>`; })() : ''}
+          ${layerOn('tzolkin') ? `<p><span class="nl">nawal</span>${tzLineHTML(y, m, d)}</p>` : ''}
           ${(() => { const ps = portalsFor(y, m, d); return ps.length ? ps.map(x => `<p><span class="nl">portál</span><b>${esc(x.title)}</b> — ${esc(x.text)}${x.extra ? ` ${esc(x.extra)}` : ''}${x.step ? `<br><em class="pstep">Krok: ${esc(x.step)}</em>` : ''}</p>`).join('') : ''; })()}
           ${(() => { const e = natureNow(m, d); return e ? `<p><span class="nl">příroda teď</span>${esc(e[1])}</p>` : ''; })()}
           <p><span class="nl">zahrádkář</span><b>${g.kind}</b> (Luna ${SIGN_LOC[['Beran','Býk','Blíženc','Rak','Lv','Pann','Váh','Štír','Střelc','Kozoroh','Vodnář','Ryb'][da.moonSign]]}) — ${g.tip} · ${g.phase}</p>
@@ -3560,7 +3578,7 @@ ${parts}
       ${mine.length ? mine.map(s => starBlock(s, true)).join('') : '<p class="muted">Žádná hlavní hvězda – neobvyklé, ověř čas narození.</p>'}
       ${second.length ? `<div class="h3">Vedlejší hvězdy</div>${second.map(s => starBlock(s, false)).join('')}` : ''}
       <details><summary>Ostatní hvězdy v nativu (bez kontaktu)</summary>${rest.map(s => `<div class="star"><div class="nm" style="font-size:var(--fs-l)">${esc(s.name)}<em>${K.fmtLon(s.lon)} · ${s.house}. dům</em></div>${s.neverRises ? '<div class="why">z našich šířek nikdy nevychází</div>' : ''}${s.circumpolar ? '<div class="why">cirkumpolární</div>' : ''}</div>`).join('')}</details>`,
-      navraty: `${(() => { const by = +p.y; const yr = np.y; const age = yr - by; const hi = (x) => Math.abs(x - yr) <= 1 ? 'on' : '';
+      navraty: `${tzPersonalHTML(p)}${(() => { const by = +p.y; const yr = np.y; const age = yr - by; const hi = (x) => Math.abs(x - yr) <= 1 ? 'on' : '';
         const rows = [
           ['Saturnův návrat', [by + 29, by + 59, by + 88], 'Saturn oběhne zvěrokruh za 29,5 roku. První návrat kolem 27–30 let je zkouška dospělosti: co jsi převzal od rodiny a světa, se láme, a zůstává, co je opravdu tvoje. Bývá to čas velkých rozhodnutí — práce, vztah, místo. Druhý návrat kolem 58–60 let je zkouška moudrosti: co ze života předat dál. Návrat trvá kolem roku a mívá tři přesné průchody (přímý, zpětný, přímý).'],
           ['Jupiterův návrat', [by + 12, by + 24, by + 36, by + 48, by + 60, by + 72, by + 84], 'Jupiter oběhne zvěrokruh za 11,9 roku. Každý návrat otevírá nový dvanáctiletý cyklus růstu: přichází prostor, důvěra a příležitosti v oblasti, kde máš Jupiter v mapě. Rok návratu bývá rokem rozšíření — cesty, studia, dětí, nového záběru.'],
