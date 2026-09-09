@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v347';
+  const VERSION = 'v348';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -812,10 +812,10 @@
     if (d === m) { const p = PORTAL_MIRROR[m]; if (p) out.push({ kind: 'mirror', title: `${d}. ${m}. · ${p[0]}`, text: p[1], step: p[2], tag: 'zrcadlový portál', extra: `Celé datum ${d}. ${m}. ${y} dává ${sum} → ${r}${r === 11 || r === 22 || r === 33 ? ` — a to je mistrovské číslo, takže letos je tahle brána silnější než obvykle.` : `, tedy ${NUM_MONTH[r] ? NUM_MONTH[r] : ''}.`} ${PORTAL_YEAR[uni] || ''}` }); }
     if (r === 11 || r === 33) { const p = PORTAL_MASTER[r]; out.push({ kind: 'master', title: p[0], text: p[1], step: p[2], tag: `${d}. ${m}. ${y} → ${sum} → ${r}`, extra: PORTAL_YEAR[uni] || '' }); }
     if (settings.numerology !== false && S.natal) {
-      const prof = activeProfile(); const n = numerology(prof, y, m, d); const life = numRed1(numerology(prof, y, m, d).life, true);
-      const pd = numRed1(numRed1(n.month, false) + d, true);
-      if (pd === 11 || pd === 22 || pd === 33) out.push({ kind: 'personal', step: pd === 11 ? 'Zapiš, co ti dnes přijde — nápad, sen, věta odnikud.' : pd === 22 ? 'Udělej jeden praktický krok k něčemu velkému.' : 'Dej někomu to, co umíš nejlíp.', title: `Tvůj osobní portál ${pd}`, text: `Tvůj osobní den vychází na mistrovské ${pd}. ${pd === 11 ? 'Den zesílené intuice a jemného vnímání — co ti dnes přijde jako nápad odnikud, stojí za zapsání.' : pd === 22 ? 'Den, kdy jde dát velké věci do tvaru: vize se dnes propojí s praktickým krokem.' : 'Den služby a předávání — co dnes dáš druhým, se ti vrátí v jiné podobě.'}`, tag: 'osobní portál' });
-      else if (n.day === life) out.push({ kind: 'personal', step: 'Udělej dnes to, k čemu tě to táhne odjakživa — máš vítr v zádech.', title: `Tvůj osobní portál ${n.day}`, text: `Osobní den se dnes shoduje s tvým životním číslem ${life} — jsi ve svém živlu. Co odpovídá tvé přirozenosti, jde dnes samo; dobrý den udělat to, k čemu tě to táhne odjakživa.`, tag: 'osobní portál' });
+      // osobní portál: osobní den i osobní měsíc se shodují s tvým životním číslem — tři čísla na jedné vlně, 3–4× do roka
+      const prof = activeProfile(); const n = numerology(prof, y, m, d); const life = numRed1(n.life, false);
+      const pm = numRed1(n.month, false), pd = numRed1(n.day, false);
+      if (pd === life && pm === life) out.push({ kind: 'personal', title: `Tvůj osobní portál ${life}`, text: `Osobní den, osobní měsíc i tvé životní číslo dnes stojí na stejné vlně: ${life} — ${(NUM_LIFE[life] || [''])[0]}. To nastává jen párkrát do roka; je to den, kdy jsi nejvíc sám sebou a co odpovídá tvé přirozenosti, jde samo.`, step: 'Udělej dnes to, k čemu tě to táhne odjakživa — máš vítr v zádech.', tag: 'osobní portál', extra: `Tvůj osobní rok ${n.year}, měsíc ${pm}, den ${pd}.` });
     }
     return out;
   }
