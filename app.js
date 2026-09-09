@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v361';
+  const VERSION = 'v362';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -844,6 +844,19 @@
       <div class="card rd"><p>Denní pilíř je v čínské astrologii ten nejosobnější — mistr dne. <b>${CN_STEM[P.day.s][1]} ${CN_STEM[P.day.s][2]}</b> ${CN_STEM[P.day.s][0]} nad ${CN_ANIMAL[P.day.b][0]}: ${esc(CN_ANIMAL[P.day.b][1].split('. ')[0])}. ${esc(CN_ELEMENT[CN_STEM[P.day.s][1]].split('. ')[0])}.</p></div>
       <div class="h3">Letošní rok: ${CN_STEM[nowS][1]}ový ${CN_ANIMAL[nowB][0]}</div>
       <div class="card rd"><p>${esc(CN_YEAR_REL[cnRel(P.year.b, nowB)])}</p><p class="small muted" style="margin:0">Tvoje trojice souladu: ${CN_TRINE.find(t => t.includes(P.year.b)).map(i => CN_ANIMAL[i][0]).join(', ')}. Zvíře naproti: ${CN_ANIMAL[(P.year.b + 6) % 12][0]}.</p></div>
+      <details class="expl" open><summary>Pojmy, které tu potkáš</summary>
+        <div class="glos">
+          <p><b>Čtyři pilíře (BaZi)</b> — „osm znaků": rok, měsíc, den a hodina narození, každý zapsaný dvojicí kmen + větev. Rok ukazuje, jak tě vidí svět, měsíc odkud přicházíš a jaké máš zázemí, den kdo jsi uvnitř, hodina kam míříš a co necháváš.</p>
+          <p><b>Nebeský kmen</b> — jeden z deseti: pět živlů (dřevo, oheň, země, kov, voda), každý v jang a jin podobě. Kmen říká, jakou látkou pilíř je.</p>
+          <p><b>Pozemská větev</b> — jedno z dvanácti zvířat (Krysa až Prase). Větev říká, jakou povahu a čas pilíř nese; zvířata se střídají i po dvouhodinách během dne.</p>
+          <p><b>Šedesátkový cyklus</b> — deset kmenů a dvanáct větví se protáčí do 60 dvojic, které se opakují po 60 letech, měsících i dnech. Odtud čínská šedesátiletá „velká obrátka".</p>
+          <p><b>Mistr dne</b> — kmen denního pilíře; v čínské astrologii nejosobnější údaj, to, čemu bychom my řekli jádro osobnosti. Ostatní pilíře se čtou ve vztahu k němu.</p>
+          <p><b>Jang a jin</b> — dvě podoby téhož živlu: jang je vnější, činná, dávající; jin vnitřní, přijímající, uchovávající. Nejde o dobré a špatné, ale o směr pohybu.</p>
+          <p><b>Li-čchun</b> — „počátek jara", okamžik, kdy Slunce dosáhne 315°, kolem 4. února. Tady začíná čínský astrologický rok — ne na Nový lunární rok a už vůbec ne 1. ledna.</p>
+          <p><b>Trojice souladu</b> — čtyři skupiny po třech zvířatech, která si přirozeně rozumí (Krysa–Drak–Opice, Buvol–Had–Kohout, Tygr–Kůň–Pes, Králík–Koza–Prase). Roky těchto zvířat ti přejí.</p>
+          <p><b>Chong · střet</b> — zvíře stojící naproti tvému (šesté v pořadí). Rok takového zvířete hýbe zaběhaným: víc změn, míň jistoty, tradičně méně riskovat.</p>
+          <p><b>Tai Sui</b> — „hvězda roku", božstvo vládnoucí danému roku. V roce vlastního zvířete se člověk tradičně Tai Sui „dotkne" a rok bývá náročný; proto se nosí červená a dbá na zdraví.</p>
+        </div></details>
       <details class="expl"><summary>Dvanáct zvířat</summary>${CN_ANIMAL.map((x, i) => `<p class="small"><b>${x[0]}</b> — ${esc(x[1])}</p>`).join('')}</details>
       <p class="note" style="margin-top:10px">Čínský horoskop stojí na šedesátiletém cyklu deseti nebeských kmenů (živly v jang a jin podobě) a dvanácti pozemských větví (zvířat). Kompas počítá všechny čtyři pilíře z data a hodiny narození, hranici roku podle Slunce.</p>`;
   }
