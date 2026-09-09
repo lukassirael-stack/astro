@@ -1193,3 +1193,5 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .lyr small{font-size:var(--fs-s);color:var(--muted);line-height:1.4}
 .hero-today .ht-ic.por{color:var(--gold);font-style:normal}
 .hero-today .ht-por .tx em{font-style:normal;color:var(--inst-muted);font-size:var(--fs-s)}
+.ev.todayev{border:1px solid var(--gold);border-radius:14px;background:var(--gold-soft);padding:10px 12px;box-shadow:0 0 16px rgba(240,200,116,.25)}
+.ev.todayev .ti{color:#FFF3D6}

@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v343';
+  const VERSION = 'v344';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -3356,7 +3356,7 @@ ${parts}
         html += `<div class="ev-month">${K.MONTH_CZ[mo.m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[mo.m - 1].slice(1)} ${mo.y}</div>`;
         for (const e of shown) {
           const p = K.tzParts(e.date, TZ);
-          html += `<div class="ev ${e.resonance ? 'res' : ''} ${e.date.getTime() < nowMs ? 'gone' : ''}"><div class="dt"><b>${p.d}.</b>${e.cat === 'roje' || e.custom || e.cat === 'hvezdy' && e.title.startsWith('Heliak') ? '' : K.fmtTime(e.date, TZ)}</div><div><div class="ti"><span class="c">${ico(evIcon(e))}</span>${esc(e.title)}${evWhat(e.title, e.note) ? `<i class="evq" data-act="evWhat" role="button" aria-label="Co to je?">?</i>` : ''}</div>${e.note ? `<div class="no">${esc(e.note)}</div>` : ''}${evWhat(e.title, e.note) ? `<div class="evwhat">${esc(evWhat(e.title, e.note))}</div>` : ''}</div></div>`;
+          html += `<div class="ev ${e.resonance ? 'res' : ''} ${e.today ? 'todayev' : ''} ${e.date.getTime() < nowMs && !e.today ? 'gone' : ''}"><div class="dt"><b>${p.d}.</b>${e.cat === 'roje' || e.custom || e.cat === 'hvezdy' && e.title.startsWith('Heliak') ? '' : K.fmtTime(e.date, TZ)}</div><div><div class="ti"><span class="c">${ico(evIcon(e))}</span>${esc(e.title)}${evWhat(e.title, e.note) ? `<i class="evq" data-act="evWhat" role="button" aria-label="Co to je?">?</i>` : ''}</div>${e.note ? `<div class="no">${esc(e.note)}</div>` : ''}${evWhat(e.title, e.note) ? `<div class="evwhat">${esc(evWhat(e.title, e.note))}</div>` : ''}</div></div>`;
         }
       }
       html += `<p class="note" style="margin-top:18px">Jasné komety se doplňují samy z dat Minor Planet Center a JPL (jednou za 12 hodin); novy a vlastní úkazy si přidáš v Nastavení (řádek: datum | název | poznámka).</p>`;
