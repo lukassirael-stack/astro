@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v359';
+  const VERSION = 'v360';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -3687,8 +3687,8 @@ ${parts}
       ['cakra', '◉', 'Čakra roku', 'kterou čakrou letos procházíš'],
       ['navraty', '⟳', 'Velké návraty', 'Saturn, Jupiter, Uran a uzly v tvém životě'],
       ['hvezdy', '★', 'Tvé hvězdy', 'stálice na tvých bodech'],
-      ['maya', '◈', 'Mayský horoskop', 'tvůj nawal, tón, Mayský kříž, nositel roku', null, 'noimg'],
-      ['cina', '☯', 'Čínský horoskop', 'čtyři pilíře, zvíře, živel, letošní rok', null, 'noimg'],
+      ['maya', '◈', 'Mayský horoskop', 'tvůj nawal, tón, Mayský kříž, nositel roku'],
+      ['cina', '☯', 'Čínský horoskop', 'čtyři pilíře, zvíře, živel, letošní rok'],
     ].filter(t => t[0] !== 'cisla' || settings.numerology !== false);
     if (view === 'menu') {
       const arcS = arcSentence();
