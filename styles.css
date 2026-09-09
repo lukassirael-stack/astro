@@ -1206,3 +1206,5 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .hero-today .ht-tv .tvn .tvlab::after{content:'teď';font-weight:500;letter-spacing:.08em;text-transform:none;opacity:.7;font-size:var(--fs-xs)}
 @keyframes htpulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
 @media (prefers-reduced-motion:reduce){.hero-today .ht-tv .tvn .tvlab::before{animation:none}}
+.hero-today .ht-row .tx b{display:inline;width:auto;font-size:inherit;letter-spacing:0;text-transform:none;white-space:normal;color:var(--inst-gold);font-weight:600}
+.hero-today .ht-por .tx .pstep{display:block;margin-top:3px;font-style:normal;color:var(--inst-gold);opacity:.9}
