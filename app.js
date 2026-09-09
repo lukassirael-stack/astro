@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v362';
+  const VERSION = 'v363';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -808,13 +808,13 @@
   function jdnOf(y, m, d) { const a = Math.floor((14 - m) / 12), yy = y + 4800 - a, mm = m + 12 * a - 3; return d + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045; }
   function tzolkin(y, m, d) { const n = jdnOf(y, m, d) - 584283; const sign = ((n + 19) % 20 + 20) % 20; const tone = (((n + 3) % 13) + 13) % 13 + 1; const kin = (((n + 159) % 260) + 260) % 260 + 1; return { sign, tone, kin, nawal: TZ_NAWAL[sign] }; }
   const tzTitle = (t) => `${t.tone} ${t.nawal[0]}`;
-  function tzLineHTML(y, m, d) { const t = tzolkin(y, m, d); const per = S.natal ? tzPersonal(activeProfile(), y, m, d) : null; return `<b>${esc(tzTitle(t))}</b> (${esc(t.nawal[1])}) · tón ${t.tone}: ${esc(TZ_TONE[t.tone - 1])} — ${esc(t.nawal[2])}${per ? ` <em class="tzper">✦ ${esc(per.text)}</em>` : ''}`; }
+  function tzLineHTML(y, m, d) { const t = tzolkin(y, m, d); const per = S.natal ? tzPersonal(activeProfile(), y, m, d) : null; return `<b>${esc(tzTitle(t))}</b> — ${esc(t.nawal[1].split(' · ')[0])}, tón ${t.tone} (${esc(TZ_TONE[t.tone - 1])}). ${esc(t.nawal[2])}${per ? ` <em class="tzper">✦ ${esc(per.text)}</em>` : ''}`; }
   // osobní vztah dne k tvému nawalu: stejný kin (260 dní), stejný nawal (20 dní), stejný tón (13 dní), a Mayský kříž
   function tzPersonal(p, y, m, d) {
     const b = tzolkin(+p.y, +p.m, +p.d), t = tzolkin(y, m, d);
-    if (t.kin === b.kin) return { kind: 'kin', text: 'tvůj den v Tzolk\'inu — stejný nawal i tón jako v den narození (jednou za 260 dní)' };
-    if (t.sign === b.sign) return { kind: 'sign', text: 'den tvého nawalu — jeho síla je dnes i tvá (každých 20 dní)' };
-    if (t.tone === b.tone) return { kind: 'tone', text: 'tón tvého narození — tvůj rytmus (každých 13 dní)' };
+    if (t.kin === b.kin) return { kind: 'kin', text: 'Dnes máš mayské narozeniny — stejný nawal i tón jako v den, kdy ses narodil. Přichází jednou za 260 dní.' };
+    if (t.sign === b.sign) return { kind: 'sign', text: 'Dnes vládne tvůj nawal — jeho síla je dnes i tvoje. Vrací se každých 20 dní.' };
+    if (t.tone === b.tone) return { kind: 'tone', text: 'Dnes zní tón tvého narození — tvůj vlastní rytmus. Vrací se každých 13 dní.' };
     return null;
   }
   function tzNext(p, kind) { for (let i = 1; i <= 260; i++) { const dt = new Date(Date.now() + i * 86400000); const q = K.tzParts(dt, TZ); const r = tzPersonal(p, q.y, q.m, q.d); if (r && r.kind === kind) return { q, i }; } return null; }
