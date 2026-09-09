@@ -1211,3 +1211,5 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .tzcard .tzx{padding:6px 10px;border-left:2px solid rgba(201,169,224,.6);margin:0 0 6px;border-radius:0 8px 8px 0;background:var(--glass)}
 .tzcard .tzx b{color:#C9A9E0}
 .tzper{display:block;margin-top:3px;font-style:normal;color:#C9A9E0}
+.mrhead .tzk{font-family:var(--display);font-size:var(--fs-xl);color:#FFF3D6;margin:0}
+.ptcard.mr .mrs .g{color:#C9A9E0}

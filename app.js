@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v357';
+  const VERSION = 'v358';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -818,6 +818,31 @@
     return null;
   }
   function tzNext(p, kind) { for (let i = 1; i <= 260; i++) { const dt = new Date(Date.now() + i * 86400000); const q = K.tzParts(dt, TZ); const r = tzPersonal(p, q.y, q.m, q.d); if (r && r.kind === kind) return { q, i }; } return null; }
+  function tzBearer(y, m, d) { const n = jdnOf(y, m, d) - 584283; const h = ((n + 348) % 365 + 365) % 365; const start = n - h; const sign = ((start + 19) % 20 + 20) % 20; const tone = (((start + 3) % 13) + 13) % 13 + 1; return { sign, tone, nawal: TZ_NAWAL[sign], key: TZ_NAWAL[sign][0].replace(/'/g, '') }; }
+  function mayaHTML(p) {
+    const t = tzolkin(+p.y, +p.m, +p.d); const today = tzolkin(np.y, np.m, np.d);
+    const cross = [['Početí · odkud přicházíš', (t.sign - 7 + 20) % 20], ['Osud · kam míříš', (t.sign + 7) % 20], ['Levá ruka · co tě chrání', (t.sign - 9 + 40) % 20], ['Pravá ruka · co ti pomáhá', (t.sign + 9) % 20]];
+    const bb = tzBearer(+p.y, +p.m, +p.d), by = tzBearer(np.y, np.m, np.d);
+    const nk = tzNext(p, 'kin'), ns = tzNext(p, 'sign'), nt = tzNext(p, 'tone');
+    const fd = (x) => x ? `${x.q.d}. ${x.q.m}.${x.q.y !== np.y ? ` ${x.q.y}` : ''} (za ${x.i} ${x.i === 1 ? 'den' : x.i < 5 ? 'dny' : 'dní'})` : '—';
+    const ret = +p.y + 52; const daysTo = Math.round((K.dayStart(ret, +p.m, +p.d, TZ) - new Date()) / 86400000);
+    const per = tzPersonal(p, np.y, np.m, np.d); const inCross = cross.find(([, si]) => si === today.sign);
+    const rel = per ? per.text : inCross ? `dnes vládne ${TZ_NAWAL[today.sign][0]}, jeden z nawalů tvého kříže (${inCross[0].split(' · ')[0].toLowerCase()})` : `dnes vládne ${TZ_NAWAL[today.sign][0]} — ${TZ_NAWAL[today.sign][2].split('. ')[1] || ''}`;
+    return `<div class="card mrhead"><p class="tzk"><b>${esc(tzTitle(t))}</b> · kin ${t.kin} · ${esc(t.nawal[1])}</p><p class="lede" style="margin:4px 0 0">${esc(t.nawal[3])}</p></div>
+      <div class="h3">Tvůj tón ${t.tone}</div>
+      <div class="card rd"><p>${esc(TZ_TONE_LONG[t.tone - 1])}</p></div>
+      <div class="h3">Mayský kříž</div>
+      <p class="note" style="margin-top:-4px">Kiché počtáři čtou k nawalu narození čtyři průvodce: nawal početí, nawal osudu a dva nawaly po rukou.</p>
+      ${cross.map(([lab, si]) => `<div class="ptcard mr"><div class="mrs"><span class="g">◈</span><b>${esc(lab)}</b><span class="sg">${esc(TZ_NAWAL[si][0])}</span></div><div class="ptbody"><p>${esc(TZ_NAWAL[si][1])} — ${esc(TZ_NAWAL[si][2])}</p></div></div>`).join('')}
+      <div class="h3">Nositel tvého roku</div>
+      <div class="card rd"><p><b>${esc(bb.nawal[0])}</b> nesl rok tvého narození — ${esc(TZ_BEARER[bb.key] || bb.nawal[2])}</p><p class="small muted" style="margin:0">Letošní rok nese <b>${esc(by.nawal[0])}</b>: ${esc(TZ_BEARER[by.key] || by.nawal[2])}</p></div>
+      <div class="h3">Dnes v Tzolk'inu</div>
+      <div class="card rd"><p><b>${esc(tzTitle(today))}</b> · ${esc(today.nawal[1])} — ${esc(rel)}.</p></div>
+      <div class="h3">Tvé dny</div>
+      <div class="card rd"><p><b>Den tvého nawalu</b> (${esc(t.nawal[0])}, každých 20 dní): ${fd(ns)}</p><p><b>Tvůj tón</b> (${t.tone}, každých 13 dní): ${fd(nt)}</p><p><b>Tvůj kin</b> — mayské narozeniny, jednou za 260 dní: ${fd(nk)}</p><p><b>Kalendářní kruh</b> — nawal a tón se v den narození potkají po 52 letech${daysTo > 0 ? `: ${ret}${daysTo < 400 ? ` (za ${daysTo} dní)` : ''}` : `: bylo ${ret}, další ${ret + 52}`}. Tradičně práh, kdy se člověk stává starším rodu.</p></div>
+      <details class="expl"><summary>Dvacet nawalů</summary>${TZ_NAWAL.map((n, i) => `<p class="small"><b>${esc(n[0])}</b> · ${esc(n[1])} — ${esc(n[2])}</p>`).join('')}</details>
+      <p class="note" style="margin-top:10px">Tzolk'in je mayský posvátný počet 260 dnů (13 tónů × 20 nawalů), který dodnes vedou kiché počtáři v Guatemale. Kompas používá pravý počet s korelací GMT 584283 — stejný, jakým Mayové spočítali 21. 12. 2012 jako 4 Ajaw.</p>`;
+  }
   function tzPersonalHTML(p) {
     const t = tzolkin(+p.y, +p.m, +p.d); const age = np.y - p.y; const ret = +p.y + 52; const ret2 = +p.y + 104;
     const daysTo = Math.round((K.dayStart(ret, +p.m, +p.d, TZ) - new Date()) / 86400000);
@@ -3596,7 +3621,7 @@ ${parts}
       ${mine.length ? mine.map(s => starBlock(s, true)).join('') : '<p class="muted">Žádná hlavní hvězda – neobvyklé, ověř čas narození.</p>'}
       ${second.length ? `<div class="h3">Vedlejší hvězdy</div>${second.map(s => starBlock(s, false)).join('')}` : ''}
       <details><summary>Ostatní hvězdy v nativu (bez kontaktu)</summary>${rest.map(s => `<div class="star"><div class="nm" style="font-size:var(--fs-l)">${esc(s.name)}<em>${K.fmtLon(s.lon)} · ${s.house}. dům</em></div>${s.neverRises ? '<div class="why">z našich šířek nikdy nevychází</div>' : ''}${s.circumpolar ? '<div class="why">cirkumpolární</div>' : ''}</div>`).join('')}</details>`,
-      navraty: `${tzPersonalHTML(p)}${(() => { const by = +p.y; const yr = np.y; const age = yr - by; const hi = (x) => Math.abs(x - yr) <= 1 ? 'on' : '';
+      navraty: `${(() => { const by = +p.y; const yr = np.y; const age = yr - by; const hi = (x) => Math.abs(x - yr) <= 1 ? 'on' : '';
         const rows = [
           ['Saturnův návrat', [by + 29, by + 59, by + 88], 'Saturn oběhne zvěrokruh za 29,5 roku. První návrat kolem 27–30 let je zkouška dospělosti: co jsi převzal od rodiny a světa, se láme, a zůstává, co je opravdu tvoje. Bývá to čas velkých rozhodnutí — práce, vztah, místo. Druhý návrat kolem 58–60 let je zkouška moudrosti: co ze života předat dál. Návrat trvá kolem roku a mívá tři přesné průchody (přímý, zpětný, přímý).'],
           ['Jupiterův návrat', [by + 12, by + 24, by + 36, by + 48, by + 60, by + 72, by + 84], 'Jupiter oběhne zvěrokruh za 11,9 roku. Každý návrat otevírá nový dvanáctiletý cyklus růstu: přichází prostor, důvěra a příležitosti v oblasti, kde máš Jupiter v mapě. Rok návratu bývá rokem rozšíření — cesty, studia, dětí, nového záběru.'],
@@ -3633,6 +3658,7 @@ ${parts}
       ['cakra', '◉', 'Čakra roku', 'kterou čakrou letos procházíš'],
       ['navraty', '⟳', 'Velké návraty', 'Saturn, Jupiter, Uran a uzly v tvém životě'],
       ['hvezdy', '★', 'Tvé hvězdy', 'stálice na tvých bodech'],
+      ['maya', '◈', 'Mayský horoskop', 'tvůj nawal, tón, Mayský kříž, nositel roku', null, 'noimg'],
     ].filter(t => t[0] !== 'cisla' || settings.numerology !== false);
     if (view === 'menu') {
       const arcS = arcSentence();
@@ -3641,6 +3667,7 @@ ${parts}
     }
     const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : view === 'smerClose' ? ['smer', '➶', 'Sklizeň', ''] : TILES[0]);
     const back = `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
+    if (view === 'maya') { v.innerHTML = back + mayaHTML(p); return; }
     if (view === 'horoskop') {
       const hv = S.hsView || 'menu';
       const hback = (t) => `<div class="subhead"><button type="button" class="btn ghost small" data-act="hsView" data-v="menu">‹ Tvůj horoskop</button><div class="h2" style="margin:0">${t}</div></div>`;
