@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v340';
+  const VERSION = 'v341';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -280,6 +280,7 @@
       <div class="numcyc">${rows.map(r => `<span class="${r.y === yr ? 'on' : ''} ${r.n === 1 ? 'start' : ''}"><b>${r.y}</b><i>${r.n}</i><small>${NUM_MONTH[r.n].split(',')[0]}</small></span>`).join('')}</div>
       <div class="h3">Osobní měsíce ${yr}</div>
       <div class="nummon">${months.map(x => `<span class="${x.m === np.m ? 'on' : ''}"><b>${K.MONTH_CZ[x.m - 1].slice(0, 3)}</b><i>${x.n}</i><small>${NUM_MONTH[x.n]}</small></span>`).join('')}</div>
+      ${(() => { const np2 = nextPersonalPortal(); if (!np2) return ''; const dd = np2.p; return `<p class="portnext"><b>Nejbližší tvůj osobní portál</b> — ${dd.d}. ${dd.m}. ${dd.y}${np2.days === 0 ? ' (dnes)' : np2.days === 1 ? ' (zítra)' : ` (za ${np2.days} dní)`}: ${esc(np2.x.title.replace('Tvůj osobní portál ', 'osobní den '))}.</p>`; })()}
       <p class="note" style="margin-top:8px">${NUM_ATT[att]} Univerzální rok ${yr} je <b>${uni}</b> — ${NUM_MONTH[uni]} pro všechny; tvůj osobní rok ${cur.n} se do něj promítá.</p>`;
   }
   // numerologie pro blízké: čísla druhé osoby a soulad životních čísel
@@ -783,6 +784,33 @@
   const HS_SUBS = [['zivot', '∞', 'Celoživotní', 'kapitoly života: osobnost, vztahy, práce, peníze, zdraví…'], ['den', '☉', 'Denní', 'čtení dne, tip, co se tě dotýká'], ['tyden', '≡', 'Týdenní', 'sedm dní jako oblouk'], ['mesic', '☽', 'Měsíční', 'nov a úplněk v tvé mapě, přesuny, klíčové dny'], ['rok', '✦', 'Roční', 'témata roku, pomalé planety, lunace']];
   function hsHubHTML() {
     return `<div class="ntiles">${HS_SUBS.map(([id, ic, t, sub]) => `<button type="button" class="ntile txt ${id === 'zivot' ? 'main' : ''}" data-act="hsView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>`).join('')}</div>`;
+  }
+  // ---------- portálové dny: zrcadlová data, mistrovské součty, osobní portály ----------
+  const numRed1 = (n, keep) => { n = Math.abs(n); while (n > 9) { if (keep && (n === 11 || n === 22 || n === 33)) return n; n = String(n).split('').reduce((s, c) => s + (+c), 0); } return n; };
+  function portalsFor(y, m, d) {
+    const out = [];
+    if (d === m) { const p = PORTAL_MIRROR[m]; if (p) out.push({ kind: 'mirror', title: `${d}. ${m}. · ${p[0]}`, text: p[1], tag: 'zrcadlový portál' }); }
+    const sum = digitsSum(`${String(d).padStart(2, '0')}${String(m).padStart(2, '0')}${y}`); const r = numRed1(sum, true);
+    if (r === 11 || r === 33) { const p = PORTAL_MASTER[r]; out.push({ kind: 'master', title: p[0], text: p[1], tag: `součet ${sum} → ${r}` }); }
+    if (settings.numerology !== false && S.natal) {
+      const prof = activeProfile(); const n = numerology(prof, y, m, d); const life = numRed1(numerology(prof, y, m, d).life, true);
+      const pd = numRed1(numRed1(n.month, false) + d, true);
+      if (pd === 11 || pd === 22 || pd === 33) out.push({ kind: 'personal', title: `Tvůj osobní portál ${pd}`, text: `Tvůj osobní den vychází na mistrovské ${pd}. ${pd === 11 ? 'Den zesílené intuice a jemného vnímání — co ti dnes přijde jako nápad odnikud, stojí za zapsání.' : pd === 22 ? 'Den, kdy jde dát velké věci do tvaru: vize se dnes propojí s praktickým krokem.' : 'Den služby a předávání — co dnes dáš druhým, se ti vrátí v jiné podobě.'}`, tag: 'osobní portál' });
+      else if (n.day === life) out.push({ kind: 'personal', title: `Tvůj osobní portál ${n.day}`, text: `Osobní den se dnes shoduje s tvým životním číslem ${life} — jsi ve svém živlu. Co odpovídá tvé přirozenosti, jde dnes samo; dobrý den udělat to, k čemu tě to táhne odjakživa.`, tag: 'osobní portál' });
+    }
+    return out;
+  }
+  function nextPersonalPortal(from) {
+    if (!S.natal) return null; const prof = activeProfile(); const start = from || new Date();
+    for (let i = 0; i < 400; i++) { const dt = new Date(start.getTime() + i * 86400000); const p = K.tzParts(dt, TZ); const ps = portalsFor(p.y, p.m, p.d).filter(x => x.kind === 'personal'); if (ps.length) return { p, x: ps[0], days: i }; }
+    return null;
+  }
+  function portalEvents(d0, d1) {
+    const out = []; const cur = new Date(d0);
+    for (let i = 0; i < 400; i++) { const dt = new Date(cur.getTime() + i * 86400000); if (dt >= d1) break; const p = K.tzParts(dt, TZ);
+      for (const x of portalsFor(p.y, p.m, p.d)) out.push({ date: K.dayStart(p.y, p.m, p.d, TZ), cat: 'portal', title: x.title, note: x.text, tag: x.tag, kind: x.kind });
+    }
+    return out;
   }
   // ---------- svátky a volné dny ----------
   // Velikonoční neděle (Meeus/Jones/Butcher), z ní odvozené pohyblivé svátky
@@ -1302,10 +1330,11 @@
     '☌': _ic('<circle cx="7" cy="8.8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.3 6.5 12.4 3.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'),
     '☍': _ic('<circle cx="4" cy="10" r="2.4" fill="none" stroke="currentColor" stroke-width="1.15"/><circle cx="10" cy="4" r="2.4" fill="none" stroke="currentColor" stroke-width="1.15"/><path d="M5.7 8.3 8.3 5.7" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/>'),
     '✺': _ic('<circle cx="7" cy="7" r="2.2" fill="currentColor"/><path d="M7 1.2v2.4M7 10.4v2.4M1.2 7h2.4M10.4 7h2.4M2.9 2.9l1.7 1.7M9.4 9.4l1.7 1.7M2.9 11.1l1.7-1.7M9.4 4.6l1.7-1.7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>'),
+    '⬡': _ic('<path d="M7 1.4 12.2 4.4v6L7 13.4 1.8 10.4v-6Z" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"/><circle cx="7" cy="7.4" r="1.6" fill="currentColor"/>'),
     '✳': _ic('<path d="M7 1.6v10.8M2.3 4.3l9.4 5.4M2.3 9.7l9.4-5.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>'),
   };
   const ico = (g) => ICO[g] || g;
-  const CAT_ICON = { luna: '☽', zatmeni: '◉', slunce: '☉', planety: '♃', roje: '☄', hvezdy: '✦', komety: '✧', osobni: '✺' };
+  const CAT_ICON = { portal: '⬡', luna: '☽', zatmeni: '◉', slunce: '☉', planety: '♃', roje: '☄', hvezdy: '✦', komety: '✧', osobni: '✺' };
   const CAT_SVG = {
     vse: '<path d="M8 1.5c.4 2.8 2.1 4.5 4.9 4.9-2.8.4-4.5 2.1-4.9 4.9C7.6 8.5 5.9 6.8 3.1 6.4 5.9 6 7.6 4.3 8 1.5Z" fill="currentColor"/><path d="M13 10.5c.2 1.2 1 2 2.2 2.2-1.2.2-2 1-2.2 2.2-.2-1.2-1-2-2.2-2.2 1.2-.2 2-1 2.2-2.2Z" fill="currentColor" opacity=".8"/>',
     osobni: '<ellipse cx="8" cy="8" rx="6" ry="3.6" fill="none" stroke="currentColor" stroke-width="1.1" transform="rotate(-30 8 8)"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="12.9" cy="4.9" r="1.1" fill="currentColor"/>',
@@ -1319,7 +1348,7 @@
     komety: '<circle cx="4.5" cy="11.5" r="2.4" fill="currentColor"/><path d="M6.5 9.5 14 2M8.8 11.2 14.5 6M5 8.2 11 2.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".85"/>',
   };
   const catIcon = (c) => CAT_SVG[c] ? `<img class="cico" src="cat-${c}.webp?v=1" alt="" width="28" height="28">` : '';
-  const CAT_CZ = { vse: 'vše', luna: 'Luna', zatmeni: 'zatmění', slunce: 'Slunce', planety: 'planety', roje: 'roje', hvezdy: 'hvězdy', komety: 'komety', osobni: 'tvé cykly', priroda: 'příroda' };
+  const CAT_CZ = { vse: 'vše', portal: 'portály', luna: 'Luna', zatmeni: 'zatmění', slunce: 'Slunce', planety: 'planety', roje: 'roje', hvezdy: 'hvězdy', komety: 'komety', osobni: 'tvé cykly', priroda: 'příroda' };
   const TODAY_KEY = K.isoDate(np.y, np.m, np.d);
 
   function toast(msg) { const t = $('#toast'); t.textContent = tr(msg); t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 2600); }
@@ -2086,6 +2115,7 @@
           <p><span class="nl">modrá hodina</span>${f(tw.blueAM[0])}–${f(tw.blueAM[1])} · ${f(tw.bluePM[0])}–${f(tw.bluePM[1])} <small>— soumrak, kdy je Slunce těsně pod obzorem a obloha sytě modrá</small></p>
           ${dn ? `<p><span class="nl">tmavá noc</span>Luna pod obzorem ${f(dn.from)}–${f(dn.to)} — ${dn.hours >= 4 ? 'Mléčná dráha a slabé hvězdy jsou dobře vidět' : 'krátké okno na hvězdy bez Luny'}</p>` : ''}
           ${settings.numerology !== false && S.natal && S.natal.profile ? (() => { const n = numerology(S.natal.profile, y, m, d); return `<p><span class="nl">osobní den</span><b>${n.day}</b> — ${NUM_DAY[n.day]} <small>(osobní rok ${n.year}, měsíc ${n.month})</small></p>`; })() : ''}
+          ${(() => { const ps = portalsFor(y, m, d); return ps.length ? ps.map(x => `<p><span class="nl">portál</span><b>${esc(x.title)}</b> — ${esc(x.text)}</p>`).join('') : ''; })()}
           ${(() => { const e = natureNow(m, d); return e ? `<p><span class="nl">příroda teď</span>${esc(e[1])}</p>` : ''; })()}
           <p><span class="nl">zahrádkář</span><b>${g.kind}</b> (Luna ${SIGN_LOC[['Beran','Býk','Blíženc','Rak','Lv','Pann','Váh','Štír','Střelc','Kozoroh','Vodnář','Ryb'][da.moonSign]]}) — ${g.tip} · ${g.phase}</p>
         </div>`; })()}
@@ -3127,6 +3157,7 @@ ${parts}
     [/^Lunární návrat$/, 'Luna se vrací na místo, kde stála při tvém narození — děje se to každých 27 dní. Tichý osobní nov: nálada a potřeby se na pár dní vracejí k tomu, co je ti od základu vlastní. Dobrý den na odpočinek a pozornost k tomu, co doopravdy potřebuješ.'],
     [/^Jupiterův návrat$/, 'Jupiter se po dvanácti letech vrací na místo tvé mapy — kolem 12, 24, 36, 48, 60 let. Tradičně rok otevřených dveří a růstu: co jsi za dvanáct let vybudoval, dostává prostor, a nový cyklus začíná tam, kde máš důvěru.'],
     [/^Saturnův návrat$/, 'Saturn se po 29 letech vrací na místo tvé mapy — kolem 29, 58 a 87 let. Jeden z nejvýznamnějších přechodů života: dospělost se skládá znovu, co bylo jen převzaté, padá, a zůstává, co je opravdu tvé. Bývá náročný a bývá zakládající.'],
+    [/Brána |Mistrovský den|osobní portál/i, 'Portálové dny jsou čísla, ne obloha: zrcadlová data (den se rovná měsíci), dny, jejichž číslice dávají mistrovské 11 nebo 33, a dny, kdy se tvůj osobní den potká s tvým životním číslem. Tradice jim přikládá průchodnost — víc se toho podaří, víc se toho ozve. Ber je jako pozvání k pozornosti.'],
     [/^Imbolc$/, 'Brána mezi zimním slunovratem a jarní rovnodenností: Slunce stojí přesně v 15° Vodnáře. Světla znatelně přibývá, pod sněhem se hýbe život. Tradičně čas očisty, světla a prvních záměrů roku.'],
     [/^Beltain$/, 'Brána mezi jarní rovnodenností a letním slunovratem: Slunce v 15° Býka. Vrchol rozkvětu a plodnosti — ohně, tanec, spojení. Tradičně nejradostnější z bran roku.'],
     [/^Lughnasad$/, 'Brána mezi letním slunovratem a podzimní rovnodenností: Slunce v 15° Lva. První sklizeň, chléb z nového obilí, vděčnost za to, co dozrálo, a první tušení, že se rok obrací.'],
@@ -3264,7 +3295,7 @@ ${parts}
         const d0 = K.dayStart(np.y, np.m, 1, TZ);
         const endM = np.m === 12 ? 1 : np.m + 1, endY = np.m === 12 ? np.y + 1 : np.y;
         const d1 = K.dayStart(endY + 1, endM, 1, TZ);
-        evs = K.skyEvents(d0, d1, observer(), S.natal, TZ).concat(cometEvents(d0, d1)).concat(autoCometEvents(d0, d1));
+        evs = K.skyEvents(d0, d1, observer(), S.natal, TZ).concat(cometEvents(d0, d1)).concat(autoCometEvents(d0, d1)).concat(portalEvents(d0, d1));
         // heliakické východy tvých hvězd
         for (const st of S.natal.stars.filter(s => s.mine || s.strength > 0)) {
           for (const yy of [np.y, np.y + 1]) {
@@ -3278,7 +3309,7 @@ ${parts}
       const list = S.filter === 'vse' ? evs : evs.filter(e => e.cat === S.filter);
       const months = {};
       for (const e of list) { const p = K.tzParts(e.date, TZ); const k = `${p.y}-${pad(p.m)}`; (months[k] = months[k] || { y: p.y, m: p.m, items: [] }).items.push(e); }
-      const chips = ['vse', 'osobni', 'priroda', 'zatmeni', 'luna', 'planety', 'hvezdy', 'roje', 'slunce', 'komety'].map(c => `<button type="button" class="chip cat ${S.filter === c ? 'on' : ''}" data-act="filter" data-f="${c}">${catIcon(c)}${CAT_CZ[c]}</button>`).join('');
+      const chips = ['vse', 'osobni', 'portal', 'priroda', 'zatmeni', 'luna', 'planety', 'hvezdy', 'roje', 'slunce', 'komety'].map(c => `<button type="button" class="chip cat ${S.filter === c ? 'on' : ''}" data-act="filter" data-f="${c}">${catIcon(c)}${CAT_CZ[c]}</button>`).join('');
       let html = `<div class="h2">Úkazy · ${esc(settings.loc.name)}</div><p class="note">${S.evAll ? 'Rok dopředu od tohoto měsíce.' : 'Nejbližší tři měsíce.'} Časy jsou v našem čase, viditelnost počítaná pro ${esc(settings.loc.name)} (${fmtNum(settings.loc.lat, 3)} N, ${fmtNum(settings.loc.lon, 3)} E).</p><div class="catgrid">${chips}</div>`;
       if (S.filter === 'priroda') {
         // přírodní kalendář: měsíce v zobrazeném rozsahu

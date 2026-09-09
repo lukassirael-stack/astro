@@ -1179,3 +1179,6 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .card.rd .chip{margin:0 4px 4px 0}
 .luntab.card.rd{padding:6px 10px}
 .card.rd .lunrow:last-child{border-bottom:0}
+
+.portnext{margin:10px 0 0;padding:9px 12px;border-radius:12px;background:var(--gold-soft);border:1px solid rgba(240,200,116,.4);line-height:1.55}
+.portnext b{color:var(--gold)}
