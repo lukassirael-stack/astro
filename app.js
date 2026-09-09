@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v366';
+  const VERSION = 'v367';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2158,7 +2158,11 @@
       ${layerOn('telo') && orgHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv ht-org" id="orgLine">${orgHTML()}</span>${S.orgHelp ? orgExpHTML() : ''}` : ''}
       ${(() => { if (!layerOn('priroda')) return ''; const e = natureNow(np.m, np.d); return e ? `<span class="ht-div"></span><span class="ht-row ht-nat"><i class="ht-ic nat">☘</i><b>příroda</b><span class="tx">${esc(e[1])}</span><i class="tvq" data-act="goNature" role="button" aria-label="Příroda v Úkazech">›</i></span>` : ''; })()}
       ${layerOn('tzolkin') ? `<span class="ht-div"></span><span class="ht-row ht-tz"><i class="ht-ic tz">${ico('◈')}</i><b>mayský den</b><span class="tx">${tzLineHTML(np.y, np.m, np.d)}</span></span>` : ''}
-      ${(() => { if (!layerOn('portal')) return ''; const ps = portalsFor(np.y, np.m, np.d); if (!ps.length) return ''; const x = ps[0]; const body = x.text.replace(/^\d+\.\s?\d+\.\s+—\s+/, ''); const first = body.split(/(?<=[a-záčďéěíňóřšťúůýž\)])\. /)[0]; return `<span class="ht-div"></span><span class="ht-row ht-por"><i class="ht-ic por">${ico('⬡')}</i><b>portálový den</b><span class="tx"><b>${esc(x.title.replace(/^\d+\. \d+\. · /, ''))}</b> — ${esc(first)}.${x.step ? ` <em class="pstep">${esc(x.step)}</em>` : ''}${ps.length > 1 ? ` <em>+ ${ps.length - 1} další</em>` : ''}</span><i class="tvq" data-act="goPortal" role="button" aria-label="Portály v Úkazech">›</i></span>`; })()}
+      ${(() => { if (!layerOn('portal')) return ''; const ps = portalsFor(np.y, np.m, np.d); if (!ps.length) return ''; const x = ps[0]; const body = x.text.replace(/^\d+\.\s?\d+\.\s+—\s+/, ''); const first = body.split(/(?<=[a-záčďéěíňóřšťúůýž\)])\. /)[0];
+        const sum = digitsSum(`${String(np.d).padStart(2, '0')}${String(np.m).padStart(2, '0')}${np.y}`); const red = numRed1(sum, true);
+        const digits = `${String(np.d).padStart(2, '0')}${String(np.m).padStart(2, '0')}${np.y}`.split('').filter(c => c !== '0').join('+');
+        const nums = x.kind === 'mirror' ? `${np.d}. ${np.m}. — den ${np.d} zrcadlí měsíc ${np.m} · celé datum ${digits} = ${sum} → ${red}` : x.kind === 'master' ? `${np.d}. ${np.m}. ${np.y} → ${digits} = ${sum} → ${red}` : (x.extra || '');
+        return `<span class="ht-div"></span><span class="ht-row ht-por"><i class="ht-ic por">${ico('⬡')}</i><b>portálový den</b><span class="tx"><b>${esc(x.title.replace(/^\d+\. \d+\. · /, ''))}</b><small class="pnum">${esc(nums)}</small>${esc(first)}.${x.step ? ` <em class="pstep">${esc(x.step)}</em>` : ''}${ps.length > 1 ? ` <em>+ ${ps.length - 1} další</em>` : ''}</span><i class="tvq" data-act="goPortal" role="button" aria-label="Portály v Úkazech">›</i></span>`; })()}
       ${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">${ico('✺')}</i><b>tvůj den</b><span class="tx">${esc(arcS)}</span><i class="tvq" data-act="goArcs" role="button" aria-label="Čím teď procházíš">›</i></span>` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
 <linearGradient id="invG" gradientUnits="userSpaceOnUse" x1="40" y1="8" x2="40" y2="72"><stop offset="0" stop-color="#F7E3A8"/><stop offset="1" stop-color="#D9A54A"/></linearGradient>
