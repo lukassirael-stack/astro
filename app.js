@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v341';
+  const VERSION = 'v342';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -785,6 +785,24 @@
   function hsHubHTML() {
     return `<div class="ntiles">${HS_SUBS.map(([id, ic, t, sub]) => `<button type="button" class="ntile txt ${id === 'zivot' ? 'main' : ''}" data-act="hsView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>`).join('')}</div>`;
   }
+  // ---------- vrstvy karty Dnes: jádro je pevné, ostatní si člověk zapíná ----------
+  const LAYERS = [
+    ['pocasi', 'Počasí', 'teplota a předpověď v hlavičce'],
+    ['go', 'Podporuje', 'co dnes jde snáz'],
+    ['cost', 'Co stojí víc sil', 'čemu se dnes vyhnout nebo na to počítat s časem'],
+    ['cyklus', 'Cyklus', 'fáze tvého cyklu (jen když ho vedeš)'],
+    ['tatva', 'Tatva', 'jemný rytmus dne po 24 minutách'],
+    ['telo', 'Tělo', 'orgánové hodiny ukotvené na poledne'],
+    ['portal', 'Portály', 'zrcadlová data, mistrovské a osobní dny'],
+    ['priroda', 'Příroda', 'co se právě děje venku'],
+  ];
+  const LAYER_SETS = {
+    jednoduchy: ['pocasi'],
+    vyvazeny: ['pocasi', 'go', 'cost', 'cyklus', 'tatva', 'telo', 'portal', 'priroda'],
+    vse: LAYERS.map(x => x[0]),
+  };
+  const layerOn = (id) => { const v = settings.layers; if (!Array.isArray(v)) return true; return v.includes(id); };
+  function layersSet(list) { settings.layers = list.slice(); persistSettings(); S.dayCache = {}; }
   // ---------- portálové dny: zrcadlová data, mistrovské součty, osobní portály ----------
   const numRed1 = (n, keep) => { n = Math.abs(n); while (n > 9) { if (keep && (n === 11 || n === 22 || n === 33)) return n; n = String(n).split('').reduce((s, c) => s + (+c), 0); } return n; };
   function portalsFor(y, m, d) {
@@ -1090,6 +1108,7 @@
     } catch (e) { }
   }
   function wxLine() {
+    if (!layerOn('pocasi')) return '';
     const w = wxGet();
     if (!w || Date.now() - w.when > 3 * 3600 * 1000) return '';
     return `<span class="ht-wx ${S.wxOpen ? 'open' : ''}" role="button" tabindex="0" data-act="wxToggle" title="venku teď · ${WX_CZ(w.c)}" aria-expanded="${!!S.wxOpen}"><i>${WX_EMO(w.c)}</i><b>${w.t}<span class="dg">°</span></b><small>${(() => { const dn = wxDayNight(w, K.isoDate(np.y, np.m, np.d)); return dn.day != null && dn.night != null ? `☀ ${dn.day}° · ☾ ${dn.night}°` : `${w.tmin}° / ${w.tmax}°`; })()}</small></span>`;
@@ -1459,7 +1478,7 @@
     if (Date.now() - tabTapAt > 400) tabTap(t);
   }, { passive: true });
   // ---------- Zpět: pamatuje, odkud člověk přišel, když ho klepnutí odvede jinam ----------
-  const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goMonthRead', 'hsView', 'goNature', 'goDir', 'goDiarToday', 'dirClose', 'goArcs', 'numQuick', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
+  const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goMonthRead', 'hsView', 'goNature', 'goPortal', 'goDir', 'goDiarToday', 'dirClose', 'goArcs', 'numQuick', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
   let navBack = null;
   function navPush() { navBack = { tab: S.tab, y: window.scrollY, natalView: S.natalView, guide: S.guide, sel: S.sel && { ...S.sel }, ym: { y: S.y, m: S.m } }; showBack(true); }
   function showBack(on) { const vis = !!on && !!navBack; const b = $('#backBtn'); if (b) b.classList.toggle('on', vis); document.body.classList.toggle('hasback', vis); }
@@ -1649,6 +1668,8 @@
     wxPlace() { showTab('nastaveni'); setTimeout(() => { const f = $('#locForm'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); },
     noop() { },
     wxToggle() { S.wxOpen = !S.wxOpen; renderCalendar(); },
+    layerSet(el) { layersSet(LAYER_SETS[el.dataset.s] || LAYER_SETS.vyvazeny); renderSettings(); toast('Karta Dnes upravena.'); },
+    layerTgl(el) { const cur = Array.isArray(settings.layers) ? settings.layers.slice() : LAYER_SETS.vyvazeny.slice(); const id = el.dataset.l; const i = cur.indexOf(id); if (i >= 0) cur.splice(i, 1); else cur.push(id); layersSet(cur); renderSettings(); },
     toggleKp() { settings.showKp = !settings.showKp; persistSettings(); S.dayCache = {}; renderSettings(); },
     guide() { S.guide = true; renderSettings(); window.scrollTo({ top: 0 }); },
     goGuide() { S.guide = true; showTab('nastaveni'); },
@@ -1660,6 +1681,7 @@
     },
     goDir() { S.natalView = 'smer'; showTab('nativ'); },
     goMonthRead(el) { S.mrY = +el.dataset.y; S.mrM = +el.dataset.m; S.natalView = 'horoskop'; S.hsView = 'mesic'; showTab('nativ'); },
+    goPortal() { S.filter = 'portal'; showTab('ukazy'); },
     goNature() { S.filter = 'priroda'; showTab('ukazy'); },
     dirArea(el) { S.dirArea = el.dataset.a; document.querySelectorAll('#dirAreas .chip').forEach(c => c.classList.toggle('on', c.dataset.a === el.dataset.a)); },
     dirSave() {
@@ -2014,12 +2036,13 @@
       <span class="ht-head"><span class="ht-word">${TX.dayWord(da)}<svg class="wflo" viewBox="0 0 180 14" aria-hidden="true"><path d="M4 8 C 50 2, 80 12, 176 6" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M88 4.6 90.6 7.2 88 9.8 85.4 7.2Z" fill="currentColor" opacity=".8"/></svg></span></span>
       <span class="ht-moon"><span class="ht-medal"><svg class="mring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="37" fill="none" stroke="rgba(239,200,120,.7)" stroke-width=".9"/><circle cx="60" cy="60" r="42" fill="none" stroke="rgba(239,200,120,.42)" stroke-width=".8"/></svg>${moonSVG(da.phaseAngle, 38, 'moon hm')}</span> Luna ${K.SIGN_LOC_V[da.moonSign]} · ${ph.name.replace(' Luna', '')} · ${Math.round(da.illum * 100)}&nbsp;%</span>
       <span class="ht-div"></span>
-      ${go.length ? `<span class="ht-row ht-go"><i class="ht-ic go">✦</i><b>Podporuje</b><span class="tx">${esc(go[0].text)}</span></span>` : ''}
-      ${cost.length ? `<span class="ht-div"></span><span class="ht-row ht-cost"><i class="ht-ic cost">${ico('✳')}</i><b>Nepříznivé</b><span class="tx">${esc(cost[0].text)}</span></span>` : ''}
-      ${cycOn() && cycFor(K.isoDate(np.y, np.m, np.d)) ? `<span class="ht-div"></span><span class="ht-cyc">${(() => { const c = cycFor(K.isoDate(np.y, np.m, np.d)); return `<i class="cdot" style="background:${c.ph.col}"></i><b>${c.day}. den cyklu</b><span>${esc(c.ph.n)} fáze</span>`; })()}</span>` : ''}
-      ${tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp" data-act="noop">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
-      ${orgHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv ht-org" id="orgLine">${orgHTML()}</span>${S.orgHelp ? orgExpHTML() : ''}` : ''}
-      ${(() => { const e = natureNow(np.m, np.d); return e ? `<span class="ht-div"></span><span class="ht-row ht-nat"><i class="ht-ic nat">☘</i><b>příroda</b><span class="tx">${esc(e[1])}</span><i class="tvq" data-act="goNature" role="button" aria-label="Příroda v Úkazech">›</i></span>` : ''; })()}
+      ${layerOn('go') && go.length ? `<span class="ht-row ht-go"><i class="ht-ic go">✦</i><b>Podporuje</b><span class="tx">${esc(go[0].text)}</span></span>` : ''}
+      ${layerOn('cost') && cost.length ? `<span class="ht-div"></span><span class="ht-row ht-cost"><i class="ht-ic cost">${ico('✳')}</i><b>Nepříznivé</b><span class="tx">${esc(cost[0].text)}</span></span>` : ''}
+      ${layerOn('cyklus') && cycOn() && cycFor(K.isoDate(np.y, np.m, np.d)) ? `<span class="ht-div"></span><span class="ht-cyc">${(() => { const c = cycFor(K.isoDate(np.y, np.m, np.d)); return `<i class="cdot" style="background:${c.ph.col}"></i><b>${c.day}. den cyklu</b><span>${esc(c.ph.n)} fáze</span>`; })()}</span>` : ''}
+      ${layerOn('tatva') && tattvaHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv" id="tatvaLine">${tattvaHTML()}</span>${S.tvHelp ? `<span class="tvexp" data-act="noop">Tatvy jsou jemné rytmy dne: od východu slunce se po <b>24 minutách</b> střídá pět živlů a kruh se opakuje každé dvě hodiny. <span style="color:#8F7BC0">Akáša (éter)</span> přeje tichu a vhledu, <span style="color:#7FB6DD">Váju (vzduch)</span> myšlenkám a rozhovorům, <span style="color:#E8865C">Tédžas (oheň)</span> vůli a rozhodnutím, <span style="color:#9ED4E4">Ápas (voda)</span> citu a plynutí, <span style="color:#D9B96E">Prithví (země)</span> tělu a stabilitě. Když můžeš, slaď důležité kroky s běžícím živlem: rozhovor do vzduchu, rozhodnutí do ohně, odpočinek do vody.</span>` : ''}` : ''}
+      ${layerOn('telo') && orgHTML() ? `<span class="ht-div"></span><span class="ht-row ht-tv ht-org" id="orgLine">${orgHTML()}</span>${S.orgHelp ? orgExpHTML() : ''}` : ''}
+      ${(() => { if (!layerOn('priroda')) return ''; const e = natureNow(np.m, np.d); return e ? `<span class="ht-div"></span><span class="ht-row ht-nat"><i class="ht-ic nat">☘</i><b>příroda</b><span class="tx">${esc(e[1])}</span><i class="tvq" data-act="goNature" role="button" aria-label="Příroda v Úkazech">›</i></span>` : ''; })()}
+      ${(() => { if (!layerOn('portal')) return ''; const ps = portalsFor(np.y, np.m, np.d); if (!ps.length) return ''; const x = ps[0]; return `<span class="ht-div"></span><span class="ht-row ht-por"><i class="ht-ic por">${ico('⬡')}</i><b>portál</b><span class="tx"><b>${esc(x.title)}</b> — ${esc(x.text.split('. ')[0])}.${ps.length > 1 ? ` <em>+ ${ps.length - 1} další</em>` : ''}</span><i class="tvq" data-act="goPortal" role="button" aria-label="Portály v Úkazech">›</i></span>`; })()}
       ${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">${ico('✺')}</i><b>u tebe</b><span class="tx">${esc(arcS)}</span><i class="tvq" data-act="goArcs" role="button" aria-label="Čím teď procházíš">›</i></span>` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
 <linearGradient id="invG" gradientUnits="userSpaceOnUse" x1="40" y1="8" x2="40" y2="72"><stop offset="0" stop-color="#F7E3A8"/><stop offset="1" stop-color="#D9A54A"/></linearGradient>
@@ -3762,6 +3785,12 @@ ${parts}
         </div>
         <label class="wide" style="display:block"><textarea id="fbText" rows="4" placeholder="Sem napiš, co máš na srdci…" style="width:100%"></textarea></label>
         <div class="row" style="margin-top:8px"><button type="button" class="btn primary" data-act="fbSend">Odeslat</button><button type="button" class="btn ghost" data-act="fbCopy">Zkopírovat text</button></div>
+      </div>
+      <div class="h2">Karta Dnes</div>
+      <div class="card">
+        <p class="note" style="margin-top:0">Vždy zůstává datum, barva dne, <b>u tebe</b> a <b>Nebeský tip</b>. Ostatní vrstvy si zapni podle toho, co ráno opravdu čteš — vypnutá vrstva zůstává v detailu dne a ve svých kartách.</p>
+        <div class="row" style="gap:8px;margin:0 0 10px;flex-wrap:wrap">${Object.entries({ jednoduchy: 'Jednoduchý', vyvazeny: 'Vyvážený', vse: 'Vše' }).map(([k, lab]) => { const cur = Array.isArray(settings.layers) ? settings.layers : LAYER_SETS.vyvazeny; const on = LAYER_SETS[k].length === cur.length && LAYER_SETS[k].every(x => cur.includes(x)); return `<button type="button" class="chip small ${on ? 'on' : ''}" data-act="layerSet" data-s="${k}">${lab}</button>`; }).join('')}</div>
+        <div class="lyrs">${LAYERS.map(([id, t, sub]) => `<label class="lyr"><input type="checkbox" data-act="layerTgl" data-l="${id}" ${layerOn(id) ? 'checked' : ''}><span><b>${t}</b><small>${sub}</small></span></label>`).join('')}</div>
       </div>
       <div class="h2">Aplikace</div>
       <div class="card">

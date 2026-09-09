@@ -1182,3 +1182,14 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 
 .portnext{margin:10px 0 0;padding:9px 12px;border-radius:12px;background:var(--gold-soft);border:1px solid rgba(240,200,116,.4);line-height:1.55}
 .portnext b{color:var(--gold)}
+
+/* volba vrstev karty Dnes */
+.lyrs{display:flex;flex-direction:column;gap:2px}
+.lyr{display:flex;align-items:flex-start;gap:11px;padding:9px 4px;border-bottom:1px solid var(--hairline);text-transform:none;letter-spacing:0;cursor:pointer}
+.lyr:last-child{border-bottom:0}
+.lyr input{margin-top:3px;flex:none}
+.lyr span{display:flex;flex-direction:column;gap:1px;min-width:0}
+.lyr b{font-size:var(--fs-m);font-weight:600;color:var(--text)}
+.lyr small{font-size:var(--fs-s);color:var(--muted);line-height:1.4}
+.hero-today .ht-ic.por{color:var(--gold);font-style:normal}
+.hero-today .ht-por .tx em{font-style:normal;color:var(--inst-muted);font-size:var(--fs-s)}
