@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v371';
+  const VERSION = 'v372';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -886,7 +886,7 @@
       <div class="card rd"><p>${esc(TZ_TONE_LONG[t.tone - 1])}</p></div>
       <div class="h3">Mayský kříž</div>
       <p class="note" style="margin-top:-4px">Mayové neberou člověka jen podle dne narození. Kiché počtáři k němu dopočítají čtyři další nawaly, které ho obklopují jako čtyři světové strany — odkud přišel, kam jde, co ho chrání a co mu pomáhá. Dohromady tomu říkají kříž.</p>
-      ${cross.map(([lab, sub, si, fn]) => `<div class="ptcard mr"><div class="mrs"><span class="g">◈</span><b>${esc(lab)}</b><span class="sg">${esc(TZ_NAWAL[si][0])} · ${esc(sub)}</span></div><div class="ptbody"><p>${esc(fn(TZ_NAWAL[si]))}</p><p class="small muted" style="margin:0">${esc(TZ_NAWAL[si][2])}</p></div></div>`).join('')}
+      ${cross.map(([lab, sub, si, fn], ci) => { const n = TZ_NAWAL[si]; const ess = n[3].replace(/^Narodil ses v den [^.]+\. /, '').split(/(?<=\.) Tvá lekce/)[0].replace(/^Jsi /, '').replace(/^Máš /, 'máš ').replace(/^Nosíš /, 'nosíš '); const close = ['To je půda, na které stojíš — a k níž se můžeš kdykoli vrátit.', 'K tomu tě život vede a v tom s věkem zraješ.', 'Když je zle, opři se o to.', 'To umíš, aniž by ses to učil — a proto si toho málo vážíš.'][ci]; return `<div class="ptcard mr"><div class="mrs"><span class="g">◈</span><b>${esc(lab)}</b><span class="sg">${esc(n[0])} · ${esc(sub)}</span></div><div class="ptbody"><p>${esc(fn(n))}</p><p><b>${esc(n[0])}</b> znamená: ${esc(ess.charAt(0).toLowerCase() + ess.slice(1))} ${esc(close)}</p></div></div>`; }).join('')}
       <div class="h3">Nositel tvého roku</div>
       <div class="card rd"><p><b>${esc(bb.nawal[0])}</b> nesl rok tvého narození — ${esc(TZ_BEARER[bb.key] || bb.nawal[2])}</p><p class="small muted" style="margin:0">Letošní rok nese <b>${esc(by.nawal[0])}</b>: ${esc(TZ_BEARER[by.key] || by.nawal[2])}</p></div>
       <div class="h3">Dnes v Tzolk'inu</div>
