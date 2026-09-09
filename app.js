@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v369';
+  const VERSION = 'v370';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -829,20 +829,26 @@
     const hb = Math.floor(((hh + 1) % 24) / 2); const hs = ((ds % 5) * 2 + hb) % 10;
     return { year: { s: ys, b: yb }, month: { s: ms, b: mb }, day: { s: ds, b: db }, hour: { s: hs, b: hb } };
   }
+  const CN_GENDER = [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 2]; // 0 mužský, 1 ženský, 2 střední
+  const CN_ADJ = { 'dřevo': ['dřevěný', 'dřevěná', 'dřevěné'], 'oheň': ['ohnivý', 'ohnivá', 'ohnivé'], 'země': ['zemský', 'zemská', 'zemské'], 'kov': ['kovový', 'kovová', 'kovové'], 'voda': ['vodní', 'vodní', 'vodní'] };
+  const cnName = (s, b) => `${CN_ADJ[CN_STEM[s][1]][CN_GENDER[b]]} ${CN_ANIMAL[b][0]}`;
   function cnRel(a, b) { if (a === b) return 'same'; if (CN_TRINE.some(t => t.includes(a) && t.includes(b))) return 'trine'; if ((a + 6) % 12 === b) return 'clash'; return 'neutral'; }
   function cinaHTML(p) {
     const P = cnPillars(p); const now = cnYearIndex(np.y, np.m, np.d); const nowB = now % 12, nowS = now % 10;
-    const pil = (lab, x, sub) => `<div class="cnpil"><small>${lab}</small><b>${CN_STEM[x.s][1]} · ${CN_ANIMAL[x.b][0]}</b><span>${CN_STEM[x.s][0]} ${CN_STEM[x.s][2]}${sub ? ` · ${sub}` : ''}</span></div>`;
+    const pil = (lab, when, x, sub) => `<div class="cnpil"><small>${lab} <em>${when}</em></small><b>${cnName(x.s, x.b)}</b><span>${CN_STEM[x.s][0]} · ${CN_STEM[x.s][1]} ${CN_STEM[x.s][2]}${sub ? ` · ${sub}` : ''}</span></div>`;
     const el = CN_STEM[P.year.s][1];
-    return `<div class="card mrhead"><p class="tzk"><b>${el.charAt(0).toUpperCase() + el.slice(1)}ový ${CN_ANIMAL[P.year.b][0]}</b> · ${CN_STEM[P.year.s][2]}</p><p class="lede" style="margin:4px 0 0">${esc(CN_ANIMAL[P.year.b][1])}</p></div>
+    const yName = (() => { const yi = cnYearIndex(+p.y, +p.m, +p.d); const yy = ((+p.y - 4) % 60 + 60) % 60 === yi ? +p.y : +p.y - 1; return String(yy); })();
+    const mName = K.MONTH_CZ[+p.m - 1]; const hName = p.hh != null ? `${p.hh}:${String(p.mm || 0).padStart(2, '0')}` : '—';
+    const nm = cnName(P.year.s, P.year.b);
+    return `<div class="card mrhead"><p class="tzk"><b>${nm.charAt(0).toUpperCase() + nm.slice(1)}</b> · ${CN_STEM[P.year.s][2]}</p><p class="lede" style="margin:4px 0 0">${esc(CN_ANIMAL[P.year.b][1])}</p></div>
       <div class="h3">Čtyři pilíře</div>
       <p class="note" style="margin-top:-4px">Rok říká, kdo jsi navenek, měsíc odkud přicházíš, den kdo jsi uvnitř a hodina kam míříš. Rok se v čínské astrologii mění na Li-čchun (Slunce 315°, kolem 4. února), ne 1. ledna.</p>
-      <div class="cnpils">${pil('Rok', P.year, 'navenek')}${pil('Měsíc', P.month, 'původ')}${pil('Den', P.day, 'nitro')}${pil('Hodina', P.hour, p.hh != null ? 'směr' : 'bez času narození jen odhad')}</div>
+      <div class="cnpils">${pil('Rok', yName, P.year, 'navenek')}${pil('Měsíc', mName, P.month, 'původ')}${pil('Den', `${+p.d}. ${+p.m}. ${+p.y}`, P.day, 'nitro')}${pil('Hodina', hName, P.hour, p.hh != null ? 'směr' : 'bez času narození jen odhad')}</div>
       <div class="h3">Tvůj živel: ${el}</div>
       <div class="card rd"><p>${esc(CN_ELEMENT[el])} Jsi <b>${CN_STEM[P.year.s][2]}</b> — ${CN_STEM[P.year.s][2] === 'jang' ? 'aktivní, vnější, dávající podoba živlu' : 'přijímající, vnitřní, uchovávající podoba živlu'}.</p></div>
       <div class="h3">Den, kdy ses narodil: ${CN_ANIMAL[P.day.b][0]}</div>
-      <div class="card rd"><p>Denní pilíř je v čínské astrologii ten nejosobnější — mistr dne. <b>${CN_STEM[P.day.s][1]} ${CN_STEM[P.day.s][2]}</b> ${CN_STEM[P.day.s][0]} nad ${CN_ANIMAL[P.day.b][0]}: ${esc(CN_ANIMAL[P.day.b][1].split('. ')[0])}. ${esc(CN_ELEMENT[CN_STEM[P.day.s][1]].split('. ')[0])}.</p></div>
-      <div class="h3">Letošní rok: ${CN_STEM[nowS][1]}ový ${CN_ANIMAL[nowB][0]}</div>
+      <div class="card rd"><p>Denní pilíř je v čínské astrologii ten nejosobnější — říká se mu <b>mistr dne</b> a vypovídá o tom, kdo jsi uvnitř. U tebe je to <b>${cnName(P.day.s, P.day.b)}</b>: kmen ${CN_STEM[P.day.s][0]}, tedy ${CN_STEM[P.day.s][1]} v ${CN_STEM[P.day.s][2] === 'jang' ? 'jangové' : 'jinové'} podobě, nad zvířetem ${CN_ANIMAL[P.day.b][0]}.</p><p>${esc(CN_ANIMAL[P.day.b][1])}</p><p class="small muted" style="margin:0">${esc(CN_ELEMENT[CN_STEM[P.day.s][1]])}</p></div>
+      <div class="h3">Letošní rok: ${cnName(nowS, nowB)}</div>
       <div class="card rd"><p>${esc(CN_YEAR_REL[cnRel(P.year.b, nowB)])}</p><p class="small muted" style="margin:0">Tvoje trojice souladu: ${CN_TRINE.find(t => t.includes(P.year.b)).map(i => CN_ANIMAL[i][0]).join(', ')}. Zvíře naproti: ${CN_ANIMAL[(P.year.b + 6) % 12][0]}.</p></div>
       <details class="expl" open><summary>Pojmy, které tu potkáš</summary>
         <div class="glos">

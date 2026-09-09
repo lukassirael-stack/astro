@@ -1222,3 +1222,4 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .glos p{margin:0 0 8px;line-height:1.55;font-size:var(--fs-s);color:var(--muted)}
 .glos p b{color:var(--gold)}.glos p em{font-style:normal;color:var(--text)}
 .hero-today .ht-por .tx .pnum{display:block;margin:1px 0 3px;font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.06em;color:var(--inst-muted)}
+.cnpil small em{font-style:normal;text-transform:none;letter-spacing:0;color:var(--text);margin-left:4px}
