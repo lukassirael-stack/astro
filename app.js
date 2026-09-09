@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v356';
+  const VERSION = 'v357';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -808,13 +808,31 @@
   function jdnOf(y, m, d) { const a = Math.floor((14 - m) / 12), yy = y + 4800 - a, mm = m + 12 * a - 3; return d + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045; }
   function tzolkin(y, m, d) { const n = jdnOf(y, m, d) - 584283; const sign = ((n + 19) % 20 + 20) % 20; const tone = (((n + 3) % 13) + 13) % 13 + 1; const kin = (((n + 159) % 260) + 260) % 260 + 1; return { sign, tone, kin, nawal: TZ_NAWAL[sign] }; }
   const tzTitle = (t) => `${t.tone} ${t.nawal[0]}`;
-  function tzLineHTML(y, m, d) { const t = tzolkin(y, m, d); return `<b>${esc(tzTitle(t))}</b> (${esc(t.nawal[1])}) · tón ${t.tone}: ${esc(TZ_TONE[t.tone - 1])} — ${esc(t.nawal[2])}`; }
+  function tzLineHTML(y, m, d) { const t = tzolkin(y, m, d); const per = S.natal ? tzPersonal(activeProfile(), y, m, d) : null; return `<b>${esc(tzTitle(t))}</b> (${esc(t.nawal[1])}) · tón ${t.tone}: ${esc(TZ_TONE[t.tone - 1])} — ${esc(t.nawal[2])}${per ? ` <em class="tzper">✦ ${esc(per.text)}</em>` : ''}`; }
+  // osobní vztah dne k tvému nawalu: stejný kin (260 dní), stejný nawal (20 dní), stejný tón (13 dní), a Mayský kříž
+  function tzPersonal(p, y, m, d) {
+    const b = tzolkin(+p.y, +p.m, +p.d), t = tzolkin(y, m, d);
+    if (t.kin === b.kin) return { kind: 'kin', text: 'tvůj den v Tzolk\'inu — stejný nawal i tón jako v den narození (jednou za 260 dní)' };
+    if (t.sign === b.sign) return { kind: 'sign', text: 'den tvého nawalu — jeho síla je dnes i tvá (každých 20 dní)' };
+    if (t.tone === b.tone) return { kind: 'tone', text: 'tón tvého narození — tvůj rytmus (každých 13 dní)' };
+    return null;
+  }
+  function tzNext(p, kind) { for (let i = 1; i <= 260; i++) { const dt = new Date(Date.now() + i * 86400000); const q = K.tzParts(dt, TZ); const r = tzPersonal(p, q.y, q.m, q.d); if (r && r.kind === kind) return { q, i }; } return null; }
   function tzPersonalHTML(p) {
     const t = tzolkin(+p.y, +p.m, +p.d); const age = np.y - p.y; const ret = +p.y + 52; const ret2 = +p.y + 104;
     const daysTo = Math.round((K.dayStart(ret, +p.m, +p.d, TZ) - new Date()) / 86400000);
+    // Mayský kříž: početí (7 zpět), osud (7 vpřed), levá ruka (9 zpět), pravá ruka (9 vpřed) — podle kiché tradice
+    const cross = [['Početí · odkud přicházíš', (t.sign - 7 + 20) % 20], ['Osud · kam míříš', (t.sign + 7) % 20], ['Levá ruka · co tě chrání', (t.sign - 9 + 40) % 20], ['Pravá ruka · co ti pomáhá', (t.sign + 9) % 20]];
+    const nk = tzNext(p, 'kin'), ns = tzNext(p, 'sign'), nt = tzNext(p, 'tone');
+    const fd = (x) => x ? `${x.q.d}. ${x.q.m}.${x.q.y !== np.y ? ` ${x.q.y}` : ''} (za ${x.i} ${x.i === 1 ? 'den' : x.i < 5 ? 'dny' : 'dní'})` : '—';
     return `<div class="card small tzcard"><div class="h3" style="margin-top:0">Tvůj mayský den narození</div>
       <p class="tzk"><b>${esc(tzTitle(t))}</b> · kin ${t.kin} · ${esc(t.nawal[1])}</p>
       <p>${esc(t.nawal[3])}</p>
+      <div class="h3">Mayský kříž</div>
+      <p class="small muted" style="margin-top:-4px">Kiché počtáři čtou k nawalu narození čtyři průvodce: nawal početí (síla, ze které přicházíš), nawal osudu (kam tě to vede) a dva nawaly po rukou.</p>
+      ${cross.map(([lab, si]) => `<p class="tzx"><b>${esc(lab)}</b><br>${esc(TZ_NAWAL[si][0])} · ${esc(TZ_NAWAL[si][1])} — ${esc(TZ_NAWAL[si][2].split('. ')[0])}.</p>`).join('')}
+      <div class="h3">Tvé dny v Tzolk'inu</div>
+      <p class="small"><b>Den tvého nawalu</b> (${esc(t.nawal[0])}, každých 20 dní): ${fd(ns)}<br><b>Tvůj tón</b> (${t.tone}, každých 13 dní): ${fd(nt)}<br><b>Tvůj kin</b> (${esc(tzTitle(t))}, jednou za 260 dní — mayské narozeniny): ${fd(nk)}</p>
       <p class="small muted">Tón ${t.tone} — ${esc(TZ_TONE[t.tone - 1])}. Tzolk'in je mayský posvátný počet 260 dnů (13 tónů × 20 nawalů), který dodnes vedou kiché počtáři v Guatemale; Kompas používá pravý počet s korelací GMT 584283.</p>
       <p class="small"><b>Kalendářní kruh:</b> tvůj nawal a tón se v jeden den potkají znovu po 52 letech${daysTo > 0 ? ` — ${ret}${daysTo < 400 ? ` (za ${daysTo} dní)` : ''}` : ` — bylo ${ret}, další ${ret2}`}. Tradičně práh, kdy se člověk stává starším rodu a předává, co ví.</p></div>`;
   }
