@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v344';
+  const VERSION = 'v345';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -807,14 +807,15 @@
   const numRed1 = (n, keep) => { n = Math.abs(n); while (n > 9) { if (keep && (n === 11 || n === 22 || n === 33)) return n; n = String(n).split('').reduce((s, c) => s + (+c), 0); } return n; };
   function portalsFor(y, m, d) {
     const out = [];
-    if (d === m) { const p = PORTAL_MIRROR[m]; if (p) out.push({ kind: 'mirror', title: `${d}. ${m}. · ${p[0]}`, text: p[1], tag: 'zrcadlový portál' }); }
     const sum = digitsSum(`${String(d).padStart(2, '0')}${String(m).padStart(2, '0')}${y}`); const r = numRed1(sum, true);
-    if (r === 11 || r === 33) { const p = PORTAL_MASTER[r]; out.push({ kind: 'master', title: p[0], text: p[1], tag: `součet ${sum} → ${r}` }); }
+    const uni = numRed1(digitsSum(String(y)), false);
+    if (d === m) { const p = PORTAL_MIRROR[m]; if (p) out.push({ kind: 'mirror', title: `${d}. ${m}. · ${p[0]}`, text: p[1], step: p[2], tag: 'zrcadlový portál', extra: `Celé datum ${d}. ${m}. ${y} dává ${sum} → ${r}${r === 11 || r === 22 || r === 33 ? ` — a to je mistrovské číslo, takže letos je tahle brána silnější než obvykle.` : `, tedy ${NUM_MONTH[r] ? NUM_MONTH[r] : ''}.`} ${PORTAL_YEAR[uni] || ''}` }); }
+    if (r === 11 || r === 33) { const p = PORTAL_MASTER[r]; out.push({ kind: 'master', title: p[0], text: p[1], step: p[2], tag: `${d}. ${m}. ${y} → ${sum} → ${r}`, extra: PORTAL_YEAR[uni] || '' }); }
     if (settings.numerology !== false && S.natal) {
       const prof = activeProfile(); const n = numerology(prof, y, m, d); const life = numRed1(numerology(prof, y, m, d).life, true);
       const pd = numRed1(numRed1(n.month, false) + d, true);
-      if (pd === 11 || pd === 22 || pd === 33) out.push({ kind: 'personal', title: `Tvůj osobní portál ${pd}`, text: `Tvůj osobní den vychází na mistrovské ${pd}. ${pd === 11 ? 'Den zesílené intuice a jemného vnímání — co ti dnes přijde jako nápad odnikud, stojí za zapsání.' : pd === 22 ? 'Den, kdy jde dát velké věci do tvaru: vize se dnes propojí s praktickým krokem.' : 'Den služby a předávání — co dnes dáš druhým, se ti vrátí v jiné podobě.'}`, tag: 'osobní portál' });
-      else if (n.day === life) out.push({ kind: 'personal', title: `Tvůj osobní portál ${n.day}`, text: `Osobní den se dnes shoduje s tvým životním číslem ${life} — jsi ve svém živlu. Co odpovídá tvé přirozenosti, jde dnes samo; dobrý den udělat to, k čemu tě to táhne odjakživa.`, tag: 'osobní portál' });
+      if (pd === 11 || pd === 22 || pd === 33) out.push({ kind: 'personal', step: pd === 11 ? 'Zapiš, co ti dnes přijde — nápad, sen, věta odnikud.' : pd === 22 ? 'Udělej jeden praktický krok k něčemu velkému.' : 'Dej někomu to, co umíš nejlíp.', title: `Tvůj osobní portál ${pd}`, text: `Tvůj osobní den vychází na mistrovské ${pd}. ${pd === 11 ? 'Den zesílené intuice a jemného vnímání — co ti dnes přijde jako nápad odnikud, stojí za zapsání.' : pd === 22 ? 'Den, kdy jde dát velké věci do tvaru: vize se dnes propojí s praktickým krokem.' : 'Den služby a předávání — co dnes dáš druhým, se ti vrátí v jiné podobě.'}`, tag: 'osobní portál' });
+      else if (n.day === life) out.push({ kind: 'personal', step: 'Udělej dnes to, k čemu tě to táhne odjakživa — máš vítr v zádech.', title: `Tvůj osobní portál ${n.day}`, text: `Osobní den se dnes shoduje s tvým životním číslem ${life} — jsi ve svém živlu. Co odpovídá tvé přirozenosti, jde dnes samo; dobrý den udělat to, k čemu tě to táhne odjakživa.`, tag: 'osobní portál' });
     }
     return out;
   }
@@ -2138,7 +2139,7 @@
           <p><span class="nl">modrá hodina</span>${f(tw.blueAM[0])}–${f(tw.blueAM[1])} · ${f(tw.bluePM[0])}–${f(tw.bluePM[1])} <small>— soumrak, kdy je Slunce těsně pod obzorem a obloha sytě modrá</small></p>
           ${dn ? `<p><span class="nl">tmavá noc</span>Luna pod obzorem ${f(dn.from)}–${f(dn.to)} — ${dn.hours >= 4 ? 'Mléčná dráha a slabé hvězdy jsou dobře vidět' : 'krátké okno na hvězdy bez Luny'}</p>` : ''}
           ${settings.numerology !== false && S.natal && S.natal.profile ? (() => { const n = numerology(S.natal.profile, y, m, d); return `<p><span class="nl">osobní den</span><b>${n.day}</b> — ${NUM_DAY[n.day]} <small>(osobní rok ${n.year}, měsíc ${n.month})</small></p>`; })() : ''}
-          ${(() => { const ps = portalsFor(y, m, d); return ps.length ? ps.map(x => `<p><span class="nl">portál</span><b>${esc(x.title)}</b> — ${esc(x.text)}</p>`).join('') : ''; })()}
+          ${(() => { const ps = portalsFor(y, m, d); return ps.length ? ps.map(x => `<p><span class="nl">portál</span><b>${esc(x.title)}</b> — ${esc(x.text)}${x.extra ? ` ${esc(x.extra)}` : ''}${x.step ? `<br><em class="pstep">Krok: ${esc(x.step)}</em>` : ''}</p>`).join('') : ''; })()}
           ${(() => { const e = natureNow(m, d); return e ? `<p><span class="nl">příroda teď</span>${esc(e[1])}</p>` : ''; })()}
           <p><span class="nl">zahrádkář</span><b>${g.kind}</b> (Luna ${SIGN_LOC[['Beran','Býk','Blíženc','Rak','Lv','Pann','Váh','Štír','Střelc','Kozoroh','Vodnář','Ryb'][da.moonSign]]}) — ${g.tip} · ${g.phase}</p>
         </div>`; })()}
