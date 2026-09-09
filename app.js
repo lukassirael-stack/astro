@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v355';
+  const VERSION = 'v356';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -474,9 +474,9 @@
   function guideHTML() {
     const SEC = [
       ['zacit', '☉', 'Jak začít', `Zadej v Nastavení datum, čas a místo narození. Z toho vzniká tvá mapa a všechno osobní v Kompasu — barva dnů, tranzity, hvězdy, návraty. Přesný čas narození dělá rozdíl u ascendentu a domů; když ho neznáš, Kompas počítá s polednem a řekne ti, co je tím méně jisté. Pak si Kompas přidej na plochu a nech ho běžet — nejlíp se čte ráno.`],
-      ['ridit', '✦', 'Čím se řídit', `<b>Barva dne</b> je souhrn — jediné číslo, které bere všechno v úvahu. <b>Dvě věty v Dnes</b> — <em>u tebe</em> (co se dotýká tvé mapy) a <em>Nebeský tip</em> (jeden krok) — víc pokynů den nemá. <b>Všechno ostatní jsou vrstvy</b>: tatva, tělo, zahrádkář, zlatá hodina, čísla, kolo roku. Říkají, co je, ne co dělat. Kdo si je oblíbí, čte je; kdo ne, nic nezmešká.`],
+      ['ridit', '✦', 'Čím se řídit', `<b>Barva dne</b> je souhrn — jediné číslo, které bere všechno v úvahu. <b>Dvě věty v Dnes</b> — <em>tvůj den</em> (co se dotýká tvé mapy) a <em>Nebeský tip</em> (jeden krok) — víc pokynů den nemá. <b>Všechno ostatní jsou vrstvy</b>: tatva, tělo, zahrádkář, zlatá hodina, čísla, kolo roku. Říkají, co je, ne co dělat. Kdo si je oblíbí, čte je; kdo ne, nic nezmešká.`],
       ['kalendar', '☽', 'Kalendář — barva dne', `Každý den v mřížce má barvu: <b>příznivý</b>, <b>vlídný</b>, <b>klidný</b>, <b>pomalejší</b>, <b>náročný</b>. Vzniká součtem toho, co se dnes na obloze dotýká tvé mapy, jak stojí Luna a jaké je kosmické počasí. Hvězdička ✦ značí den, kdy planeta stojí na tvé hvězdě; tečka u čísla je svátek nebo tradice. Klepnutím na den otevřeš jeho detail.`],
-      ['dnes', '◉', 'Karta Dnes', `Řádky odshora: <b>hodina</b> (planetární hodina a na co se hodí), <b>cena dne</b> (co dnes bude stát víc sil), <b>tatva</b> (jemný rytmus po 24 minutách od východu Slunce), <b>tělo</b> (orgánové hodiny ukotvené na skutečné poledne), <b>u tebe</b> (nejsilnější tranzit na tvou mapu a kde v jeho oblouku stojíš). Otazník u každého řádku vysvětlí, co je zač. Dole je <b>Nebeský tip</b>: otázka a jeden krok.`],
+      ['dnes', '◉', 'Karta Dnes', `Řádky odshora: <b>hodina</b> (planetární hodina a na co se hodí), <b>cena dne</b> (co dnes bude stát víc sil), <b>tatva</b> (jemný rytmus po 24 minutách od východu Slunce), <b>tělo</b> (orgánové hodiny ukotvené na skutečné poledne), <b>tvůj den</b> (nejsilnější tranzit na tvou mapu a kde v jeho oblouku stojíš). Otazník u každého řádku vysvětlí, co je zač. Dole je <b>Nebeský tip</b>: otázka a jeden krok.`],
       ['detail', '≡', 'Detail dne', `Co dnes jde a co bude stát víc sil, průběh dne na ose — východy a západy, planetární hodiny, aspekty Luny, Luna bez kurzu — a pod tím příroda a obloha: zlatá a modrá hodina, tmavé noci pro hvězdy, lunární zahrádkář, číslo dne. <b>Podrobnosti — pro astrologa</b> otevřou přesná čísla. Tenhle vzor platí v celém Kompasu: nejdřív věta, mechanika až na požádání.`],
       ['ukazy', '☄', 'Úkazy', `Obloha rok dopředu: fáze Luny, zatmění, ingresy, retrogradity, konjunkce, elongace, meteorické roje, heliakické východy hvězd, Kolo roku s osmi branami, perigeum a apogeum Luny. Čip <b>tvé cykly</b> ukáže tvé osobní návraty — sluneční (tvůj osobní nový rok), lunární každých 27 dní, Jupiterův a Saturnův. Každý úkaz má otazník s výkladem na míru.`],
       ['diar', '✎', 'Diář', `Zapiš pár slov o dni a ohodnoť ho. Po pěti dnech Kompas ukáže, jak tvá hodnocení sedí s výpočtem; po osmi i podle fází cyklu, pokud ho vedeš. Plány na den se ráno objeví v kartě Dnes. Diář je tvůj kontrolní nástroj: Kompas říká, co je ve hře, ty říkáš, jak to bylo.`],
@@ -739,7 +739,7 @@
       <div class="card rd"><p style="margin:0">Luna ${K.SIGN_LOC_V[da.moonSign]} · ${esc(phT.name.replace(' Luna', ''))} · ${Math.round(da.illum * 100)} %${da.voc && da.voc.length ? ' · část dne bez kurzu' : ''}.</p></div>
       ${go.length ? `<div class="h3">Podporuje</div><div class="card rd"><p style="margin:0">${esc(go.map(x => x.text || x).join(', '))}</p></div>` : ''}
       ${cost.length ? `<div class="h3">Bude stát víc sil</div><div class="card rd"><p style="margin:0">${esc(cost.map(x => x.text || x).join(', '))}</p></div>` : ''}
-      <div class="h3">U tebe</div>
+      <div class="h3">Tvůj den</div>
       <div class="card rd">${arcs.length ? arcs.map(it => `<p><b>${esc(arcTitle(it.t))}</b> — ${esc(arcPhrase(it.t))}</p>`).join('') : '<p class="note" style="margin:0">Dnes se tvé mapy nedotýká žádný rychlý tranzit.</p>'}</div>
       <div class="h3">Nebeský tip</div>
       <div class="card rd"><p style="margin:0">${esc(tip.t)} <span class="small muted">· ${esc(tip.sig)}</span></p></div>
@@ -2062,7 +2062,7 @@
       ${(() => { if (!layerOn('priroda')) return ''; const e = natureNow(np.m, np.d); return e ? `<span class="ht-div"></span><span class="ht-row ht-nat"><i class="ht-ic nat">☘</i><b>příroda</b><span class="tx">${esc(e[1])}</span><i class="tvq" data-act="goNature" role="button" aria-label="Příroda v Úkazech">›</i></span>` : ''; })()}
       ${layerOn('tzolkin') ? `<span class="ht-div"></span><span class="ht-row ht-tz"><i class="ht-ic tz">${ico('◈')}</i><b>mayský den</b><span class="tx">${tzLineHTML(np.y, np.m, np.d)}</span></span>` : ''}
       ${(() => { if (!layerOn('portal')) return ''; const ps = portalsFor(np.y, np.m, np.d); if (!ps.length) return ''; const x = ps[0]; const body = x.text.replace(/^\d+\.\s?\d+\.\s+—\s+/, ''); const first = body.split(/(?<=[a-záčďéěíňóřšťúůýž\)])\. /)[0]; return `<span class="ht-div"></span><span class="ht-row ht-por"><i class="ht-ic por">${ico('⬡')}</i><b>portálový den</b><span class="tx"><b>${esc(x.title.replace(/^\d+\. \d+\. · /, ''))}</b> — ${esc(first)}.${x.step ? ` <em class="pstep">${esc(x.step)}</em>` : ''}${ps.length > 1 ? ` <em>+ ${ps.length - 1} další</em>` : ''}</span><i class="tvq" data-act="goPortal" role="button" aria-label="Portály v Úkazech">›</i></span>`; })()}
-      ${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">${ico('✺')}</i><b>u tebe</b><span class="tx">${esc(arcS)}</span><i class="tvq" data-act="goArcs" role="button" aria-label="Čím teď procházíš">›</i></span>` : ''}
+      ${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">${ico('✺')}</i><b>tvůj den</b><span class="tx">${esc(arcS)}</span><i class="tvq" data-act="goArcs" role="button" aria-label="Čím teď procházíš">›</i></span>` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
 <linearGradient id="invG" gradientUnits="userSpaceOnUse" x1="40" y1="8" x2="40" y2="72"><stop offset="0" stop-color="#F7E3A8"/><stop offset="1" stop-color="#D9A54A"/></linearGradient>
 <radialGradient id="invBloom" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFEFC8" stop-opacity=".75"/><stop offset=".3" stop-color="#FBD489" stop-opacity=".34"/><stop offset=".62" stop-color="#F3BC63" stop-opacity=".1"/><stop offset="1" stop-color="#F3BC63" stop-opacity="0"/></radialGradient>
@@ -3618,7 +3618,7 @@ ${parts}
     ].filter(t => t[0] !== 'cisla' || settings.numerology !== false);
     if (view === 'menu') {
       const arcS = arcSentence();
-      v.innerHTML = natalHead + (arcS ? `<p class="nnow"><span class="tvlab">u tebe teď</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES.map(([id, ic, t, sub, kind, noimg]) => noimg ? `<button type="button" class="ntile txt ${kind || ''}" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>` : `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=7" alt="" width="420" height="317"></button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
+      v.innerHTML = natalHead + (arcS ? `<p class="nnow"><span class="tvlab">tvůj den</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES.map(([id, ic, t, sub, kind, noimg]) => noimg ? `<button type="button" class="ntile txt ${kind || ''}" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>` : `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=7" alt="" width="420" height="317"></button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
       return;
     }
     const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : view === 'smerClose' ? ['smer', '➶', 'Sklizeň', ''] : TILES[0]);
@@ -3808,7 +3808,7 @@ ${parts}
       </div>
       <div class="h2">Karta Dnes</div>
       <div class="card">
-        <p class="note" style="margin-top:0">Vždy zůstává datum, barva dne, <b>u tebe</b> a <b>Nebeský tip</b>. Ostatní vrstvy si zapni podle toho, co ráno opravdu čteš — vypnutá vrstva zůstává v detailu dne a ve svých kartách.</p>
+        <p class="note" style="margin-top:0">Vždy zůstává datum, barva dne, <b>tvůj den</b> a <b>Nebeský tip</b>. Ostatní vrstvy si zapni podle toho, co ráno opravdu čteš — vypnutá vrstva zůstává v detailu dne a ve svých kartách.</p>
         <div class="row" style="gap:8px;margin:0 0 10px;flex-wrap:wrap">${Object.entries({ jednoduchy: 'Jednoduchý', vyvazeny: 'Vyvážený', vse: 'Vše' }).map(([k, lab]) => { const cur = Array.isArray(settings.layers) ? settings.layers : LAYER_SETS.vyvazeny; const on = LAYER_SETS[k].length === cur.length && LAYER_SETS[k].every(x => cur.includes(x)); return `<button type="button" class="chip small ${on ? 'on' : ''}" data-act="layerSet" data-s="${k}">${lab}</button>`; }).join('')}</div>
         <div class="lyrs">${LAYERS.map(([id, t, sub]) => `<label class="lyr"><input type="checkbox" data-act="layerTgl" data-l="${id}" ${layerOn(id) ? 'checked' : ''}><span><b>${t}</b><small>${sub}</small></span></label>`).join('')}</div>
       </div>
