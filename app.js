@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v358';
+  const VERSION = 'v359';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -818,6 +818,35 @@
     return null;
   }
   function tzNext(p, kind) { for (let i = 1; i <= 260; i++) { const dt = new Date(Date.now() + i * 86400000); const q = K.tzParts(dt, TZ); const r = tzPersonal(p, q.y, q.m, q.d); if (r && r.kind === kind) return { q, i }; } return null; }
+  // ---------- čínský horoskop: čtyři pilíře ----------
+  function cnYearIndex(y, m, d) { let yy = y; try { const li = A.SearchSunLongitude(315, A.MakeTime(new Date(Date.UTC(y, 0, 10))), 60); if (li && K.dayStart(y, m, d, TZ) < li.date) yy = y - 1; } catch (e) { if (m === 1 || (m === 2 && d < 4)) yy = y - 1; } return ((yy - 4) % 60 + 60) % 60; }
+  function cnPillars(p) {
+    const y = +p.y, m = +p.m, d = +p.d, hh = +p.hh || 12;
+    const yi = cnYearIndex(y, m, d); const ys = yi % 10, yb = yi % 12;
+    let lon; try { lon = K.lonOf('Sun', A.MakeTime(K.dayStart(y, m, d, TZ))); } catch (e) { lon = ((m - 1) * 30 + 315) % 360; }
+    const mIdx = Math.floor((((lon - 315) % 360 + 360) % 360) / 30); const mb = (mIdx + 2) % 12; const ms = ((ys % 5) * 2 + 2 + mIdx) % 10;
+    const di = ((jdnOf(y, m, d) + 49) % 60 + 60) % 60; const ds = di % 10, db = di % 12;
+    const hb = Math.floor(((hh + 1) % 24) / 2); const hs = ((ds % 5) * 2 + hb) % 10;
+    return { year: { s: ys, b: yb }, month: { s: ms, b: mb }, day: { s: ds, b: db }, hour: { s: hs, b: hb } };
+  }
+  function cnRel(a, b) { if (a === b) return 'same'; if (CN_TRINE.some(t => t.includes(a) && t.includes(b))) return 'trine'; if ((a + 6) % 12 === b) return 'clash'; return 'neutral'; }
+  function cinaHTML(p) {
+    const P = cnPillars(p); const now = cnYearIndex(np.y, np.m, np.d); const nowB = now % 12, nowS = now % 10;
+    const pil = (lab, x, sub) => `<div class="cnpil"><small>${lab}</small><b>${CN_STEM[x.s][1]} · ${CN_ANIMAL[x.b][0]}</b><span>${CN_STEM[x.s][0]} ${CN_STEM[x.s][2]}${sub ? ` · ${sub}` : ''}</span></div>`;
+    const el = CN_STEM[P.year.s][1];
+    return `<div class="card mrhead"><p class="tzk"><b>${el.charAt(0).toUpperCase() + el.slice(1)}ový ${CN_ANIMAL[P.year.b][0]}</b> · ${CN_STEM[P.year.s][2]}</p><p class="lede" style="margin:4px 0 0">${esc(CN_ANIMAL[P.year.b][1])}</p></div>
+      <div class="h3">Čtyři pilíře</div>
+      <p class="note" style="margin-top:-4px">Rok říká, kdo jsi navenek, měsíc odkud přicházíš, den kdo jsi uvnitř a hodina kam míříš. Rok se v čínské astrologii mění na Li-čchun (Slunce 315°, kolem 4. února), ne 1. ledna.</p>
+      <div class="cnpils">${pil('Rok', P.year, 'navenek')}${pil('Měsíc', P.month, 'původ')}${pil('Den', P.day, 'nitro')}${pil('Hodina', P.hour, p.hh != null ? 'směr' : 'bez času narození jen odhad')}</div>
+      <div class="h3">Tvůj živel: ${el}</div>
+      <div class="card rd"><p>${esc(CN_ELEMENT[el])} Jsi <b>${CN_STEM[P.year.s][2]}</b> — ${CN_STEM[P.year.s][2] === 'jang' ? 'aktivní, vnější, dávající podoba živlu' : 'přijímající, vnitřní, uchovávající podoba živlu'}.</p></div>
+      <div class="h3">Den, kdy ses narodil: ${CN_ANIMAL[P.day.b][0]}</div>
+      <div class="card rd"><p>Denní pilíř je v čínské astrologii ten nejosobnější — mistr dne. <b>${CN_STEM[P.day.s][1]} ${CN_STEM[P.day.s][2]}</b> ${CN_STEM[P.day.s][0]} nad ${CN_ANIMAL[P.day.b][0]}: ${esc(CN_ANIMAL[P.day.b][1].split('. ')[0])}. ${esc(CN_ELEMENT[CN_STEM[P.day.s][1]].split('. ')[0])}.</p></div>
+      <div class="h3">Letošní rok: ${CN_STEM[nowS][1]}ový ${CN_ANIMAL[nowB][0]}</div>
+      <div class="card rd"><p>${esc(CN_YEAR_REL[cnRel(P.year.b, nowB)])}</p><p class="small muted" style="margin:0">Tvoje trojice souladu: ${CN_TRINE.find(t => t.includes(P.year.b)).map(i => CN_ANIMAL[i][0]).join(', ')}. Zvíře naproti: ${CN_ANIMAL[(P.year.b + 6) % 12][0]}.</p></div>
+      <details class="expl"><summary>Dvanáct zvířat</summary>${CN_ANIMAL.map((x, i) => `<p class="small"><b>${x[0]}</b> — ${esc(x[1])}</p>`).join('')}</details>
+      <p class="note" style="margin-top:10px">Čínský horoskop stojí na šedesátiletém cyklu deseti nebeských kmenů (živly v jang a jin podobě) a dvanácti pozemských větví (zvířat). Kompas počítá všechny čtyři pilíře z data a hodiny narození, hranici roku podle Slunce.</p>`;
+  }
   function tzBearer(y, m, d) { const n = jdnOf(y, m, d) - 584283; const h = ((n + 348) % 365 + 365) % 365; const start = n - h; const sign = ((start + 19) % 20 + 20) % 20; const tone = (((start + 3) % 13) + 13) % 13 + 1; return { sign, tone, nawal: TZ_NAWAL[sign], key: TZ_NAWAL[sign][0].replace(/'/g, '') }; }
   function mayaHTML(p) {
     const t = tzolkin(+p.y, +p.m, +p.d); const today = tzolkin(np.y, np.m, np.d);
@@ -3659,6 +3688,7 @@ ${parts}
       ['navraty', '⟳', 'Velké návraty', 'Saturn, Jupiter, Uran a uzly v tvém životě'],
       ['hvezdy', '★', 'Tvé hvězdy', 'stálice na tvých bodech'],
       ['maya', '◈', 'Mayský horoskop', 'tvůj nawal, tón, Mayský kříž, nositel roku', null, 'noimg'],
+      ['cina', '☯', 'Čínský horoskop', 'čtyři pilíře, zvíře, živel, letošní rok', null, 'noimg'],
     ].filter(t => t[0] !== 'cisla' || settings.numerology !== false);
     if (view === 'menu') {
       const arcS = arcSentence();
@@ -3668,6 +3698,7 @@ ${parts}
     const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : view === 'smerClose' ? ['smer', '➶', 'Sklizeň', ''] : TILES[0]);
     const back = `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
     if (view === 'maya') { v.innerHTML = back + mayaHTML(p); return; }
+    if (view === 'cina') { v.innerHTML = back + cinaHTML(p); return; }
     if (view === 'horoskop') {
       const hv = S.hsView || 'menu';
       const hback = (t) => `<div class="subhead"><button type="button" class="btn ghost small" data-act="hsView" data-v="menu">‹ Tvůj horoskop</button><div class="h2" style="margin:0">${t}</div></div>`;

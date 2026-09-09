@@ -1213,3 +1213,9 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .tzper{display:block;margin-top:3px;font-style:normal;color:#C9A9E0}
 .mrhead .tzk{font-family:var(--display);font-size:var(--fs-xl);color:#FFF3D6;margin:0}
 .ptcard.mr .mrs .g{color:#C9A9E0}
+
+.cnpils{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:6px 0 14px}
+.cnpil{display:flex;flex-direction:column;gap:2px;padding:10px 12px;background:var(--glass);border:1px solid var(--hairline);border-radius:12px}
+.cnpil small{font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.cnpil b{font-family:var(--display);font-size:var(--fs-l);font-weight:500;color:#FFF3D6}
+.cnpil span{font-size:var(--fs-s);color:var(--muted)}
