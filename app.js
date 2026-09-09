@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v346';
+  const VERSION = 'v347';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -827,7 +827,8 @@
   function portalEvents(d0, d1) {
     const out = []; const cur = new Date(d0);
     for (let i = 0; i < 400; i++) { const dt = new Date(cur.getTime() + i * 86400000); if (dt >= d1) break; const p = K.tzParts(dt, TZ);
-      for (const x of portalsFor(p.y, p.m, p.d)) out.push({ date: K.dayStart(p.y, p.m, p.d, TZ), cat: 'portal', title: x.title, note: x.text, tag: x.tag, kind: x.kind });
+      const isToday = p.y === np.y && p.m === np.m && p.d === np.d;
+      for (const x of portalsFor(p.y, p.m, p.d)) out.push({ date: new Date(K.dayStart(p.y, p.m, p.d, TZ).getTime() + (isToday ? 23 * 3600000 : 12 * 3600000)), cat: 'portal', title: `${isToday ? 'Dnes · ' : ''}${x.title}`, note: `${x.text}${x.extra ? ' ' + x.extra : ''}${x.step ? ' — Krok: ' + x.step : ''}`, tag: x.tag, kind: x.kind, today: isToday });
     }
     return out;
   }
