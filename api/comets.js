@@ -40,8 +40,8 @@ function parseMPC(text) {
 async function horizons(des, start, stop) {
   const cmd = `'DES=${des};CAP;NOFRAG'`;
   const u = `${HORIZONS}?format=json&COMMAND=${encodeURIComponent(cmd)}&OBJ_DATA=NO&MAKE_EPHEM=YES&EPHEM_TYPE=OBSERVER&CENTER='500@399'&START_TIME='${start}'&STOP_TIME='${stop}'&STEP_SIZE='1 d'&QUANTITIES='1,9,23'&CSV_FORMAT=YES&ANG_FORMAT=DEG`;
-  const r = await fetch(u); if (!r.ok) return null; const j = await r.json(); const res = j.result || '';
-  const i = res.indexOf('$$SOE'), k = res.indexOf('$$EOE'); if (i < 0 || k < 0) return null;
+  const r = await fetch(u); if (!r.ok) throw new Error('HTTP ' + r.status); const j = await r.json(); const res = j.result || '';
+  const i = res.indexOf('$$SOE'), k = res.indexOf('$$EOE'); if (i < 0 || k < 0) throw new Error((j.error || res.slice(0, 160)).replace(/\s+/g, ' '));
   const rows = [];
   for (const line of res.slice(i + 5, k).trim().split('\n')) {
     const c = line.split(',').map(s => s.trim()); if (c.length < 8) continue;
@@ -57,16 +57,19 @@ module.exports = async (req, res) => {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 's-maxage=21600, stale-while-revalidate=86400');
   try {
-    if (cache.data && Date.now() - cache.t < 6 * 3600 * 1000) { res.status(200).send(JSON.stringify(cache.data)); return; }
-    const txt = await (await fetch(MPC, { headers: { 'User-Agent': 'Nebesky kompas (oaza-adamanthea.cz)' } })).text();
-    const all = parseMPC(txt);
+    if (!(req.query && req.query.fresh) && cache.data && Date.now() - cache.t < 6 * 3600 * 1000) { res.status(200).send(JSON.stringify(cache.data)); return; }
+    const dbg = { mpcStatus: null, mpcBytes: 0, parsed: 0, sample: '', candidates: [], horizons: [] };
+    const mr = await fetch(MPC, { headers: { 'User-Agent': 'Nebesky kompas (oaza-adamanthea.cz)' } }); dbg.mpcStatus = mr.status;
+    const txt = await mr.text(); dbg.mpcBytes = txt.length; dbg.sample = txt.split('\n').find(l => l.length > 100) || txt.slice(0, 200);
+    const all = parseMPC(txt); dbg.parsed = all.length;
     const now = new Date(); const tj = jd(now.getUTCFullYear(), now.getUTCMonth() + 1, now.getUTCDate());
     const cands = all.map(c => { try { const r = helioR(c.q, c.e, c.T, tj); const delta = Math.max(0.2, r - 0.8); const m = c.H + 5 * Math.log10(delta) + 2.5 * c.G * Math.log10(r); return { ...c, r: +r.toFixed(2), mEst: +m.toFixed(1) }; } catch (e) { return null; } })
       .filter(c => c && c.mEst <= MAX_MAG + 1.5).sort((a, b) => a.mEst - b.mEst).slice(0, MAX_COMETS);
+    dbg.candidates = cands.map(c => ({ des: c.des, name: c.name, mEst: c.mEst, r: c.r }));
     const start = now.toISOString().slice(0, 10), stop = new Date(now.getTime() + DAYS * 86400000).toISOString().slice(0, 10);
     const comets = [];
-    for (const c of cands) { try { const eph = await horizons(c.des, start, stop); if (eph && eph.length) comets.push({ des: c.des, name: c.name, eph }); } catch (e) { } }
-    cache = { t: Date.now(), data: { when: Date.now(), comets } };
+    for (const c of cands) { try { const eph = await horizons(c.des, start, stop); dbg.horizons.push({ des: c.des, rows: eph ? eph.length : null }); if (eph && eph.length) comets.push({ des: c.des, name: c.name, eph }); } catch (e) { dbg.horizons.push({ des: c.des, error: String(e && e.message) }); } }
+    cache = { t: Date.now(), data: { when: Date.now(), comets, debug: dbg } };
     res.status(200).send(JSON.stringify(cache.data));
   } catch (e) { res.status(502).send(JSON.stringify({ error: 'komety nedostupné: ' + (e && e.message) })); }
 };
