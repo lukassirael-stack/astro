@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v381';
+  const VERSION = 'v382';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1841,13 +1841,16 @@
       const url = 'https://nebe.oaza-adamanthea.cz/';
       const text = 'Nebeský kompas — kalendář žitý s oblohou. Co je dnes ve hře podle Slunce, Luny, planet a tvých hvězd.';
       if (navigator.share) {
+        // s obrázkem, kde to jde (Android); jinak jen text a odkaz
+        try { const r = await fetch('share.jpg'); const blob = await r.blob(); const file = new File([blob], 'nebesky-kompas.jpg', { type: 'image/jpeg' }); if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ title: 'Nebeský kompas', text: text + '\n' + url, files: [file] }); return; } }
+        catch (e) { if (e && e.name === 'AbortError') return; }
         try { await navigator.share({ title: 'Nebeský kompas', text, url }); return; }
         catch (e) { if (e && e.name === 'AbortError') return; }
       }
       // bez systémového sdílení (počítač, některé PWA): vlastní panel s odkazem a hotovými cestami
       const enc = encodeURIComponent(text + '\n' + url);
       const box = document.createElement('div'); box.className = 'ov sharebox'; box.setAttribute('data-act', 'noop');
-      box.innerHTML = `<div class="sharecard"><b>Sdílet Kompas</b><input readonly value="${url}" id="shareUrl"><div class="row" style="gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="btn small" data-act="shareCopy">Kopírovat odkaz</button><a class="btn small" href="https://wa.me/?text=${enc}" target="_blank" rel="noopener">WhatsApp</a><a class="btn small" href="mailto:?subject=${encodeURIComponent('Nebeský kompas')}&body=${enc}">E‑mail</a><a class="btn small" href="sms:?body=${enc}">SMS</a></div><button type="button" class="btn ghost small" data-act="shareClose" style="margin-top:10px">Zavřít</button></div>`;
+      box.innerHTML = `<div class="sharecard"><img src="share.jpg" alt="" style="width:100%;border-radius:12px;margin-bottom:10px"><b>Sdílet Kompas</b><input readonly value="${url}" id="shareUrl"><div class="row" style="gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="btn small" data-act="shareCopy">Kopírovat odkaz</button><a class="btn small" href="https://wa.me/?text=${enc}" target="_blank" rel="noopener">WhatsApp</a><a class="btn small" href="mailto:?subject=${encodeURIComponent('Nebeský kompas')}&body=${enc}">E‑mail</a><a class="btn small" href="sms:?body=${enc}">SMS</a></div><button type="button" class="btn ghost small" data-act="shareClose" style="margin-top:10px">Zavřít</button></div>`;
       document.body.appendChild(box);
     },
     async shareCopy() { const i = $('#shareUrl'); if (!i) return; try { await navigator.clipboard.writeText(i.value); toast('Odkaz zkopírován.'); } catch (e) { i.select(); try { document.execCommand('copy'); toast('Odkaz zkopírován.'); } catch (x) { toast('Podrž text a zkopíruj ho ručně.'); } } },
