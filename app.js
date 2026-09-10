@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v383';
+  const VERSION = 'v384';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1843,9 +1843,7 @@
       const url = 'https://nebe.oaza-adamanthea.cz/';
       const text = 'Nebeský kompas — kalendář žitý s oblohou. Co je dnes ve hře podle Slunce, Luny, planet a tvých hvězd.';
       if (navigator.share) {
-        // s obrázkem, kde to jde (Android); jinak jen text a odkaz
-        try { const r = await fetch('share.jpg'); const blob = await r.blob(); const file = new File([blob], 'nebesky-kompas.jpg', { type: 'image/jpeg' }); if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ title: 'Nebeský kompas', text: text + '\n' + url, files: [file] }); return; } }
-        catch (e) { if (e && e.name === 'AbortError') return; }
+        // jen text a odkaz — obrázek si aplikace vezmou samy z náhledu odkazu; při posílání souboru řada z nich odkaz zahodí
         try { await navigator.share({ title: 'Nebeský kompas', text, url }); return; }
         catch (e) { if (e && e.name === 'AbortError') return; }
       }
