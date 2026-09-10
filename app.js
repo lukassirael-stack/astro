@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v382';
+  const VERSION = 'v383';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -965,7 +965,9 @@
       <h2>Co chceš ráno vidět</h2>
       <p class="lede">Karta Dnes má pevné jádro — datum, barvu dne, co se dotýká tvé mapy a jeden tip. Ostatní jsou vrstvy: zaškrtni, co tě zajímá. V Nastavení to kdykoli změníš.</p>
       <div class="row" style="gap:6px;flex-wrap:wrap;margin:0 0 10px">${Object.entries({ jednoduchy: 'Jednoduchý', vyvazeny: 'Vyvážený', vse: 'Vše' }).map(([k, lab]) => `<button type="button" class="chip small ${isSet(k) ? 'on' : ''}" data-act="obLayers" data-s="${k}">${lab}</button>`).join('')}</div>
-      <div class="lyrs oblyrs">${LAYERS.map(([id, t, sub]) => `<label class="lyr"><input type="checkbox" data-act="obLayerTgl" data-l="${id}" ${OB.list.includes(id) ? 'checked' : ''}><span><b>${t}</b><small>${sub}</small></span></label>`).join('')}</div>`;
+      <div class="lyrs oblyrs">${LAYERS.map(([id, t, sub]) => `<label class="lyr"><input type="checkbox" data-act="obLayerTgl" data-l="${id}" ${OB.list.includes(id) ? 'checked' : ''}><span><b>${t}</b><small>${sub}</small></span></label>`).join('')}</div>
+      <div class="obcyc"><p class="note" style="margin:8px 0 6px">Vedeš svůj měsíční cyklus? Kompas ho může číst spolu s Lunou — fáze cyklu v kartě Dnes, první den si zapíšeš v Diáři. Jen pro tebe, nikam se neposílá.</p>
+      <div class="row" style="gap:8px"><button type="button" class="chip small ${OB.cyc ? 'on' : ''}" data-act="obCyc" data-v="1">Ano, vést cyklus</button><button type="button" class="chip small ${!OB.cyc ? 'on' : ''}" data-act="obCyc" data-v="0">Teď ne</button></div></div>`;
     }
     return `<div class="ob"><div class="obcard">
       <div class="obdots">${dots}</div>
@@ -1921,6 +1923,7 @@
     readSelf() { setReadAs(null); renderNatal(); window.scrollTo({ top: 0 }); },
     obBack() { obRead(); OB.step = Math.max(1, OB.step - 1); obRender(); },
     obSkip() { rawSet('kairos_ob_skip', true); obRender(); },
+    obCyc(el) { OB.cyc = el.dataset.v === '1'; if (OB.cyc && OB.list && !OB.list.includes('cyklus')) OB.list.push('cyklus'); obRender(); },
     obLayers(el) { OB.layers = el.dataset.s; OB.list = LAYER_SETS[el.dataset.s].slice(); obRender(); },
     obLayerTgl(el) { if (!OB.list) OB.list = LAYER_SETS.jednoduchy.slice(); const id = el.dataset.l; const i = OB.list.indexOf(id); if (i >= 0) OB.list.splice(i, 1); else OB.list.push(id); OB.layers = 'vlastni'; },
     obLoc(el) { OB.locMode = el.dataset.m; obRender(); },
@@ -1949,8 +1952,9 @@
       const me = ownerProfile(); Object.assign(me, { name: OB.name || 'já', y, m, d, hh, mm, place: OB.place.name, lat: OB.place.lat, lon: OB.place.lon, alt: OB.place.alt || 200, tz: TZ, noTime: OB.noTime });
       if (!profiles.includes(me)) profiles.push(me); activeId = me.id; persistProfiles();
       layersSet(OB.list || LAYER_SETS.jednoduchy); rawSet('kairos_hint_layers', true);
+      if (OB.cyc) { store.set('kairos_cyc_on', true); }
       computeNatal(); rawSet('kairos_ob_skip', true); obRender(); showTab('kalendar'); renderCalendar(); renderNatal(); renderSettings();
-      toast(`Vítej, ${OB.name || ''}. Tohle je tvůj první den s Kompasem.`);
+      toast(OB.cyc ? `Vítej, ${OB.name || ''}. První den cyklu si zapiš v Diáři — Kompas se pak srovná s Lunou.` : `Vítej, ${OB.name || ''}. Tohle je tvůj první den s Kompasem.`);
     },
     goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; if (el.dataset.v === 'horoskop') S.hsView = 'menu'; renderNatal(); window.scrollTo({ top: 0 }); },
