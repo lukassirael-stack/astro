@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v380';
+  const VERSION = 'v381';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1838,14 +1838,20 @@
     setLang(el) { settings.lang = el.value; persistSettings(); if (settings.lang === 'sk') { translateDOM(document.body); } else { restoreCzechDOM(document.body); } showTab(S.tab); },
     setCountry(el) { settings.country = el.value; persistSettings(); for (const k in _holCache) delete _holCache[k]; S.dayCache = {}; renderSettings(); },
     async shareApp() {
-      const url = location.origin + location.pathname.replace(/index\.html$/, '');
-      const text = 'Nebeský kompas — tvůj hvězdný kalendář. Co je dnes ve hře podle postavení planet, Luny a tvých hvězd.';
-      try {
-        if (navigator.share) { await navigator.share({ title: 'Nebeský kompas', text, url }); return; }
-      } catch (e) { if (e && e.name === 'AbortError') return; }
-      try { await navigator.clipboard.writeText(url); toast('Odkaz zkopírován — stačí ho vložit do zprávy.'); }
-      catch (e) { prompt('Odkaz na Kompas:', url); }
+      const url = 'https://nebe.oaza-adamanthea.cz/';
+      const text = 'Nebeský kompas — kalendář žitý s oblohou. Co je dnes ve hře podle Slunce, Luny, planet a tvých hvězd.';
+      if (navigator.share) {
+        try { await navigator.share({ title: 'Nebeský kompas', text, url }); return; }
+        catch (e) { if (e && e.name === 'AbortError') return; }
+      }
+      // bez systémového sdílení (počítač, některé PWA): vlastní panel s odkazem a hotovými cestami
+      const enc = encodeURIComponent(text + '\n' + url);
+      const box = document.createElement('div'); box.className = 'ov sharebox'; box.setAttribute('data-act', 'noop');
+      box.innerHTML = `<div class="sharecard"><b>Sdílet Kompas</b><input readonly value="${url}" id="shareUrl"><div class="row" style="gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="btn small" data-act="shareCopy">Kopírovat odkaz</button><a class="btn small" href="https://wa.me/?text=${enc}" target="_blank" rel="noopener">WhatsApp</a><a class="btn small" href="mailto:?subject=${encodeURIComponent('Nebeský kompas')}&body=${enc}">E‑mail</a><a class="btn small" href="sms:?body=${enc}">SMS</a></div><button type="button" class="btn ghost small" data-act="shareClose" style="margin-top:10px">Zavřít</button></div>`;
+      document.body.appendChild(box);
     },
+    async shareCopy() { const i = $('#shareUrl'); if (!i) return; try { await navigator.clipboard.writeText(i.value); toast('Odkaz zkopírován.'); } catch (e) { i.select(); try { document.execCommand('copy'); toast('Odkaz zkopírován.'); } catch (x) { toast('Podrž text a zkopíruj ho ručně.'); } } },
+    shareClose() { const b = document.querySelector('.sharebox'); if (b) b.remove(); },
     wxPlace() { showTab('nastaveni'); setTimeout(() => { const f = $('#locForm'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); },
     noop() { },
     wxToggle() { S.wxOpen = !S.wxOpen; renderCalendar(); },

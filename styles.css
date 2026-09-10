@@ -1260,3 +1260,9 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .betacard{border-color:rgba(240,200,116,.55);background:linear-gradient(180deg,rgba(240,200,116,.12),var(--glass))}
 .betacard b{font-family:var(--display);font-size:var(--fs-l);color:#FFF3D6;display:block;margin-bottom:4px}
 .betacard p{margin:0;line-height:1.55}
+
+.sharebox{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(4,12,30,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.sharecard{width:100%;max-width:420px;padding:16px;border-radius:18px;border:1px solid rgba(240,216,152,.5);background:linear-gradient(180deg,rgba(22,44,80,.97),rgba(10,22,44,.98));box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.sharecard b{display:block;font-family:var(--display);font-size:var(--fs-xl);color:#FFF3D6;margin-bottom:10px}
+.sharecard input{width:100%;font:inherit;padding:10px 12px;border-radius:12px;border:1px solid var(--hairline);background:rgba(255,255,255,.06);color:var(--text)}
+.sharecard a.btn{text-decoration:none}
