@@ -1223,3 +1223,7 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .glos p b{color:var(--gold)}.glos p em{font-style:normal;color:var(--text)}
 .hero-today .ht-por .tx .pnum{display:block;margin:1px 0 3px;font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.06em;color:var(--inst-muted)}
 .cnpil small em{font-style:normal;text-transform:none;letter-spacing:0;color:var(--text);margin-left:4px}
+
+/* režim čtení pro blízkého */
+.readbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;padding:9px 12px;border-radius:12px;border:1px solid rgba(201,169,224,.6);background:linear-gradient(180deg,rgba(201,169,224,.18),rgba(20,40,80,.4));color:var(--text);font-size:var(--fs-s)}
+.readbar b{color:#E6D3F7}

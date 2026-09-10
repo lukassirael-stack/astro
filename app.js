@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v372';
+  const VERSION = 'v373';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -385,7 +385,7 @@
   // ---------- čím procházíš: tranzity jako oblouky se začátkem, vrcholem a koncem ----------
   const _arcCache = {};
   function transitArcs(y, m, d) {
-    const key = `${activeId}|${y}-${m}-${d}`; if (_arcCache[key]) return _arcCache[key];
+    const key = `${curId()}|${y}-${m}-${d}`; if (_arcCache[key]) return _arcCache[key];
     const da = analyze(y, m, d); const ref = K.dayStart(y, m, d, TZ);
     const all = da.background.concat(da.fast).filter(t => t.transit !== 'Moon');
     const out = all.map(t => {
@@ -1444,7 +1444,11 @@
   const fmtOrb = (o) => fmtNum(o, 1).replace('.', ',') + '°';
   const signed = (x) => (x > 0 ? '+' : x < 0 ? '−' : '±') + fmtNum(Math.abs(x), 2);
   const observer = () => new A.Observer(+settings.loc.lat, +settings.loc.lon, +settings.loc.alt || 0);
-  const activeProfile = () => profiles.find(p => p.id === activeId) || profiles[0];
+  // Číst jako: v O tobě lze dočasně číst mapu blízkého ze Vztahů; ownerProfile je vždy majitel Kompasu
+  const ownerProfile = () => profiles.find(p => p.id === activeId) || profiles[0];
+  const activeProfile = () => (S.readAs || ownerProfile());
+  const curId = () => (S.readAs ? 'r' + S.readAs.id : activeId);
+  function setReadAs(rec) { S.readAs = rec || null; computeNatal(); S.natalView = 'menu'; S.hsView = 'menu'; }
   const rules = () => { const r = JSON.parse(JSON.stringify(K.DEFAULT_RULES)); r.thresholds.harm = +settings.rules.harm; r.thresholds.tense = +settings.rules.tense; r.vocHours = +settings.rules.vocHours; r.starOrb = +settings.rules.starOrb; return r; };
   const NATAL_ACC = { Sun: 'tvé Slunce', Moon: 'tvou Lunu', Mercury: 'tvůj Merkur', Venus: 'tvou Venuši', Mars: 'tvůj Mars', Jupiter: 'tvůj Jupiter', Saturn: 'tvůj Saturn', Uranus: 'tvůj Uran', Neptune: 'tvůj Neptun', Pluto: 'tvé Pluto', Asc: 'tvůj Ascendent', MC: 'tvůj životní směr (MC)' };
   const ASP_LOC = { conj: 'konjunkci', sextile: 'sextilu', square: 'kvadratuře', trine: 'trigonu', opposition: 'opozici' };
@@ -1524,7 +1528,7 @@
     try { S.natal = K.natalChart({ ...p, lat: +p.lat, lon: +p.lon, alt: +p.alt || 200, y: +p.y, m: +p.m, d: +p.d, hh: +p.hh, mm: +p.mm, tz: p.tz || TZ }, now); }
     catch (e) { console.error(e); S.natal = null; toast('Nativ se nepodařilo spočítat – zkontroluj data v Nastavení.'); }
     S.dayCache = {}; S.evCache = {};
-    $('#profilePill').textContent = p.name || 'profil';
+    $('#profilePill').textContent = ownerProfile().name || 'profil';
   }
 
   // ===================== NOAA =====================
@@ -1550,7 +1554,7 @@
 
   // ===================== analýza dne (cache) =====================
   function analyze(y, m, d) {
-    const key = `${activeId}|${y}-${m}-${d}|${S.kpUpdated}|${JSON.stringify(settings.rules)}|${settings.loc.lat},${settings.loc.lon}`;
+    const key = `${curId()}|${y}-${m}-${d}|${S.kpUpdated}|${JSON.stringify(settings.rules)}|${settings.loc.lat},${settings.loc.lon}`;
     if (S.dayCache[key]) return S.dayCache[key];
     const kp = settings.showKp ? S.kpMap[K.isoDate(y, m, d)] || null : null;
     const da = K.dayAnalysis(y, m, d, S.natal, observer(), TZ, kp, rules());
@@ -1558,7 +1562,7 @@
     return da;
   }
   function monthEvents(y, m) {
-    const key = `m|${activeId}|${y}-${m}|${settings.loc.lat},${settings.loc.lon}`;
+    const key = `m|${curId()}|${y}-${m}|${settings.loc.lat},${settings.loc.lon}`;
     if (S.evCache[key]) return S.evCache[key];
     const d0 = K.dayStart(y, m, 1, TZ), d1 = K.addDays(K.dayStart(y, m, K.daysInMonth(y, m), TZ), 1);
     const ev = K.skyEvents(d0, d1, observer(), S.natal, TZ).concat(cometEvents(d0, d1));
@@ -1580,6 +1584,7 @@
   document.addEventListener('DOMContentLoaded', () => translateDOM(document.body));
   if (document.readyState !== 'loading') setTimeout(() => translateDOM(document.body), 0);
   function showTab(tab) {
+    if (S.readAs && tab !== 'nativ') { setReadAs(null); }
     S.tab = tab;
     store.set('kairos_tab', tab);
     document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
@@ -1849,6 +1854,8 @@
     hyNext() { S.hyY = (S.hyY || np.y) + 1; renderNatal(); },
     mrPrev() { let y = S.mrY || np.y, m = (S.mrM || np.m) - 1; if (m < 1) { m = 12; y--; } S.mrY = y; S.mrM = m; renderNatal(); },
     mrNext() { let y = S.mrY || np.y, m = (S.mrM || np.m) + 1; if (m > 12) { m = 1; y++; } S.mrY = y; S.mrM = m; renderNatal(); },
+    readAs(el) { const rec = synFind(el.dataset.id); if (!rec) return; setReadAs({ ...rec, lat: +rec.lat, lon: +rec.lon, alt: +rec.alt || 200, y: +rec.y, m: +rec.m, d: +rec.d, hh: +rec.hh, mm: +rec.mm, tz: rec.tz || TZ }); renderNatal(); window.scrollTo({ top: 0 }); toast('Čteš pro: ' + (rec.name || '')); },
+    readSelf() { setReadAs(null); renderNatal(); window.scrollTo({ top: 0 }); },
     goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; if (el.dataset.v === 'horoskop') S.hsView = 'menu'; renderNatal(); window.scrollTo({ top: 0 }); },
     numQuick() { const v = ($('#numQuickDate') || {}).value; if (!v) return; S.numQuick = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .numquick'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
@@ -2602,7 +2609,7 @@ ${parts}
   HS.JUP_H = ['rok osobního růstu — víc sebevědomí, energie a viditelnosti; dobré období začít něco sám za sebe', 'přeje financím a vlastní hodnotě — příjmy mohou růst, stejně jako chuť utrácet', 'přeje učení, psaní, jednáním a blízkému okolí — rok plný kontaktů a nápadů', 'přeje domovu a rodině — dobré období pro bydlení, kořeny a usmíření', 'přeje tvorbě, radosti, lásce a dětem — rok, kdy si máš hrát ve velkém', 'přeje práci a zdraví — víc zakázek i chuti pečovat o tělo; jen si toho nenaber přespříliš', 'přeje partnerství — vztahy rostou, uzavírají se svazky i spojenectví', 'přeje společným financím a hlubokým proměnám — investice, dědictví, terapie', 'přeje cestám, studiu a víře — rok rozšířených obzorů', 'přeje kariéře — postup, uznání, viditelnost; řekni si o víc', 'přeje přátelstvím, komunitě a vizím — správní lidé přichází sami', 'přeje nitru — rok tichého zrání a duchovní práce; úroda bude vidět později'];
   HS.SAT_H = ['zkouší tebe samotného — tělo, identitu, hranice; rok převzetí odpovědnosti za sebe', 'zkouší finance — rozpočet, dluhy, vlastní hodnotu; co srovnáš, drží roky', 'zkouší komunikaci a závazky slova — mluv méně a přesněji', 'zkouší domov a kořeny — rodinné povinnosti a dospělé srovnání s minulostí', 'zkouší radost — uč se tvořit a milovat i s odpovědností, ne místo ní', 'zkouší práci a tělo — režim, zdraví, poctivé řemeslo; skvělý rok na disciplínu', 'zkouší vztahy — co je vážné, se prohloubí; co je vyčpělé, dostane termín', 'zkouší sdílené zdroje — dluhy, dědictví, důvěru; velká inventura závazků', 'zkouší přesvědčení — víra dostane zkoušku praxí; studuj do hloubky', 'zkouší kariéru — víc odpovědnosti, méně potlesku; stavíš základy pozice na příští roky', 'zkouší přátelství a plány — zůstanou ti ti praví a cíle, které unesou tíhu', 'zkouší nitro — únava starých vzorců; rok úklidu v pozadí, spánku a odpuštění'];
   function horoscopeYear(n) {
-    const ck = activeId + '|' + TODAY_KEY;
+    const ck = curId() + '|' + TODAY_KEY;
     if (S._year && S._year.k === ck) return S._year.html;
     const now = new Date();
     const fmtD = (d) => { const q = K.tzParts(d, TZ); return `${q.d}. ${K.MONTH_GEN[q.m - 1]}` + (q.y !== K.tzParts(now, TZ).y ? ` ${q.y}` : ''); };
@@ -2756,7 +2763,7 @@ ${parts}
       try {
         const nb = K.natalChart({ ...selRec, lat: +selRec.lat, lon: +selRec.lon, alt: +selRec.alt || 200, y: +selRec.y, m: +selRec.m, d: +selRec.d, hh: +selRec.hh, mm: +selRec.mm, tz: selRec.tz || TZ }, new Date());
         card = `<div class="card hs">${synastry(n, nb, (activeProfile().name || 'A').split(' ')[0], (selRec.name || 'B').split(' ')[0])}</div>
-        <div class="row" style="margin:-4px 0 14px;gap:8px"><button type="button" class="btn ghost small" data-act="synPrint">Uložit · tisk</button><button type="button" class="btn ghost small" data-act="synShare">Poslat text</button></div>
+        <div class="row" style="margin:-4px 0 14px;gap:8px"><button type="button" class="btn" data-act="readAs" data-id="${selRec.id}">Přečíst horoskop: ${esc((selRec.name || '').split(' ')[0])}</button><button type="button" class="btn ghost small" data-act="synPrint">Uložit · tisk</button><button type="button" class="btn ghost small" data-act="synShare">Poslat text</button></div>
         ${settings.numerology !== false ? numPairHTML(activeProfile(), selRec, (activeProfile().name || 'ty').split(' ')[0], (selRec.name || 'druhý').split(' ')[0]) : ''}`;
       } catch (e) { card = '<div class="card hs"><div class="hsp"><p>Mapu se nepodařilo spočítat — zkontroluj zadané údaje.</p></div></div>'; }
     }
@@ -3444,7 +3451,7 @@ ${parts}
     if (!S.natal) { v.innerHTML = noNatalHTML('úkazy roku dopředu a to, jak se dotknou právě tebe'); return; }
     v.innerHTML = '<div class="loading">Počítám oblohu na rok dopředu…</div>';
     setTimeout(() => {
-      const key = `y|${activeId}|${np.y}-${np.m}|${settings.loc.lat},${settings.loc.lon}|${(settings.comets || '').length}|${(cometsGet() || {}).when || 0}`;
+      const key = `y|${curId()}|${np.y}-${np.m}|${settings.loc.lat},${settings.loc.lon}|${(settings.comets || '').length}|${(cometsGet() || {}).when || 0}`;
       let evs = S.evCache[key];
       // rok se skládá z měsíčních výpočtů (sdílených s kalendářem): první tři hned, zbytek na pozadí
       const monthsList = []; { let yy = np.y, mm = np.m; for (let i = 0; i < 13; i++) { monthsList.push([yy, mm]); mm++; if (mm > 12) { mm = 1; yy++; } } }
@@ -3743,13 +3750,15 @@ ${parts}
       ['maya', '◈', 'Mayský horoskop', 'tvůj nawal, tón, Mayský kříž, nositel roku'],
       ['cina', '☯', 'Čínský horoskop', 'čtyři pilíře, zvíře, živel, letošní rok'],
     ].filter(t => t[0] !== 'cisla' || settings.numerology !== false);
+    const readBar = S.readAs ? `<div class="readbar"><span>Čteš pro <b>${esc(S.readAs.name || '')}</b> — ${+S.readAs.d}. ${+S.readAs.m}. ${+S.readAs.y}</span><button type="button" class="btn small" data-act="readSelf">zpět k sobě</button></div>` : '';
+    const TILES_V = S.readAs ? TILES.filter(t => t[0] !== 'vztahy') : TILES;
     if (view === 'menu') {
       const arcS = arcSentence();
-      v.innerHTML = natalHead + (arcS ? `<p class="nnow"><span class="tvlab">tvůj den</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES.map(([id, ic, t, sub, kind, noimg]) => noimg ? `<button type="button" class="ntile txt ${kind || ''}" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>` : `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=11" alt="" width="420" height="317"></button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
+      v.innerHTML = readBar + natalHead + (arcS ? `<p class="nnow"><span class="tvlab">${S.readAs ? 'jeho den' : 'tvůj den'}</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES_V.map(([id, ic, t, sub, kind, noimg]) => noimg ? `<button type="button" class="ntile txt ${kind || ''}" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>` : `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=11" alt="" width="420" height="317"></button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
       return;
     }
     const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : view === 'smerClose' ? ['smer', '➶', 'Sklizeň', ''] : TILES[0]);
-    const back = `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
+    const back = readBar + `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
     if (view === 'maya') { v.innerHTML = back + mayaHTML(p); return; }
     if (view === 'cina') { v.innerHTML = back + cinaHTML(p); return; }
     if (view === 'horoskop') {
