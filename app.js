@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v386';
+  const VERSION = 'v387';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -503,7 +503,7 @@
       ['kolo', 'Kolo roku', `Osm bran roku: slunovraty, rovnodennosti a čtyři brány mezi nimi (Imbolc, Beltain, Lughnasad, Samhain), které Kompas počítá astronomicky — v 15° pevných znamení, ne podle kalendářního data. Vedle nich vaše svátky, tradice a příroda po třech dnech: kdy kvete líska, kdy odlétají vlaštovky, kdy troubí jeleni.`],
       ['tatvy', 'Tatvy', `Indická tradice pěti jemných živlů (éter, vzduch, oheň, voda, země), které se od východu Slunce střídají po 24 minutách. Každá tatva přeje něčemu jinému — oheň vůli a rozhodnutí, voda citu, země tělu a práci rukama. Kompas ji ukazuje v kartě Dnes s časem, do kdy platí.`],
       ['organy', 'Orgánové hodiny', `Tradiční čínská medicína dělí den na dvanáct dvouhodin, v nichž je nejsilnější vždy jeden orgán: ráno tlusté střevo a žaludek, v poledne srdce, večer ledviny, v noci játra a plíce. Kompas je ukotvuje na skutečné sluneční poledne pro tvé místo, ne na hodiny na zdi, a k orgánu píše, co v té době tělu prospívá.`],
-      ['tzolkin', 'Mayský Tzolk\\'in', `Posvátný počet 260 dnů — 13 tónů × 20 nawalů — který dodnes vedou kiché počtáři v Guatemale. Každý den má tón a nawal, každý člověk nawal narození, Mayský kříž (odkud přichází, kam míří, co ho chrání a co mu pomáhá) a nositele roku. Kompas používá pravý počet (korelace GMT 584283), podle kterého bylo 21. 12. 2012 dnem 4 Ajaw.`],
+      ['tzolkin', 'Mayský Tzolk\'in', `Posvátný počet 260 dnů — 13 tónů × 20 nawalů — který dodnes vedou kiché počtáři v Guatemale. Každý den má tón a nawal, každý člověk nawal narození, Mayský kříž (odkud přichází, kam míří, co ho chrání a co mu pomáhá) a nositele roku. Kompas používá pravý počet (korelace GMT 584283), podle kterého bylo 21. 12. 2012 dnem 4 Ajaw.`],
       ['cina', 'Čínský horoskop', `Čtyři pilíře (rok, měsíc, den, hodina), každý jako živel + zvíře v jang nebo jin podobě. Rok začíná na Li-čchun (Slunce 315°, kolem 4. února). Rok říká, jak tě vidí svět, den, kdo jsi uvnitř (mistr dne). Zvířata se dělí do trojic souladu a mají zvíře naproti; rok vlastního zvířete je rok Tai Sui.`],
       ['elekce', 'Najít vhodný den', `Elekce je tradiční umění vybrat den pro věc: přímý Merkur pro smlouvy, dorůstající Luna pro začátky, couvající pro zákroky, Luna mimo znamení operované části těla, Venuše pro lásku, pevná znamení pro to, co má vydržet. Kompas projde dny dopředu, oboduje je podle pravidel dané věci a ukáže nejlepší — s poznámkou, podle čeho vybíral. Je to doporučení, rozhodnutí je tvoje.`],
     ];
