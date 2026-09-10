@@ -30,7 +30,7 @@ function parseMPC(text) {
       if (!q || isNaN(py)) continue;
       // rozbalení označení: K23A030 -> 2023 A3 (C=století, YY, půlměsíc, číslo, fragment)
       let des;
-      if (num) des = `${num}${type}`;
+      if (num) des = `${String(parseInt(num, 10))}${type}`;
       else { const cent = { I: 18, J: 19, K: 20 }[prov[0]] || 20; const yr = cent * 100 + parseInt(prov.slice(1, 3), 10); const half = prov[3]; const nn = prov.slice(4, 6); const n = /^\d+$/.test(nn) ? parseInt(nn, 10) : (nn.charCodeAt(0) - 55) * 10 + parseInt(nn[1], 10); des = `${type}/${yr} ${half}${n}`; }
       out.push({ des, name, q, e, T: jd(py, pm, Math.floor(pd)) + (pd % 1), H: isNaN(H) ? 12 : H, G: isNaN(G) ? 4 : G });
     } catch (e) { }
@@ -38,7 +38,7 @@ function parseMPC(text) {
   return out;
 }
 async function horizons(des, start, stop) {
-  const cmd = `'DES=${des};CAP;NOFRAG'`;
+  const cmd = /^\d+[PDCX]$/.test(des) ? `'${des};CAP;NOFRAG'` : `'DES=${des};CAP;NOFRAG'`;
   const u = `${HORIZONS}?format=json&COMMAND=${encodeURIComponent(cmd)}&OBJ_DATA=NO&MAKE_EPHEM=YES&EPHEM_TYPE=OBSERVER&CENTER='500@399'&START_TIME='${start}'&STOP_TIME='${stop}'&STEP_SIZE='1 d'&QUANTITIES='1,9,23'&CSV_FORMAT=YES&ANG_FORMAT=DEG`;
   const r = await fetch(u); if (!r.ok) throw new Error('HTTP ' + r.status); const j = await r.json(); const res = j.result || '';
   const i = res.indexOf('$$SOE'), k = res.indexOf('$$EOE'); if (i < 0 || k < 0) throw new Error((j.error || res.slice(0, 160)).replace(/\s+/g, ' '));
