@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v384';
+  const VERSION = 'v385';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1841,7 +1841,7 @@
     setCountry(el) { settings.country = el.value; persistSettings(); for (const k in _holCache) delete _holCache[k]; S.dayCache = {}; renderSettings(); },
     async shareApp() {
       const url = 'https://nebe.oaza-adamanthea.cz/';
-      const text = 'Nebeský kompas — kalendář žitý s oblohou. Co je dnes ve hře podle Slunce, Luny, planet a tvých hvězd.';
+      const text = 'Nebeský kompas — kalendář, který žije s oblohou. Každý den ti řekne, jak ho čte Slunce, Luna, planety a tvoje hvězdy, a co se hodí dnes udělat.';
       if (navigator.share) {
         // jen text a odkaz — obrázek si aplikace vezmou samy z náhledu odkazu; při posílání souboru řada z nich odkaz zahodí
         try { await navigator.share({ title: 'Nebeský kompas', text, url }); return; }
