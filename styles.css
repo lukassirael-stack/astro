@@ -1253,3 +1253,7 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .obopt.on{border-color:var(--gold);background:var(--gold-soft);box-shadow:0 0 12px rgba(240,200,116,.2)}
 .obopt b{font-size:var(--fs-b)}.obopt small{color:var(--muted);font-size:var(--fs-s)}
 .obnav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px}
+.oblyrs{max-height:38vh;overflow:auto;padding:0 4px;border:1px solid var(--hairline);border-radius:12px;margin:0 0 6px}
+.oblyrs .lyr{padding:8px 6px}
+.obcard .lyr{text-transform:none;letter-spacing:0;flex-direction:row}
+.obcard .lyr input{width:auto}

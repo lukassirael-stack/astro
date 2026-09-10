@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v375';
+  const VERSION = 'v376';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -958,15 +958,15 @@
       ${OB.locMode === 'search' ? `<label>Hledat místo<span class="obsearch"><input id="locQuery" placeholder="obec, město…"><button type="button" class="btn small" data-act="locSearch">Hledat</button></span></label><div class="obres" id="locResults"></div><p class="note obok">✓ vybráno: ${esc(settings.loc.name)}</p>` : ''}
       ${OB.locMode === 'gps' ? `<p class="note">Po klepnutí na Dál se telefon zeptá na povolení.</p>` : ''}
       <p class="note">Místo jde kdykoli změnit v Nastavení nebo v panelu počasí.</p>`;
-    if (OB.step === 3) body = `
-      <h2>Kolik toho chceš ráno vidět</h2>
-      <p class="lede">Karta Dnes má pevné jádro — barvu dne, co se dotýká tvé mapy a jeden tip. Ostatní jsou vrstvy, které si zapneš, až budeš chtít.</p>
-      <div class="obopts">
-        <button type="button" class="obopt ${OB.layers === 'jednoduchy' ? 'on' : ''}" data-act="obLayers" data-s="jednoduchy"><b>Jednoduchý</b><small>jádro a počasí — doporučeno na začátek</small></button>
-        <button type="button" class="obopt ${OB.layers === 'vyvazeny' ? 'on' : ''}" data-act="obLayers" data-s="vyvazeny"><b>Vyvážený</b><small>navíc tatva, tělo, příroda, delší čtení</small></button>
-        <button type="button" class="obopt ${OB.layers === 'vse' ? 'on' : ''}" data-act="obLayers" data-s="vse"><b>Vše</b><small>i mayský den a všechno ostatní</small></button>
-      </div>
-      <p class="note">Vrstvy přepneš kdykoli v Nastavení → Karta Dnes.</p>`;
+    if (OB.step === 3) {
+      if (!OB.list) OB.list = LAYER_SETS.jednoduchy.slice();
+      const isSet = (k) => LAYER_SETS[k].length === OB.list.length && LAYER_SETS[k].every(x => OB.list.includes(x));
+      body = `
+      <h2>Co chceš ráno vidět</h2>
+      <p class="lede">Karta Dnes má pevné jádro — datum, barvu dne, co se dotýká tvé mapy a jeden tip. Ostatní jsou vrstvy: zaškrtni, co tě zajímá. V Nastavení to kdykoli změníš.</p>
+      <div class="row" style="gap:6px;flex-wrap:wrap;margin:0 0 10px">${Object.entries({ jednoduchy: 'Jednoduchý', vyvazeny: 'Vyvážený', vse: 'Vše' }).map(([k, lab]) => `<button type="button" class="chip small ${isSet(k) ? 'on' : ''}" data-act="obLayers" data-s="${k}">${lab}</button>`).join('')}</div>
+      <div class="lyrs oblyrs">${LAYERS.map(([id, t, sub]) => `<label class="lyr"><input type="checkbox" data-act="obLayerTgl" data-l="${id}" ${OB.list.includes(id) ? 'checked' : ''}><span><b>${t}</b><small>${sub}</small></span></label>`).join('')}</div>`;
+    }
     return `<div class="ob"><div class="obcard">
       <div class="obdots">${dots}</div>
       ${body}
@@ -1911,7 +1911,8 @@
     readSelf() { setReadAs(null); renderNatal(); window.scrollTo({ top: 0 }); },
     obBack() { obRead(); OB.step = Math.max(1, OB.step - 1); obRender(); },
     obSkip() { rawSet('kairos_ob_skip', true); obRender(); },
-    obLayers(el) { OB.layers = el.dataset.s; obRender(); },
+    obLayers(el) { OB.layers = el.dataset.s; OB.list = LAYER_SETS[el.dataset.s].slice(); obRender(); },
+    obLayerTgl(el) { if (!OB.list) OB.list = LAYER_SETS.jednoduchy.slice(); const id = el.dataset.l; const i = OB.list.indexOf(id); if (i >= 0) OB.list.splice(i, 1); else OB.list.push(id); OB.layers = 'vlastni'; },
     obLoc(el) { OB.locMode = el.dataset.m; obRender(); },
     async obBirthSearch() {
       obRead(); const q = ($('#obPlace') || {}).value; if (!q || q.trim().length < 2) return;
@@ -1937,7 +1938,7 @@
       const [y, m, d] = OB.date.split('-').map(Number); const [hh, mm] = (OB.noTime ? '12:00' : (OB.time || '12:00')).split(':').map(Number);
       const me = ownerProfile(); Object.assign(me, { name: OB.name || 'já', y, m, d, hh, mm, place: OB.place.name, lat: OB.place.lat, lon: OB.place.lon, alt: OB.place.alt || 200, tz: TZ, noTime: OB.noTime });
       if (!profiles.includes(me)) profiles.push(me); activeId = me.id; persistProfiles();
-      layersSet(LAYER_SETS[OB.layers] || LAYER_SETS.jednoduchy); rawSet('kairos_hint_layers', OB.layers !== 'jednoduchy');
+      layersSet(OB.list || LAYER_SETS.jednoduchy); rawSet('kairos_hint_layers', true);
       computeNatal(); rawSet('kairos_ob_skip', true); obRender(); showTab('kalendar'); renderCalendar(); renderNatal(); renderSettings();
       toast(`Vítej, ${OB.name || ''}. Tohle je tvůj první den s Kompasem.`);
     },
