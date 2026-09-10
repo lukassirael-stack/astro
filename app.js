@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v378';
+  const VERSION = 'v379';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -541,7 +541,7 @@
     for (const c of data.comets) {
       const best = {};
       for (const e of c.eph) {
-        if (e.mag == null || e.mag > 8.5) continue;
+        if (e.mag == null || e.mag > 9.5) continue;
         const dt = new Date(e.d.replace(/^(\d{4})-(\w{3})-(\d{2})$/, (m, y, mon, d) => `${y}-${String(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(mon) + 1).padStart(2, '0')}-${d}`) + 'T12:00:00Z');
         if (isNaN(dt) || dt < d0 || dt >= d1) continue;
         const p = K.tzParts(dt, TZ); let tw; try { tw = twilight(p.y, p.m, p.d, obs); } catch (x) { continue; }

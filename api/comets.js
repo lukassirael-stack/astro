@@ -3,7 +3,7 @@
 // na 120 dní dopředu. Výsledek se drží v cache 6 hodin. Volá se jako /api/comets
 const MPC = 'https://minorplanetcenter.net/iau/Ephemerides/Comets/Soft00Cmt.txt';
 const HORIZONS = 'https://ssd.jpl.nasa.gov/api/horizons.api';
-const DAYS = 120, MAX_MAG = 9.5, MAX_COMETS = 12;
+const DAYS = 120, MAX_MAG = 11.5, MAX_COMETS = 10;
 
 function jd(y, m, d) { const a = Math.floor((14 - m) / 12), yy = y + 4800 - a, mm = m + 12 * a - 3; return d + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045 - 0.5; }
 // heliocentrická vzdálenost z prvků (elipsa, parabola, hyperbola)
