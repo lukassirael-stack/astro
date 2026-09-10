@@ -1,13 +1,14 @@
 (function () {
   'use strict';
-  const VERSION = 'v373';
+  const VERSION = 'v374';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
   const TZ = 'Europe/Prague';
 
   // ===================== výchozí data (můžeš změnit v Nastavení) =====================
-  const DEFAULT_PROFILE = { id: 'lukas', name: 'Lukáš', y: 1980, m: 9, d: 3, hh: 16, mm: 4, place: 'Kroměříž', lat: 49.2979, lon: 17.3931, alt: 200, tz: TZ };
+  // nový uživatel začíná bez nativu: uvítání ho vyzve k zadání narození
+  const DEFAULT_PROFILE = { id: 'me', name: '', y: null, m: null, d: null, hh: 12, mm: 0, place: '', lat: 49.1686, lon: 17.4783, alt: 250, tz: TZ };
   const DEFAULT_SETTINGS = {
     loc: { name: 'Halenkovice', lat: 49.1686, lon: 17.4783, alt: 250 },
     rules: { harm: 2, tense: -2, vocHours: 6, starOrb: 1 },
@@ -796,12 +797,18 @@
     ['portal', 'Portály', 'zrcadlová data, mistrovské a osobní dny'],
     ['priroda', 'Příroda', 'co se právě děje venku'],
     ['tzolkin', 'Mayský den', 'nawal a tón dne podle Tzolk\'inu (pravý počet)'],
+    ['cteni', 'Dnešní čtení', 'delší čtení dne pod kartou Dnes'],
+    ['nejblizsi', 'Nejbližší dny', 'pás příštích dnů nad kalendářem'],
+    ['clanek', 'Čakrový cyklus dne', 'článek na konci hlavní stránky'],
+    ['wxcal', 'Počasí v kalendáři', 'ikona a teplota v políčkách dnů'],
   ];
   const LAYER_SETS = {
-    jednoduchy: ['pocasi'],
-    vyvazeny: ['pocasi', 'go', 'cost', 'cyklus', 'tatva', 'telo', 'portal', 'priroda'],
+    jednoduchy: ['pocasi', 'go', 'portal'],
+    vyvazeny: ['pocasi', 'go', 'cost', 'cyklus', 'tatva', 'telo', 'portal', 'priroda', 'cteni', 'nejblizsi', 'clanek', 'wxcal'],
     vse: LAYERS.map(x => x[0]),
   };
+  // nový uživatel začíná jednoduše; kdo si vrstvy nastavil, má své
+  if (!Array.isArray(settings.layers)) settings.layers = (profiles.length === 1 && profiles[0] === DEFAULT_PROFILE) ? LAYER_SETS.jednoduchy.slice() : LAYER_SETS.vyvazeny.slice();
   const layerOn = (id) => { const v = settings.layers; if (!Array.isArray(v)) return true; return v.includes(id); };
   function layersSet(list) { settings.layers = list.slice(); persistSettings(); S.dayCache = {}; }
   // ---------- Tzolk'in (pravý počet, GMT 584283) ----------
@@ -1525,6 +1532,7 @@
   // ===================== nativ =====================
   function computeNatal() {
     const p = activeProfile();
+    if (!p || !p.y || !p.m || !p.d) { S.natal = null; S.dayCache = {}; S.evCache = {}; $('#profilePill').textContent = ownerProfile().name || 'profil'; return; }
     try { S.natal = K.natalChart({ ...p, lat: +p.lat, lon: +p.lon, alt: +p.alt || 200, y: +p.y, m: +p.m, d: +p.d, hh: +p.hh, mm: +p.mm, tz: p.tz || TZ }, now); }
     catch (e) { console.error(e); S.natal = null; toast('Nativ se nepodařilo spočítat – zkontroluj data v Nastavení.'); }
     S.dayCache = {}; S.evCache = {};
@@ -1609,7 +1617,7 @@
     if (Date.now() - tabTapAt > 400) tabTap(t);
   }, { passive: true });
   // ---------- Zpět: pamatuje, odkud člověk přišel, když ho klepnutí odvede jinam ----------
-  const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goMonthRead', 'hsView', 'goNature', 'goPortal', 'goDir', 'goDiarToday', 'dirClose', 'goArcs', 'numQuick', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
+  const NAV_ACTS = new Set(['jumpDay', 'goDiar', 'goMonthRead', 'hsView', 'goNature', 'goPortal', 'goLayers', 'goDir', 'goDiarToday', 'dirClose', 'goArcs', 'numQuick', 'goNatal', 'goGuide', 'wxPlace', 'natalView', 'guide', 'lookback', 'hsTheme', 'elekToggle', 'evWhat']);
   let navBack = null;
   function navPush() { navBack = { tab: S.tab, y: window.scrollY, natalView: S.natalView, guide: S.guide, sel: S.sel && { ...S.sel }, ym: { y: S.y, m: S.m } }; showBack(true); }
   function showBack(on) { const vis = !!on && !!navBack; const b = $('#backBtn'); if (b) b.classList.toggle('on', vis); document.body.classList.toggle('hasback', vis); }
@@ -1799,6 +1807,7 @@
     wxPlace() { showTab('nastaveni'); setTimeout(() => { const f = $('#locForm'); if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); },
     noop() { },
     wxToggle() { S.wxOpen = !S.wxOpen; renderCalendar(); },
+    layerSetHome(el) { layersSet(LAYER_SETS[el.dataset.s] || LAYER_SETS.jednoduchy); renderCalendar(); },
     layerSet(el) { layersSet(LAYER_SETS[el.dataset.s] || LAYER_SETS.vyvazeny); renderSettings(); toast('Karta Dnes upravena.'); },
     layerTgl(el) { const cur = Array.isArray(settings.layers) ? settings.layers.slice() : LAYER_SETS.vyvazeny.slice(); const id = el.dataset.l; const i = cur.indexOf(id); if (i >= 0) cur.splice(i, 1); else cur.push(id); layersSet(cur); renderSettings(); },
     toggleKp() { settings.showKp = !settings.showKp; persistSettings(); S.dayCache = {}; renderSettings(); },
@@ -1813,6 +1822,8 @@
     goDir() { S.natalView = 'smer'; showTab('nativ'); },
     goMonthRead(el) { S.mrY = +el.dataset.y; S.mrM = +el.dataset.m; S.natalView = 'horoskop'; S.hsView = 'mesic'; showTab('nativ'); },
     goPortal() { S.filter = 'portal'; showTab('ukazy'); },
+    goLayers() { rawSet('kairos_hint_layers', true); showTab('nastaveni'); setTimeout(() => { const el = $('#view-nastaveni .lyrs'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 80); },
+    hintLayersOff() { rawSet('kairos_hint_layers', true); renderCalendar(); },
     goNature() { S.filter = 'priroda'; showTab('ukazy'); },
     dirArea(el) { S.dirArea = el.dataset.a; document.querySelectorAll('#dirAreas .chip').forEach(c => c.classList.toggle('on', c.dataset.a === el.dataset.a)); },
     dirSave() {
@@ -1895,7 +1906,7 @@
       toast(cycAll().includes(k) ? 'Zapsáno — fáze se přepočítaly.' : 'Zrušeno.');
     },
     cycToggle() { store.set('kairos_cyc_on', !cycOn()); renderSettings(); },
-    goNatal() { showTab('nativ'); },
+    goNatalTab() { showTab('nativ'); },
     ptOpen(el) { S.ptOpen = S.ptOpen === el.dataset.k ? null : el.dataset.k; if (S.tab === 'nativ') renderNatal(); else renderCalendar(); },
     goDiar(el) { const k = el.dataset.k, [yy, mm] = k.split('-').map(Number); S.plSel = k; S.plY = yy; S.plM = mm; showTab('diar'); setTimeout(() => { const t = $('#view-diar .pcal'); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 140); },
     evPastOn() { S.evPast = true; renderEvents(); },
@@ -2061,7 +2072,7 @@
       const hasP = pGet(key).length > 0;
       const isPast = key < TODAY_KEY;
       cellArr.push({ key, html: `<button type="button" class="cell ${da.color} ${isToday ? 'today' : ''} ${isSel ? 'sel' : ''} ${holidayFor(y, m, d) && holidayFor(y, m, d).f ? 'free' : ''} ${isPast ? 'past' : ''} ${hasJ ? 'noted' : ''} ${hasP ? 'planned' : ''}" style="--a:${alpha}" data-act="selDay" data-y="${y}" data-m="${m}" data-d="${d}" aria-label="${d}. ${K.MONTH_GEN[m - 1]} — ${TX.dayWord(da)}">
-        <span class="d">${d}</span><span class="mk">${mk}</span>${(() => { const w = wxGet(); const dd = w && w.days ? w.days.find(x => x.d === K.isoDate(y, m, d)) : null; return dd ? `<span class="wxc" title="${WX_CZ(dd.c)} · ${dd.tmin}° až ${dd.tmax}°"><i>${WX_EMO(dd.c)}</i>${dd.tmax}°</span>` : ''; })()}${(() => { const h = holidayFor(y, m, d); return h ? `<span class="hol ${h.f ? 'free' : 'trad'}" title="${esc(h.n)}"></span>` : ''; })()}${sdForDay(y, m, d).length ? '<span class="sdmark" title="významný den">🎂</span>' : ''}${gEvByDay(key).length ? '<span class="gdot" title="událost z Google kalendáře"></span>' : ''}${hasP || hasJ ? `<span class="marks">${hasP ? `<span class="pc" title="zapsané plány">${pGet(key).length}</span>` : ''}${hasJ ? '<span class="pen" title="zápis dne">✎</span>' : ''}</span>` : ''}${moonSVG(da.phaseAngle, 12, q ? (q.quarter === 2 ? 'moon full' : 'moon new') : 'moon')}
+        <span class="d">${d}</span><span class="mk">${mk}</span>${(() => { if (!layerOn('wxcal')) return ''; const w = wxGet(); const dd = w && w.days ? w.days.find(x => x.d === K.isoDate(y, m, d)) : null; return dd ? `<span class="wxc" title="${WX_CZ(dd.c)} · ${dd.tmin}° až ${dd.tmax}°"><i>${WX_EMO(dd.c)}</i>${dd.tmax}°</span>` : ''; })()}${(() => { const h = holidayFor(y, m, d); return h ? `<span class="hol ${h.f ? 'free' : 'trad'}" title="${esc(h.n)}"></span>` : ''; })()}${sdForDay(y, m, d).length ? '<span class="sdmark" title="významný den">🎂</span>' : ''}${gEvByDay(key).length ? '<span class="gdot" title="událost z Google kalendáře"></span>' : ''}${hasP || hasJ ? `<span class="marks">${hasP ? `<span class="pc" title="zapsané plány">${pGet(key).length}</span>` : ''}${hasJ ? '<span class="pen" title="zápis dne">✎</span>' : ''}</span>` : ''}${moonSVG(da.phaseAngle, 12, q ? (q.quarter === 2 ? 'moon full' : 'moon new') : 'moon')}
       </button>` });
     }
     // uplynulé celé týdny aktuálního měsíce sbalit
@@ -2083,8 +2094,9 @@
       ${natalSumHTML(true)}
       ${msgsHTML()}
       ${todayHeroHTML()}
-      ${aheadHTML()}
-      ${todayReadHTML()}
+      ${(() => { const cur = settings.layers || []; const simple = LAYER_SETS.jednoduchy.length === cur.length && LAYER_SETS.jednoduchy.every(x => cur.includes(x)); return simple && !rawGet('kairos_hint_layers', false) ? `<p class="note hintlyr" data-act="noop">Kompas umí víc — tatvy, tělo, přírodu, mayský den, počasí v kalendáři. <button type="button" class="linkbtn" data-act="goLayers">Přidat vrstvy ›</button> <button type="button" class="linkbtn" data-act="hintLayersOff">nechat jednoduché</button></p>` : ''; })()}
+      ${layerOn('nejblizsi') ? aheadHTML() : ''}
+      ${layerOn('cteni') ? todayReadHTML() : ''}
       <div class="monthbar">
         <button class="navbtn" data-act="prevMonth" aria-label="Předchozí měsíc">‹</button>
         <div class="mn">${K.MONTH_CZ[m - 1].charAt(0).toUpperCase() + K.MONTH_CZ[m - 1].slice(1)}<em>${y}</em></div>
@@ -2137,7 +2149,7 @@
       <span class="arcdot" style="background:${x.col};box-shadow:0 0 0 4px ${x.col}22"></span>
       <div class="arcbody"><h4><span class="arcnum">${x.n}</span>${x.ch} <em>— ${x.t}</em></h4><p>${x.p}</p></div>
     </div>`).join('');
-    return `<details class="arc"${S.arcOpen ? ' open' : ''}>
+    return `${layerOn('clanek') ? `<details class="arc"${S.arcOpen ? ' open' : ''}>
       <summary><span class="arcsum"><img class="arcthumb" src="cyklus-dne.webp?v=1" alt="" loading="lazy"><span class="arctitle">Čakrový cyklus dne<em>sedm poloh od probuzení k odevzdání</em></span><span class="arcchev" aria-hidden="true">›</span></span></summary>
       <div class="arcin">
         <div class="arcwheel"><img src="cyklus-dne.webp?v=1" alt="Kruh dne nad krajinou od svítání k noci" loading="lazy"><svg class="arcsvg" viewBox="0 0 1023 1537" aria-hidden="true"><circle cx="177" cy="807" r="42" fill="#E8503A" opacity=".2"/><circle cx="177" cy="807" r="26" fill="#E8503A" opacity=".32"/><circle cx="177" cy="807" r="16" fill="#E8503A"/><text x="111" y="823" class="arcn">1</text><circle cx="195" cy="590" r="42" fill="#F5762A" opacity=".2"/><circle cx="195" cy="590" r="26" fill="#F5762A" opacity=".32"/><circle cx="195" cy="590" r="16" fill="#F5762A"/><text x="133" y="563" class="arcn">2</text><circle cx="339" cy="431" r="42" fill="#F5C542" opacity=".2"/><circle cx="339" cy="431" r="26" fill="#F5C542" opacity=".32"/><circle cx="339" cy="431" r="16" fill="#F5C542"/><text x="305" y="372" class="arcn">3</text><circle cx="511" cy="386" r="52" fill="#6FCB5A" opacity=".2"/><circle cx="511" cy="386" r="32" fill="#6FCB5A" opacity=".32"/><circle cx="511" cy="386" r="20" fill="#6FCB5A"/><text x="511" y="318" class="arcn">4</text><circle cx="700" cy="446" r="42" fill="#6FB6E8" opacity=".2"/><circle cx="700" cy="446" r="26" fill="#6FB6E8" opacity=".32"/><circle cx="700" cy="446" r="16" fill="#6FB6E8"/><text x="739" y="390" class="arcn">5</text><circle cx="847" cy="715" r="42" fill="#9B5FD8" opacity=".2"/><circle cx="847" cy="715" r="26" fill="#9B5FD8" opacity=".32"/><circle cx="847" cy="715" r="16" fill="#9B5FD8"/><text x="911" y="669" class="arcn">6</text><circle cx="529" cy="1065" r="42" fill="#B98BF0" opacity=".2"/><circle cx="529" cy="1065" r="26" fill="#B98BF0" opacity=".32"/><circle cx="529" cy="1065" r="16" fill="#B98BF0"/><text x="533" y="1133" class="arcn">7</text><text x="62" y="778" class="arcw" text-anchor="start">východ</text><text x="961" y="778" class="arcw" text-anchor="end">západ</text></svg></div>
@@ -2147,7 +2159,7 @@
         <p class="arcline">Přijdu do těla&nbsp;→ ožiju&nbsp;→ konám&nbsp;→ propojuji&nbsp;se&nbsp;→ sdílím&nbsp;→ nahlížím&nbsp;dovnitř&nbsp;→ odevzdávám&nbsp;se.</p>
         <p class="arcnote">Je to posloupnost života, která se teprve druhotně může projevit v denním čase. Skutečný den se mezi polohami vrací a přeskakuje — v poledne jsi u srdce, odpoledne zpátky v konání, večer znovu u lidí. Proto tady nejsou žádné hodiny. Je to tvar, ne rozvrh: mapa, na které se člověk najde.</p>
       </div>
-    </details>`;
+    </details>` : ''}`;
   }
   // dnešní shrnutí nahoře
   function todayHeroHTML() {
@@ -2209,7 +2221,7 @@
       exp = `<div class="ptexp"><div class="pth"><b>${P.k} ${K.SIGN_LOC_V[si]}</b><button type="button" class="ptx" data-act="ptOpen" data-k="${open}" aria-label="Zavřít">×</button></div>
         <p class="ptwhat">${P.what}</p>
         <p class="ptme">${esc(P.txt(si) || '')}</p>
-        ${home ? `<button type="button" class="chip small" data-act="goNatal">✦ celý horoskop v O tobě</button>` : ''}</div>`;
+        ${home ? `<button type="button" class="chip small" data-act="goNatalTab">✦ celý horoskop v O tobě</button>` : ''}</div>`;
     }
     return `<div class="natal-sum ${home ? 'home' : ''}">${cards}</div>${exp}`;
   }
@@ -3839,7 +3851,7 @@ ${parts}
       <p class="note" style="margin:-2px 0 8px">Kompas je pro jednoho — tvou mapu. Další lidi přidáš v O tobě → Vztahy, bez omezení.</p>
       <form class="form card" id="profileForm" onsubmit="return false">
         <label class="wide">Jméno<input name="name" value="${esc(p.name)}"></label>
-        <label>Datum narození<input name="date" type="date" value="${p.y}-${pad(p.m)}-${pad(p.d)}"></label>
+        <label>Datum narození<input name="date" type="date" value="${p.y ? `${p.y}-${pad(p.m)}-${pad(p.d)}` : ''}"></label>
         <label>Čas narození<input name="time" type="time" value="${pad(p.hh)}:${pad(p.mm)}"></label>
         <label class="wide">Místo<input name="place" value="${esc(p.place)}"></label>
         <label>Šířka (N)<input name="lat" type="number" step="0.0001" value="${p.lat}"></label>
@@ -4164,6 +4176,8 @@ ${parts}
       <div class="h3" style="margin-top:0">Začni datem narození</div>
       <p>Kompas počítá ${what} z tvé osobní mapy — potřebuje datum, čas a místo, kde ses narodil. Zabere to minutu a všechno zůstává jen v tomto zařízení.</p>
       <div class="row"><button type="button" class="btn" data-act="goNatal">Zadat narození</button><button type="button" class="btn ghost" data-act="goGuide">Co Kompas umí</button></div>
+      <p class="note" style="margin:12px 0 4px">Kolik toho chceš ráno vidět? Začni jednoduše — vrstvy si přidáš kdykoli v Nastavení.</p>
+      <div class="row" style="gap:8px;flex-wrap:wrap">${Object.entries({ jednoduchy: 'Jednoduchý', vyvazeny: 'Vyvážený', vse: 'Vše' }).map(([k, lab]) => { const cur = settings.layers || []; const on = LAYER_SETS[k].length === cur.length && LAYER_SETS[k].every(x => cur.includes(x)); return `<button type="button" class="chip small ${on ? 'on' : ''}" data-act="layerSetHome" data-s="${k}">${lab}</button>`; }).join('')}</div>
     </div>`;
   }
   // po vykreslení kalendáře spočítat v klidu dny dalšího měsíce, aby listování bylo okamžité

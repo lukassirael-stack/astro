@@ -1227,3 +1227,5 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 /* režim čtení pro blízkého */
 .readbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;padding:9px 12px;border-radius:12px;border:1px solid rgba(201,169,224,.6);background:linear-gradient(180deg,rgba(201,169,224,.18),rgba(20,40,80,.4));color:var(--text);font-size:var(--fs-s)}
 .readbar b{color:#E6D3F7}
+.hintlyr{margin:-6px 0 12px;padding:8px 12px;border-radius:12px;background:var(--glass);border:1px dashed var(--hairline)}
+.hintlyr .linkbtn{padding:2px 6px}
