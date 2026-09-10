@@ -1229,3 +1229,27 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .readbar b{color:#E6D3F7}
 .hintlyr{margin:-6px 0 12px;padding:8px 12px;border-radius:12px;background:var(--glass);border:1px dashed var(--hairline)}
 .hintlyr .linkbtn{padding:2px 6px}
+
+/* průvodce prvním spuštěním */
+.ob{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(4,12,30,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.obcard{width:100%;max-width:440px;max-height:92vh;overflow:auto;padding:18px 18px 16px;border-radius:20px;border:1px solid rgba(240,216,152,.5);background:linear-gradient(180deg,rgba(22,44,80,.96),rgba(10,22,44,.98));box-shadow:0 0 30px rgba(240,200,116,.18),0 18px 50px rgba(0,0,0,.5)}
+.obdots{display:flex;gap:6px;justify-content:center;margin:0 0 12px}
+.obdots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18)}
+.obdots i.on{background:var(--gold);box-shadow:0 0 8px rgba(240,200,116,.7)}.obdots i.done{background:rgba(240,200,116,.5)}
+.obcard h2{font-family:var(--display);font-size:var(--fs-xxl);font-weight:500;margin:0 0 6px;color:#FFF3D6;text-align:center}
+.obcard .lede{margin:0 0 14px;line-height:1.6;color:var(--text);text-align:center}
+.obcard label{display:flex;flex-direction:column;gap:5px;margin:0 0 10px;font-size:var(--fs-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.obcard input{width:100%;font:inherit;font-size:var(--fs-b);padding:10px 12px;border-radius:12px;border:1px solid var(--hairline);background:rgba(255,255,255,.06);color:var(--text)}
+.obrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.obchk{flex-direction:row!important;align-items:center;gap:8px!important;text-transform:none!important;letter-spacing:0!important;font-size:var(--fs-s)!important;color:var(--text)!important}
+.obchk input{width:auto}
+.obchk small{color:var(--muted)}
+.obsearch{display:flex;gap:8px;text-transform:none;letter-spacing:0}
+.obsearch input{flex:1;min-width:0}
+.obres{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px}
+.obok{color:var(--harm);margin:-4px 0 10px}
+.obopts{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}
+.obopt{display:flex;flex-direction:column;gap:2px;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);background:rgba(255,255,255,.05);color:var(--text);font:inherit;cursor:pointer}
+.obopt.on{border-color:var(--gold);background:var(--gold-soft);box-shadow:0 0 12px rgba(240,200,116,.2)}
+.obopt b{font-size:var(--fs-b)}.obopt small{color:var(--muted);font-size:var(--fs-s)}
+.obnav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px}

@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v374';
+  const VERSION = 'v375';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -933,6 +933,48 @@
       <p class="small muted">Tón ${t.tone} — ${esc(TZ_TONE[t.tone - 1])}. Tzolk'in je mayský posvátný počet 260 dnů (13 tónů × 20 nawalů), který dodnes vedou kiché počtáři v Guatemale; Kompas používá pravý počet s korelací GMT 584283.</p>
       <p class="small"><b>Kalendářní kruh:</b> tvůj nawal a tón se v jeden den potkají znovu po 52 letech${daysTo > 0 ? ` — ${ret}${daysTo < 400 ? ` (za ${daysTo} dní)` : ''}` : ` — bylo ${ret}, další ${ret2}`}. Tradičně práh, kdy se člověk stává starším rodu a předává, co ví.</p></div>`;
   }
+  // ---------- průvodce prvním spuštěním: tři kroky, bez souřadnic, bez zdržování ----------
+  const OB = { step: 1, name: '', date: '', time: '', noTime: false, place: null, results: [], locMode: 'same', layers: 'jednoduchy' };
+  function onboardHTML() {
+    const dots = [1, 2, 3].map(i => `<i class="${i === OB.step ? 'on' : i < OB.step ? 'done' : ''}"></i>`).join('');
+    let body = '';
+    if (OB.step === 1) body = `
+      <h2>Vítej v Nebeském kompasu</h2>
+      <p class="lede">Kalendář žitý s oblohou. Aby ti mohl číst dny, potřebuje jednu věc: kdy a kde ses narodil. Zůstane to jen v tomhle telefonu.</p>
+      <label>Jak ti mám říkat<input id="obName" value="${esc(OB.name)}" placeholder="jméno" autocomplete="given-name"></label>
+      <div class="obrow"><label>Datum narození<input id="obDate" type="date" value="${OB.date}"></label><label>Čas<input id="obTime" type="time" value="${OB.time}" ${OB.noTime ? 'disabled' : ''}></label></div>
+      <label class="obchk"><input type="checkbox" id="obNoTime" ${OB.noTime ? 'checked' : ''}> Čas neznám <small>— Kompas počítá s polednem; ascendent a domy pak bere s rezervou</small></label>
+      <label>Místo narození<span class="obsearch"><input id="obPlace" placeholder="obec nebo město" value="${OB.place ? esc(OB.place.name) : ''}"><button type="button" class="btn small" data-act="obBirthSearch">Hledat</button></span></label>
+      <div class="obres">${OB.results.map(r => `<button type="button" class="chip small ${OB.place && OB.place.name === r.name && OB.place.lat === r.lat ? 'on' : ''}" data-act="obBirthPick" data-name="${esc(r.name)}" data-lat="${r.lat}" data-lon="${r.lon}" data-alt="${r.alt}">${esc(r.name)}${r.admin ? ` · ${esc(r.admin)}` : ''}${r.cc ? ` (${esc(r.cc)})` : ''}</button>`).join(' ')}</div>
+      ${OB.place ? `<p class="note obok">✓ ${esc(OB.place.name)} · ${fmtNum(OB.place.lat, 3)} N, ${fmtNum(OB.place.lon, 3)} E</p>` : ''}`;
+    if (OB.step === 2) body = `
+      <h2>Kde teď žiješ</h2>
+      <p class="lede">Podle toho Kompas počítá východy a západy Slunce, tmavé noci, počasí a všechno, co se děje nad tvou hlavou.</p>
+      <div class="obopts">
+        <button type="button" class="obopt ${OB.locMode === 'same' ? 'on' : ''}" data-act="obLoc" data-m="same"><b>Stejné jako místo narození</b><small>${OB.place ? esc(OB.place.name) : '—'}</small></button>
+        <button type="button" class="obopt ${OB.locMode === 'gps' ? 'on' : ''}" data-act="obLoc" data-m="gps"><b>Zjistit moji polohu</b><small>podle telefonu, jednorázově</small></button>
+        <button type="button" class="obopt ${OB.locMode === 'search' ? 'on' : ''}" data-act="obLoc" data-m="search"><b>Jiné místo</b><small>vyhledat podle jména</small></button>
+      </div>
+      ${OB.locMode === 'search' ? `<label>Hledat místo<span class="obsearch"><input id="locQuery" placeholder="obec, město…"><button type="button" class="btn small" data-act="locSearch">Hledat</button></span></label><div class="obres" id="locResults"></div><p class="note obok">✓ vybráno: ${esc(settings.loc.name)}</p>` : ''}
+      ${OB.locMode === 'gps' ? `<p class="note">Po klepnutí na Dál se telefon zeptá na povolení.</p>` : ''}
+      <p class="note">Místo jde kdykoli změnit v Nastavení nebo v panelu počasí.</p>`;
+    if (OB.step === 3) body = `
+      <h2>Kolik toho chceš ráno vidět</h2>
+      <p class="lede">Karta Dnes má pevné jádro — barvu dne, co se dotýká tvé mapy a jeden tip. Ostatní jsou vrstvy, které si zapneš, až budeš chtít.</p>
+      <div class="obopts">
+        <button type="button" class="obopt ${OB.layers === 'jednoduchy' ? 'on' : ''}" data-act="obLayers" data-s="jednoduchy"><b>Jednoduchý</b><small>jádro a počasí — doporučeno na začátek</small></button>
+        <button type="button" class="obopt ${OB.layers === 'vyvazeny' ? 'on' : ''}" data-act="obLayers" data-s="vyvazeny"><b>Vyvážený</b><small>navíc tatva, tělo, příroda, delší čtení</small></button>
+        <button type="button" class="obopt ${OB.layers === 'vse' ? 'on' : ''}" data-act="obLayers" data-s="vse"><b>Vše</b><small>i mayský den a všechno ostatní</small></button>
+      </div>
+      <p class="note">Vrstvy přepneš kdykoli v Nastavení → Karta Dnes.</p>`;
+    return `<div class="ob"><div class="obcard">
+      <div class="obdots">${dots}</div>
+      ${body}
+      <div class="obnav">${OB.step > 1 ? `<button type="button" class="btn ghost" data-act="obBack">‹ Zpět</button>` : `<button type="button" class="btn ghost small" data-act="obSkip">později</button>`}<button type="button" class="btn primary" data-act="obNext">${OB.step === 3 ? 'Otevřít Kompas' : 'Dál ›'}</button></div>
+    </div></div>`;
+  }
+  function obRead() { const n = $('#obName'), d = $('#obDate'), t = $('#obTime'), nt = $('#obNoTime'); if (n) OB.name = n.value.trim(); if (d) OB.date = d.value; if (t) OB.time = t.value; if (nt) OB.noTime = nt.checked; }
+  function obRender() { const host = $('#onboard'); if (host) host.innerHTML = (!S.natal && !rawGet('kairos_ob_skip', false)) ? onboardHTML() : ''; }
   // ---------- portálové dny: zrcadlová data, mistrovské součty, osobní portály ----------
   const numRed1 = (n, keep) => { n = Math.abs(n); while (n > 9) { if (keep && (n === 11 || n === 22 || n === 33)) return n; n = String(n).split('').reduce((s, c) => s + (+c), 0); } return n; };
   function portalsFor(y, m, d) {
@@ -1742,7 +1784,7 @@
     },
     locPick(el) {
       settings.loc = { name: el.dataset.name, lat: +(+el.dataset.lat).toFixed(4), lon: +(+el.dataset.lon).toFixed(4), alt: +el.dataset.alt || 0 };
-      persistSettings(); S.dayCache = {}; S.evCache = {}; applyTheme(); renderSettings(); wxRefresh();
+      persistSettings(); S.dayCache = {}; S.evCache = {}; applyTheme(); renderSettings(); wxRefresh(); obRender();
       toast('Místo: ' + settings.loc.name + '.');
     },
     pickPlace(el) {
@@ -1867,6 +1909,38 @@
     mrNext() { let y = S.mrY || np.y, m = (S.mrM || np.m) + 1; if (m > 12) { m = 1; y++; } S.mrY = y; S.mrM = m; renderNatal(); },
     readAs(el) { const rec = synFind(el.dataset.id); if (!rec) return; setReadAs({ ...rec, lat: +rec.lat, lon: +rec.lon, alt: +rec.alt || 200, y: +rec.y, m: +rec.m, d: +rec.d, hh: +rec.hh, mm: +rec.mm, tz: rec.tz || TZ }); renderNatal(); window.scrollTo({ top: 0 }); toast('Čteš pro: ' + (rec.name || '')); },
     readSelf() { setReadAs(null); renderNatal(); window.scrollTo({ top: 0 }); },
+    obBack() { obRead(); OB.step = Math.max(1, OB.step - 1); obRender(); },
+    obSkip() { rawSet('kairos_ob_skip', true); obRender(); },
+    obLayers(el) { OB.layers = el.dataset.s; obRender(); },
+    obLoc(el) { OB.locMode = el.dataset.m; obRender(); },
+    async obBirthSearch() {
+      obRead(); const q = ($('#obPlace') || {}).value; if (!q || q.trim().length < 2) return;
+      OB.results = []; try { const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q.trim())}&count=6&language=cs&format=json`); const j = await r.json(); OB.results = (j.results || []).map(x => ({ name: x.name, admin: x.admin1 || '', cc: x.country_code || '', lat: +(+x.latitude).toFixed(4), lon: +(+x.longitude).toFixed(4), alt: x.elevation != null ? Math.round(x.elevation) : 0 })); } catch (e) { toast('Vyhledávání se nepodařilo — zkus to za chvíli.'); }
+      if (!OB.results.length) toast('Nic jsem nenašel — zkus jiný tvar jména.');
+      obRender();
+    },
+    obBirthPick(el) { obRead(); OB.place = { name: el.dataset.name, lat: +el.dataset.lat, lon: +el.dataset.lon, alt: +el.dataset.alt || 0 }; OB.results = []; obRender(); },
+    obNext(el) {
+      obRead();
+      if (OB.step === 1) {
+        if (!OB.date) { toast('Vyber datum narození.'); return; }
+        if (!OB.noTime && !OB.time) { toast('Zadej čas narození, nebo zaškrtni, že ho neznáš.'); return; }
+        if (!OB.place) { toast('Vyhledej místo narození a vyber ho ze seznamu.'); return; }
+        OB.step = 2; obRender(); return;
+      }
+      if (OB.step === 2) {
+        if (OB.locMode === 'same' && OB.place) { settings.loc = { name: OB.place.name, lat: OB.place.lat, lon: OB.place.lon, alt: OB.place.alt }; persistSettings(); }
+        else if (OB.locMode === 'gps') { const fake = { textContent: '', disabled: false }; actions.locate(fake); }
+        OB.step = 3; obRender(); return;
+      }
+      // krok 3: uložit profil a spustit
+      const [y, m, d] = OB.date.split('-').map(Number); const [hh, mm] = (OB.noTime ? '12:00' : (OB.time || '12:00')).split(':').map(Number);
+      const me = ownerProfile(); Object.assign(me, { name: OB.name || 'já', y, m, d, hh, mm, place: OB.place.name, lat: OB.place.lat, lon: OB.place.lon, alt: OB.place.alt || 200, tz: TZ, noTime: OB.noTime });
+      if (!profiles.includes(me)) profiles.push(me); activeId = me.id; persistProfiles();
+      layersSet(LAYER_SETS[OB.layers] || LAYER_SETS.jednoduchy); rawSet('kairos_hint_layers', OB.layers !== 'jednoduchy');
+      computeNatal(); rawSet('kairos_ob_skip', true); obRender(); showTab('kalendar'); renderCalendar(); renderNatal(); renderSettings();
+      toast(`Vítej, ${OB.name || ''}. Tohle je tvůj první den s Kompasem.`);
+    },
     goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; if (el.dataset.v === 'horoskop') S.hsView = 'menu'; renderNatal(); window.scrollTo({ top: 0 }); },
     numQuick() { const v = ($('#numQuickDate') || {}).value; if (!v) return; S.numQuick = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .numquick'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
@@ -4091,6 +4165,7 @@ ${parts}
     const stop = () => { if (t) { clearTimeout(t); t = null; } };
     b.addEventListener('touchstart', start, { passive: true }); b.addEventListener('touchend', stop); b.addEventListener('touchmove', stop); b.addEventListener('touchcancel', stop);
     b.addEventListener('mousedown', start); b.addEventListener('mouseup', stop); b.addEventListener('mouseleave', stop); })();
+  obRender();
   document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.id === 'locQuery') { e.preventDefault(); actions.locSearch(); } });
   document.addEventListener('change', (e) => {
     { const s = e.target && e.target.closest && e.target.closest('select[data-act]'); if (s && actions[s.dataset.act]) { actions[s.dataset.act](s, e); return; } }
