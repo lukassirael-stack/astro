@@ -1257,3 +1257,6 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .oblyrs .lyr{padding:8px 6px}
 .obcard .lyr{text-transform:none;letter-spacing:0;flex-direction:row}
 .obcard .lyr input{width:auto}
+.betacard{border-color:rgba(240,200,116,.55);background:linear-gradient(180deg,rgba(240,200,116,.12),var(--glass))}
+.betacard b{font-family:var(--display);font-size:var(--fs-l);color:#FFF3D6;display:block;margin-bottom:4px}
+.betacard p{margin:0;line-height:1.55}

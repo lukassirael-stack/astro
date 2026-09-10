@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v376';
+  const VERSION = 'v377';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1866,6 +1866,7 @@
     goPortal() { S.filter = 'portal'; showTab('ukazy'); },
     goLayers() { rawSet('kairos_hint_layers', true); showTab('nastaveni'); setTimeout(() => { const el = $('#view-nastaveni .lyrs'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 80); },
     hintLayersOff() { rawSet('kairos_hint_layers', true); renderCalendar(); },
+    goFeedback() { const el = $('#view-nastaveni [data-act="fbSend"]'); if (el) el.closest('.card').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
     goNature() { S.filter = 'priroda'; showTab('ukazy'); },
     dirArea(el) { S.dirArea = el.dataset.a; document.querySelectorAll('#dirAreas .chip').forEach(c => c.classList.toggle('on', c.dataset.a === el.dataset.a)); },
     dirSave() {
@@ -4031,6 +4032,7 @@ ${parts}
         <label class="wide" style="display:block"><textarea id="fbText" rows="4" placeholder="Sem napiš, co máš na srdci…" style="width:100%"></textarea></label>
         <div class="row" style="margin-top:8px"><button type="button" class="btn primary" data-act="fbSend">Odeslat</button><button type="button" class="btn ghost" data-act="fbCopy">Zkopírovat text</button></div>
       </div>
+      <div class="card betacard"><b>Zkušební verze</b><p>Díky, že Kompas testuješ. Všechno je teď odemčené — plná verze i to, co bude v základu. Co ti nesedí, chybí nebo je navíc, napiš dole v <button type="button" class="linkbtn" data-act="goFeedback">Zpětné vazbě ›</button> — stačí pár slov, verze a telefon se doplní samy.</p></div>
       <div class="h2">Karta Dnes</div>
       <div class="card">
         <p class="note" style="margin-top:0">Vždy zůstává datum, barva dne, <b>tvůj den</b> a <b>Nebeský tip</b>. Ostatní vrstvy si zapni podle toho, co ráno opravdu čteš — vypnutá vrstva zůstává v detailu dne a ve svých kartách.</p>
@@ -4045,7 +4047,7 @@ ${parts}
       </div>
       <div class="row"><button type="button" class="btn" data-act="guide">Průvodce Kompasem</button><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn" data-act="shareApp">Sdílet Kompas</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
       <p class="note" style="margin-top:8px">Sdílení pošle odkaz na Kompas — druhý si ho otevře v prohlížeči a může si ho přidat na plochu stejně jako ty. Tvá data zůstávají jen u tebe; každý začíná se svým nativem.</p>
-      <p class="note" data-act="verTap" style="cursor:default">Nebeský kompas ${VERSION}${store.get('kairos_plus', false) ? ' · plná verze' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
+      <p class="note" data-act="verTap" style="cursor:default">Nebeský kompas ${VERSION} · zkušební verze${store.get('kairos_plus', false) ? ' · plná verze' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
       <p class="note">Jazyk aplikace je záměrně „tohle je ve hře, tohoto si všímej“. Žádná barva dne není předpověď a nerozhoduje za tebe.</p></div>`;
     const sel = $('#profileSelect', v); if (sel) sel.addEventListener('change', () => actions.switchProfile(sel));
   }
