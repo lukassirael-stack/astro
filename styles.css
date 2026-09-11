@@ -1281,3 +1281,5 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .tarc-p .asp,.tarc-d,.tarc-p .dom,.wxhead small,.pnum,.hstlab,.tvlab,.nl,.wkc{font-size:var(--fs-xs)}
 .cnpil b,.tzcard .tzk,.stardeep p.rod{font-size:var(--fs-l)}
 .mrhead .tzk{font-size:var(--fs-xl)}
+.mrhead .lede{font-size:var(--fs-l);line-height:1.6}
+.mrhead .lede b{color:var(--gold)}

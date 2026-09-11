@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v388';
+  const VERSION = 'v389';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -752,7 +752,7 @@
   }
   // ---------- Tvůj horoskop: denní, týdenní, roční čtení (měsíční je monthReadingHTML) ----------
   const CNAME = { harm: 'příznivý den', calm: 'klidný den', slow: 'pomalejší den', tense: 'náročný den', tenseplus: 'náročný den', harmplus: 'příznivý den', mild: 'vlídný den' };
-  const dayWord = (da) => { const c = da.color; return c === 'harm' ? 'příznivý' : c === 'mild' ? 'vlídný' : c === 'calm' ? 'klidný' : c === 'slow' ? 'pomalejší' : c === 'tense' ? 'náročný' : c; };
+  const dayWord = (da) => String(TX.dayWord(da) || '').replace(/ den$/, '').trim() || 'klidný';
   function dayReadingHTML(y, m, d) {
     let da; try { da = analyze(y, m, d); } catch (e) { return '<p class="note">Den se nepodařilo spočítat.</p>'; }
     const key = K.isoDate(y, m, d); const dayEv = monthEvents(y, m).filter(e => K.dateKey(e.date, TZ) === key);
