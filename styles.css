@@ -1266,3 +1266,18 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .sharecard b{display:block;font-family:var(--display);font-size:var(--fs-xl);color:#FFF3D6;margin-bottom:10px}
 .sharecard input{width:100%;font:inherit;padding:10px 12px;border-radius:12px;border:1px solid var(--hairline);background:rgba(255,255,255,.06);color:var(--text)}
 .sharecard a.btn{text-decoration:none}
+
+/* ==== sjednocení velikostí písma ====
+   pravidlo: čtený text = --fs-m (14 px) a víc; --fs-s jen pro metadata (data, štítky, poznámky pod čarou); --fs-xs jen pro popisky velkými písmeny */
+.glos p,.ndays p,.tarc-p,.nature,.nature p,.ptbody p.muted,.dirj p,.numpair p,.tzcard p,.betacard p,.msgcard p,.card.rd p,.hero-today .ht-row .tx,.wxt,.stardeep p,.returns p,.wkday p,.mrhead .lede,.numlong{font-size:var(--fs-m)}
+.note{font-size:var(--fs-s);line-height:1.5}
+.small{font-size:var(--fs-s)}
+.h3{font-size:var(--fs-xs)}
+.h2{font-size:var(--fs-l)}
+.card .h3+p,.card p{line-height:1.6}
+.lyr small,.obopt small,.ntile small{font-size:var(--fs-s)}
+.gcard p{font-size:var(--fs-m)}
+.glede p{font-size:var(--fs-b)}
+.tarc-p .asp,.tarc-d,.tarc-p .dom,.wxhead small,.pnum,.hstlab,.tvlab,.nl,.wkc{font-size:var(--fs-xs)}
+.cnpil b,.tzcard .tzk,.stardeep p.rod{font-size:var(--fs-l)}
+.mrhead .tzk{font-size:var(--fs-xl)}
