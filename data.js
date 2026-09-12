@@ -225,7 +225,7 @@ const NATURE_MONTHS = [
 // Příroda po třech dnech — fenologie pro Moravu a Čechy. Každý záznam platí od svého data do dalšího.
 const NATURE_DAYS = [
   ['01-01','Nejkratší dny za námi; na krmítku sýkory, zvonci, dlask. Za jasna Orion nad jižním obzorem.'],
-  ['01-04','Země zamrzlá, potoky pod ledem. Sojky a straky křičí v holých korunách, srnky tahají k lesním okrajům.'],
+  ['01-04','Země zamrzlá, potoky pod ledem. Sojky a straky křičí v holých korunách, srnky se stahují k lesním okrajům.'],
   ['01-07','Tříkrálové mrazy; sníh drží. Na jižních zdech se v poledne slunce už opře, den je o 20 minut delší.'],
   ['01-10','Lišky začínají kaňkovat — v noci štěkot v lese. Sněhové vločky na jívách, pupeny tvrdě zavřené.'],
   ['01-13','Nejchladnější týden roku bývá právě teď. Zajíci ožírají kůru, ptáci hledají potravu blízko lidí.'],
@@ -326,7 +326,7 @@ const NATURE_DAYS = [
   ['10-25','Konec letního času: večer se stmívá už v pět. Duby a buky drží poslední listí.'],
   ['10-28','Dušičkový čas: mlhy, holé stromy, svíčky na hřbitovech. Ježci hledají zimoviště.'],
   ['10-31','Samhain, astronomicky 7. 11. (15° Štíra). Brána zimy, čas předků a ticha.'],
-  ['11-03','Listí dopadalo, krajina zšedla. Havrani z Ruska přilétají zimovat, jsou plachost sama.'],
+  ['11-03','Listí dopadalo a krajina zšedla. Havrani z Ruska přilétají zimovat, jsou plachost sama.'],
   ['11-06','Samhain astronomicky. Jelení říje dozněla, srnci shazují parůžky, kvete ještě sedmikráska.'],
   ['11-09','Martin (11. 11.) „na bílém koni" — první sníh na kopcích. Husy se pečou, víno se otevírá.'],
   ['11-12','První souvislý sníh na horách. Datel a strakapoud na starých kmenech, sýkory u domů.'],
@@ -340,7 +340,7 @@ const NATURE_DAYS = [
   ['12-06','Mikuláš: mrazy sílí. Za jasných nocí Geminidy začínají, Orion vysoko nad obzorem.'],
   ['12-09','Nejtemnější týden: slunce vychází až po sedmé. Sýkory, dlasci, hýli na krmítku.'],
   ['12-12','Geminidy vrcholí (13. 12.). Lucie (13. 12.) „noci upije", dny se ale ještě krátí.'],
-  ['12-15','Vánoční stromky se řežou, jmelí prodává. Sníh drží na horách, v nížinách holomráz.'],
+  ['12-15','Vánoční stromky se řežou, jmelí se prodává. Sníh drží na horách, v nížinách holomráz.'],
   ['12-18','Slunce míří k nejnižšímu bodu. Ptáci se drží u lidí, lišky loví za dne.'],
   ['12-21','Zimní slunovrat, Slunce vstupuje do Kozoroha. Nejdelší noc; od zítřka světla přibývá.'],
   ['12-24','Štědrý den: „na Adama, na Evu, dlouhá noc, krátký den". Vánoce, za jasna Orion, Sírius.'],

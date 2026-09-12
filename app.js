@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v389';
+  const VERSION = 'v390';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -734,7 +734,7 @@
     const sunSign = K.signOf(K.lonOf('Sun', A.MakeTime(K.dayStart(y, m, 15, TZ))));
     const dd = (d) => `${d}. ${m}.`;
     const lun = r.lun.map(l => `<div class="ptcard mr"><div class="mrs"><span class="g">${l.nov ? '●' : '○'}</span><b>${l.nov ? 'Novoluní' : 'Úplněk'} ${dd(l.d)}</b><span class="sg">${K.SIGN_LOC_V[l.sign]} · ${l.h}. dům</span></div><div class="ptbody"><p>${esc(l.text)}</p><p class="what">oblast: ${esc(HA[l.h - 1])}</p></div></div>`).join('');
-    const moves = r.moves.map(x => `<p><b>${K.BODY_CZ[x.b]}</b> vstupuje ${dd(x.d)} do tvého ${x.h}. domu — ${esc((PT_VERB[x.b] || 'téma').replace(/^Tvá |^Tvé |^Tvůj /, '').replace(/^(\S)/, (c) => c.toLowerCase()))} se přesouvá do oblasti ${esc(HA[x.h - 1])}.</p>`).join('');
+    const moves = r.moves.map(x => `<p><b>${K.BODY_CZ[x.b]}</b> vstupuje ${dd(x.d)} do tvého ${x.h}. domu: ${esc(TX.DOMAIN[x.b] || 'jeho téma')} se na čas přesouvá do oblasti, kde jde o ${esc(HA[x.h - 1])}.</p>`).join('');
     const retro = r.retro.map(x => `<p><b>${K.BODY_CZ[x.b]} retrográdní</b> ${x.from === 1 ? 'celý začátek měsíce' : `od ${dd(x.from)}`}${x.to ? ` do ${dd(x.to)}` : x.from === 1 ? '' : ' až do konce měsíce'} v tvém ${x.h}. domě — ${esc(RETRO_BODY[x.b] ? RETRO_BODY[x.b][1].split('. ')[0] + '.' : 'věci v této oblasti se vracejí k dořešení.')} Oblast: ${esc(HA[x.h - 1])}.</p>`).join('');
     const slow = r.slow.map(it => { const t = it.t; return `<p><b>${esc(arcTitle(t))}</b> — ${esc(((PERIOD_TXT[t.transit] || {})[t.key === 'conj' ? 'conj' : t.kind] || arcPhrase(t)).split('. ').slice(0, 2).join('. '))}.</p>`; }).join('');
     const best = r.best.map(x => `<button type="button" class="chip small" data-act="jumpDay" data-y="${y}" data-m="${m}" data-d="${x.d}">${dd(x.d)}</button>`).join(' ');
