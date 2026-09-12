@@ -1283,3 +1283,12 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .mrhead .tzk{font-size:var(--fs-xl)}
 .mrhead .lede{font-size:var(--fs-l);line-height:1.6}
 .mrhead .lede b{color:var(--gold)}
+
+/* uvítání a ukázkový režim */
+.obwelcome{text-align:center}
+.obwelcome .oblogo{width:190px;height:auto;margin:-4px auto 6px;display:block;filter:drop-shadow(0 0 18px rgba(240,200,116,.35))}
+.demobar{position:fixed;left:0;right:0;bottom:0;z-index:28;display:none;align-items:center;justify-content:center;gap:12px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(201,169,224,.22),rgba(10,22,44,.96));border-top:1px solid rgba(201,169,224,.5);color:var(--text);font-size:var(--fs-s);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.demobar.on{display:flex}
+body.hasdemo .tabs{bottom:52px}
+body.hasdemo main{padding-bottom:calc(84px + 60px + env(safe-area-inset-bottom))}
+body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}

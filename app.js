@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v392';
+  const VERSION = 'v393';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -961,10 +961,20 @@
       <p class="small"><b>Kalendářní kruh:</b> tvůj nawal a tón se v jeden den potkají znovu po 52 letech${daysTo > 0 ? ` — ${ret}${daysTo < 400 ? ` (za ${daysTo} dní)` : ''}` : ` — bylo ${ret}, další ${ret2}`}. Tradičně práh, kdy se člověk stává starším rodu a předává, co ví.</p></div>`;
   }
   // ---------- průvodce prvním spuštěním: tři kroky, bez souřadnic, bez zdržování ----------
-  const OB = { step: 1, name: '', date: '', time: '', noTime: false, place: null, results: [], locMode: 'same', layers: 'jednoduchy' };
+  const OB = { step: 0, name: '', date: '', time: '', noTime: false, place: null, results: [], locMode: 'same', layers: 'jednoduchy' };
+  // ukázkový profil: Kompas jde projít i bez zadání vlastního narození
+  const DEMO_PROFILE = { id: 'demo', name: 'ukázka', rod: 'z', y: 1988, m: 6, d: 21, hh: 7, mm: 30, place: 'Praha', lat: 50.0755, lon: 14.4378, alt: 200, tz: TZ, demo: true };
+  const isDemo = () => !!(ownerProfile() || {}).demo;
   function onboardHTML() {
-    const dots = [1, 2, 3].map(i => `<i class="${i === OB.step ? 'on' : i < OB.step ? 'done' : ''}"></i>`).join('');
+    const dots = OB.step === 0 ? '' : [1, 2, 3].map(i => `<i class="${i === OB.step ? 'on' : i < OB.step ? 'done' : ''}"></i>`).join('');
     let body = '';
+    if (OB.step === 0) return `<div class="ob"><div class="obcard obwelcome">
+      <img class="oblogo" src="logo-emblem.webp?v=1" alt="" width="560" height="448">
+      <h2>Nebeský kompas</h2>
+      <p class="lede">Kalendář, který žije s oblohou. Každý den ti řekne, jak ho čte Slunce, Luna, planety a tvoje hvězdy — a co se hodí dnes udělat.</p>
+      <p class="note" style="text-align:center;margin:0 0 14px">Aby mluvil o tobě, potřebuje datum, čas a místo narození. Zůstane to jen v tomhle telefonu.</p>
+      <div class="obnav" style="justify-content:center;gap:10px;flex-wrap:wrap"><button type="button" class="btn primary" data-act="obNext">Začít — zadat narození</button><button type="button" class="btn ghost" data-act="obDemo">Nejdřív se rozhlédnout</button></div>
+    </div></div>`;
     if (OB.step === 1) body = `
       <h2>Vítej v Nebeském kompasu</h2>
       <p class="lede">Kalendář žitý s oblohou. Aby ti mohl číst dny, potřebuje jednu věc: kdy a kde ses narodil. Zůstane to jen v tomhle telefonu.</p>
@@ -1000,11 +1010,14 @@
     return `<div class="ob"><div class="obcard">
       <div class="obdots">${dots}</div>
       ${body}
-      <div class="obnav">${OB.step > 1 ? `<button type="button" class="btn ghost" data-act="obBack">‹ Zpět</button>` : `<button type="button" class="btn ghost small" data-act="obSkip">později</button>`}<button type="button" class="btn primary" data-act="obNext">${OB.step === 3 ? 'Otevřít Kompas' : 'Dál ›'}</button></div>
+      <div class="obnav"><button type="button" class="btn ghost ${OB.step > 1 ? '' : 'small'}" data-act="obBack">‹ Zpět</button><button type="button" class="btn primary" data-act="obNext">${OB.step === 3 ? 'Otevřít Kompas' : 'Dál ›'}</button></div>
     </div></div>`;
   }
   function obRead() { const n = $('#obName'), d = $('#obDate'), t = $('#obTime'), nt = $('#obNoTime'); if (n) OB.name = n.value.trim(); if (d) OB.date = d.value; if (t) OB.time = t.value; if (nt) OB.noTime = nt.checked; }
-  function obRender() { const host = $('#onboard'); if (host) host.innerHTML = (!S.natal && !rawGet('kairos_ob_skip', false)) ? onboardHTML() : ''; }
+  function obRender() {
+    const host = $('#onboard'); if (host) host.innerHTML = (!S.natal && !rawGet('kairos_ob_skip', false)) ? onboardHTML() : '';
+    const bar = $('#demoBar'); if (bar) { const on = isDemo(); bar.className = 'demobar' + (on ? ' on' : ''); bar.innerHTML = on ? `<span>Ukázka — Kompas počítá s cizím narozením.</span><button type="button" class="btn small" data-act="obStart">Zadat své ›</button>` : ''; document.body.classList.toggle('hasdemo', on); }
+  }
   // ---------- ženský rod: texty jsou psané v mužském rodě druhé osoby; pro ženy se převedou při vykreslení ----------
   const FEM_NOUNS = { 'průvodce': 'průvodkyně', 'ochranitel': 'ochranitelka', 'stavitel': 'stavitelka', 'tkadlec': 'tkadlena', 'umělec': 'umělkyně', 'bojovník': 'bojovnice', 'strážce': 'strážkyně', 'léčitel': 'léčitelka', 'král': 'královna', 'vůdce': 'vůdkyně', 'hledač': 'hledačka', 'tvůrce': 'tvůrkyně', 'začátečník': 'začátečnice', 'průkopník': 'průkopnice', 'organizátor': 'organizátorka', 'mistr': 'mistryně', 'učitel': 'učitelka', 'básník': 'básnice', 'debatér': 'debatérka', 'vypravěč': 'vypravěčka', 'zkoumatel': 'zkoumatelka', 'orel': 'orlice', 'pán': 'paní', 'hráč': 'hráčka', 'starší rodu': 'starší rodu', 'strážce prahu': 'strážkyně prahu', 'dobrodruh': 'dobrodružka', 'partner': 'partnerka', 'sám': 'sama', 'rád': 'ráda', 'jistý': 'jistá', 'zvyklý': 'zvyklá', 'schopný': 'schopná', 'hotový': 'hotová' };
   const FEM_VERBS = ['byl', 'nesl', 'měl', 'chtěl', 'mohl', 'začal', 'dostal', 'udělal', 'vzal', 'ztratil', 'narodil', 'stal', 'získal', 'prošel', 'došel', 'zůstal', 'potkal', 'našel', 'viděl', 'cítil', 'věděl', 'řekl', 'šel', 'přišel', 'odešel', 'vyšel', 'zvládl', 'musel', 'uměl', 'znal', 'dal', 'vydržel', 'pustil', 'nechal', 'položil', 'vyslovil', 'otevřel', 'zavřel', 'naučil', 'zasel', 'dokončil', 'vybral', 'rozhodl', 'zapsal', 'napsal', 'přečetl', 'poděkoval', 'odpustil', 'zkusil', 'ztišil', 'ohlédl', 'vrátil', 'sáhl', 'převzal', 'zvolil', 'tušil', 'hledal', 'sloužil', 'pracoval', 'žil', 'rostl', 'čekal', 'bál', 'vyhrál', 'prohrál', 'pochopil', 'porozuměl', 'zapomněl'];
@@ -2024,7 +2037,15 @@
     mrNext() { let y = S.mrY || np.y, m = (S.mrM || np.m) + 1; if (m > 12) { m = 1; y++; } S.mrY = y; S.mrM = m; renderNatal(); },
     readAs(el) { const rec = synFind(el.dataset.id); if (!rec) return; setReadAs({ ...rec, rod: rec.rod || guessRod(rec.name), lat: +rec.lat, lon: +rec.lon, alt: +rec.alt || 200, y: +rec.y, m: +rec.m, d: +rec.d, hh: +rec.hh, mm: +rec.mm, tz: rec.tz || TZ }); renderNatal(); window.scrollTo({ top: 0 }); toast('Čteš pro: ' + (rec.name || '')); },
     readSelf() { setReadAs(null); renderNatal(); window.scrollTo({ top: 0 }); },
-    obBack() { obRead(); OB.step = Math.max(1, OB.step - 1); obRender(); },
+    obBack() { obRead(); OB.step = Math.max(0, OB.step - 1); obRender(); },
+    obDemo() {
+      const me = ownerProfile(); Object.assign(me, DEMO_PROFILE, { id: me.id });
+      layersSet(LAYER_SETS.vyvazeny); computeNatal(); rawSet('kairos_ob_skip', true); obRender();
+      showTab('kalendar'); renderCalendar(); renderNatal(); renderSettings();
+      toast('Ukázka — Kompas počítá s ukázkovým narozením. Kdykoli ho vyměň za své.');
+    },
+    obStart() { const me = ownerProfile(); if (me.demo) { Object.assign(me, { name: '', rod: null, y: null, m: null, d: null, hh: 12, mm: 0, place: '', demo: false }); computeNatal(); }
+      rawSet('kairos_ob_skip', false); OB.step = 1; obRender(); },
     obSkip() { rawSet('kairos_ob_skip', true); obRender(); },
     obCyc(el) { OB.cyc = el.dataset.v === '1'; if (OB.cyc && OB.list && !OB.list.includes('cyklus')) OB.list.push('cyklus'); obRender(); },
     obRod(el) { obRead(); OB.rod = el.dataset.r; obRender(); },
@@ -2040,6 +2061,7 @@
     obBirthPick(el) { obRead(); OB.place = { name: el.dataset.name, lat: +el.dataset.lat, lon: +el.dataset.lon, alt: +el.dataset.alt || 0 }; OB.results = []; obRender(); },
     obNext(el) {
       obRead();
+      if (OB.step === 0) { OB.step = 1; obRender(); return; }
       if (OB.step === 1) {
         if (!OB.date) { toast('Vyber datum narození.'); return; }
         if (!OB.noTime && !OB.time) { toast('Zadej čas narození, nebo zaškrtni, že ho neznáš.'); return; }
@@ -2061,6 +2083,7 @@
       toast(OB.cyc ? `Vítej, ${OB.name || ''}. První den cyklu si zapiš v Diáři — Kompas se pak srovná s Lunou.` : `Vítej, ${OB.name || ''}. Tohle je tvůj první den s Kompasem.`);
     },
     setRod(el) { const p = ownerProfile(); p.rod = el.dataset.r; persistProfiles(); renderSettings(); if (S.tab !== 'nastaveni') renderCalendar(); toast(el.dataset.r === 'z' ? 'Kompas tě bude oslovovat v ženském rodě.' : 'Kompas tě bude oslovovat v mužském rodě.'); },
+    obShow() { rawSet('kairos_ob_skip', false); OB.step = 0; obRender(); },
     metTgl(el) { settings.metriky = !!el.checked; persistSettings(); if (settings.metriky) metSend(); toast(settings.metriky ? 'Díky — anonymní přehled pomáhá Kompas zlepšovat.' : 'Anonymní přehled vypnut.'); },
     goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; if (el.dataset.v === 'horoskop') S.hsView = 'menu'; renderNatal(); window.scrollTo({ top: 0 }); },
