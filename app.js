@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v390';
+  const VERSION = 'v391';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -112,6 +112,7 @@
   function tr(s) { return (settings.lang || 'cs') === 'sk' ? skText(s) : s; }
   let _trPending = null;
   new MutationObserver((muts) => {
+    if (typeof isFem === 'function' && isFem()) { for (const m of muts) for (const n of m.addedNodes) { if (n.nodeType === 1) genderizeDOM(n); else if (n.nodeType === 3 && n.parentNode) { const t = femText(n.nodeValue); if (t !== n.nodeValue) n.nodeValue = t; } } }
     if ((settings.lang || 'cs') !== 'sk') return;
     if (_trPending) return;
     _trPending = requestAnimationFrame(() => { _trPending = null; for (const m of muts) for (const n of m.addedNodes) { if (n.nodeType === 1) translateDOM(n); else if (n.nodeType === 3) { const t = skText(n.nodeValue); if (t !== n.nodeValue) n.nodeValue = t; } } });
@@ -968,6 +969,7 @@
       <h2>Vítej v Nebeském kompasu</h2>
       <p class="lede">Kalendář žitý s oblohou. Aby ti mohl číst dny, potřebuje jednu věc: kdy a kde ses narodil. Zůstane to jen v tomhle telefonu.</p>
       <label>Jak ti mám říkat<input id="obName" value="${esc(OB.name)}" placeholder="jméno" autocomplete="given-name"></label>
+      <div class="row" style="gap:8px;margin:-4px 0 10px;align-items:center"><small class="muted" style="font-size:var(--fs-s)">Oslovovat jako</small><button type="button" class="chip small ${(OB.rod || guessRod(OB.name)) === 'z' ? 'on' : ''}" data-act="obRod" data-r="z">žena</button><button type="button" class="chip small ${(OB.rod || guessRod(OB.name) || 'm') === 'm' ? 'on' : ''}" data-act="obRod" data-r="m">muž</button></div>
       <div class="obrow"><label>Datum narození<input id="obDate" type="date" value="${OB.date}"></label><label>Čas<input id="obTime" type="time" value="${OB.time}" ${OB.noTime ? 'disabled' : ''}></label></div>
       <label class="obchk"><input type="checkbox" id="obNoTime" ${OB.noTime ? 'checked' : ''}> Čas neznám <small>— Kompas počítá s polednem; ascendent a domy pak bere s rezervou</small></label>
       <label>Místo narození<span class="obsearch"><input id="obPlace" placeholder="obec nebo město" value="${OB.place ? esc(OB.place.name) : ''}"><button type="button" class="btn small" data-act="obBirthSearch">Hledat</button></span></label>
@@ -1003,6 +1005,49 @@
   }
   function obRead() { const n = $('#obName'), d = $('#obDate'), t = $('#obTime'), nt = $('#obNoTime'); if (n) OB.name = n.value.trim(); if (d) OB.date = d.value; if (t) OB.time = t.value; if (nt) OB.noTime = nt.checked; }
   function obRender() { const host = $('#onboard'); if (host) host.innerHTML = (!S.natal && !rawGet('kairos_ob_skip', false)) ? onboardHTML() : ''; }
+  // ---------- ženský rod: texty jsou psané v mužském rodě druhé osoby; pro ženy se převedou při vykreslení ----------
+  const FEM_NOUNS = { 'průvodce': 'průvodkyně', 'ochranitel': 'ochranitelka', 'stavitel': 'stavitelka', 'tkadlec': 'tkadlena', 'umělec': 'umělkyně', 'bojovník': 'bojovnice', 'strážce': 'strážkyně', 'léčitel': 'léčitelka', 'král': 'královna', 'vůdce': 'vůdkyně', 'hledač': 'hledačka', 'tvůrce': 'tvůrkyně', 'začátečník': 'začátečnice', 'průkopník': 'průkopnice', 'organizátor': 'organizátorka', 'mistr': 'mistryně', 'učitel': 'učitelka', 'básník': 'básnice', 'debatér': 'debatérka', 'vypravěč': 'vypravěčka', 'zkoumatel': 'zkoumatelka', 'orel': 'orlice', 'pán': 'paní', 'hráč': 'hráčka', 'starší rodu': 'starší rodu', 'strážce prahu': 'strážkyně prahu', 'dobrodruh': 'dobrodružka', 'partner': 'partnerka', 'sám': 'sama', 'rád': 'ráda', 'jistý': 'jistá', 'zvyklý': 'zvyklá', 'schopný': 'schopná', 'hotový': 'hotová' };
+  const FEM_VERBS = ['byl', 'nesl', 'měl', 'chtěl', 'mohl', 'začal', 'dostal', 'udělal', 'vzal', 'ztratil', 'narodil', 'stal', 'získal', 'prošel', 'došel', 'zůstal', 'potkal', 'našel', 'viděl', 'cítil', 'věděl', 'řekl', 'šel', 'přišel', 'odešel', 'vyšel', 'zvládl', 'musel', 'uměl', 'znal', 'dal', 'vydržel', 'pustil', 'nechal', 'položil', 'vyslovil', 'otevřel', 'zavřel', 'naučil', 'zasel', 'dokončil', 'vybral', 'rozhodl', 'zapsal', 'napsal', 'přečetl', 'poděkoval', 'odpustil', 'zkusil', 'ztišil', 'ohlédl', 'vrátil', 'sáhl', 'převzal', 'zvolil', 'tušil', 'hledal', 'sloužil', 'pracoval', 'žil', 'rostl', 'čekal', 'bál', 'vyhrál', 'prohrál', 'pochopil', 'porozuměl', 'zapomněl'];
+  const FEM_ADJ_SKIP = new Set(['ty', 'my', 'vy', 'proč', 'kdy', 'tady', 'teprve', 'brzy', 'dny', 'hlavy', 'ruky', 'vody', 'cesty', 'nohy', 'zdi', 'pravdy', 'věty', 'roky', 'body', 'peníze', 'lidi', 'starý']);
+  const FEM_ADJ_SKIP_RE = /(?:ny|ty|dy|ry|ky|hy|zy|sy|py|by|vy|my|ly|fy|gy|cy|čy|šy|žy|ňy)$/; // -y bez háčku: ne přídavné jméno
+  function femSegment(seg) {
+    // v úseku za „jsi“: přídavná jména -ý → -á a známá podstatná jména osob do ženského tvaru
+    return seg.replace(/(?<![\wáčďéěíňóřšťúůýž])([a-záčďéěíňóřšťúůýž]+)ý(?![\wáčďéěíňóřšťúůýž])/g, (m, stem) => FEM_ADJ_SKIP.has(m) ? m : `${stem}á`)
+      .replace(/(?<![\wáčďéěíňóřšťúůýž])([a-záčďéěíňóřšťúůýž]+)(?![\wáčďéěíňóřšťúůýž])/g, (m) => FEM_NOUNS[m] && m !== 'sám' ? FEM_NOUNS[m] : m);
+  }
+  function femText(t) {
+    if (!t || t.length < 4) return t;
+    let s = t;
+    const verbs = FEM_VERBS.join('|');
+    // minulý čas: narodil ses, byl jsi, kdybys byl, co jsi nesl, mohl bys
+    s = s.replace(new RegExp(`(?<![\\wáčďéěíňóřšťúůýž])(${verbs})( ses| jsi| bys)(?![\\wáčďéěíňóřšťúůýž])`, 'gi'), (m, v, p) => (v.endsWith('šel') ? v.slice(0, -3) + 'šla' : v + 'a') + p);
+    s = s.replace(new RegExp(`(?<![\\wáčďéěíňóřšťúůýž])([Jj]si|ses|sis|bys|[Kk]dybys|[Aa]bys|[Jj]sem|[Nn]ejsi)\\s+(?:sám\\s+|sama\\s+)?(${verbs})(?![\\wáčďéěíňóřšťúůýž])`, 'g'), (m, p, v) => m.replace(v, v.endsWith('šel') ? v.slice(0, -3) + 'šla' : v + 'a'));
+    // obecné příčestí po „bys / sis / kdybys“: zmizel → zmizela (kromě podstatných jmen na -tel)
+    s = s.replace(/(?<![\wáčďéěíňóřšťúůýž])(bys|sis|[Kk]dybys|[Aa]bys)\s+(sám\s+|sama\s+)?([a-záčďéěíňóřšťúůýž]{2,}(?:il|el|al|ěl|yl|ul))(?![\wáčďéěíňóřšťúůýž])/g, (m, p, s2, v) => (/tel$/.test(v) || FEM_NOUNS[v]) ? m : `${p} ${s2 || ''}${v.endsWith('šel') ? v.slice(0, -3) + 'šla' : v + 'a'}`);
+    // podstatná jména osob po „jsi“ / „být“ / „jako“ (i s přídavným jménem před nimi)
+    s = s.replace(/(?<![\wáčďéěíňóřšťúůýž])([Jj]si|být|budeš|jako|zůstat|zůstaň|[Bb]uď)\s+((?:[a-záčďéěíňóřšťúůýž]+ý\s+)?)([a-záčďéěíňóřšťúůýž]+)(?![\wáčďéěíňóřšťúůýž])/g, (m, v, adj, noun) => FEM_NOUNS[noun] ? `${v} ${adj ? adj.replace(/ý\s+$/, 'á ') : ''}${FEM_NOUNS[noun]}` : m);
+    // přídavná jména za „jsi“ až po konec věty nebo pomlčku
+    s = s.replace(/(?<![\wáčďéěíňóřšťúůýž])([Jj]si|seš|budeš|[Nn]ejsi|nebudeš|zůstáváš|cítíš se|[Bb]uď|[Zz]ůstaň|byla|(?:můžeš|chceš|potřebuješ|umíš|smíš|dokážeš|nemusíš|musíš|máš) být)(\s[^.;:—!?]*)/g, (m, v, seg) => v + femSegment(seg));
+    s = s.replace(/\b([Jj]si) (ten|tím), kdo\b/g, '$1 ta, kdo');
+    // „sám“ jen tam, kde věta mluví k tobě (druhá osoba); „život vezme sám“, „rozhovor teče sám“ zůstávají
+    s = s.replace(/[^.;!?]*[.;!?]?/g, (sent) => {
+      if (!/sám/.test(sent) || !/(?<![\wáčďéěíňóřšťúůýž])(jsi|abys|bys|kdybys|sis|ses|ty|tebe|tobě|tě|ti|tvůj|tvé|tvou|tvá|tvým|tvého|tvoje|[a-zA-Záčďéěíňóřšťúůýž]{2,}[eiíáuo]š|[a-zA-Záčďéěíňóřšťúůýž]{2,}(?:uj|ej|ěj)|máš|jdeš|jsi)(?![\wáčďéěíňóřšťúůýž])/.test(sent) || /\bvás\b|\bvám\b/.test(sent)) return sent;
+      return sent.replace(/(?<![\wáčďéěíňóřšťúůýž])sám(?![\wáčďéěíňóřšťúůýž])/g, 'sama');
+    });
+    s = s.replace(/\b([Mm]áš|mít|budeš mít|[Nn]emáš)\s+rád\b/g, '$1 ráda');
+    s = s.replace(/(?<![\wáčďéěíňóřšťúůýž])(mohl|chtěl|měl|byl) bys(?![\wáčďéěíňóřšťúůýž])/gi, (m, v) => v + 'a bys');
+    return s;
+  }
+  const isFem = () => { const p = activeProfile(); return p && p.rod === 'z'; };
+  function genderizeDOM(root) {
+    if (!root || !isFem()) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) => { const p = n.parentNode && n.parentNode.nodeName; return (p === 'SCRIPT' || p === 'STYLE' || p === 'TEXTAREA' || p === 'INPUT' || !n.nodeValue.trim()) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT; } });
+    const nodes = []; while (w.nextNode()) nodes.push(w.currentNode);
+    for (const n of nodes) { const v = n.nodeValue, t = femText(v); if (t !== v) n.nodeValue = t; }
+  }
+  // odhad rodu ze jména: česká a slovenská ženská jména končí skoro vždy na -a, -e/-ie; výjimky jsou domácké mužské tvary
+  const MALE_A = ['honza', 'kuba', 'ondra', 'míša', 'jirka', 'péťa', 'vojta', 'tonda', 'franta', 'pepa', 'láďa', 'sáša', 'nikola', 'luca', 'jóža', 'joža', 'jarda', 'zdena', 'venca', 'vláďa', 'dan', 'ríša', 'kája', 'míra', 'standa', 'ruda', 'bára'];
+  function guessRod(name) { const n = (name || '').trim().toLowerCase().split(/\s+/)[0]; if (!n) return null; if (MALE_A.includes(n) && !['bára', 'zdena', 'kája', 'míša', 'sáša', 'nikola'].includes(n)) return 'm'; if (/(a|ie|e)$/.test(n)) return 'z'; return 'm'; }
   // ---------- portálové dny: zrcadlová data, mistrovské součty, osobní portály ----------
   const numRed1 = (n, keep) => { n = Math.abs(n); while (n > 9) { if (keep && (n === 11 || n === 22 || n === 33)) return n; n = String(n).split('').reduce((s, c) => s + (+c), 0); } return n; };
   function portalsFor(y, m, d) {
@@ -1944,11 +1989,12 @@
     hyNext() { S.hyY = (S.hyY || np.y) + 1; renderNatal(); },
     mrPrev() { let y = S.mrY || np.y, m = (S.mrM || np.m) - 1; if (m < 1) { m = 12; y--; } S.mrY = y; S.mrM = m; renderNatal(); },
     mrNext() { let y = S.mrY || np.y, m = (S.mrM || np.m) + 1; if (m > 12) { m = 1; y++; } S.mrY = y; S.mrM = m; renderNatal(); },
-    readAs(el) { const rec = synFind(el.dataset.id); if (!rec) return; setReadAs({ ...rec, lat: +rec.lat, lon: +rec.lon, alt: +rec.alt || 200, y: +rec.y, m: +rec.m, d: +rec.d, hh: +rec.hh, mm: +rec.mm, tz: rec.tz || TZ }); renderNatal(); window.scrollTo({ top: 0 }); toast('Čteš pro: ' + (rec.name || '')); },
+    readAs(el) { const rec = synFind(el.dataset.id); if (!rec) return; setReadAs({ ...rec, rod: rec.rod || guessRod(rec.name), lat: +rec.lat, lon: +rec.lon, alt: +rec.alt || 200, y: +rec.y, m: +rec.m, d: +rec.d, hh: +rec.hh, mm: +rec.mm, tz: rec.tz || TZ }); renderNatal(); window.scrollTo({ top: 0 }); toast('Čteš pro: ' + (rec.name || '')); },
     readSelf() { setReadAs(null); renderNatal(); window.scrollTo({ top: 0 }); },
     obBack() { obRead(); OB.step = Math.max(1, OB.step - 1); obRender(); },
     obSkip() { rawSet('kairos_ob_skip', true); obRender(); },
     obCyc(el) { OB.cyc = el.dataset.v === '1'; if (OB.cyc && OB.list && !OB.list.includes('cyklus')) OB.list.push('cyklus'); obRender(); },
+    obRod(el) { obRead(); OB.rod = el.dataset.r; obRender(); },
     obLayers(el) { OB.layers = el.dataset.s; OB.list = LAYER_SETS[el.dataset.s].slice(); obRender(); },
     obLayerTgl(el) { if (!OB.list) OB.list = LAYER_SETS.jednoduchy.slice(); const id = el.dataset.l; const i = OB.list.indexOf(id); if (i >= 0) OB.list.splice(i, 1); else OB.list.push(id); OB.layers = 'vlastni'; },
     obLoc(el) { OB.locMode = el.dataset.m; obRender(); },
@@ -1974,13 +2020,14 @@
       }
       // krok 3: uložit profil a spustit
       const [y, m, d] = OB.date.split('-').map(Number); const [hh, mm] = (OB.noTime ? '12:00' : (OB.time || '12:00')).split(':').map(Number);
-      const me = ownerProfile(); Object.assign(me, { name: OB.name || 'já', y, m, d, hh, mm, place: OB.place.name, lat: OB.place.lat, lon: OB.place.lon, alt: OB.place.alt || 200, tz: TZ, noTime: OB.noTime });
+      const me = ownerProfile(); Object.assign(me, { name: OB.name || 'já', rod: OB.rod || guessRod(OB.name) || 'm', y, m, d, hh, mm, place: OB.place.name, lat: OB.place.lat, lon: OB.place.lon, alt: OB.place.alt || 200, tz: TZ, noTime: OB.noTime });
       if (!profiles.includes(me)) profiles.push(me); activeId = me.id; persistProfiles();
       layersSet(OB.list || LAYER_SETS.jednoduchy); rawSet('kairos_hint_layers', true);
       if (OB.cyc) { store.set('kairos_cyc_on', true); }
       computeNatal(); rawSet('kairos_ob_skip', true); obRender(); showTab('kalendar'); renderCalendar(); renderNatal(); renderSettings();
       toast(OB.cyc ? `Vítej, ${OB.name || ''}. První den cyklu si zapiš v Diáři — Kompas se pak srovná s Lunou.` : `Vítej, ${OB.name || ''}. Tohle je tvůj první den s Kompasem.`);
     },
+    setRod(el) { const p = ownerProfile(); p.rod = el.dataset.r; persistProfiles(); renderSettings(); if (S.tab !== 'nastaveni') renderCalendar(); toast(el.dataset.r === 'z' ? 'Kompas tě bude oslovovat v ženském rodě.' : 'Kompas tě bude oslovovat v mužském rodě.'); },
     goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; if (el.dataset.v === 'horoskop') S.hsView = 'menu'; renderNatal(); window.scrollTo({ top: 0 }); },
     numQuick() { const v = ($('#numQuickDate') || {}).value; if (!v) return; S.numQuick = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .numquick'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
@@ -3965,6 +4012,7 @@ ${parts}
       <p class="note" style="margin:-2px 0 8px">Kompas je pro jednoho — tvou mapu. Další lidi přidáš v O tobě → Vztahy, bez omezení.</p>
       <form class="form card" id="profileForm" onsubmit="return false">
         <label class="wide">Jméno<input name="name" value="${esc(p.name)}"></label>
+        <label class="wide">Oslovovat jako<span class="row" style="gap:8px;text-transform:none;letter-spacing:0"><button type="button" class="chip small ${(p.rod || guessRod(p.name)) === 'z' ? 'on' : ''}" data-act="setRod" data-r="z">žena</button><button type="button" class="chip small ${(p.rod || guessRod(p.name) || 'm') === 'm' ? 'on' : ''}" data-act="setRod" data-r="m">muž</button></span></label>
         <label>Datum narození<input name="date" type="date" value="${p.y ? `${p.y}-${pad(p.m)}-${pad(p.d)}` : ''}"></label>
         <label>Čas narození<input name="time" type="time" value="${pad(p.hh)}:${pad(p.mm)}"></label>
         <label class="wide">Místo<input name="place" value="${esc(p.place)}"></label>
@@ -4206,6 +4254,9 @@ ${parts}
     const stop = () => { if (t) { clearTimeout(t); t = null; } };
     b.addEventListener('touchstart', start, { passive: true }); b.addEventListener('touchend', stop); b.addEventListener('touchmove', stop); b.addEventListener('touchcancel', stop);
     b.addEventListener('mousedown', start); b.addEventListener('mouseup', stop); b.addEventListener('mouseleave', stop); })();
+  // ženský rod i bez MutationObserveru: po každém vykreslení projít text
+  { const wrap = (fn, sel) => function () { const r = fn.apply(this, arguments); if (isFem()) genderizeDOM(document.querySelector(sel)); return r; };
+    renderNatal = wrap(renderNatal, '#view-nativ'); renderCalendarRaw = wrap(renderCalendarRaw, '#view-kalendar'); renderEvents = wrap(renderEvents, '#view-ukazy'); renderJournal = wrap(renderJournal, '#view-diar'); renderSettings = wrap(renderSettings, '#view-nastaveni'); }
   obRender();
   document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target && e.target.id === 'locQuery') { e.preventDefault(); actions.locSearch(); } });
   document.addEventListener('change', (e) => {
