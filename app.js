@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v391';
+  const VERSION = 'v392';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1048,6 +1048,37 @@
   // odhad rodu ze jména: česká a slovenská ženská jména končí skoro vždy na -a, -e/-ie; výjimky jsou domácké mužské tvary
   const MALE_A = ['honza', 'kuba', 'ondra', 'míša', 'jirka', 'péťa', 'vojta', 'tonda', 'franta', 'pepa', 'láďa', 'sáša', 'nikola', 'luca', 'jóža', 'joža', 'jarda', 'zdena', 'venca', 'vláďa', 'dan', 'ríša', 'kája', 'míra', 'standa', 'ruda', 'bára'];
   function guessRod(name) { const n = (name || '').trim().toLowerCase().split(/\s+/)[0]; if (!n) return null; if (MALE_A.includes(n) && !['bára', 'zdena', 'kája', 'míša', 'sáša', 'nikola'].includes(n)) return 'm'; if (/(a|ie|e)$/.test(n)) return 'z'; return 'm'; }
+  // ---------- anonymní metriky: kolik lidí Kompas používá a co otevírají (bez jmen, dat narození a poloh) ----------
+  const MET_URL = 'https://myybuesoourgpbouwwst.supabase.co/rest/v1/kompas_metriky';
+  const MET_KEY = MSG_KEY;
+  function metState() {
+    let s = rawGet('kairos_met', null);
+    if (!s) { s = { id: 'z' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4), first: K.isoDate(np.y, np.m, np.d), den: null, otevreni: 0, obrazovky: {}, akce: {} }; rawSet('kairos_met', s); }
+    return s;
+  }
+  function metNote(kind, name) {
+    if (settings.metriky === false) return;
+    const s = metState(); const today = K.isoDate(np.y, np.m, np.d);
+    if (s.den !== today) { s.den = today; s.otevreni = 0; s.obrazovky = {}; s.akce = {}; }
+    if (kind === 'open') s.otevreni = (s.otevreni || 0) + 1;
+    if (kind === 'screen') s.obrazovky[name] = (s.obrazovky[name] || 0) + 1;
+    if (kind === 'act') s.akce[name] = (s.akce[name] || 0) + 1;
+    rawSet('kairos_met', s);
+  }
+  let _metTimer = null;
+  async function metSend() {
+    if (settings.metriky === false) return;
+    const s = metState(); const today = K.isoDate(np.y, np.m, np.d);
+    const body = { zarizeni_id: s.id, den: today, prvni_start: s.first, verze: VERSION, ma_nativ: !!S.natal, rod: (ownerProfile() || {}).rod || null,
+      vrstvy: Array.isArray(settings.layers) ? settings.layers : null, jazyk: settings.lang || 'cs',
+      pwa: !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true,
+      zapisu: Object.keys(journal || {}).length, vztahu: (synPartners() || []).length,
+      otevreni: s.otevreni || 0, obrazovky: s.obrazovky || {}, akce: s.akce || {}, updated_at: new Date().toISOString() };
+    try {
+      await fetch(`${MET_URL}?on_conflict=zarizeni_id,den`, { method: 'POST', headers: { apikey: MET_KEY, Authorization: 'Bearer ' + MET_KEY, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(body), keepalive: true });
+    } catch (e) { }
+  }
+  const metQueue = () => { clearTimeout(_metTimer); _metTimer = setTimeout(metSend, 20000); };
   // ---------- portálové dny: zrcadlová data, mistrovské součty, osobní portály ----------
   const numRed1 = (n, keep) => { n = Math.abs(n); while (n > 9) { if (keep && (n === 11 || n === 22 || n === 33)) return n; n = String(n).split('').reduce((s, c) => s + (+c), 0); } return n; };
   function portalsFor(y, m, d) {
@@ -1707,6 +1738,7 @@
   document.addEventListener('DOMContentLoaded', () => translateDOM(document.body));
   if (document.readyState !== 'loading') setTimeout(() => translateDOM(document.body), 0);
   function showTab(tab) {
+    metNote('screen', tab); metQueue();
     if (S.readAs && tab !== 'nativ') { setReadAs(null); }
     S.tab = tab;
     store.set('kairos_tab', tab);
@@ -1748,6 +1780,7 @@
     const act = e.target.closest('[data-act]');
     if (act && act.tagName !== 'SELECT') {
       const name = act.dataset.act;
+      metNote('act', name + (act.dataset.v ? ':' + act.dataset.v : act.dataset.f ? ':' + act.dataset.f : '')); metQueue();
       if (NAV_ACTS.has(name) && !(name === 'natalView' && act.dataset.v === 'menu')) navPush();
       actions[name](act, e);
     }
@@ -2028,6 +2061,7 @@
       toast(OB.cyc ? `Vítej, ${OB.name || ''}. První den cyklu si zapiš v Diáři — Kompas se pak srovná s Lunou.` : `Vítej, ${OB.name || ''}. Tohle je tvůj první den s Kompasem.`);
     },
     setRod(el) { const p = ownerProfile(); p.rod = el.dataset.r; persistProfiles(); renderSettings(); if (S.tab !== 'nastaveni') renderCalendar(); toast(el.dataset.r === 'z' ? 'Kompas tě bude oslovovat v ženském rodě.' : 'Kompas tě bude oslovovat v mužském rodě.'); },
+    metTgl(el) { settings.metriky = !!el.checked; persistSettings(); if (settings.metriky) metSend(); toast(settings.metriky ? 'Díky — anonymní přehled pomáhá Kompas zlepšovat.' : 'Anonymní přehled vypnut.'); },
     goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; if (el.dataset.v === 'horoskop') S.hsView = 'menu'; renderNatal(); window.scrollTo({ top: 0 }); },
     numQuick() { const v = ($('#numQuickDate') || {}).value; if (!v) return; S.numQuick = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .numquick'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
@@ -4131,6 +4165,7 @@ ${parts}
         <label class="setsel">Jazyk rozhraní<select class="btn" data-act="setLang"><option value="cs" ${(settings.lang || 'cs') === 'cs' ? 'selected' : ''}>čeština</option><option value="sk" ${settings.lang === 'sk' ? 'selected' : ''}>slovenčina</option></select></label>
         <label class="setsel">Svátky a jmeniny<select class="btn" data-act="setCountry"><option value="both" ${(settings.country || 'both') === 'both' ? 'selected' : ''}>Česko i Slovensko</option><option value="cz" ${settings.country === 'cz' ? 'selected' : ''}>Česko</option><option value="sk" ${settings.country === 'sk' ? 'selected' : ''}>Slovensko</option></select></label>
       </div>
+      <label class="lyr" style="margin-bottom:8px"><input type="checkbox" data-act="metTgl" ${settings.metriky !== false ? 'checked' : ''}><span><b>Pomáhat s vývojem</b><small>Kompas jednou denně pošle anonymní přehled: kolik obrazovek jsi otevřel a které vrstvy máš zapnuté. Bez jména, data narození i polohy — jen abych věděl, co lidem k čemu je.</small></span></label>
       <div class="row"><button type="button" class="btn" data-act="guide">Průvodce Kompasem</button><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn" data-act="shareApp">Sdílet Kompas</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
       <p class="note" style="margin-top:8px">Sdílení pošle odkaz na Kompas — druhý si ho otevře v prohlížeči a může si ho přidat na plochu stejně jako ty. Tvá data zůstávají jen u tebe; každý začíná se svým nativem.</p>
       <p class="note" data-act="verTap" style="cursor:default">Nebeský kompas ${VERSION} · zkušební verze${store.get('kairos_plus', false) ? ' · plná verze' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
@@ -4243,6 +4278,8 @@ ${parts}
   setTimeout(() => { const w = wxGet(); if (!w || !w.days || w.days.length < 7 || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); }, 800);
   setTimeout(() => { const c = cometsGet(); if (!c || Date.now() - c.when > 12 * 3600 * 1000) cometsRefresh(); }, 2500);
   setTimeout(() => { const m = rawGet('kairos_msgs', null); if (!m || Date.now() - m.when > 6 * 3600 * 1000) msgsRefresh(); }, 1500);
+  metNote('open'); setTimeout(metSend, 8000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') metSend(); else metNote('open'); });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { const w = wxGet(); if (!w || Date.now() - w.when > 30 * 60 * 1000) wxRefresh(); } });
   setInterval(() => { const el = $('#tatvaLine'); if (el) { const h = tattvaHTML(); if (h) el.innerHTML = h; } const eo = $('#orgLine'); if (eo) { const g = orgHTML(); if (g) eo.innerHTML = g; } }, 30000);
   setTimeout(() => { const c = gEv(); if (store.get('kairos_ics', '') && (!c || Date.now() - c.when > 6 * 3600 * 1000)) icsRefresh(true); }, 2500);
