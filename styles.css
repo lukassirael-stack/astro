@@ -1307,3 +1307,5 @@ body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}
 .xfm-x{position:absolute;top:8px;right:8px}
 .xfm-qr{background:#fff;border-radius:12px;padding:8px;margin:10px auto 14px;width:min(70vw,240px)}
 .xfm-qr svg{display:block;width:100%;height:auto}
+.xfm-ic{font-size:28px;color:#F0C874;margin-bottom:4px}
+.xfm .inapp-how b{color:var(--gold,#F0C874)}

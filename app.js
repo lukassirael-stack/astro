@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v395';
+  const VERSION = 'v396';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2116,6 +2116,7 @@
       layersSet(OB.list || LAYER_SETS.jednoduchy); rawSet('kairos_hint_layers', true);
       if (OB.cyc) { store.set('kairos_cyc_on', true); }
       computeNatal(); rawSet('kairos_ob_skip', true); obRender(); showTab('kalendar'); renderCalendar(); renderNatal(); renderSettings();
+      if (INAPP) setTimeout(inappFinish, 700);
       toast(OB.cyc ? `Vítej, ${OB.name || ''}. První den cyklu si zapiš v Diáři — Kompas se pak srovná s Lunou.` : `Vítej, ${OB.name || ''}. Tohle je tvůj první den s Kompasem.`);
     },
     setRod(el) { const p = ownerProfile(); p.rod = el.dataset.r; persistProfiles(); renderSettings(); if (S.tab !== 'nastaveni') renderCalendar(); toast(el.dataset.r === 'z' ? 'Kompas tě bude oslovovat v ženském rodě.' : 'Kompas tě bude oslovovat v mužském rodě.'); },
@@ -4499,22 +4500,39 @@ ${parts}
     bar.innerHTML = `<div class="inapp-t"><b>Otevři Kompas v prohlížeči</b><span>Tam si ho přidáš na plochu a všechno, co vyplníš, ti zůstane.</span><span class="inapp-how" hidden>${how}</span></div><div class="inapp-b"><button type="button" class="inapp-go">${IS_ANDROID ? 'Otevřít v Chrome' : 'Jak na to'}</button><button type="button" class="inapp-x" aria-label="Zavřít">×</button></div>`;
     document.body.appendChild(bar); document.body.classList.add('has-inapp');
     bar.querySelector('.inapp-x').addEventListener('click', () => { bar.remove(); document.body.classList.remove('has-inapp'); try { sessionStorage.setItem('kInappX', '1'); } catch (e) { } });
-    bar.querySelector('.inapp-go').addEventListener('click', async (ev) => {
-      const btn = ev.currentTarget; btn.disabled = true; const lab = btn.textContent; btn.textContent = 'Chystám…';
-      let tok = null;
-      if (xfHasData()) { try { tok = await xfMake(); } catch (e) { toast('Data se nepodařilo připravit — zkus to za chvíli.'); } }
-      // odkaz s přenosem se propíše do adresy, takže ho převezme i „Otevřít v prohlížeči“ z menu
-      if (tok) history.replaceState(null, '', location.pathname + '#prenos=' + tok);
-      btn.disabled = false; btn.textContent = lab;
-      if (IS_ANDROID) {
-        const q = tok ? '?prenos=' + tok : '';
-        const fb = encodeURIComponent(xfLink(tok));
-        location.href = `intent://${location.host}${location.pathname}${q}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${fb};end`;
-      }
-      const h = bar.querySelector('.inapp-how'); h.hidden = false;
-      metNote('act', 'inappOpen');
-    });
+    bar.querySelector('.inapp-go').addEventListener('click', (ev) => inappGo(ev.currentTarget, bar.querySelector('.inapp-how')));
   })();
+  // připraví data a otevře opravdový prohlížeč (Android), nebo ukáže krok v menu (iPhone)
+  async function inappGo(btn, howEl) {
+    btn.disabled = true; const lab = btn.textContent; btn.textContent = 'Chystám…';
+    let tok = null;
+    if (xfHasData()) { try { tok = await xfMake(); } catch (e) { toast('Data se nepodařilo připravit — zkus to za chvíli.'); } }
+    // odkaz s přenosem se propíše do adresy, takže ho převezme i „Otevřít v prohlížeči" z menu
+    if (tok) history.replaceState(null, '', location.pathname + '#prenos=' + tok);
+    btn.disabled = false; btn.textContent = lab;
+    if (IS_ANDROID) {
+      const q = tok ? '?prenos=' + tok : '';
+      const fb = encodeURIComponent(xfLink(tok));
+      location.href = `intent://${location.host}${location.pathname}${q}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${fb};end`;
+    }
+    if (howEl) howEl.hidden = false;
+    metNote('act', 'inappOpen');
+  }
+  // konec průvodce ve vestavěném prohlížeči: výrazná výzva k přenosu
+  function inappFinish() {
+    if (!INAPP) return;
+    const how = IS_IOS ? 'Klepni vpravo nahoře na <b>⋯</b> a zvol <b>Otevřít v prohlížeči</b>. Safari otevře Kompas i s tvou mapou — pak Sdílet → <b>Přidat na plochu</b>.' : 'Klepni vpravo nahoře na <b>⋮</b> a zvol <b>Otevřít v Chrome</b>. Chrome otevře Kompas i s tvou mapou a nabídne instalaci na plochu.';
+    const m = xfModal(`<div class="xfm-ic">✦</div><div class="h3" style="margin-top:0">Tvoje mapa je hotová</div>
+      <p class="note">Teď si Kompas přenes do prohlížeče. Tam ho přidáš na plochu, budeš ho mít po ruce každé ráno a všechna tvá data pojedou s tebou.</p>
+      <button type="button" class="btn primary" data-xf="go">${IS_ANDROID ? 'Otevřít v Chrome' : 'Přenést do prohlížeče'}</button>
+      <p class="note inapp-how" hidden style="margin-top:12px;text-align:left">${how}</p>
+      <p class="note" style="margin-top:12px"><a href="#" data-xf="later">Teď zůstanu tady</a></p>`);
+    m.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-xf]'); if (!b) return;
+      if (b.dataset.xf === 'go') inappGo(b, m.querySelector('.inapp-how'));
+      if (b.dataset.xf === 'later') { e.preventDefault(); m.remove(); }
+    });
+  }
   function xfModal(html) {
     let m = $('#xfModal'); if (m) m.remove();
     m = document.createElement('div'); m.id = 'xfModal'; m.className = 'xfm';
@@ -4522,7 +4540,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=395'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=396'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
