@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v393';
+  const VERSION = 'v394';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -982,9 +982,8 @@
       <div class="row" style="gap:8px;margin:-4px 0 10px;align-items:center"><small class="muted" style="font-size:var(--fs-s)">Oslovovat jako</small><button type="button" class="chip small ${(OB.rod || guessRod(OB.name)) === 'z' ? 'on' : ''}" data-act="obRod" data-r="z">žena</button><button type="button" class="chip small ${(OB.rod || guessRod(OB.name) || 'm') === 'm' ? 'on' : ''}" data-act="obRod" data-r="m">muž</button></div>
       <div class="obrow"><label>Datum narození<input id="obDate" type="date" value="${OB.date}"></label><label>Čas<input id="obTime" type="time" value="${OB.time}" ${OB.noTime ? 'disabled' : ''}></label></div>
       <label class="obchk"><input type="checkbox" id="obNoTime" ${OB.noTime ? 'checked' : ''}> Čas neznám <small>— Kompas počítá s polednem; ascendent a domy pak bere s rezervou</small></label>
-      <label>Místo narození<span class="obsearch"><input id="obPlace" placeholder="obec nebo město" value="${OB.place ? esc(OB.place.name) : ''}"><button type="button" class="btn small" data-act="obBirthSearch">Hledat</button></span></label>
-      <div class="obres">${OB.results.map(r => `<button type="button" class="chip small ${OB.place && OB.place.name === r.name && OB.place.lat === r.lat ? 'on' : ''}" data-act="obBirthPick" data-name="${esc(r.name)}" data-lat="${r.lat}" data-lon="${r.lon}" data-alt="${r.alt}">${esc(r.name)}${r.admin ? ` · ${esc(r.admin)}` : ''}${r.cc ? ` (${esc(r.cc)})` : ''}</button>`).join(' ')}</div>
-      ${OB.place ? `<p class="note obok">✓ ${esc(OB.place.name)} · ${fmtNum(OB.place.lat, 3)} N, ${fmtNum(OB.place.lon, 3)} E</p>` : ''}`;
+      <label>Místo narození<span class="obsearch"><input id="obPlace" placeholder="obec nebo město" autocomplete="off" enterkeyhint="search" value="${OB.place ? esc(OB.place.name) : esc(OB.q || '')}"><button type="button" class="btn small" data-act="obBirthSearch">Hledat</button></span></label>
+      <div id="obPlaceBox">${obPlaceHTML()}</div>`;
     if (OB.step === 2) body = `
       <h2>Kde teď žiješ</h2>
       <p class="lede">Podle toho Kompas počítá východy a západy Slunce, tmavé noci, počasí a všechno, co se děje nad tvou hlavou.</p>
@@ -1013,6 +1012,38 @@
       <div class="obnav"><button type="button" class="btn ghost ${OB.step > 1 ? '' : 'small'}" data-act="obBack">‹ Zpět</button><button type="button" class="btn primary" data-act="obNext">${OB.step === 3 ? 'Otevřít Kompas' : 'Dál ›'}</button></div>
     </div></div>`;
   }
+  function obPlaceHTML() {
+    const res = OB.results.length ? `<div class="obres">${OB.results.map(r => `<button type="button" class="chip small ${OB.place && OB.place.name === r.name && OB.place.lat === r.lat ? 'on' : ''}" data-act="obBirthPick" data-name="${esc(r.name)}" data-lat="${r.lat}" data-lon="${r.lon}" data-alt="${r.alt}">${esc(r.name)}${r.admin ? ` · ${esc(r.admin)}` : ''}${r.cc ? ` (${esc(r.cc)})` : ''}</button>`).join(' ')}</div>` : '';
+    if (OB.place) return res + `<p class="note obok">✓ ${esc(OB.place.name)} · ${fmtNum(OB.place.lat, 3)} N, ${fmtNum(OB.place.lon, 3)} E</p>`;
+    const hint = OB.searching ? 'Hledám…' : OB.results.length > 1 ? 'Klepni na správné místo.' : (OB.q && OB.q.length >= 2 && OB.searched === OB.q && !OB.results.length) ? 'Zkus jiný tvar jména — třeba s okresem nebo bez diakritiky.' : 'Začni psát jméno obce nebo města, nabídka se ukáže sama.';
+    return res + `<p class="note obhint">${hint}</p>`;
+  }
+  function obPaintPlace() { const b = $('#obPlaceBox'); if (b) b.innerHTML = obPlaceHTML(); }
+  // jednoznačný výsledek: jediný nalezený, nebo jediný se shodným jménem
+  function obUnique() {
+    if (OB.results.length === 1) return OB.results[0];
+    const n = (x) => (x || '').toLocaleLowerCase('cs').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    const same = OB.results.filter(r => n(r.name) === n(OB.q)); return same.length === 1 ? same[0] : null;
+  }
+  let obTimer = null, obSeq = 0;
+  async function obSearch(q) {
+    q = (q || '').trim(); OB.q = q; if (q.length < 2) { OB.results = []; OB.searched = ''; obPaintPlace(); return []; }
+    const my = ++obSeq; OB.searching = true; obPaintPlace();
+    let list = [];
+    try { const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=cs&format=json`); const j = await r.json(); list = (j.results || []).map(x => ({ name: x.name, admin: x.admin1 || '', cc: x.country_code || '', lat: +(+x.latitude).toFixed(4), lon: +(+x.longitude).toFixed(4), alt: x.elevation != null ? Math.round(x.elevation) : 0 })); }
+    catch (e) { if (my === obSeq) { OB.searching = false; obPaintPlace(); toast('Vyhledávání se nepodařilo — zkus to za chvíli.'); } return null; }
+    if (my !== obSeq) return null; // mezitím psal dál
+    OB.searching = false; OB.results = list; OB.searched = q; obPaintPlace(); return list;
+  }
+  document.addEventListener('input', (e) => {
+    if (!e.target || e.target.id !== 'obPlace') return;
+    const v = e.target.value; if (OB.place && v.trim() !== OB.place.name) OB.place = null;
+    clearTimeout(obTimer); obTimer = setTimeout(() => obSearch(v), 450);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || !e.target || e.target.id !== 'obPlace') return;
+    e.preventDefault(); clearTimeout(obTimer); actions.obBirthSearch();
+  });
   function obRead() { const n = $('#obName'), d = $('#obDate'), t = $('#obTime'), nt = $('#obNoTime'); if (n) OB.name = n.value.trim(); if (d) OB.date = d.value; if (t) OB.time = t.value; if (nt) OB.noTime = nt.checked; }
   function obRender() {
     const host = $('#onboard'); if (host) host.innerHTML = (!S.natal && !rawGet('kairos_ob_skip', false)) ? onboardHTML() : '';
@@ -2053,19 +2084,24 @@
     obLayerTgl(el) { if (!OB.list) OB.list = LAYER_SETS.jednoduchy.slice(); const id = el.dataset.l; const i = OB.list.indexOf(id); if (i >= 0) OB.list.splice(i, 1); else OB.list.push(id); OB.layers = 'vlastni'; },
     obLoc(el) { OB.locMode = el.dataset.m; obRender(); },
     async obBirthSearch() {
-      obRead(); const q = ($('#obPlace') || {}).value; if (!q || q.trim().length < 2) return;
-      OB.results = []; try { const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q.trim())}&count=6&language=cs&format=json`); const j = await r.json(); OB.results = (j.results || []).map(x => ({ name: x.name, admin: x.admin1 || '', cc: x.country_code || '', lat: +(+x.latitude).toFixed(4), lon: +(+x.longitude).toFixed(4), alt: x.elevation != null ? Math.round(x.elevation) : 0 })); } catch (e) { toast('Vyhledávání se nepodařilo — zkus to za chvíli.'); }
-      if (!OB.results.length) toast('Nic jsem nenašel — zkus jiný tvar jména.');
-      obRender();
+      obRead(); const q = ($('#obPlace') || {}).value || ''; if (q.trim().length < 2) { toast('Napiš jméno obce nebo města.'); return; }
+      const list = await obSearch(q); if (!list) return;
+      const u = obUnique(); if (u) { OB.place = { name: u.name, lat: u.lat, lon: u.lon, alt: u.alt || 0 }; obPaintPlace(); }
     },
-    obBirthPick(el) { obRead(); OB.place = { name: el.dataset.name, lat: +el.dataset.lat, lon: +el.dataset.lon, alt: +el.dataset.alt || 0 }; OB.results = []; obRender(); },
-    obNext(el) {
+    obBirthPick(el) { obRead(); OB.place = { name: el.dataset.name, lat: +el.dataset.lat, lon: +el.dataset.lon, alt: +el.dataset.alt || 0 }; OB.q = OB.place.name; OB.results = []; const i = $('#obPlace'); if (i) i.value = OB.place.name; obPaintPlace(); },
+    async obNext(el) {
       obRead();
       if (OB.step === 0) { OB.step = 1; obRender(); return; }
       if (OB.step === 1) {
         if (!OB.date) { toast('Vyber datum narození.'); return; }
         if (!OB.noTime && !OB.time) { toast('Zadej čas narození, nebo zaškrtni, že ho neznáš.'); return; }
-        if (!OB.place) { toast('Vyhledej místo narození a vyber ho ze seznamu.'); return; }
+        if (!OB.place) {
+          const q = (($('#obPlace') || {}).value || '').trim();
+          if (q.length < 2) { toast('Napiš místo narození.'); return; }
+          if (OB.searched !== q) { clearTimeout(obTimer); const list = await obSearch(q); if (!list) return; }
+          const u = obUnique(); if (u) OB.place = { name: u.name, lat: u.lat, lon: u.lon, alt: u.alt || 0 };
+          else { obPaintPlace(); toast(OB.results.length ? 'Vyber místo narození z nabídky.' : 'Zkus jiný tvar jména místa.'); return; }
+        }
         OB.step = 2; obRender(); return;
       }
       if (OB.step === 2) {

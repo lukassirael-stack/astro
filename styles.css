@@ -1248,6 +1248,7 @@ body.hasback main{padding-bottom:calc(84px + 64px + env(safe-area-inset-bottom))
 .obsearch input{flex:1;min-width:0}
 .obres{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 10px}
 .obok{color:var(--harm);margin:-4px 0 10px}
+.obhint{margin:-4px 0 10px;opacity:.8}
 .obopts{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}
 .obopt{display:flex;flex-direction:column;gap:2px;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid var(--hairline);background:rgba(255,255,255,.05);color:var(--text);font:inherit;cursor:pointer}
 .obopt.on{border-color:var(--gold);background:var(--gold-soft);box-shadow:0 0 12px rgba(240,200,116,.2)}
