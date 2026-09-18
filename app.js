@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v394';
+  const VERSION = 'v395';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -484,7 +484,7 @@
       ['diar', '✎', 'Diář', `Zapiš pár slov o dni a ohodnoť ho. Po pěti dnech Kompas ukáže, jak tvá hodnocení sedí s výpočtem; po osmi i podle fází cyklu, pokud ho vedeš. Plány na den se ráno objeví v kartě Dnes. Diář je tvůj kontrolní nástroj: Kompas říká, co je ve hře, ty říkáš, jak to bylo.`],
       ['otobe', '★', 'O tobě', `Rozcestník deseti karet. <b>Tvoje mapa</b> — každý bod s výkladem ve znamení a v domě, aspekty s výkladem. <b>Čím teď procházíš</b> — tranzity jako oblouky s počátkem, vrcholem a koncem, a ohlédnutí na kterékoli datum. <b>Vztahy</b> — horoskop dvou map, vaše čísla, a <em>Přečíst horoskop</em>, které přepne všechny karty na mapu blízkého. <b>Tvůj horoskop</b> — kapitoly života a pod nimi <em>Horoskop v čase</em>: denní, týdenní, měsíční, roční. <b>Tvá čísla</b>, <b>Čakra roku</b>, <b>Velké návraty</b>, <b>Tvé hvězdy</b>, <b>Mayský horoskop</b>, <b>Čínský horoskop</b>. Efemeridy pro astrologa jsou pod kartami.`],
       ['nastaveni', '⚙', 'Nastavení', `Profil (Kompas je pro jednoho — blízcí jsou ve Vztazích), Kde právě jsi (poloha, hledání místa), Karta Dnes (vrstvy), obloha den a noc, pravidla barvení dne, cyklus, orgánové hodiny, numerologie, kosmické počasí, svátky pro Česko a Slovensko, jazyk, Google kalendář, záloha, sdílení, Průvodce a zpětná vazba. Verze appky je úplně dole.`],
-      ['data', '⌂', 'Tvá data', `Všechno běží v prohlížeči a zůstává v tomto zařízení. Záloha v Nastavení je jediná cesta, kudy data odcházejí, a jde jen tam, kam ji pošleš ty. Počasí a komety se stahují z veřejných zdrojů bez tvých dat; sdělení z Oázy přicházejí jen jako text.`],
+      ['data', '⌂', 'Tvá data', `Všechno běží v prohlížeči a zůstává v tomto zařízení. Data odcházejí jen tehdy, když je sám pošleš: zálohou, nebo přenosem do jiného zařízení (šifrovaně, klíč je jen v odkazu, platí hodinu). Počasí a komety se stahují z veřejných zdrojů bez tvých dat; sdělení z Oázy přicházejí jen jako text.`],
     ];
     const VLIVY = [
       ['slunce', 'Slunce a znamení', `Slunce v mapě je jádro: vůle, životní směr, to, čím jsi. Znamení, ve kterém stálo při tvém narození, je „tvoje znamení" — ale je to jen jeden z bodů. Během roku Slunce prochází všemi dvanácti; vstup do znamení (ingres) mění tón měsíce pro všechny a Kompas ho hlásí v Úkazech.`],
@@ -4194,6 +4194,8 @@ ${parts}
       </div>
       <div class="h2">Záloha a přenos dat</div>
       <div class="card">
+        <div class="row" style="margin-bottom:8px"><button type="button" class="btn" data-act="xferMake">Přenést do jiného zařízení</button></div>
+        <p class="note">Rychlý přenos na mobil, počítač nebo do jiného prohlížeče: ukáže QR kód a odkaz, druhé zařízení se otevře i s tvými daty.</p>
         <div class="row"><button type="button" class="btn" data-act="bkExport">Stáhnout kompletní zálohu</button><label class="btn ghost" style="cursor:pointer">Obnovit ze zálohy<input type="file" id="bkFile" accept="application/json,.json" hidden></label></div>
         <p class="note">Záloha obsahuje všechno: profily, diář, plány, nastavení, osoby pro srovnání i fotky a hlasové poznámky. Při výměně telefonu: tady stáhni soubor, pošli si ho do nového zařízení (mail, Disk…) a tam ho načti přes „Obnovit ze zálohy“. Obnova přepíše stávající data v appce.</p>
       </div>
@@ -4432,6 +4434,117 @@ ${parts}
       fr.readAsText(e.target.files[0]);
       e.target.value = '';
     }
+  });
+  // ===================== přenos dat mezi prohlížeči a zařízeními =====================
+  // Data se zašifrují v zařízení (AES-GCM), do Supabase jde jen šifrovaný balíček pod náhodným kódem.
+  // Klíč jede jen v odkazu (za #), balíček platí hodinu a otevře se jednou.
+  const XF_RPC = 'https://myybuesoourgpbouwwst.supabase.co/rest/v1/rpc/';
+  const UA = navigator.userAgent || '';
+  const INAPP = /FBAN|FBAV|FB_IAB|FBIOS|FB4A|Messenger|Instagram|Line\/|MicroMessenger|TikTok|musical_ly|Snapchat|; wv\)/i.test(UA);
+  const IS_IOS = /iPhone|iPad|iPod/i.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const IS_ANDROID = /Android/i.test(UA);
+  const b64u = {
+    enc(bytes) { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
+    dec(str) { str = str.replace(/-/g, '+').replace(/_/g, '/'); while (str.length % 4) str += '='; const bin = atob(str); const out = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out; },
+  };
+  async function xfPipe(bytes, stream) { return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer()); }
+  function xfHasData() { const d = store.exportState().data || {}; return !!(Array.isArray(d.profiles) && d.profiles.length) || !!(d.journal && Object.keys(d.journal).length); }
+  async function xfMake() {
+    if (!(window.crypto && crypto.subtle)) throw new Error('crypto');
+    let bytes = new TextEncoder().encode(JSON.stringify({ app: 'kairos', st: store.exportState() }));
+    let z = 'n'; if (window.CompressionStream) { try { bytes = await xfPipe(bytes, new CompressionStream('gzip')); z = 'g'; } catch (e) { } }
+    const raw = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt']);
+    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, bytes));
+    const buf = new Uint8Array(12 + ct.length); buf.set(iv); buf.set(ct, 12);
+    const abc = 'abcdefghijkmnpqrstuvwxyz23456789'; const rnd = crypto.getRandomValues(new Uint8Array(10));
+    const kod = Array.from(rnd, x => abc[x % abc.length]).join('');
+    const r = await fetch(XF_RPC + 'kompas_prenos_uloz', { method: 'POST', headers: { apikey: MSG_KEY, Authorization: 'Bearer ' + MSG_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_kod: kod, p_data: 'v1.' + z + '.' + b64u.enc(buf) }) });
+    if (!r.ok || (await r.json()) !== true) throw new Error('upload');
+    return kod + '.' + b64u.enc(raw);
+  }
+  async function xfTake(token) {
+    const [kod, k] = token.split('.'); if (!kod || !k) throw new Error('token');
+    const r = await fetch(XF_RPC + 'kompas_prenos_vezmi', { method: 'POST', headers: { apikey: MSG_KEY, Authorization: 'Bearer ' + MSG_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_kod: kod }) });
+    const pack = r.ok ? await r.json() : null; if (!pack) return null;
+    const [, z, body] = pack.split('.'); const buf = b64u.dec(body);
+    const key = await crypto.subtle.importKey('raw', b64u.dec(k), 'AES-GCM', false, ['decrypt']);
+    let bytes = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: buf.subarray(0, 12) }, key, buf.subarray(12)));
+    if (z === 'g') bytes = await xfPipe(bytes, new DecompressionStream('gzip'));
+    const obj = JSON.parse(new TextDecoder().decode(bytes));
+    return obj && obj.app === 'kairos' && obj.st ? obj.st : null;
+  }
+  const xfLink = (tok) => location.origin + location.pathname + (tok ? '#prenos=' + tok : '');
+  // příjem: odkaz s #prenos=… (nebo ?prenos=… z Androidu), jen mimo vestavěný prohlížeč
+  (async () => {
+    const m = (location.hash.match(/prenos=([\w.-]+)/) || location.search.match(/prenos=([\w.-]+)/) || [])[1];
+    if (!m || INAPP) return;
+    history.replaceState(null, '', location.pathname);
+    try {
+      const st = await xfTake(m);
+      if (!st) { toast('Přenosový odkaz už byl použitý nebo vypršel — vytvoř si nový.'); return; }
+      if (xfHasData() && !confirm('Přenést data z druhého zařízení? Nahradí data, která jsou teď tady.')) return;
+      store.importState(st);
+      try { sessionStorage.setItem('kNoSp', '1'); } catch (e) { }
+      toast('Data jsou přenesená — Kompas se znovu načte.');
+      setTimeout(() => location.reload(), 900);
+    } catch (e) { toast('Přenos se nepodařil — zkus vytvořit nový odkaz.'); }
+  })();
+  // vestavěný prohlížeč (Messenger, Facebook, Instagram…): nabídnout otevření v opravdovém prohlížeči
+  (() => {
+    if (!INAPP) return;
+    try { if (sessionStorage.getItem('kInappX')) return; } catch (e) { }
+    const bar = document.createElement('div'); bar.className = 'inapp'; bar.id = 'inappbar';
+    const how = IS_IOS ? 'Klepni vpravo nahoře na <b>⋯</b> a zvol <b>Otevřít v prohlížeči</b> (Safari). Data se přenesou s tebou.' : 'Klepni vpravo nahoře na <b>⋮</b> a zvol <b>Otevřít v Chrome</b>. Data se přenesou s tebou.';
+    bar.innerHTML = `<div class="inapp-t"><b>Otevři Kompas v prohlížeči</b><span>Tam si ho přidáš na plochu a všechno, co vyplníš, ti zůstane.</span><span class="inapp-how" hidden>${how}</span></div><div class="inapp-b"><button type="button" class="inapp-go">${IS_ANDROID ? 'Otevřít v Chrome' : 'Jak na to'}</button><button type="button" class="inapp-x" aria-label="Zavřít">×</button></div>`;
+    document.body.appendChild(bar); document.body.classList.add('has-inapp');
+    bar.querySelector('.inapp-x').addEventListener('click', () => { bar.remove(); document.body.classList.remove('has-inapp'); try { sessionStorage.setItem('kInappX', '1'); } catch (e) { } });
+    bar.querySelector('.inapp-go').addEventListener('click', async (ev) => {
+      const btn = ev.currentTarget; btn.disabled = true; const lab = btn.textContent; btn.textContent = 'Chystám…';
+      let tok = null;
+      if (xfHasData()) { try { tok = await xfMake(); } catch (e) { toast('Data se nepodařilo připravit — zkus to za chvíli.'); } }
+      // odkaz s přenosem se propíše do adresy, takže ho převezme i „Otevřít v prohlížeči“ z menu
+      if (tok) history.replaceState(null, '', location.pathname + '#prenos=' + tok);
+      btn.disabled = false; btn.textContent = lab;
+      if (IS_ANDROID) {
+        const q = tok ? '?prenos=' + tok : '';
+        const fb = encodeURIComponent(xfLink(tok));
+        location.href = `intent://${location.host}${location.pathname}${q}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${fb};end`;
+      }
+      const h = bar.querySelector('.inapp-how'); h.hidden = false;
+      metNote('act', 'inappOpen');
+    });
+  })();
+  function xfModal(html) {
+    let m = $('#xfModal'); if (m) m.remove();
+    m = document.createElement('div'); m.id = 'xfModal'; m.className = 'xfm';
+    m.innerHTML = `<div class="xfm-c" role="dialog" aria-modal="true"><button type="button" class="xfm-x" aria-label="Zavřít">×</button>${html}</div>`;
+    m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
+    document.body.appendChild(m); return m;
+  }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=395'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  Object.assign(actions, {
+    async xferMake(el) {
+      if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
+      if (el) { el.disabled = true; el.textContent = 'Chystám…'; }
+      let tok = null;
+      try { tok = await xfMake(); await qrLib(); } catch (e) { if (!tok) { toast('Přenos se nepodařilo připravit — zkus to za chvíli.'); if (el) { el.disabled = false; el.textContent = 'Přenést do jiného zařízení'; } return; } }
+      if (el) { el.disabled = false; el.textContent = 'Přenést do jiného zařízení'; }
+      const link = xfLink(tok);
+      let qr = '';
+      try { const q = window.qrcode(0, 'L'); q.addData(link); q.make(); qr = q.createSvgTag({ cellSize: 4, margin: 3, scalable: true }); } catch (e) { }
+      const m = xfModal(`<div class="h3" style="margin-top:0">Přenos do jiného zařízení</div>
+        <p class="note">Na druhém zařízení naskenuj kód fotoaparátem, nebo si tam odkaz pošli. Kompas se otevře i s tvými daty.</p>
+        ${qr ? `<div class="xfm-qr">${qr}</div>` : ''}
+        <div class="row" style="gap:8px;flex-wrap:wrap;justify-content:center"><button type="button" class="btn" data-xf="copy">Kopírovat odkaz</button>${navigator.share ? '<button type="button" class="btn ghost" data-xf="share">Poslat…</button>' : ''}</div>
+        <p class="note" style="margin-top:12px">Odkaz platí hodinu a otevře se jednou. Data jedou zašifrovaná, klíč je jen v odkazu. Fotky a hlasové poznámky z deníku přeneseš zálohou.</p>`);
+      m.addEventListener('click', async (e) => {
+        const b = e.target.closest('[data-xf]'); if (!b) return;
+        if (b.dataset.xf === 'copy') { try { await navigator.clipboard.writeText(link); toast('Odkaz je zkopírovaný.'); } catch (err) { prompt('Zkopíruj odkaz:', link); } }
+        if (b.dataset.xf === 'share') { try { await navigator.share({ title: 'Nebeský kompas — přenos dat', url: link }); } catch (err) { } }
+      });
+      metNote('act', 'xferMake');
+    },
   });
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); S.installEvt = e; });
   function noNatalHTML(what) {
