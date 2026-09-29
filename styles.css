@@ -1324,3 +1324,18 @@ body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}
 .mapnav{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;overflow:visible}
 .mapnav .chip{justify-content:center;text-align:center}
 @media (max-width:440px){.mapnav{grid-template-columns:1fr 1fr;justify-content:stretch}}
+
+/* v400: Úkazy ve skupinách, Nastavení ve skupinách */
+.evsubs{flex-wrap:wrap;gap:6px;margin:-4px 0 12px}
+.setgrp{display:flex;align-items:center;gap:10px;margin:26px 2px 2px;font-size:var(--fs-xs);font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.setgrp::after{content:'';flex:1;height:1px;background:var(--line2)}
+.setadv{margin:18px 0 0;border:1px solid var(--line2);border-radius:14px;padding:4px 12px 10px;background:rgba(6,14,36,.25)}
+.setadv>summary{list-style:none;cursor:pointer;padding:6px 0}
+.setadv>summary::-webkit-details-marker{display:none}
+.setadv>summary .setgrp{margin:8px 0 2px}
+.setadv>summary .setgrp::after{content:'▸';flex:none;height:auto;background:none;color:var(--gold);font-size:14px;letter-spacing:0}
+.setadv[open]>summary .setgrp::after{content:'▾'}
+.setadv>summary small{display:block;font-size:var(--fs-s);color:var(--muted);margin:0 2px}
+.setadv>summary::before{content:none;display:none}
+.setadv>summary{display:block}
+.setadv>summary .setgrp{display:flex}

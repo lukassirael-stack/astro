@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v399';
+  const VERSION = 'v400';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -480,7 +480,7 @@
       ['vrstvy', '◉', 'Karta Dnes a vrstvy', `Karta Dnes má pevné jádro: datum, počasí, barvu dne, Lunu, <em>tvůj den</em> a Nebeský tip. Ostatní řádky jsou vrstvy, které si zapínáš v Nastavení → Karta Dnes: čtení dne (co podporuje a co stojí víc sil), cyklus, rytmus dne (tatva a orgánové hodiny), portálový den, příroda, mayský den a počasí v kalendáři. Tři nabídky <em>Jednoduchý · Vyvážený · Vše</em> jsou rychlé předvolby. Rytmus dne má u sebe tečku <em>teď</em>: mění se po hodinách, ne po dnech. Klepnutím na kartu Dnes otevřeš celé čtení dne.`],
       ['kalendar', '☽', 'Kalendář', `Každý den v mřížce má barvu: <b>příznivý</b>, <b>vlídný</b>, <b>klidný</b>, <b>pomalejší</b>, <b>náročný</b>. Vzniká z toho, co se ten den na obloze dotýká tvé mapy, jak stojí Luna a jaké je kosmické počasí. Hvězdička ✦ je den, kdy planeta stojí na tvé hvězdě; tečka u čísla svátek nebo tradice; v rohu může být počasí. Klepnutím na den otevřeš jeho detail. Pod názvem měsíce jsou tři tlačítka: <em>☽ můj měsíc</em> otevře osobní měsíční čtení, <em>✧ vhodný den</em> najde dny pro konkrétní věc a <em>dnes</em> vrátí výběr na dnešek.`],
       ['detail', '≡', 'Detail dne', `Nahoře <b>Denní rytmus</b> — čtení dne v pár větách. Pak co dnes jde a co bude stát víc sil, průběh dne na ose — východy a západy, planetární hodiny, aspekty Luny, Luna bez kurzu — a pod tím počasí a příroda: zlatá a modrá hodina, tmavé noci pro hvězdy, portál, příroda po třech dnech, zahrádkář, číslo dne, mayský den. <b>Podrobnosti — pro astrologa</b> otevřou přesná čísla. Tenhle vzor platí v celém Kompasu: nejdřív věta, mechanika až na požádání.`],
-      ['ukazy', '☄', 'Úkazy', `Obloha rok dopředu v kategoriích: <em>tvé cykly</em> (sluneční, lunární, Jupiterův a Saturnův návrat), <em>portály</em> (zrcadlová data, mistrovské dny, tvé osobní portály), <em>příroda</em> (měsíc po měsíci, co se děje venku a na zahradě, dny podle Luny), zatmění, Luna, planety, hvězdy, roje, Slunce, komety. Dnešní úkaz svítí nahoře ve zlatém rámu. Každý úkaz má otazník s výkladem na míru.`],
+      ['ukazy', '☄', 'Úkazy', `Obloha rok dopředu v šesti skupinách: <em>pro tebe</em> (tvé cykly — sluneční, lunární, Jupiterův a Saturnův návrat — portály a dny, kdy se obloha dotýká tvých hvězd), <em>Luna a Slunce</em> (fáze, zatmění, rovnodennosti a slunovraty), <em>planety</em>, <em>hvězdy a roje</em> (stálice, meteorické roje, komety) a <em>příroda</em> (měsíc po měsíci, co se děje venku a na zahradě, dny podle Luny). Ve skupině jde výběr zúžit jemnějšími čipy. Dnešní úkaz svítí nahoře ve zlatém rámu. Každý úkaz má otazník s výkladem na míru.`],
       ['diar', '✎', 'Diář', `Zapiš pár slov o dni a ohodnoť ho. Po pěti dnech Kompas ukáže, jak tvá hodnocení sedí s výpočtem; po osmi i podle fází cyklu, pokud ho vedeš. Plány na den se ráno objeví v kartě Dnes. Diář je tvůj kontrolní nástroj: Kompas říká, co je ve hře, ty říkáš, jak to bylo.`],
       ['otobe', '★', 'O tobě', `Čtyři karty a skupina Další systémy. <b>Tvoje mapa</b> — každý bod s výkladem ve znamení a v domě, aspekty s výkladem; nahoře přepínáš na <em>Tvé hvězdy</em>, <em>Velké návraty</em> a <em>Efemeridy</em> pro astrologa. <b>Tvůj horoskop</b> — kapitoly života a pod nimi <em>Horoskop v čase</em>: čím teď procházíš (tranzity jako oblouky s počátkem, vrcholem a koncem, ohlédnutí na kterékoli datum), denní (vede do detailu dne), týdenní, měsíční, roční. <b>Vztahy</b> — horoskop dvou map, vaše čísla, a <em>Přečíst horoskop</em>, které přepne všechny karty na mapu blízkého. <b>Čakra roku</b>. <b>Další systémy</b>: Tvá čísla, Mayský horoskop, Čínský horoskop.`],
       ['nastaveni', '⚙', 'Nastavení', `Profil (Kompas je pro jednoho — blízcí jsou ve Vztazích), Kde právě jsi (poloha, hledání místa), Karta Dnes (vrstvy), obloha den a noc, pravidla barvení dne, cyklus, orgánové hodiny, numerologie, kosmické počasí, svátky pro Česko a Slovensko, jazyk, Google kalendář, záloha, sdílení, Průvodce a zpětná vazba. Verze appky je úplně dole.`],
@@ -1592,6 +1592,16 @@
     komety: '<circle cx="4.5" cy="11.5" r="2.4" fill="currentColor"/><path d="M6.5 9.5 14 2M8.8 11.2 14.5 6M5 8.2 11 2.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".85"/>',
   };
   const catIcon = (c) => (CAT_SVG[c] || c === 'portal') ? `<img class="cico" src="cat-${c}.webp?v=2" alt="" width="28" height="28">` : '';
+  // Úkazy: šest skupin, uvnitř jemnější čipy
+  const EV_GROUPS = [
+    ['vse', 'vše', null, 'vse'],
+    ['tebe', 'pro tebe', ['osobni', 'portal'], 'osobni'],
+    ['nebe', 'Luna a Slunce', ['luna', 'slunce', 'zatmeni'], 'luna'],
+    ['planety', 'planety', ['planety'], 'planety'],
+    ['obloha', 'hvězdy a roje', ['hvezdy', 'roje', 'komety'], 'hvezdy'],
+    ['priroda', 'příroda', ['priroda'], 'priroda'],
+  ];
+  const evGroup = (f) => EV_GROUPS.find(g => g[0] === f) || EV_GROUPS.find(g => g[2] && g[2].includes(f)) || EV_GROUPS[0];
   const CAT_CZ = { vse: 'vše', portal: 'portály', luna: 'Luna', zatmeni: 'zatmění', slunce: 'Slunce', planety: 'planety', roje: 'roje', hvezdy: 'hvězdy', komety: 'komety', osobni: 'tvé cykly', priroda: 'příroda' };
   const TODAY_KEY = K.isoDate(np.y, np.m, np.d);
 
@@ -1792,7 +1802,8 @@
     ephPrev() { S.eph.m--; if (S.eph.m < 1) { S.eph.m = 12; S.eph.y--; } renderEphemeris(); },
     ephNext() { S.eph.m++; if (S.eph.m > 12) { S.eph.m = 1; S.eph.y++; } renderEphemeris(); },
     ephCsv() { downloadCsv(); },
-    filter(el) { S.filter = el.dataset.f; renderEvents(); setTimeout(() => { const g = $('#view-ukazy .catgrid'); if (g) { const y = g.getBoundingClientRect().top + window.scrollY - 8; window.scrollTo({ top: y, behavior: 'smooth' }); } }, 60); },
+    evSub(el) { S.evSub = el.dataset.s || null; renderEvents(); },
+    filter(el) { S.filter = el.dataset.f; S.evSub = null; renderEvents(); setTimeout(() => { const g = $('#view-ukazy .catgrid'); if (g) { const y = g.getBoundingClientRect().top + window.scrollY - 8; window.scrollTo({ top: y, behavior: 'smooth' }); } }, 60); },
     saveProfile() { saveProfileForm(); },
     switchProfile(el) { activeId = el.value; store.set('kairos_active', activeId); computeNatal(); renderSettings(); toast('Profil přepnut: ' + activeProfile().name); },
     deleteProfile() { if (profiles.length < 2) { toast('Poslední profil nejde smazat.'); return; } if (!confirm('Smazat profil ' + activeProfile().name + '?')) return; profiles = profiles.filter(p => p.id !== activeId); activeId = profiles[0].id; persistProfiles(); computeNatal(); renderSettings(); },
@@ -1912,11 +1923,11 @@
       showTab('kalendar'); window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     goMonthRead(el) { S.mrY = +el.dataset.y; S.mrM = +el.dataset.m; S.natalView = 'horoskop'; S.hsView = 'mesic'; showTab('nativ'); },
-    goPortal() { S.filter = 'portal'; showTab('ukazy'); },
+    goPortal() { S.filter = 'tebe'; S.evSub = 'portal'; showTab('ukazy'); },
     goLayers() { rawSet('kairos_hint_layers', true); showTab('nastaveni'); setTimeout(() => { const el = $('#view-nastaveni .lyrs'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 80); },
     hintLayersOff() { rawSet('kairos_hint_layers', true); renderCalendar(); },
     goFeedback() { const el = $('#view-nastaveni [data-act="fbSend"]'); if (el) el.closest('.card').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
-    goNature() { S.filter = 'priroda'; showTab('ukazy'); },
+    goNature() { S.filter = 'priroda'; S.evSub = null; showTab('ukazy'); },
     goDiarToday() { S.plSel = K.isoDate(np.y, np.m, np.d); S.plY = np.y; S.plM = np.m; showTab('diar'); },
     msgClose(el) { const seen = msgSeen(); const id = +el.dataset.id; if (!seen.includes(id)) seen.push(id); rawSet('kairos_msgs_seen', seen.slice(-200)); renderCalendar(); },
     hsView(el) { S.hsView = el.dataset.v; renderNatal(); window.scrollTo({ top: 0 }); },
@@ -3575,11 +3586,14 @@ ${parts}
         evs.sort((a, b) => a.date - b.date);
         S.evCache[key] = evs;
       }
-      const list = S.filter === 'vse' ? evs : evs.filter(e => e.cat === S.filter);
+      if (!EV_GROUPS.some(g => g[0] === S.filter)) { const g0 = evGroup(S.filter); S.evSub = S.filter !== g0[0] && g0[2] && g0[2].length > 1 ? S.filter : null; S.filter = g0[0]; }
+      const grp = evGroup(S.filter);
+      const list = !grp[2] ? evs : evs.filter(e => S.evSub ? e.cat === S.evSub : (grp[2].includes(e.cat) || (grp[0] === 'tebe' && e.resonance)));
       const months = {};
       for (const e of list) { const p = K.tzParts(e.date, TZ); const k = `${p.y}-${pad(p.m)}`; (months[k] = months[k] || { y: p.y, m: p.m, items: [] }).items.push(e); }
-      const chips = ['vse', 'osobni', 'portal', 'priroda', 'zatmeni', 'luna', 'planety', 'hvezdy', 'roje', 'slunce', 'komety'].map(c => `<button type="button" class="chip cat ${S.filter === c ? 'on' : ''}" data-act="filter" data-f="${c}">${catIcon(c)}${CAT_CZ[c]}</button>`).join('');
-      let html = `<div class="h2">Úkazy · ${esc(settings.loc.name)}</div><p class="note">${S.evAll ? 'Rok dopředu od tohoto měsíce.' : 'Nejbližší tři měsíce.'} Časy jsou v našem čase, viditelnost počítaná pro ${esc(settings.loc.name)} (${fmtNum(settings.loc.lat, 3)} N, ${fmtNum(settings.loc.lon, 3)} E).</p><div class="catgrid">${chips}</div>`;
+      const chips = EV_GROUPS.map(([id, lab, , ic]) => `<button type="button" class="chip cat ${S.filter === id ? 'on' : ''}" data-act="filter" data-f="${id}">${catIcon(ic)}${lab}</button>`).join('');
+      const subs = grp[2] && grp[2].length > 1 ? `<div class="row evsubs">${[[null, 'vše']].concat(grp[2].map(c => [c, CAT_CZ[c]])).map(([c, lab]) => `<button type="button" class="chip small ${(S.evSub || null) === c ? 'on' : ''}" data-act="evSub" data-s="${c || ''}">${lab}</button>`).join('')}</div>` : '';
+      let html = `<div class="h2">Úkazy · ${esc(settings.loc.name)}</div><p class="note">${S.evAll ? 'Rok dopředu od tohoto měsíce.' : 'Nejbližší tři měsíce.'} Časy jsou v našem čase, viditelnost počítaná pro ${esc(settings.loc.name)} (${fmtNum(settings.loc.lat, 3)} N, ${fmtNum(settings.loc.lon, 3)} E).</p><div class="catgrid">${chips}</div>${subs}`;
       if (S.filter === 'priroda') {
         // přírodní kalendář: měsíce v zobrazeném rozsahu
         const cnt = S.evAll ? 12 : 3; let yy = np.y, mm = np.m;
@@ -3932,6 +3946,7 @@ ${parts}
     const kpDays = Object.keys(S.kpMap).length;
     const kpTxt = S.kpUpdated ? `${kpNow}<div class="small">výhled na ${kpDays} dní · aktualizováno ${K.fmtDateCz(new Date(S.kpUpdated), TZ)} ${K.fmtTime(new Date(S.kpUpdated), TZ)}</div>` : '<div class="small">zatím staženo nic — stáhne se při připojení</div>';
     v.innerHTML = `
+      <div class="setgrp">Ty a tvůj den</div>
       <div class="h2">Profil</div>
       ${profiles.length > 1 ? `<div class="row"><select class="btn profsel" id="profileSelect" aria-label="Aktivní profil">${opts}</select><button type="button" class="btn ghost" data-act="deleteProfile">Smazat</button></div>` : ''}
       <p class="note" style="margin:-2px 0 8px">Kompas je pro jednoho — tvou mapu. Další lidi přidáš v O tobě → Vztahy, bez omezení.</p>
@@ -3961,6 +3976,30 @@ ${parts}
         <p class="note wide">Podle tohoto místa se počítá východ a západ Slunce a Luny, planetární hodiny, lunární den, viditelnost zatmění a úkazů, heliakické východy tvých hvězd a přepínání oblohy podle denní doby. Polohy planet, aspekty a tranzity k nativu na místě nezávisí — ty jsou stejné pro celou Zemi. Místo narození v profilu neměň, to je snímek nebe nad místem, kde jsi se narodil.</p>
         <p class="note wide">Časy se zobrazují v českém čase (Europe/Prague) i pro vzdálená místa.</p>
       </form>
+      <div class="h2">Cyklus</div>
+      <div class="card">
+        <div class="row" style="margin-bottom:8px"><button type="button" class="chip ${cycOn() ? 'on' : ''}" data-act="cycToggle">${cycOn() ? '✓ zapnuto' : 'zapnout sledování cyklu'}</button></div>
+        <p class="note" style="margin:0">Ženský cyklus jako vlastní rytmus vedle oblohy. V Diáři ťukneš u dne „tímto dnem začala menstruace“ a Kompas z tvých zápisů spočítá den cyklu a fázi — reflektivní, dynamickou, expresivní, kreativní. Vše zůstává jen v tomto zařízení. Slouží k orientaci v rytmu, ne k plánování ani k vyloučení otěhotnění.</p>
+      </div>
+      <div class="h2">Významné dny</div>
+      <div class="card">
+        ${sdAll().length ? `<ul class="sdlist">${sdAll().sort((a, b) => (+a.m) - (+b.m) || (+a.d) - (+b.d)).map(x => `<li><span>${SD_EMO[x.t] || '✦'} <b>${esc(x.name)}</b> · ${x.d}. ${K.MONTH_GEN[x.m - 1]}${x.y ? ' ' + x.y : ''}${x.r === 0 ? ' · jen jednou' : ''}</span><button type="button" class="chip small" data-act="sdDel" data-id="${x.id}">×</button></li>`).join('')}</ul>` : ''}
+        <form class="form" onsubmit="return false">
+          <label class="wide">Jméno / název<input id="sdName" placeholder="Martina, výročí Oázy…"></label>
+          <label>Datum<input id="sdDate" type="date"></label>
+          <label>Typ<select id="sdType"><option value="narozeniny">🎂 narozeniny</option><option value="vyroci">💍 výročí</option><option value="jine">✦ jiné</option></select></label>
+          <label>Opakování<select id="sdRep"><option value="rok">každý rok</option><option value="once">jen jednou</option></select></label>
+          <div class="wide row"><button type="button" class="btn primary" data-act="sdAdd">Přidat den</button></div>
+          <p class="note wide">Významné dny se ráno ukážou zlatě v kartě Dnes (u narozenin s věkem, pokud vyplníš rok) a v mřížce mají značku. Opakují se každý rok.</p>
+        </form>
+      </div>
+      <div class="setgrp">Vzhled</div>
+      <div class="h2">Karta Dnes</div>
+      <div class="card">
+        <p class="note" style="margin-top:0">Vždy zůstává datum, barva dne, <b>tvůj den</b> a <b>Nebeský tip</b>. Ostatní vrstvy si zapni podle toho, co ráno opravdu čteš — vypnutá vrstva zůstává v detailu dne a ve svých kartách.</p>
+        <div class="row" style="gap:8px;margin:0 0 10px;flex-wrap:wrap">${Object.entries({ jednoduchy: 'Jednoduchý', vyvazeny: 'Vyvážený', vse: 'Vše' }).map(([k, lab]) => { const cur = Array.isArray(settings.layers) ? settings.layers : LAYER_SETS.vyvazeny; const on = LAYER_SETS[k].length === cur.length && LAYER_SETS[k].every(x => cur.includes(x)); return `<button type="button" class="chip small ${on ? 'on' : ''}" data-act="layerSet" data-s="${k}">${lab}</button>`; }).join('')}</div>
+        <div class="lyrs">${LAYERS.map(([id, t, sub]) => `<label class="lyr"><input type="checkbox" data-act="layerTgl" data-l="${id}" ${layerOn(id) ? 'checked' : ''}><span><b>${t}</b><small>${sub}</small></span></label>`).join('')}</div>
+      </div>
       <div class="h2">Obloha</div>
       <div class="card">
         <div class="row" style="gap:6px" id="themeRow">
@@ -3976,6 +4015,23 @@ ${parts}
         </div>
         <p class="note">Na automatiku se obloha mění podle skutečného východu a západu Slunce v ${esc(settings.loc.name)} — od svítání do soumraku denní, jinak noční. Teď je ${THEMES[applyTheme()]}.${settings.theme === 'auto' ? '' : (settings.themeHold === 'once' ? ' Ruční volba se sama vrátí do automatiky při nejbližším východu nebo západu Slunce.' : ' Ruční volba drží, dokud ji nezměníš.')}</p>
       </div>
+      <div class="setgrp">Data</div>
+      <div class="h2">Záloha a přenos dat</div>
+      <div class="card">
+        <div class="row" style="margin-bottom:8px"><button type="button" class="btn" data-act="xferMake">Přenést do jiného zařízení</button></div>
+        <p class="note">Rychlý přenos na mobil, počítač nebo do jiného prohlížeče: ukáže QR kód a odkaz, druhé zařízení se otevře i s tvými daty.</p>
+        <div class="row"><button type="button" class="btn" data-act="bkExport">Stáhnout kompletní zálohu</button><label class="btn ghost" style="cursor:pointer">Obnovit ze zálohy<input type="file" id="bkFile" accept="application/json,.json" hidden></label></div>
+        <p class="note">Záloha obsahuje všechno: profily, diář, plány, nastavení, osoby pro srovnání i fotky a hlasové poznámky. Při výměně telefonu: tady stáhni soubor, pošli si ho do nového zařízení (mail, Disk…) a tam ho načti přes „Obnovit ze zálohy“. Obnova přepíše stávající data v appce.</p>
+      </div>
+      <div class="h2">Google kalendář</div>
+      <div class="card">
+        <form class="form" onsubmit="return false">
+          <label class="wide">Tajná iCal adresa<input id="icsUrl" placeholder="https://calendar.google.com/calendar/ical/…/basic.ics" value="${esc(store.get('kairos_ics', ''))}"></label>
+          <div class="wide row"><button type="button" class="btn primary" data-act="icsSave">Uložit a načíst</button>${store.get('kairos_ics', '') ? `<button type="button" class="btn ghost" data-act="icsOff">Odpojit</button>` : ''}</div>
+          <p class="note wide">Kde ji najdeš: Google Kalendář na počítači → ⚙︎ Nastavení → vlevo vyber svůj kalendář → <b>Integrovat kalendář</b> → <b>Tajná adresa ve formátu iCal</b> → zkopíruj. Události se pak ukazují v detailu dne${gEv() ? ` · naposledy načteno ${new Date(gEv().when).toLocaleString('cs-CZ')}, ${(gEv().ev || []).length} událostí` : ''}. Adresa je soukromá — appka ji drží jen v tomto zařízení a čte přes vlastní server Oázy.</p>
+        </form>
+      </div>
+      <details class="setadv"${S.advOpen ? ' open' : ''}><summary><span class="setgrp">Pokročilé</span><small>pravidla barvení dne, kosmické počasí, komety a vlastní úkazy</small></summary>
       <div class="h2">Pravidla barvení dne</div>
       <form class="form card" id="rulesForm" onsubmit="return false">
         <label>Harmonický od<input name="harm" type="number" step="0.5" value="${settings.rules.harm}"></label>
@@ -4004,38 +4060,8 @@ ${parts}
       </div>
       <div class="h2">Komety a vlastní úkazy</div>
       <form class="card" id="cometsForm" onsubmit="return false"><textarea class="mono" style="width:100%;min-height:90px;font-size:var(--fs-s);background:var(--field);color:var(--text);border:1px solid var(--line2);border-radius:9px;padding:9px" placeholder="2026-10-20 | Kometa C/2025 A6 (Lemmon) | nejjasnější, večer nízko na západě">${esc(settings.comets)}</textarea><div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="saveComets">Uložit seznam</button></div><p class="note">Jeden úkaz na řádek: datum | název | poznámka. Zobrazí se v Úkazech i v detailu dne.</p></form>
-      <div class="h2">Významné dny</div>
-      <div class="card">
-        ${sdAll().length ? `<ul class="sdlist">${sdAll().sort((a, b) => (+a.m) - (+b.m) || (+a.d) - (+b.d)).map(x => `<li><span>${SD_EMO[x.t] || '✦'} <b>${esc(x.name)}</b> · ${x.d}. ${K.MONTH_GEN[x.m - 1]}${x.y ? ' ' + x.y : ''}${x.r === 0 ? ' · jen jednou' : ''}</span><button type="button" class="chip small" data-act="sdDel" data-id="${x.id}">×</button></li>`).join('')}</ul>` : ''}
-        <form class="form" onsubmit="return false">
-          <label class="wide">Jméno / název<input id="sdName" placeholder="Martina, výročí Oázy…"></label>
-          <label>Datum<input id="sdDate" type="date"></label>
-          <label>Typ<select id="sdType"><option value="narozeniny">🎂 narozeniny</option><option value="vyroci">💍 výročí</option><option value="jine">✦ jiné</option></select></label>
-          <label>Opakování<select id="sdRep"><option value="rok">každý rok</option><option value="once">jen jednou</option></select></label>
-          <div class="wide row"><button type="button" class="btn primary" data-act="sdAdd">Přidat den</button></div>
-          <p class="note wide">Významné dny se ráno ukážou zlatě v kartě Dnes (u narozenin s věkem, pokud vyplníš rok) a v mřížce mají značku. Opakují se každý rok.</p>
-        </form>
-      </div>
-      <div class="h2">Google kalendář</div>
-      <div class="card">
-        <form class="form" onsubmit="return false">
-          <label class="wide">Tajná iCal adresa<input id="icsUrl" placeholder="https://calendar.google.com/calendar/ical/…/basic.ics" value="${esc(store.get('kairos_ics', ''))}"></label>
-          <div class="wide row"><button type="button" class="btn primary" data-act="icsSave">Uložit a načíst</button>${store.get('kairos_ics', '') ? `<button type="button" class="btn ghost" data-act="icsOff">Odpojit</button>` : ''}</div>
-          <p class="note wide">Kde ji najdeš: Google Kalendář na počítači → ⚙︎ Nastavení → vlevo vyber svůj kalendář → <b>Integrovat kalendář</b> → <b>Tajná adresa ve formátu iCal</b> → zkopíruj. Události se pak ukazují v detailu dne${gEv() ? ` · naposledy načteno ${new Date(gEv().when).toLocaleString('cs-CZ')}, ${(gEv().ev || []).length} událostí` : ''}. Adresa je soukromá — appka ji drží jen v tomto zařízení a čte přes vlastní server Oázy.</p>
-        </form>
-      </div>
-      <div class="h2">Záloha a přenos dat</div>
-      <div class="card">
-        <div class="row" style="margin-bottom:8px"><button type="button" class="btn" data-act="xferMake">Přenést do jiného zařízení</button></div>
-        <p class="note">Rychlý přenos na mobil, počítač nebo do jiného prohlížeče: ukáže QR kód a odkaz, druhé zařízení se otevře i s tvými daty.</p>
-        <div class="row"><button type="button" class="btn" data-act="bkExport">Stáhnout kompletní zálohu</button><label class="btn ghost" style="cursor:pointer">Obnovit ze zálohy<input type="file" id="bkFile" accept="application/json,.json" hidden></label></div>
-        <p class="note">Záloha obsahuje všechno: profily, diář, plány, nastavení, osoby pro srovnání i fotky a hlasové poznámky. Při výměně telefonu: tady stáhni soubor, pošli si ho do nového zařízení (mail, Disk…) a tam ho načti přes „Obnovit ze zálohy“. Obnova přepíše stávající data v appce.</p>
-      </div>
-      <div class="h2">Cyklus</div>
-      <div class="card">
-        <div class="row" style="margin-bottom:8px"><button type="button" class="chip ${cycOn() ? 'on' : ''}" data-act="cycToggle">${cycOn() ? '✓ zapnuto' : 'zapnout sledování cyklu'}</button></div>
-        <p class="note" style="margin:0">Ženský cyklus jako vlastní rytmus vedle oblohy. V Diáři ťukneš u dne „tímto dnem začala menstruace“ a Kompas z tvých zápisů spočítá den cyklu a fázi — reflektivní, dynamickou, expresivní, kreativní. Vše zůstává jen v tomto zařízení. Slouží k orientaci v rytmu, ne k plánování ani k vyloučení otěhotnění.</p>
-      </div>
+      </details>
+      <div class="setgrp">Kompas</div>
       <div class="h2">Podněty</div>
       <div class="card">
         <p class="note" style="margin-top:0">Co ti v Kompasu chybí, co se ti líbí, na co jsi narazil — každá zpráva pomáhá. Napiš pár vět a odešli; otevře se tvůj e-mail s připravenou zprávou.</p>
@@ -4046,12 +4072,6 @@ ${parts}
         <div class="row" style="margin-top:8px"><button type="button" class="btn primary" data-act="fbSend">Odeslat</button><button type="button" class="btn ghost" data-act="fbCopy">Zkopírovat text</button></div>
       </div>
       <div class="card betacard"><b>Zkušební verze</b><p>Díky, že Kompas testuješ. Všechno je teď odemčené — plná verze i to, co bude v základu. Co ti nesedí, chybí nebo je navíc, napiš dole v <button type="button" class="linkbtn" data-act="goFeedback">Zpětné vazbě ›</button> — stačí pár slov, verze a telefon se doplní samy.</p></div>
-      <div class="h2">Karta Dnes</div>
-      <div class="card">
-        <p class="note" style="margin-top:0">Vždy zůstává datum, barva dne, <b>tvůj den</b> a <b>Nebeský tip</b>. Ostatní vrstvy si zapni podle toho, co ráno opravdu čteš — vypnutá vrstva zůstává v detailu dne a ve svých kartách.</p>
-        <div class="row" style="gap:8px;margin:0 0 10px;flex-wrap:wrap">${Object.entries({ jednoduchy: 'Jednoduchý', vyvazeny: 'Vyvážený', vse: 'Vše' }).map(([k, lab]) => { const cur = Array.isArray(settings.layers) ? settings.layers : LAYER_SETS.vyvazeny; const on = LAYER_SETS[k].length === cur.length && LAYER_SETS[k].every(x => cur.includes(x)); return `<button type="button" class="chip small ${on ? 'on' : ''}" data-act="layerSet" data-s="${k}">${lab}</button>`; }).join('')}</div>
-        <div class="lyrs">${LAYERS.map(([id, t, sub]) => `<label class="lyr"><input type="checkbox" data-act="layerTgl" data-l="${id}" ${layerOn(id) ? 'checked' : ''}><span><b>${t}</b><small>${sub}</small></span></label>`).join('')}</div>
-      </div>
       <div class="h2">Aplikace</div>
       <div class="card">
       <div class="row" style="gap:14px;flex-wrap:wrap;margin-bottom:12px">
@@ -4063,6 +4083,7 @@ ${parts}
       <p class="note" style="margin-top:8px">Sdílení pošle odkaz na Kompas — druhý si ho otevře v prohlížeči a může si ho přidat na plochu stejně jako ty. Tvá data zůstávají jen u tebe; každý začíná se svým nativem.</p>
       <p class="note" data-act="verTap" style="cursor:default">Nebeský kompas ${VERSION} · zkušební verze${store.get('kairos_plus', false) ? ' · plná verze' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
       <p class="note">Jazyk aplikace je záměrně „tohle je ve hře, tohoto si všímej“. Žádná barva dne není předpověď a nerozhoduje za tebe.</p></div>`;
+    const adv = v.querySelector('.setadv'); if (adv) adv.addEventListener('toggle', () => { S.advOpen = adv.open; });
     const sel = $('#profileSelect', v); if (sel) sel.addEventListener('change', () => actions.switchProfile(sel));
   }
   function saveProfileForm() {
@@ -4371,7 +4392,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=399'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=400'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
