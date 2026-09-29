@@ -49,11 +49,16 @@
 #sky video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9}
 #sky canvas{position:absolute;inset:0;width:100%;height:100%}
 #sky.red{filter:grayscale(1) sepia(1) saturate(3.2) hue-rotate(182deg) brightness(.78) contrast(1.12)}
-#sky .skbar{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:6px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 14px;background:linear-gradient(rgba(2,4,12,.94),rgba(2,4,12,.85) 70%,rgba(2,4,12,0))}
+#sky .skbar{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 14px;background:linear-gradient(rgba(2,4,12,.94),rgba(2,4,12,.85) 70%,rgba(2,4,12,0))}
 #sky .skt{flex:1;min-width:0}
-#sky .skt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--display,Georgia,serif);font-size:17px;font-weight:500;color:#F3D384;letter-spacing:.02em}
+#sky .skt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--display,Georgia,serif);font-size:19px;font-weight:500;color:#F3D384;letter-spacing:.02em}
 #sky .skt small{display:block;font-size:12px;color:#B9C6E4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #sky .skb{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid rgba(243,211,132,.45);background:rgba(10,20,44,.6);color:#F3D384;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+#sky .skrow{display:flex;align-items:center;gap:10px}
+#sky .sktools{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+#sky .sktool{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 4px;border-radius:999px;border:1px solid rgba(243,211,132,.4);background:rgba(10,20,44,.6);color:#EAF0FF;font:inherit;font-size:12.5px;white-space:nowrap;cursor:pointer}
+#sky .sktool i{font-style:normal;color:#F3D384;font-size:15px;line-height:1}
+#sky .sktool.on{background:rgba(243,211,132,.22);border-color:#F3D384;color:#FFF7E6}
 #sky .skb.on{background:rgba(243,211,132,.25);border-color:#F3D384}
 #sky .skfoot{position:absolute;left:0;right:0;bottom:0;padding:18px 10px calc(env(safe-area-inset-bottom,0px) + 12px);background:linear-gradient(rgba(2,4,12,0),rgba(2,4,12,.9) 28%,rgba(2,4,12,.96))}
 #sky .skchips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
@@ -67,7 +72,7 @@
 #sky .skcard p{margin:6px 0 0;font-size:13.5px;line-height:1.5;color:#DCE4F6}
 #sky .skcard .x{position:absolute;right:10px;top:8px;background:none;border:0;color:#B9C6E4;font-size:22px;cursor:pointer}
 #sky .skchip.find{border-color:rgba(243,211,132,.6);color:#F3D384}
-#sky .sksearch{position:absolute;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 64px);max-width:520px;margin:0 auto;padding:10px;border-radius:16px;border:1px solid rgba(243,211,132,.45);background:rgba(6,12,30,.96);box-shadow:0 12px 40px rgba(0,0,0,.55);touch-action:auto}
+#sky .sksearch{position:absolute;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 108px);max-width:520px;margin:0 auto;padding:10px;border-radius:16px;border:1px solid rgba(243,211,132,.45);background:rgba(6,12,30,.96);box-shadow:0 12px 40px rgba(0,0,0,.55);touch-action:auto}
 #sky .skin{display:flex;gap:8px;align-items:center}
 #sky .sksearch input{flex:1;min-width:0;padding:11px 14px;border-radius:12px;border:1px solid rgba(185,198,228,.35);background:rgba(255,255,255,.06);color:#fff;font:inherit;font-size:16px;user-select:text;-webkit-user-select:text}
 #sky .skres{touch-action:pan-y;display:flex;flex-direction:column;gap:2px;margin-top:6px;max-height:52vh;overflow-y:auto}
@@ -451,7 +456,7 @@
   function updUi() {
     const box = $('#sky'); if (!box) return;
     box.classList.toggle('red', !!st.red);
-    for (const [act, on] of [['cam', st.cam], ['red', st.red], ['lines', st.showLines], ['calib', st.calib]]) { const b = $(`#sky [data-sk="${act}"]`); if (b) b.classList.toggle('on', !!on); }
+    for (const [act, on] of [['cam', st.cam], ['red', st.red], ['lines', st.showLines], ['calib', st.calib]]) { const b = $(`#sky .sktool[data-sk="${act}"]`); if (b) b.classList.toggle('on', !!on); }
     const hint = $('#sky .skhint');
     if (hint) {
       if (st.calib) hint.innerHTML = 'Namiř zaměřovač na Lunu, jasnou planetu nebo hvězdu a klepni na <button data-sk="calibOk">srovnat</button>.';
@@ -558,8 +563,8 @@
     css();
     const box = document.createElement('div'); box.id = 'sky';
     box.innerHTML = `<video playsinline muted style="display:none"></video><canvas></canvas><div class="skcal" style="display:none"></div>
-      <div class="skbar"><button class="skb" data-sk="close" aria-label="Zavřít">×</button><div class="skt" data-sk="diag"><b>Hvězdné nebe teď</b><small></small></div>
-        <button class="skb" data-sk="cam" aria-label="Kamera" title="Kamera">◉</button><button class="skb" data-sk="lines" aria-label="Čáry souhvězdí" title="Čáry souhvězdí">✧</button><button class="skb" data-sk="red" aria-label="Noční tmavý režim" title="Noční tmavý režim">◐</button><button class="skb" data-sk="calib" aria-label="Srovnat směr" title="Srovnat směr">⌖</button></div>
+      <div class="skbar"><div class="skrow"><button class="skb" data-sk="close" aria-label="Zavřít">×</button><div class="skt" data-sk="diag"><b>Hvězdné nebe teď</b><small></small></div></div>
+        <div class="sktools"><button class="sktool" data-sk="cam"><i>◉</i>Kamera</button><button class="sktool" data-sk="lines"><i>✧</i>Souhvězdí</button><button class="sktool" data-sk="red"><i>◐</i>Noc</button><button class="sktool" data-sk="calib"><i>⌖</i>Srovnat</button></div></div>
       <div class="skcard" style="display:none"></div>
       <div class="sksearch" style="display:none"><div class="skin"><input type="search" placeholder="Hvězda, souhvězdí, planeta, galaxie…" autocomplete="off" enterkeyhint="search"><button class="skb" data-sk="findx" aria-label="Zavřít hledání">×</button></div><div class="skres"></div></div>
       <div class="skfoot"><div class="skchips"><button class="skchip find" data-sk="find">⌕ Hledat</button>${BODIES.filter(b => b[0] !== 'Pluto').map(([id, cz]) => `<button class="skchip" data-sk="target" data-t="${id}">${cz}</button>`).join('')}</div><p class="skhint"></p></div>`;
@@ -577,8 +582,8 @@
     // ovládání
     box.addEventListener('click', (e) => {
       const b = e.target.closest('[data-sk]'); if (!b) return; const a = b.dataset.sk; e.stopPropagation();
-      if (a === 'close') close(); else if (a === 'cam') camToggle(); else if (a === 'red') { st.red = !st.red; updUi(); }
-      else if (a === 'lines') { st.showLines = !st.showLines; updUi(); }
+      if (a === 'close') close(); else if (a === 'cam') camToggle(); else if (a === 'red') { st.red = !st.red; updUi(); st.toast(st.red ? 'Noční režim: tmavě modrá obloha, oči zůstanou přivyklé tmě.' : 'Noční režim vypnutý.'); }
+      else if (a === 'lines') { st.showLines = !st.showLines; updUi(); st.toast(st.showLines ? 'Čáry souhvězdí zapnuté.' : 'Čáry souhvězdí skryté — zůstávají jen hvězdy.'); }
       else if (a === 'calib') { if (st.mode !== 'sensor') { st.toast('Srovnání funguje, když obloze vládne telefon.'); return; } st.calib = !st.calib; card(null); updUi(); }
       else if (a === 'calibOk') calibrate();
       else if (a === 'perm') askPerm();
@@ -618,5 +623,5 @@
     updUi(); draw();
   }
 
-  window.SkyNow = { open, close, _st: () => st, ver: 'v411' };
+  window.SkyNow = { open, close, _st: () => st, ver: 'v412' };
 })();
