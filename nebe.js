@@ -200,9 +200,13 @@
       }
     }
     let B = null;
-    const relOk = st.relB && now - st.relAt < 600 && !st.relStuck;
-    if (relOk) B = !st.relIsAbs && st.yawOff != null ? { f: rotZ(st.relB.f, st.yawOff), u: rotZ(st.relB.u, st.yawOff) } : st.relB;
+    const fix = st.fix || {};
+    const relOk = st.relB && now - st.relAt < 600 && !st.relStuck && fix.force !== 'abs';
+    if (fix.force === 'rel' && st.relB) B = st.yawOff != null && !st.relIsAbs ? { f: rotZ(st.relB.f, st.yawOff), u: rotZ(st.relB.u, st.yawOff) } : st.relB;
+    else if (relOk) B = !st.relIsAbs && st.yawOff != null ? { f: rotZ(st.relB.f, st.yawOff), u: rotZ(st.relB.u, st.yawOff) } : st.relB;
     else if (st.absB) B = st.absB;
+    if (B && fix.invert) { const a = -2 * yawOf(Math.abs(B.f[2]) < 0.85 ? B.f : B.u); B = { f: rotZ(B.f, a), u: rotZ(B.u, a) }; }
+    if (st.test) testSample(now);
     st.using = B === st.absB ? 'kompas' : st.yawOff != null ? 'gyro+kompas' : 'gyro';
     if (!B) return;
     st.sensorAt = now; st.noCompass = !st.absB;
@@ -210,6 +214,43 @@
     const k = st.smoothF == null ? 1 : 0.45;
     st.smoothF = st.smoothF ? norm(st.smoothF.map((x, i) => x + (B.f[i] - x) * k)) : B.f;
     st.smoothU = st.smoothU ? norm(st.smoothU.map((x, i) => x + (B.u[i] - x) * k)) : B.u;
+  }
+  // ---------- test otáčení ----------
+  function yawSrc(B) { return B ? yawOf(Math.abs(B.f[2]) < 0.85 ? B.f : B.u) : null; }
+  function testStart() {
+    st.calib = false; card(null);
+    st.test = { t0: Date.now(), last: {}, sum: { abs: 0, rel: 0, gsAbs: 0, gsRel: 0, view: 0 }, n: 0, raw: [] };
+    updUi(); setTimeout(testEnd, 8000);
+  }
+  function testSample(now) {
+    const T = st.test; if (!T) return; T.n++;
+    const cur = { abs: yawSrc(st.gsAbs && now - st.gsAbsAt < 500 ? null : st.absB), rel: yawSrc(st.gsRel && now - st.gsRelAt < 500 ? null : st.relB), gsAbs: yawSrc(st.gsAbs), gsRel: yawSrc(st.gsRel), view: st.smoothF ? yawOf(st.smoothF) : null };
+    for (const k in cur) { if (cur[k] == null) continue; if (T.last[k] != null) T.sum[k] += wrapPi(cur[k] - T.last[k]); T.last[k] = cur[k]; }
+    if (!T.lastRaw || now - T.lastRaw > 700) { T.lastRaw = now; T.raw.push(`${((now - T.t0) / 1000).toFixed(1)}s ${st.raw || '-'} v${cur.view == null ? '-' : Math.round(cur.view * R2D)}`); }
+  }
+  function testEnd() {
+    const T = st && st.test; if (!T) return; st.test = null;
+    const d = {}; for (const k in T.sum) d[k] = Math.round(T.sum[k] * R2D);
+    const seen = (k) => T.last[k] != null;
+    const judge = (k) => !seen(k) ? '—' : Math.abs(d[k]) < 20 ? 'stojí' : d[k] > 0 ? 'ok' : 'obráceně';
+    const J = { abs: judge('abs'), rel: judge('rel'), gsAbs: judge('gsAbs'), gsRel: judge('gsRel'), view: judge('view') };
+    const fix = {};
+    let msg;
+    if (Math.abs(d.view) < 20 && ['abs', 'rel', 'gsAbs', 'gsRel'].every(k => J[k] !== 'ok' && J[k] !== 'obráceně')) msg = 'Telefon při otáčení neposlal žádnou změnu směru. Zkus to znovu a otoč se pomalu aspoň o čtvrt kruhu.';
+    else if (J.view === 'ok') msg = 'Otáčení funguje správně ✦';
+    else {
+      const absOk = J.abs === 'ok' || J.gsAbs === 'ok', relOk = J.rel === 'ok' || J.gsRel === 'ok';
+      const absInv = J.abs === 'obráceně' || J.gsAbs === 'obráceně', relInv = J.rel === 'obráceně' || J.gsRel === 'obráceně';
+      if (absOk) fix.force = 'abs'; else if (relOk) fix.force = 'rel'; else if (absInv) { fix.force = 'abs'; fix.invert = true; } else if (relInv) { fix.force = 'rel'; fix.invert = true; }
+      msg = fix.force ? 'Našel jsem, co tvůj telefon posílá, a nastavil to. Zkus se otočit — obloha by teď měla stát na místě.' : 'Z dat nejde poznat správný směr. Pošli mi prosím zprávu, kterou jsem zkopíroval.';
+    }
+    st.fix = fix; try { localStorage.setItem('kairos_sky_fix', JSON.stringify(fix)); } catch (e) { }
+    st.relStuck = st.absStuck = false; st.yawOff = null; st.smoothF = null;
+    const report = [`KOMPAS nebe test ${window.SkyNow.ver} | view ${d.view} | abs ${d.abs}/${J.abs} rel ${d.rel}/${J.rel} gsAbs ${d.gsAbs}/${J.gsAbs} gsRel ${d.gsRel}/${J.gsRel} | fix ${JSON.stringify(fix)} | n ${T.n}`, navigator.userAgent.replace(/^Mozilla\/5\.0 /, '').slice(0, 140)].concat(T.raw.slice(0, 14)).join('\n');
+    try { navigator.clipboard && navigator.clipboard.writeText(report); } catch (e) { }
+    st.report = report;
+    card(`<b>Test otáčení</b><p>${esc(msg)}</p><p style="font-size:12px;color:#9FB0D6">Výsledek je zkopírovaný — můžeš ho vložit do zprávy. <button data-sk="copyrep" style="font:inherit;color:#F3D384;background:none;border:0;text-decoration:underline;padding:0;cursor:pointer">zkopírovat znovu</button> · <button data-sk="fixreset" style="font:inherit;color:#F3D384;background:none;border:0;text-decoration:underline;padding:0;cursor:pointer">zrušit nastavení</button></p>`);
+    updUi();
   }
   function magDecl(lat, lon) { return (lat > 34 && lat < 72 && lon > -12 && lon < 42) ? 0.3 * lon - 0.5 : 0; } // hrubý odhad deklinace pro Evropu
 
@@ -379,7 +420,7 @@
     // diagnostika senzorů (klepnutí na nadpis)
     if (st.diag) {
       const [va, vl] = azAltFromEnu(f);
-      const lines = [`${window.SkyNow.ver || ''} · zdroj ${st.src || '—'} · použito ${st.using || '—'}`, `směr ${Math.round((va * R2D + 360) % 360)}° · výška ${Math.round(vl * R2D)}° · posun ${st.yawOff == null ? '—' : Math.round(st.yawOff * R2D) + '°'}${st.relStuck ? ' · gyro stojí' : ''}${st.absStuck ? ' · kompas stojí' : ''}`, st.raw || 'deviceorientation —', `sensor API: abs ${st.gsAbs ? 'ano' : st.gsAbsErr ? 'chyba' : '—'} · rel ${st.gsRel ? 'ano' : st.gsRelErr ? 'chyba' : '—'}`];
+      const lines = [`${window.SkyNow.ver || ''} · zdroj ${st.src || '—'} · použito ${st.using || '—'}`, `směr ${Math.round((va * R2D + 360) % 360)}° · výška ${Math.round(vl * R2D)}° · posun ${st.yawOff == null ? '—' : Math.round(st.yawOff * R2D) + '°'}${st.relStuck ? ' · gyro stojí' : ''}${st.absStuck ? ' · kompas stojí' : ''}${st.fix && st.fix.force ? ` · oprava ${st.fix.force}${st.fix.invert ? ' obráceně' : ''}` : ''}`, st.raw || 'deviceorientation —', `sensor API: abs ${st.gsAbs ? 'ano' : st.gsAbsErr ? 'chyba' : '—'} · rel ${st.gsRel ? 'ano' : st.gsRelErr ? 'chyba' : '—'}`];
       g.font = '12px ui-monospace,monospace'; g.textAlign = 'left'; g.textBaseline = 'top'; g.fillStyle = 'rgba(0,0,0,.75)'; g.fillRect(8, topSafe + 4, W - 16, 16 * lines.length + 10); g.fillStyle = '#7EE8C4'; lines.forEach((l, k) => g.fillText(l, 14, topSafe + 9 + 16 * k));
     }
     // ukazatel přiblížení
@@ -459,7 +500,8 @@
     for (const [act, on] of [['cam', st.cam], ['red', st.red], ['lines', st.showLines], ['calib', st.calib]]) { const b = $(`#sky .sktool[data-sk="${act}"]`); if (b) b.classList.toggle('on', !!on); }
     const hint = $('#sky .skhint');
     if (hint) {
-      if (st.calib) hint.innerHTML = 'Namiř zaměřovač na Lunu, jasnou planetu nebo hvězdu a klepni na <button data-sk="calibOk">srovnat</button>.';
+      if (st.test) hint.innerHTML = '<b style="color:#F3D384">Test otáčení:</b> drž telefon svisle jako při focení a pomalu se otáčej <b>doprava</b> — asi o půl kruhu, 8 sekund.';
+      else if (st.calib) hint.innerHTML = 'Namiř zaměřovač na Lunu, jasnou planetu nebo hvězdu a klepni na <button data-sk="calibOk">srovnat</button>.';
       else if (st.needPerm) hint.innerHTML = '<button data-sk="perm">Povolit pohybové senzory</button> — pak stačí namířit telefon na oblohu.';
       else if (st.mode === 'sensor' && st.noCompass) hint.innerHTML = 'Telefon neposílá kompas — sever srovnáš tlačítkem ⌖ podle Luny nebo jasné hvězdy.';
       else if (st.mode === 'sensor') hint.innerHTML = (st.sunAlt > -6 ? 'Je den — hvězdy svítí dál, jen je Slunce přezáří. ' : 'Namiř telefon na oblohu. Dvěma prsty přibližuješ a oddaluješ, klepnutím na objekt se dozvíš víc. ') + '<button data-sk="drag">Ovládat prstem</button>';
@@ -574,6 +616,7 @@
     st = { loc: { lat: +opts.lat, lon: +opts.lon, alt: +opts.alt || 0, name: opts.name || '' }, data: window.__skyPrepared || (window.__skyPrepared = prepare()),
       cv: $('canvas', box), fov: 70, vAz: 180 * D2R, vAlt: 26 * D2R, azOff: 0, mode: 'auto', showLines: true, toast: opts.toast || ((m) => console.log(m)), prevOverflow: document.documentElement.style.overflow };
     st.g = st.cv.getContext('2d');
+    try { st.fix = JSON.parse(localStorage.getItem('kairos_sky_fix') || '{}') || {}; } catch (e) { st.fix = {}; }
     document.documentElement.style.overflow = 'hidden';
     recompute(); updHead();
     // senzory: iPhone chce povolení klepnutím
@@ -590,7 +633,11 @@
       const b = e.target.closest('[data-sk]'); if (!b) return; const a = b.dataset.sk; e.stopPropagation();
       if (a === 'close') close(); else if (a === 'cam') camToggle(); else if (a === 'red') { st.red = !st.red; updUi(); st.toast(st.red ? 'Noční režim: tmavě modrá obloha, oči zůstanou přivyklé tmě.' : 'Noční režim vypnutý.'); }
       else if (a === 'lines') { st.showLines = !st.showLines; updUi(); st.toast(st.showLines ? 'Čáry souhvězdí zapnuté.' : 'Čáry souhvězdí skryté — zůstávají jen hvězdy.'); }
-      else if (a === 'calib') { if (st.mode !== 'sensor') { st.toast('Srovnání funguje, když obloze vládne telefon.'); return; } st.calib = !st.calib; card(null); updUi(); }
+      else if (a === 'calib') { if (st.calib || st.test) { st.calib = false; st.test = null; card(null); updUi(); return; } card(`<b>Srovnat</b><p><button class="skr" data-sk="testrot" style="width:100%"><b>Otáčení</b><small>obloha se točí se mnou</small></button><button class="skr" data-sk="north" style="width:100%"><b>Sever</b><small>podle Luny nebo hvězdy</small></button></p>`); }
+      else if (a === 'testrot') { if (st.mode === 'drag') { st.mode = 'auto'; } testStart(); }
+      else if (a === 'north') { if (st.mode !== 'sensor') { st.toast('Srovnání severu funguje, když obloze vládne telefon.'); return; } card(null); st.calib = true; updUi(); }
+      else if (a === 'copyrep') { try { navigator.clipboard.writeText(st.report || ''); st.toast('Zkopírováno.'); } catch (e) { } }
+      else if (a === 'fixreset') { st.fix = {}; try { localStorage.removeItem('kairos_sky_fix'); } catch (e) { } card(null); st.toast('Nastavení otáčení zrušeno.'); }
       else if (a === 'calibOk') calibrate();
       else if (a === 'perm') askPerm();
       else if (a === 'sensor') { st.mode = st.sensorAt ? 'sensor' : 'auto'; st.smoothF = null; if (!st.bound && !st.needPerm) bindSensors(); updUi(); }
@@ -629,5 +676,5 @@
     updUi(); draw();
   }
 
-  window.SkyNow = { open, close, _st: () => st, ver: 'v413' };
+  window.SkyNow = { open, close, _st: () => st, ver: 'v414' };
 })();
