@@ -137,25 +137,48 @@
     const cX = Math.cos(x), cY = Math.cos(y), cZ = Math.cos(z), sX = Math.sin(x), sY = Math.sin(y), sZ = Math.sin(z);
     return [[cZ * cY - sZ * sX * sY, -cX * sZ, cY * sZ * sX + cZ * sY], [cY * sZ + cZ * sX * sY, cZ * cX, sZ * sY - cZ * cY * sX], [-cX * sY, sX, cX * cY]];
   }
-  function onOrient(e) {
-    if (!st || e.alpha == null || e.beta == null) return;
-    if (e.type === 'deviceorientation' && st.absEvents && e.webkitCompassHeading == null) return;
-    if (e.type === 'deviceorientationabsolute') st.absEvents = true;
-    let alpha = e.alpha;
-    if (e.webkitCompassHeading != null && !isNaN(e.webkitCompassHeading)) {
-      let off = (360 - e.webkitCompassHeading) - e.alpha; off = ((off % 360) + 540) % 360 - 180;
-      st.iosOff = st.iosOff == null ? off : st.iosOff + 0.1 * ((((off - st.iosOff) % 360) + 540) % 360 - 180);
-      alpha = e.alpha + st.iosOff;
-    } else if (e.type === 'deviceorientation' && !e.absolute) { st.relOnly = true; }
-    const M = rotMatrix(alpha, e.beta, e.gamma || 0);
+  // Natočení: gyroskop (plynulý, bez vlivu magnetů) + kompas (jen pomalu dorovnává sever).
+  // Android posílá obojí a každé měří od jiného severu — proto je nemícháme, ale spojujeme.
+  const wrapPi = (x) => { x = (x + Math.PI) % (2 * Math.PI); return (x < 0 ? x + 2 * Math.PI : x) - Math.PI; };
+  const yawOf = (v) => Math.atan2(v[0], v[1]);
+  const rotZ = (v, a) => { const c = Math.cos(a), s = Math.sin(a); return [v[0] * c + v[1] * s, -v[0] * s + v[1] * c, v[2]]; };
+  function basisOf(alpha, beta, gamma) {
+    const M = rotMatrix(alpha, beta, gamma || 0);
     let r = [M[0][0], M[1][0], M[2][0]], u = [M[0][1], M[1][1], M[2][1]]; const f = [-M[0][2], -M[1][2], -M[2][2]];
     const ang = ((screen.orientation && screen.orientation.angle) || window.orientation || 0) * D2R;
     if (ang) { const c = Math.cos(ang), s = Math.sin(ang); const u2 = [u[0] * c + r[0] * s, u[1] * c + r[1] * s, u[2] * c + r[2] * s]; const r2 = [r[0] * c - u[0] * s, r[1] * c - u[1] * s, r[2] * c - u[2] * s]; u = u2; r = r2; }
-    st.sensorAt = Date.now();
+    return { f, u, r };
+  }
+  function onOrient(e) {
+    if (!st || e.alpha == null || e.beta == null) return;
+    const now = Date.now();
+    const ios = e.webkitCompassHeading != null && !isNaN(e.webkitCompassHeading);
+    if (e.type === 'deviceorientationabsolute' || (e.type === 'deviceorientation' && e.absolute && !ios)) { st.absB = basisOf(e.alpha, e.beta, e.gamma); st.absAt = now; if (e.type === 'deviceorientation') { st.relB = st.absB; st.relAt = now; st.relIsAbs = true; } }
+    else if (e.type === 'deviceorientation') {
+      st.relB = basisOf(e.alpha, e.beta, e.gamma); st.relAt = now; st.relIsAbs = false;
+      if (ios) { st.absB = basisOf(360 - e.webkitCompassHeading, e.beta, e.gamma); st.absAt = now; }
+    }
+    // odhad posunu mezi gyroskopem a kompasem (pomalu, skoky kompasu se nejdřív ověří)
+    if (st.relB && !st.relIsAbs && st.absB && Math.abs(now - st.absAt) < 250) {
+      const useF = Math.abs(st.relB.f[2]) < 0.85; const vr = useF ? st.relB.f : st.relB.u, va = useF ? st.absB.f : st.absB.u;
+      const yr = yawOf(vr), sample = wrapPi(yawOf(va) - yr);
+      const still = st.lastYr == null || Math.abs(wrapPi(yr - st.lastYr)) < 3 * D2R; st.lastYr = yr;
+      if (st.yawOff == null) st.yawOff = sample;
+      else if (still) {
+        const d = wrapPi(sample - st.yawOff);
+        if (Math.abs(d) > 20 * D2R) { st.prob = st.prob || now; if (now - st.prob > 1500) st.yawOff = wrapPi(st.yawOff + d * 0.08); }
+        else { st.prob = 0; st.yawOff = wrapPi(st.yawOff + d * 0.03); }
+      }
+    }
+    let B = null;
+    if (st.relB && now - st.relAt < 600) B = st.relIsAbs || st.yawOff == null ? st.relB : { f: rotZ(st.relB.f, st.yawOff), u: rotZ(st.relB.u, st.yawOff) };
+    else if (st.absB) B = st.absB;
+    if (!B) return;
+    st.sensorAt = now; st.noCompass = !st.absB;
     if (st.mode !== 'sensor') { if (st.mode === 'auto') { st.mode = 'sensor'; updUi(); } else return; }
-    const k = st.smoothF == null ? 1 : 0.22;
-    st.smoothF = st.smoothF ? norm(st.smoothF.map((x, i) => x + (f[i] - x) * k)) : f;
-    st.smoothU = st.smoothU ? norm(st.smoothU.map((x, i) => x + (u[i] - x) * k)) : u;
+    const k = st.smoothF == null ? 1 : 0.45;
+    st.smoothF = st.smoothF ? norm(st.smoothF.map((x, i) => x + (B.f[i] - x) * k)) : B.f;
+    st.smoothU = st.smoothU ? norm(st.smoothU.map((x, i) => x + (B.u[i] - x) * k)) : B.u;
   }
   function magDecl(lat, lon) { return (lat > 34 && lat < 72 && lon > -12 && lon < 42) ? 0.3 * lon - 0.5 : 0; } // hrubý odhad deklinace pro Evropu
 
@@ -310,6 +333,18 @@
         st.onTarget = centered;
       }
     }
+    // slovní navigace k cíli
+    if (tb && st.mode === 'sensor') {
+      const [ta, tl] = azAltFromEnu(tb.v), [va, vl] = azAltFromEnu(f);
+      const daz = Math.round(wrapPi(ta - va) * R2D), dal = Math.round((tl - vl) * R2D);
+      const parts = [];
+      if (Math.abs(daz) > 4) parts.push(`otoč se o ${Math.abs(daz)}° ${daz > 0 ? 'doprava' : 'doleva'}`);
+      if (Math.abs(dal) > 4) parts.push(`${dal > 0 ? 'zvedni' : 'skloň'} telefon o ${Math.abs(dal)}°`);
+      const tx = parts.length ? parts.join(' · ') : `${tb.name} máš přímo před sebou ✦`;
+      g.font = '600 14px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; const w = Math.min(W - 20, g.measureText(tx).width + 28), y0 = botSafe - 22;
+      g.fillStyle = 'rgba(6,12,30,.88)'; g.beginPath(); g.roundRect ? g.roundRect(cx - w / 2, y0 - 16, w, 32, 16) : g.rect(cx - w / 2, y0 - 16, w, 32); g.fill(); g.strokeStyle = 'rgba(243,211,132,.55)'; g.lineWidth = 1; g.stroke();
+      g.fillStyle = parts.length ? '#F3D384' : '#7EE8C4'; g.fillText(tx, cx, y0);
+    }
     // ukazatel přiblížení
     if (Date.now() - (st.zoomAt || 0) < 1400) { const z = 70 / st.fov; const tx = z >= 1 ? `přiblížení ×${z.toFixed(1).replace('.', ',')}` : `oddálení ×${(1 / z).toFixed(1).replace('.', ',')}`; g.font = '700 15px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; const w = g.measureText(tx).width + 28, y0 = topSafe + 22; g.fillStyle = 'rgba(6,12,30,.85)'; g.beginPath(); g.roundRect ? g.roundRect(cx - w / 2, y0 - 16, w, 32, 16) : g.rect(cx - w / 2, y0 - 16, w, 32); g.fill(); g.fillStyle = '#F3D384'; g.fillText(tx, cx, y0); }
     // zaměřovač pro kalibraci
@@ -344,14 +379,20 @@
     for (const i in D.names) out.push({ n: D.names[i][0], sub: `hvězda${D.conName[D.names[i][1]] ? ' · ' + D.conName[D.names[i][1]] : ''}`, t: { k: 'star', i: +i } });
     for (const c of D.cons) out.push({ n: c.name, sub: 'souhvězdí', t: { k: 'con', id: c.id } });
     for (const m of D.mes) out.push({ n: m.cz ? `${m.id} · ${m.cz}` : m.id, sub: MTYPE[m.type] || 'objekt', t: { k: 'mes', id: m.id } });
-    for (const e of out) e.f = fold(e.n);
+    const AL = { 'body:Venus': 'večernice jitřenka', 'body:Moon': 'měsíc', 'body:Sun': 'slunko', 'con:UMa': 'velký vůz', 'con:UMi': 'malý vůz', 'mes:M45': 'kuřátka pleiades', 'mes:M31': 'andromeda galaxie andromeda galaxy', 'mes:M42': 'orion nebula mlhovina orion', 'mes:M44': 'praesepe úl', 'mes:M13': 'herkules hvězdokupa' };
+    for (const e of out) { const key = `${e.t.k}:${e.t.id || ''}`; const extra = AL[key] || (e.t.k === 'star' && e.n === 'Polárka' ? 'severka polaris' : ''); e.f = fold(e.n); e.w = fold(e.n + ' ' + extra).split(/[\s·,()-]+/).filter(Boolean); }
     return out;
   }
   function search(q) {
     const f = fold(q); if (!f) return [];
     const idx = st.index || (st.index = buildIndex());
+    const toks = f.split(/\s+/).filter(Boolean).map(t => t.length > 5 ? t.slice(0, t.length - 2) : t);
     const res = [];
-    for (const e of idx) { const words = e.f.split(/[\s·]+/); const sc = e.f.startsWith(f) ? 3 : words.some(w => w.startsWith(f)) ? 2 : e.f.includes(f) ? 1 : 0; if (sc) res.push([sc, e]); }
+    for (const e of idx) {
+      const all = toks.every(t => e.w.some(w => w.startsWith(t)));
+      const sc = all ? (e.f.startsWith(f) ? 4 : e.w[0].startsWith(toks[0]) ? 3 : 2) : e.f.includes(f) ? 1 : 0;
+      if (sc) res.push([sc, e]);
+    }
     return res.sort((a, b) => b[0] - a[0] || a[1].n.length - b[1].n.length).slice(0, 8).map(x => x[1]);
   }
   function setTarget(t) {
@@ -383,6 +424,7 @@
     if (hint) {
       if (st.calib) hint.innerHTML = 'Namiř zaměřovač na Lunu, jasnou planetu nebo hvězdu a klepni na <button data-sk="calibOk">srovnat</button>.';
       else if (st.needPerm) hint.innerHTML = '<button data-sk="perm">Povolit pohybové senzory</button> — pak stačí namířit telefon na oblohu.';
+      else if (st.mode === 'sensor' && st.noCompass) hint.innerHTML = 'Telefon neposílá kompas — sever srovnáš tlačítkem ⌖ podle Luny nebo jasné hvězdy.';
       else if (st.mode === 'sensor') hint.textContent = st.sunAlt > -6 ? 'Je den — hvězdy svítí dál, jen je Slunce přezáří. Mapa ukazuje, co nad tebou právě je.' : 'Namiř telefon na oblohu. Dvěma prsty přibližuješ a oddaluješ, klepnutím na objekt se dozvíš víc.';
       else hint.innerHTML = 'Posouvej oblohu prstem, dvěma prsty přibližuj a oddaluj. ' + (st.sensorOk ? '<button data-sk="sensor">Řídit telefonem</button>' : '');
     }
