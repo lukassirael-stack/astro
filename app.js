@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v405';
+  const VERSION = 'v406';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2020,6 +2020,13 @@
     lookback() { const v = ($('#lookbackDate') || {}).value; if (!v) return; S.lookback = v; S.natalView = 'prochazis'; renderNatal(); setTimeout(() => { const el = $('#view-nativ .lookback'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
     toggleNum() { settings.numerology = settings.numerology === false; persistSettings(); S.dayCache = {}; renderSettings(); },
     toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
+    skyOpen(el) {
+      const go = () => window.SkyNow.open({ lat: settings.loc.lat, lon: settings.loc.lon, alt: settings.loc.alt, name: settings.loc.name, target: el && el.dataset.t, toast });
+      if (window.SkyNow && window.SKY_DATA) { go(); return; }
+      toast('Načítám oblohu…');
+      const load = (src) => new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = src; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); });
+      Promise.all([window.SKY_DATA ? 0 : load('sky-data.js?v=' + VERSION.slice(1)), window.SkyNow ? 0 : load('nebe.js?v=' + VERSION.slice(1))]).then(go).catch(() => toast('Oblohu se nepodařilo načíst — zkus to za chvíli.'));
+    },
     evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
     plSel(el) { S.plSel = el.dataset.k; renderJournal(); },
     plPrev() { const t = (S.plSel || TODAY_KEY).split('-').map(Number); let y = S.plY || t[0], m = (S.plM || t[1]) - 1; if (m < 1) { m = 12; y--; } S.plY = y; S.plM = m; renderJournal(); },
@@ -3632,7 +3639,7 @@ ${parts}
       const months = {};
       for (const e of list) { const p = K.tzParts(e.date, TZ); const k = `${p.y}-${pad(p.m)}`; (months[k] = months[k] || { y: p.y, m: p.m, items: [] }).items.push(e); }
       const chips = ['vse', 'osobni', 'portal', 'priroda', 'zatmeni', 'luna', 'planety', 'hvezdy', 'roje', 'slunce', 'komety'].map(c => `<button type="button" class="chip cat ${S.filter === c ? 'on' : ''}" data-act="filter" data-f="${c}">${catIcon(c)}${CAT_CZ[c]}</button>`).join('');
-      let html = `<div class="h2">Úkazy · ${esc(settings.loc.name)}</div><p class="note">${S.evAll ? 'Rok dopředu od tohoto měsíce.' : 'Nejbližší tři měsíce.'} Časy jsou v našem čase, viditelnost počítaná pro ${esc(settings.loc.name)} (${fmtNum(settings.loc.lat, 3)} N, ${fmtNum(settings.loc.lon, 3)} E).</p><div class="catgrid">${chips}</div>`;
+      let html = `<div class="h2">Úkazy · ${esc(settings.loc.name)}</div><p class="note">${S.evAll ? 'Rok dopředu od tohoto měsíce.' : 'Nejbližší tři měsíce.'} Časy jsou v našem čase, viditelnost počítaná pro ${esc(settings.loc.name)} (${fmtNum(settings.loc.lat, 3)} N, ${fmtNum(settings.loc.lon, 3)} E).</p><button type="button" class="skynow" data-act="skyOpen"><i>✦</i><span><b>Hvězdné nebe teď</b><small>namiř telefon na oblohu — planety, hvězdy, souhvězdí, galaxie</small></span><em>›</em></button><div class="catgrid">${chips}</div>`;
       if (S.filter === 'priroda') {
         // přírodní kalendář: měsíce v zobrazeném rozsahu
         const cnt = S.evAll ? 12 : 3; let yy = np.y, mm = np.m;
@@ -4429,7 +4436,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=405'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=406'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }

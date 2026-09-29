@@ -12,6 +12,8 @@ Technický identifikátor v kódu a cache je `kairos` (klíče `kairos_*`, cache
 | `kairos-core.js` | výpočetní jádro: astronomie, tranzity, skóre dne, texty dne (`createKairosEngine`, `createKairosTexts`) |
 | `data.js` | čistá data: jmeniny, svátky, čakra roku |
 | `app.js` | rozhraní a logika appky (jedna uzavřená funkce) |
+| `nebe.js` | Hvězdné nebe teď — obloha v reálném čase podle polohy a natočení telefonu (načítá se až po otevření) |
+| `sky-data.js` | data oblohy: hvězdy do 6 mag, souhvězdí, Messier, Mléčná dráha — d3-celestial © Olaf Frohn, BSD-3-Clause |
 | `sw.js` | service worker — offline, cache `kairos-vN` |
 | `astronomy.browser.min.js`, `qr.min.js` | knihovny |
 | `api/noaa.js`, `api/comets.js`, `api/ics.js` | serverless proxy: kosmické počasí, komety, Google kalendář |
