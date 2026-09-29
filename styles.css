@@ -1307,26 +1307,7 @@ body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}
 .caltools .btn{flex:1 1 0;min-width:0;padding-left:6px;padding-right:6px;letter-spacing:.05em;white-space:nowrap;justify-content:center;text-align:center}
 .caltools .btn[data-act="today"]{flex:0 0 auto;padding-left:14px;padding-right:14px}
 
-/* v399: O tobě — čtyři karty + Další systémy, přepínač mapy, Teď v horoskopu */
-.ntiles.mini{grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
-.ntiles.mini .ntile.img{border-radius:14px;border-width:1px}
-.mapnav{flex-wrap:wrap;gap:6px;margin:-2px 0 12px}
-.hstnow{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(243,211,132,.55);background:rgba(20,40,80,.5);color:#FFF7E6;font:inherit;text-align:left;cursor:pointer}
-.hstnow i{font-style:normal;font-size:24px;color:#F3D384;line-height:1;text-shadow:0 0 10px rgba(243,211,132,.5)}
-.hstnow span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.hstnow b{font-family:var(--display);font-size:var(--fs-l);font-weight:500}
-.hstnow small{font-size:var(--fs-s);color:#CFDBEE}
-.hstnow em{font-style:normal;font-size:24px;color:#F3D384}
-.hstnow:active{transform:translateY(1px)}
-.mapnav{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;margin:-2px 0 12px;padding-bottom:2px;scrollbar-width:none}
-.mapnav::-webkit-scrollbar{display:none}
-.mapnav .chip{flex:none;white-space:nowrap;padding:7px 12px;font-size:var(--fs-s)}
-.mapnav{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;overflow:visible}
-.mapnav .chip{justify-content:center;text-align:center}
-@media (max-width:440px){.mapnav{grid-template-columns:1fr 1fr;justify-content:stretch}}
-
-/* v400: Úkazy ve skupinách, Nastavení ve skupinách */
-.evsubs{flex-wrap:wrap;gap:6px;margin:-4px 0 12px}
+/* v400: Nastavení ve skupinách */
 .setgrp{display:flex;align-items:center;gap:10px;margin:26px 2px 2px;font-size:var(--fs-xs);font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
 .setgrp::after{content:'';flex:1;height:1px;background:var(--line2)}
 .setadv{margin:18px 0 0;border:1px solid var(--line2);border-radius:14px;padding:4px 12px 10px;background:rgba(6,14,36,.25)}
