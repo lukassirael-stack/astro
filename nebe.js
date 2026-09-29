@@ -48,7 +48,7 @@
 #sky{position:fixed;inset:0;z-index:9000;background:#02040c;color:#EAF0FF;font-family:inherit;touch-action:none;overscroll-behavior:none;user-select:none;-webkit-user-select:none}
 #sky video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9}
 #sky canvas{position:absolute;inset:0;width:100%;height:100%}
-#sky.red{filter:grayscale(1) sepia(1) saturate(14) hue-rotate(-52deg) brightness(.95) contrast(1.25)}
+#sky.red{filter:grayscale(1) sepia(1) saturate(3.2) hue-rotate(182deg) brightness(.78) contrast(1.12)}
 #sky .skbar{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:6px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 14px;background:linear-gradient(rgba(2,4,12,.94),rgba(2,4,12,.85) 70%,rgba(2,4,12,0))}
 #sky .skt{flex:1;min-width:0}
 #sky .skt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--display,Georgia,serif);font-size:17px;font-weight:500;color:#F3D384;letter-spacing:.02em}
@@ -66,6 +66,16 @@
 #sky .skcard b{display:block;font-family:var(--display,Georgia,serif);font-size:20px;font-weight:500;color:#F3D384}
 #sky .skcard p{margin:6px 0 0;font-size:13.5px;line-height:1.5;color:#DCE4F6}
 #sky .skcard .x{position:absolute;right:10px;top:8px;background:none;border:0;color:#B9C6E4;font-size:22px;cursor:pointer}
+#sky .skchip.find{border-color:rgba(243,211,132,.6);color:#F3D384}
+#sky .sksearch{position:absolute;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 64px);max-width:520px;margin:0 auto;padding:10px;border-radius:16px;border:1px solid rgba(243,211,132,.45);background:rgba(6,12,30,.96);box-shadow:0 12px 40px rgba(0,0,0,.55);touch-action:auto}
+#sky .skin{display:flex;gap:8px;align-items:center}
+#sky .sksearch input{flex:1;min-width:0;padding:11px 14px;border-radius:12px;border:1px solid rgba(185,198,228,.35);background:rgba(255,255,255,.06);color:#fff;font:inherit;font-size:16px;user-select:text;-webkit-user-select:text}
+#sky .skres{touch-action:pan-y;display:flex;flex-direction:column;gap:2px;margin-top:6px;max-height:52vh;overflow-y:auto}
+#sky .skr{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;border:0;background:transparent;color:#EAF0FF;font:inherit;text-align:left;cursor:pointer}
+#sky .skr:active,#sky .skr:hover{background:rgba(243,211,132,.12)}
+#sky .skr b{font-weight:600;font-size:15px}
+#sky .skr small{flex:none;font-size:12px;color:#9FB0D6}
+#sky .skempty{margin:8px 6px;font-size:13px;color:#B9C6E4}
 #sky .skcal{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border:1.5px solid rgba(243,211,132,.9);border-radius:50%;pointer-events:none}
 #sky .skcal::before,#sky .skcal::after{content:'';position:absolute;background:rgba(243,211,132,.9)}
 #sky .skcal::before{left:50%;top:-10px;bottom:-10px;width:1.5px;margin-left:-.75px}
@@ -280,15 +290,24 @@
       g.lineWidth = 4; g.strokeStyle = 'rgba(2,6,20,.82)'; g.strokeText(l.t, l.x, l.y); g.fillStyle = l.col; g.fillText(l.t, l.x, l.y);
     }
     // cíl mimo obrazovku: šipka na okraji
-    if (st.target) {
-      const tb = st.bodies.find(b => b.id === st.target); if (tb) {
-        const p = P(tb.v); const inside = onScreen(p, -30);
-        if (!inside) {
-          let dx = dot(tb.v, r), dy = -dot(tb.v, u); const L = Math.hypot(dx, dy) || 1; dx /= L; dy /= L;
-          const m = 46, t = Math.min((W / 2 - m) / Math.abs(dx || 1e-6), (H / 2 - m - 40) / Math.abs(dy || 1e-6)); const ax = cx + dx * t, ay = cy + dy * t;
-          g.save(); g.translate(ax, ay); g.rotate(Math.atan2(dy, dx)); g.fillStyle = '#F3D384'; g.beginPath(); g.moveTo(16, 0); g.lineTo(-8, -10); g.lineTo(-3, 0); g.lineTo(-8, 10); g.closePath(); g.fill(); g.restore();
-          g.font = '700 14px system-ui,sans-serif'; g.textAlign = 'center'; g.lineWidth = 4; g.strokeStyle = 'rgba(2,6,20,.85)'; g.strokeText(tb.cz, ax - dx * 30, ay - dy * 30); g.fillStyle = '#F3D384'; g.fillText(tb.cz, ax - dx * 30, ay - dy * 30);
-        } else { g.strokeStyle = '#F3D384'; g.lineWidth = 1.5; g.beginPath(); g.arc(p[0], p[1], 22, 0, Math.PI * 2); g.stroke(); }
+    const tb = targetObj();
+    if (tb) {
+      const p = P(tb.v); const inside = onScreen(p, -30);
+      if (!inside) {
+        let dx = dot(tb.v, r), dy = -dot(tb.v, u); if (dot(tb.v, f) < 0 && Math.hypot(dx, dy) < 0.15) { dx = 0; dy = 1; }
+        const L = Math.hypot(dx, dy) || 1; dx /= L; dy /= L;
+        const m = 46, t = Math.min((W / 2 - m) / Math.abs(dx || 1e-6), (botSafe - topSafe) / 2 / Math.abs(dy || 1e-6) - m); const my = (topSafe + botSafe) / 2; const ax = cx + dx * t, ay = my + dy * t;
+        const pulse = 1 + 0.12 * Math.sin(Date.now() / 220);
+        g.save(); g.translate(ax, ay); g.rotate(Math.atan2(dy, dx)); g.scale(pulse, pulse); g.shadowColor = 'rgba(243,211,132,.8)'; g.shadowBlur = 14; g.fillStyle = '#F3D384'; g.beginPath(); g.moveTo(22, 0); g.lineTo(-10, -14); g.lineTo(-3, 0); g.lineTo(-10, 14); g.closePath(); g.fill(); g.restore();
+        const lab = tb.name + (tb.v[2] < 0 ? ' (pod obzorem)' : '');
+        g.font = '700 14px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineWidth = 4; g.strokeStyle = 'rgba(2,6,20,.85)'; g.strokeText(lab, clamp(ax - dx * 38, 70, W - 70), ay - dy * 38); g.fillStyle = '#F3D384'; g.fillText(lab, clamp(ax - dx * 38, 70, W - 70), ay - dy * 38);
+        st.onTarget = false;
+      } else {
+        const R = 24 + 4 * Math.sin(Date.now() / 260); g.strokeStyle = '#F3D384'; g.lineWidth = 2; g.beginPath(); g.arc(p[0], p[1], R, 0, Math.PI * 2); g.stroke();
+        for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2; g.beginPath(); g.moveTo(p[0] + Math.cos(a) * (R + 4), p[1] + Math.sin(a) * (R + 4)); g.lineTo(p[0] + Math.cos(a) * (R + 12), p[1] + Math.sin(a) * (R + 12)); g.stroke(); }
+        const centered = Math.hypot(p[0] - cx, p[1] - (topSafe + botSafe) / 2) < 60;
+        if (centered && !st.onTarget && st.mode === 'sensor' && navigator.vibrate) { try { navigator.vibrate(35); } catch (e) { } }
+        st.onTarget = centered;
       }
     }
     // zaměřovač pro kalibraci
@@ -307,6 +326,50 @@
     g.fill(); g.restore();
   }
 
+  // ---------- cíl a vyhledávání ----------
+  const fold = (x) => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  function targetObj() {
+    const t = st && st.target; if (!t) return null; const D = st.data;
+    if (t.k === 'body') { const b = st.bodies.find(x => x.id === t.id); return b && { v: b.v, name: b.cz, h: { k: 'body', o: b } }; }
+    if (t.k === 'star') { const o = D.stars[t.i]; return o && o.v && { v: o.v, name: (D.names[t.i] || ['Hvězda'])[0], h: { k: 'star', o, i: t.i } }; }
+    if (t.k === 'con') { const o = D.cons.find(x => x.id === t.id); return o && { v: o.v, name: o.name, h: { k: 'con', o } }; }
+    if (t.k === 'mes') { const o = D.mes.find(x => x.id === t.id); return o && { v: o.v, name: o.cz ? `${o.id} · ${o.cz}` : o.id, h: { k: 'mes', o } }; }
+    return null;
+  }
+  function buildIndex() {
+    const D = st.data, out = [];
+    for (const [id, cz] of BODIES) out.push({ n: cz, sub: id === 'Sun' ? 'hvězda' : id === 'Moon' ? 'Měsíc' : 'planeta', t: { k: 'body', id } });
+    for (const i in D.names) out.push({ n: D.names[i][0], sub: `hvězda${D.conName[D.names[i][1]] ? ' · ' + D.conName[D.names[i][1]] : ''}`, t: { k: 'star', i: +i } });
+    for (const c of D.cons) out.push({ n: c.name, sub: 'souhvězdí', t: { k: 'con', id: c.id } });
+    for (const m of D.mes) out.push({ n: m.cz ? `${m.id} · ${m.cz}` : m.id, sub: MTYPE[m.type] || 'objekt', t: { k: 'mes', id: m.id } });
+    for (const e of out) e.f = fold(e.n);
+    return out;
+  }
+  function search(q) {
+    const f = fold(q); if (!f) return [];
+    const idx = st.index || (st.index = buildIndex());
+    const res = [];
+    for (const e of idx) { const words = e.f.split(/[\s·]+/); const sc = e.f.startsWith(f) ? 3 : words.some(w => w.startsWith(f)) ? 2 : e.f.includes(f) ? 1 : 0; if (sc) res.push([sc, e]); }
+    return res.sort((a, b) => b[0] - a[0] || a[1].n.length - b[1].n.length).slice(0, 8).map(x => x[1]);
+  }
+  function setTarget(t) {
+    st.target = t; const tb = targetObj(); card(null);
+    if (tb) {
+      if (st.mode !== 'sensor') { const [az, alt] = azAltFromEnu(tb.v); st.vAz = az; st.vAlt = clamp(alt, -0.3, 1.5); if (t.k === 'con' && st.fov < 60) st.fov = 70; }
+      info(tb.h);
+    }
+    updUi();
+  }
+  function searchOpen(on) {
+    const box = $('#sky .sksearch'); if (!box) return; box.style.display = on ? '' : 'none';
+    if (on) { const inp = $('input', box); inp.value = ''; $('.skres', box).innerHTML = ''; setTimeout(() => inp.focus(), 30); }
+  }
+  function searchPaint(q) {
+    const list = search(q); const box = $('#sky .skres'); if (!box) return;
+    box.innerHTML = list.length ? list.map((e, k) => `<button class="skr" data-sk="pick" data-k="${k}"><b>${esc(e.n)}</b><small>${esc(e.sub)}</small></button>`).join('') : (fold(q) ? '<p class="skempty">Zkus jiný název — třeba Vega, Orion, Andromeda nebo M42.</p>' : '');
+    st.results = list;
+  }
+
   // ---------- rozhraní ----------
   function fmtTime(d) { return d.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' }); }
   function updHead() { const h = $('#sky .skt small'); if (h) h.textContent = `${st.now.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'numeric' })} ${fmtTime(st.now)} · ${st.loc.name || 'tvá poloha'}${st.gps ? ' · GPS' : ''}`; }
@@ -321,7 +384,7 @@
       else if (st.mode === 'sensor') hint.textContent = st.sunAlt > -6 ? 'Je den — hvězdy svítí dál, jen je Slunce přezáří. Mapa ukazuje, co nad tebou právě je.' : 'Namiř telefon na oblohu. Klepnutím na objekt se dozvíš víc.';
       else hint.innerHTML = 'Posouvej oblohu prstem, dvěma prsty přibližuj. ' + (st.sensorOk ? '<button data-sk="sensor">Řídit telefonem</button>' : '');
     }
-    for (const c of document.querySelectorAll('#sky .skchip')) c.classList.toggle('on', c.dataset.t === st.target);
+    for (const c of document.querySelectorAll('#sky .skchip[data-t]')) c.classList.toggle('on', !!(st.target && st.target.k === 'body' && st.target.id === c.dataset.t));
   }
   function card(html) { const c = $('#sky .skcard'); if (!c) return; if (!html) { c.style.display = 'none'; return; } c.innerHTML = `<button class="x" data-sk="cardx" aria-label="Zavřít">×</button>${html}`; c.style.display = ''; }
   function signOf(lon) { return lon == null ? '' : SIGN_LOC[Math.floor((((lon % 360) + 360) % 360) / 30)]; }
@@ -401,9 +464,10 @@
     const box = document.createElement('div'); box.id = 'sky';
     box.innerHTML = `<video playsinline muted style="display:none"></video><canvas></canvas><div class="skcal" style="display:none"></div>
       <div class="skbar"><button class="skb" data-sk="close" aria-label="Zavřít">×</button><div class="skt"><b>Hvězdné nebe teď</b><small></small></div>
-        <button class="skb" data-sk="cam" aria-label="Kamera" title="Kamera">◉</button><button class="skb" data-sk="lines" aria-label="Čáry souhvězdí" title="Čáry souhvězdí">✧</button><button class="skb" data-sk="red" aria-label="Noční červený režim" title="Noční červený režim">◐</button><button class="skb" data-sk="calib" aria-label="Srovnat směr" title="Srovnat směr">⌖</button></div>
+        <button class="skb" data-sk="cam" aria-label="Kamera" title="Kamera">◉</button><button class="skb" data-sk="lines" aria-label="Čáry souhvězdí" title="Čáry souhvězdí">✧</button><button class="skb" data-sk="red" aria-label="Noční tmavý režim" title="Noční tmavý režim">◐</button><button class="skb" data-sk="calib" aria-label="Srovnat směr" title="Srovnat směr">⌖</button></div>
       <div class="skcard" style="display:none"></div>
-      <div class="skfoot"><div class="skchips">${BODIES.filter(b => b[0] !== 'Pluto').map(([id, cz]) => `<button class="skchip" data-sk="target" data-t="${id}">${cz}</button>`).join('')}</div><p class="skhint"></p></div>`;
+      <div class="sksearch" style="display:none"><div class="skin"><input type="search" placeholder="Hvězda, souhvězdí, planeta, galaxie…" autocomplete="off" enterkeyhint="search"><button class="skb" data-sk="findx" aria-label="Zavřít hledání">×</button></div><div class="skres"></div></div>
+      <div class="skfoot"><div class="skchips"><button class="skchip find" data-sk="find">⌕ Hledat</button>${BODIES.filter(b => b[0] !== 'Pluto').map(([id, cz]) => `<button class="skchip" data-sk="target" data-t="${id}">${cz}</button>`).join('')}</div><p class="skhint"></p></div>`;
     document.body.appendChild(box);
     st = { loc: { lat: +opts.lat, lon: +opts.lon, alt: +opts.alt || 0, name: opts.name || '' }, data: window.__skyPrepared || (window.__skyPrepared = prepare()),
       cv: $('canvas', box), fov: 70, vAz: 180 * D2R, vAlt: 26 * D2R, azOff: 0, mode: 'auto', showLines: true, toast: opts.toast || ((m) => console.log(m)), prevOverflow: document.documentElement.style.overflow };
@@ -425,7 +489,10 @@
       else if (a === 'perm') askPerm();
       else if (a === 'sensor') { st.mode = 'sensor'; st.smoothF = null; updUi(); }
       else if (a === 'cardx') card(null);
-      else if (a === 'target') { st.target = st.target === b.dataset.t ? null : b.dataset.t; if (st.target && st.mode !== 'sensor') { const tb = st.bodies.find(x => x.id === st.target); if (tb) { const [az, alt] = azAltFromEnu(tb.v); st.vAz = az; st.vAlt = clamp(alt, -0.3, 1.5); } } if (st.target) { const tb = st.bodies.find(x => x.id === st.target); if (tb) info({ k: 'body', o: tb }); } updUi(); }
+      else if (a === 'target') { const id = b.dataset.t; if (st.target && st.target.k === 'body' && st.target.id === id) { st.target = null; card(null); updUi(); } else setTarget({ k: 'body', id }); }
+      else if (a === 'find') { card(null); searchOpen(true); }
+      else if (a === 'findx') searchOpen(false);
+      else if (a === 'pick') { const e = (st.results || [])[+b.dataset.k]; if (e) { searchOpen(false); setTarget(e.t); } }
     });
     // posun prstem, přiblížení
     const pts = new Map(); let pinch0 = null, moved = false, down = null;
@@ -442,7 +509,8 @@
     st.cv.addEventListener('wheel', (e) => { e.preventDefault(); st.fov = clamp(st.fov * (e.deltaY > 0 ? 1.1 : 0.9), 15, 110); }, { passive: false });
     // tlačítko Zpět v telefonu zavře oblohu
     st.onPop = () => close(true); history.pushState({ sky: 1 }, ''); window.addEventListener('popstate', st.onPop);
-    if (opts.target) { st.target = opts.target; }
+    if (opts.target) st.target = typeof opts.target === 'string' ? { k: 'body', id: opts.target } : opts.target;
+    const inp = $('#sky .sksearch input'); inp.addEventListener('input', () => searchPaint(inp.value)); inp.addEventListener('keydown', (e) => { if (e.key === 'Enter' && st.results && st.results[0]) { searchOpen(false); setTarget(st.results[0].t); } });
     updUi(); draw();
   }
 
