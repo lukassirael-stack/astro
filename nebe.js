@@ -48,14 +48,14 @@
 #sky{position:fixed;inset:0;z-index:9000;background:#02040c;color:#EAF0FF;font-family:inherit;touch-action:none;overscroll-behavior:none;user-select:none;-webkit-user-select:none}
 #sky video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9}
 #sky canvas{position:absolute;inset:0;width:100%;height:100%}
-#sky.red{filter:grayscale(1) sepia(1) saturate(9) hue-rotate(-48deg) brightness(.72)}
-#sky .skbar{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:6px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 10px;background:linear-gradient(rgba(2,4,12,.85),rgba(2,4,12,0))}
+#sky.red{filter:grayscale(1) sepia(1) saturate(14) hue-rotate(-52deg) brightness(.95) contrast(1.25)}
+#sky .skbar{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:6px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 14px;background:linear-gradient(rgba(2,4,12,.94),rgba(2,4,12,.85) 70%,rgba(2,4,12,0))}
 #sky .skt{flex:1;min-width:0}
 #sky .skt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--display,Georgia,serif);font-size:17px;font-weight:500;color:#F3D384;letter-spacing:.02em}
 #sky .skt small{display:block;font-size:12px;color:#B9C6E4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #sky .skb{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid rgba(243,211,132,.45);background:rgba(10,20,44,.6);color:#F3D384;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
 #sky .skb.on{background:rgba(243,211,132,.25);border-color:#F3D384}
-#sky .skfoot{position:absolute;left:0;right:0;bottom:0;padding:10px 10px calc(env(safe-area-inset-bottom,0px) + 12px);background:linear-gradient(rgba(2,4,12,0),rgba(2,4,12,.85))}
+#sky .skfoot{position:absolute;left:0;right:0;bottom:0;padding:18px 10px calc(env(safe-area-inset-bottom,0px) + 12px);background:linear-gradient(rgba(2,4,12,0),rgba(2,4,12,.9) 28%,rgba(2,4,12,.96))}
 #sky .skchips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 #sky .skchips::-webkit-scrollbar{display:none}
 #sky .skchip{flex:none;padding:7px 12px;border-radius:999px;border:1px solid rgba(185,198,228,.35);background:rgba(10,20,44,.6);color:#EAF0FF;font:inherit;font-size:13px;cursor:pointer}
@@ -176,22 +176,23 @@
     const cx = W / 2, cy = H / 2; const cosLim = Math.cos(Math.min(1.45, Math.atan(Math.hypot(W, H) / 2 / fp) + 0.05));
     const P = (v) => { const z = dot(v, f); if (z < 0.05) return null; return [cx + dot(v, r) / z * fp, cy - dot(v, u) / z * fp, z]; };
     const onScreen = (p, m) => p && p[0] > -m && p[0] < W + m && p[1] > -m && p[1] < H + m;
-    st.P = P; st.hits = [];
+    st.P = P; st.hits = []; const LB = [];
+    const topSafe = ($('#sky .skbar') || {}).offsetHeight || 64, botSafe = H - (($('#sky .skfoot') || {}).offsetHeight || 110);
     // pozadí
     g.globalCompositeOperation = 'source-over';
     if (st.cam) g.clearRect(0, 0, W, H);
     else {
-      const day = clamp((st.sunAlt + 12) / 18, 0, 1);
+      const day = st.red ? 0 : clamp((st.sunAlt + 12) / 18, 0, 1) * 0.55;
       const zen = P([0, 0, 1]); const gy = zen ? zen[1] : cy - H;
       const grd = g.createLinearGradient(0, gy, 0, gy + H * 1.6);
-      grd.addColorStop(0, day > 0 ? `rgba(${Math.round(8 + 50 * day)},${Math.round(14 + 90 * day)},${Math.round(40 + 140 * day)},1)` : '#03061a');
-      grd.addColorStop(1, day > 0 ? `rgba(${Math.round(30 + 90 * day)},${Math.round(40 + 110 * day)},${Math.round(80 + 120 * day)},1)` : '#0b1638');
+      grd.addColorStop(0, st.red ? '#000' : day > 0 ? `rgb(${Math.round(3 + 30 * day)},${Math.round(6 + 60 * day)},${Math.round(26 + 110 * day)})` : '#03061a');
+      grd.addColorStop(1, st.red ? '#050000' : day > 0 ? `rgb(${Math.round(11 + 40 * day)},${Math.round(22 + 80 * day)},${Math.round(56 + 120 * day)})` : '#0b1638');
       g.fillStyle = grd; g.fillRect(0, 0, W, H);
     }
     // zem pod obzorem
     {
       const a0 = azAltFromEnu(f)[0] * R2D + 180; const hp = []; for (let a = a0; a <= a0 + 360; a += 2) { const p = P(enuFromAzAlt(a * D2R, 0)); if (p && onScreen(p, W)) hp.push(p); else if (hp.length) break; }
-      g.fillStyle = st.cam ? 'rgba(2,6,14,.18)' : 'rgba(3,8,18,.62)';
+      g.fillStyle = st.cam ? 'rgba(2,6,14,.18)' : st.red ? 'rgba(0,0,0,.7)' : 'rgba(3,8,18,.62)';
       if (hp.length >= 2) {
         const a = hp[0], b = hp[hp.length - 1]; let dx = b[0] - a[0], dy = b[1] - a[1]; const L = Math.hypot(dx, dy) || 1; dx /= L; dy /= L;
         const [caz] = azAltFromEnu(f); const gp = P(enuFromAzAlt(caz, -25 * D2R)) || [cx, H * 2];
@@ -199,7 +200,7 @@
         const F = 4000; g.beginPath(); g.moveTo(a[0] - dx * F, a[1] - dy * F); for (const p of hp) g.lineTo(p[0], p[1]); g.lineTo(b[0] + dx * F, b[1] + dy * F); g.lineTo(b[0] + dx * F + nx * F, b[1] + dy * F + ny * F); g.lineTo(a[0] - dx * F + nx * F, a[1] - dy * F + ny * F); g.closePath(); g.fill();
       } else if (f[2] < 0) g.fillRect(0, 0, W, H);
     }
-    const dim = st.cam ? 1 : 1 - clamp((st.sunAlt + 8) / 14, 0, 0.75);
+    const dim = st.cam || st.red ? 1 : 1 - clamp((st.sunAlt + 8) / 14, 0, 0.6);
     const zoom = clamp(70 / st.fov, 0.6, 4);
     // Mléčná dráha
     if (!st.cam || st.sunAlt < -6) {
@@ -210,7 +211,7 @@
     }
     // čáry souhvězdí
     if (st.showLines) {
-      g.lineWidth = 1; g.strokeStyle = `rgba(140,170,255,${st.cam ? 0.5 : 0.26})`; g.beginPath();
+      g.lineWidth = 1; g.strokeStyle = `rgba(150,178,255,${st.cam ? 0.55 : 0.34})`; g.beginPath();
       for (const l of st.data.lines) { if (dot(l.a, f) < cosLim - 0.3) continue; const a = P(l.a), b = P(l.b); if (!a || !b) continue; if (!onScreen(a, W) && !onScreen(b, W)) continue; const sh = 0.12 / (1 + 0 * a[2]); const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1; const k = Math.min(6, L * sh); g.moveTo(a[0] + dx / L * k, a[1] + dy / L * k); g.lineTo(b[0] - dx / L * k, b[1] - dy / L * k); }
       g.stroke();
     }
@@ -219,17 +220,17 @@
     for (const v of st.ecl) { const p = P(v); if (!p) { pen = false; continue; } if (pen) g.lineTo(p[0], p[1]); else { g.moveTo(p[0], p[1]); pen = true; } }
     g.stroke(); g.setLineDash([]);
     g.font = '600 15px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = 'rgba(243,211,132,.8)';
-    for (const s of st.signs) { const p = P(s.v); if (onScreen(p, 0)) g.fillText(s.g, p[0], p[1] - 12); }
+    for (const s of st.signs) { const p = P(s.v); if (onScreen(p, 0)) LB.push({ t: s.g + '\uFE0E', x: p[0], y: p[1] - 13, font: '600 16px system-ui,sans-serif', col: '#F3D384', al: 'center', pr: 55 }); }
     // obzor
     g.strokeStyle = 'rgba(126,232,196,.7)'; g.lineWidth = 1.5; g.beginPath(); pen = false;
     for (let a = 0; a <= 360; a += 2) { const p = P(enuFromAzAlt(a * D2R, 0)); if (!p) { pen = false; continue; } if (pen) g.lineTo(p[0], p[1]); else { g.moveTo(p[0], p[1]); pen = true; } }
     g.stroke();
     g.font = '700 14px system-ui,sans-serif'; g.fillStyle = '#7EE8C4';
-    for (const [lab, a] of DIRS) { const p = P(enuFromAzAlt(a * D2R, 0)); if (onScreen(p, 0)) g.fillText(lab, p[0], p[1] + 14); }
-    const nad = P([0, 0, 1]); if (onScreen(nad, 0)) { g.fillStyle = 'rgba(185,198,228,.55)'; g.font = '12px system-ui,sans-serif'; g.fillText('zenit', nad[0], nad[1] + 12); }
+    for (const [lab, a] of DIRS) { const p = P(enuFromAzAlt(a * D2R, 0)); if (onScreen(p, 0)) LB.push({ t: lab, x: p[0], y: p[1] + 15, font: '700 15px system-ui,sans-serif', col: '#7EE8C4', al: 'center', pr: 90 }); }
+    const nad = P([0, 0, 1]); if (onScreen(nad, 0)) LB.push({ t: 'zenit', x: nad[0], y: nad[1] + 12, font: '12px system-ui,sans-serif', col: '#B9C6E4', al: 'center', pr: 10 });
     // názvy souhvězdí
     g.font = `500 ${Math.round(11 + 1.5 * zoom)}px system-ui,sans-serif`; g.fillStyle = `rgba(170,190,255,${st.cam ? 0.8 : 0.55})`;
-    for (const c of st.data.cons) { if (c.rank > (st.fov < 45 ? 3 : 2)) continue; const p = P(c.v); if (!onScreen(p, 0)) continue; g.fillText(c.name.toUpperCase(), p[0], p[1]); st.hits.push({ p, k: 'con', o: c, w: 0.6 }); }
+    for (const c of st.data.cons) { if (c.rank > (st.fov < 45 ? 3 : 2)) continue; const p = P(c.v); if (!onScreen(p, 0)) continue; LB.push({ t: c.name.toUpperCase(), x: p[0], y: p[1], font: `600 ${Math.round(11 + 1.5 * zoom)}px system-ui,sans-serif`, col: '#AFC3FF', al: 'center', pr: 45, alts: [0, 18, -18, 34] }); st.hits.push({ p, k: 'con', o: c, w: 0.6 }); }
     // hvězdy
     const magLim = clamp(4.6 + 1.6 * Math.log2(zoom) + (st.cam ? -0.6 : 0) - (1 - dim) * 3, 2, 6.5);
     for (let i = 0; i < st.data.stars.length; i++) {
@@ -242,7 +243,7 @@
     g.globalAlpha = 1;
     // jména hvězd
     g.font = `${Math.round(12 + zoom)}px system-ui,sans-serif`; g.textAlign = 'left'; g.fillStyle = 'rgba(234,240,255,.82)';
-    for (const i in st.data.names) { const s = st.data.stars[i]; if (s.mag > (st.fov < 40 ? 3.6 : st.fov < 70 ? 2.2 : 1.6)) continue; const p = P(s.v); if (!onScreen(p, 0)) continue; g.fillText(st.data.names[i][0], p[0] + 7, p[1] - 7); }
+    for (const i in st.data.names) { const s = st.data.stars[i]; if (s.mag > (st.fov < 40 ? 3.6 : st.fov < 70 ? 2.2 : 1.6)) continue; const p = P(s.v); if (!onScreen(p, 0)) continue; LB.push({ t: st.data.names[i][0], x: p[0] + 8, y: p[1] - 8, font: `500 ${Math.round(13 + zoom)}px system-ui,sans-serif`, col: '#F2F5FF', al: 'left', pr: 80 - s.mag * 5 }); }
     // Messier
     g.textAlign = 'left';
     for (const m of st.data.mes) {
@@ -251,7 +252,7 @@
       g.strokeStyle = gal ? 'rgba(255,170,220,.85)' : clu ? 'rgba(255,230,150,.85)' : 'rgba(150,230,255,.85)'; g.lineWidth = 1.2; g.beginPath();
       if (gal) g.ellipse(p[0], p[1], 8, 4, -0.5, 0, Math.PI * 2); else if (clu) { g.setLineDash([2, 2]); g.arc(p[0], p[1], 6, 0, Math.PI * 2); } else g.rect(p[0] - 5, p[1] - 5, 10, 10);
       g.stroke(); g.setLineDash([]);
-      g.font = '11px system-ui,sans-serif'; g.fillStyle = 'rgba(234,240,255,.75)'; g.fillText(m.cz && st.fov < 70 ? `${m.id} · ${m.cz}` : m.id, p[0] + 10, p[1] + 3);
+      LB.push({ t: m.cz && st.fov < 70 ? `${m.id} · ${m.cz}` : m.id, x: p[0] + 10, y: p[1], font: '500 12px system-ui,sans-serif', col: '#E4E9F8', al: 'left', pr: 35 - m.mag });
       st.hits.push({ p, k: 'mes', o: m, w: 1.5 });
     }
     // planety, Slunce, Luna
@@ -260,8 +261,23 @@
       if (b.id === 'Sun') { const R = 26; const gl = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], R * 3); gl.addColorStop(0, 'rgba(255,240,190,1)'); gl.addColorStop(0.25, 'rgba(255,216,107,.8)'); gl.addColorStop(1, 'rgba(255,216,107,0)'); g.globalAlpha = below; g.fillStyle = gl; g.beginPath(); g.arc(p[0], p[1], R * 3, 0, Math.PI * 2); g.fill(); }
       else if (b.id === 'Moon') { drawMoon(g, p, 13 * Math.sqrt(zoom), below); }
       else { const R = clamp(6 - (b.mag == null ? 5 : b.mag) * 0.7, 2.5, 7) * Math.sqrt(zoom); const gl = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], R * 3.2); gl.addColorStop(0, b.col); gl.addColorStop(0.3, b.col + 'AA'); gl.addColorStop(1, b.col + '00'); g.globalAlpha = below; g.fillStyle = gl; g.beginPath(); g.arc(p[0], p[1], R * 3.2, 0, Math.PI * 2); g.fill(); g.fillStyle = b.col; g.beginPath(); g.arc(p[0], p[1], R, 0, Math.PI * 2); g.fill(); }
-      g.globalAlpha = below; g.font = '600 14px system-ui,sans-serif'; g.textAlign = 'left'; g.fillStyle = b.col; g.fillText(b.cz, p[0] + 14, p[1] - 12); g.globalAlpha = 1;
+      g.globalAlpha = 1; LB.push({ t: b.cz, x: p[0] + 14, y: p[1] - 13, font: '700 15px system-ui,sans-serif', col: b.col, al: 'left', pr: 100, force: true });
       st.hits.push({ p, k: 'body', o: b, w: 3 });
+    }
+    // popisky: nejdůležitější první, žádné překryvy, tmavý obrys pro čitelnost
+    LB.sort((a, b) => b.pr - a.pr); const boxes = []; g.textBaseline = 'middle'; g.lineJoin = 'round';
+    for (const l of LB) {
+      g.font = l.font; const w = g.measureText(l.t).width, h = parseInt(l.font.match(/(\d+)px/)[1], 10) + 2;
+      const x0 = l.al === 'center' ? l.x - w / 2 : l.x; let bx = null;
+      for (const dy of (l.alts || [0])) {
+        const c = [x0 - 3, l.y + dy - h / 2 - 2, x0 + w + 3, l.y + dy + h / 2 + 2];
+        if (!l.force && (c[1] < topSafe || c[3] > botSafe || c[0] < 2 || c[2] > W - 2)) continue;
+        if (!l.force && boxes.some(b => c[0] < b[2] && c[2] > b[0] && c[1] < b[3] && c[3] > b[1])) continue;
+        bx = c; l.y += dy; break;
+      }
+      if (!bx) continue;
+      boxes.push(bx); g.textAlign = l.al;
+      g.lineWidth = 4; g.strokeStyle = 'rgba(2,6,20,.82)'; g.strokeText(l.t, l.x, l.y); g.fillStyle = l.col; g.fillText(l.t, l.x, l.y);
     }
     // cíl mimo obrazovku: šipka na okraji
     if (st.target) {
@@ -271,7 +287,7 @@
           let dx = dot(tb.v, r), dy = -dot(tb.v, u); const L = Math.hypot(dx, dy) || 1; dx /= L; dy /= L;
           const m = 46, t = Math.min((W / 2 - m) / Math.abs(dx || 1e-6), (H / 2 - m - 40) / Math.abs(dy || 1e-6)); const ax = cx + dx * t, ay = cy + dy * t;
           g.save(); g.translate(ax, ay); g.rotate(Math.atan2(dy, dx)); g.fillStyle = '#F3D384'; g.beginPath(); g.moveTo(16, 0); g.lineTo(-8, -10); g.lineTo(-3, 0); g.lineTo(-8, 10); g.closePath(); g.fill(); g.restore();
-          g.font = '600 13px system-ui,sans-serif'; g.textAlign = 'center'; g.fillStyle = '#F3D384'; g.fillText(tb.cz, ax - dx * 28, ay - dy * 28);
+          g.font = '700 14px system-ui,sans-serif'; g.textAlign = 'center'; g.lineWidth = 4; g.strokeStyle = 'rgba(2,6,20,.85)'; g.strokeText(tb.cz, ax - dx * 30, ay - dy * 30); g.fillStyle = '#F3D384'; g.fillText(tb.cz, ax - dx * 30, ay - dy * 30);
         } else { g.strokeStyle = '#F3D384'; g.lineWidth = 1.5; g.beginPath(); g.arc(p[0], p[1], 22, 0, Math.PI * 2); g.stroke(); }
       }
     }
