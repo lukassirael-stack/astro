@@ -1,71 +1,51 @@
-# Nebeský kalendář
+# Nebeský kompas — tvůj hvězdný kalendář
 
-PWA pro `kairos.oaza-adamanthea.cz`. Jeden `index.html` s veškerou logikou, výpočty běží v prohlížeči (knihovna astronomy-engine, MIT), data zůstávají v zařízení (localStorage).
+PWA na **https://nebe.oaza-adamanthea.cz**. Statický web na Vercelu (repo `lukassirael-stack/astro`, větev `main` = produkce), bez build kroku. Výpočty běží v prohlížeči nad knihovnou astronomy-engine (MIT), data uživatele zůstávají v zařízení.
+
+Technický identifikátor v kódu a cache je `kairos` (klíče `kairos_*`, cache `kairos-vN`) — veřejný název je Nebeský kompas.
 
 ## Soubory
 | soubor | k čemu |
 |---|---|
-| `index.html` | celá aplikace (CSS + jádro výpočtů + UI) |
-| `astronomy.browser.min.js` | astronomická knihovna (astronomy-engine 2.1.19, MIT) |
-| `sw.js` | service worker – offline, cache `kairos-vN` |
-| `logo.png` | logo v hlavicce (rastr, 1120 px kvuli retine) |
-| `sky-day.webp`, `sky-night.webp` | pozadi pro denni a nocni paletu |
-| `manifest.webmanifest`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | PWA |
-| `api/noaa.js` | záložní proxy pro data NOAA (když prohlížeč zablokuje přímé stažení) |
+| `index.html` | kostra stránky, uvítací obrazovka, načtení skriptů |
+| `styles.css` | vzhled (palety den/noc, karty, vrstvy) |
+| `kairos-core.js` | výpočetní jádro: astronomie, tranzity, skóre dne, texty dne (`createKairosEngine`, `createKairosTexts`) |
+| `data.js` | čistá data: jmeniny, svátky, čakra roku |
+| `app.js` | rozhraní a logika appky (jedna uzavřená funkce) |
+| `sw.js` | service worker — offline, cache `kairos-vN` |
+| `astronomy.browser.min.js`, `qr.min.js` | knihovny |
+| `api/noaa.js`, `api/comets.js`, `api/ics.js` | serverless proxy: kosmické počasí, komety, Google kalendář |
+| obrázky `sky-*`, `tile-*`, `cat-*`, `logo*` | pozadí, dlaždice O tobě, kategorie Úkazů, logo |
 
-## Nasazení
-1. Nový repozitář `lukassirael-stack/kairos`, nahrát obsah této složky do kořene.
-2. Vercel → New Project → root `/`, bez build příkazu (statický web). `api/noaa.js` se nasadí jako serverless funkce automaticky.
-3. Doména `kairos.oaza-adamanthea.cz` (CNAME na Vercel).
-4. Na telefonu: otevřít, Nastavení → „Přidat na plochu“ (iOS: Sdílet → Přidat na plochu).
+## Nasazení a verze
+Při každé změně zvedni verzi na **třech** místech najednou:
+1. `app.js` → `const VERSION = 'vN'` (a `qr.min.js?v=N`)
+2. `index.html` → `?v=N` u `styles.css`, `kairos-core.js`, `data.js`, `app.js`
+3. `sw.js` → `const CACHE = 'kairos-vN'` a `?v=N` v seznamu `SHELL`
 
-**Při každé změně `index.html` zvedni `const CACHE = 'kairos-v1'` v `sw.js`** (stejné pravidlo jako u Tatev a admin panelu).
+Commit do `main` → Vercel nasadí sám. Appka si novou verzi stáhne při dalším otevření (lišta „Nová verze je připravená").
 
-## Verze 1.1 — co se změnilo
-Povrch je teď praktický, technika je schovaná. Detail dne začíná jednou větou o dni, pak **Co dnes jde** a **Co bude stát víc sil** v běžné češtině, pak **Okna dne** s konkrétními časy. Všechny glyfy, orbisy a skóre jsou pod rozklikávacím **„Podrobnosti — pro astrologa"**. Nahoře v kalendáři je pás **Nejbližší dny** (14 dní dopředu se slovním hodnocením). Paleta je světlejší, barvy dnů kontrastnější, na pozadí je hvězdné nebe.
+## Data
+- Uživatelská data v jednom balíčku `localStorage.kairos_state` (`{v, updated, data: {settings, profiles, journal, plan, cyc, days, partners, …}}`) — připravené pro sync přes účet.
+- Přílohy Diáře (fotky, hlas) v IndexedDB.
+- Supabase: `kompas_zpravy` (sdělení v appce, čtení publishable klíčem), `kompas_prenos` (šifrovaný přenos dat mezi zařízeními, platnost 1 h).
 
-Texty se skládají ze šablon v `createKairosTexts` — vrstva 1 (`dayLede`, `generalItems`) nezávisí na nativu a je stejná pro všechny, vrstva 2 (`personalItems`) pracuje s tranzity. To rozdělení je záměrné: až přijde placená verze, vrstva 1 zůstane volně a vrstva 2 se zamkne. AI napojení pak nahradí jen skládání vět, ne výpočty.
+## Struktura appky
+- **Kalendář** — karta Dnes (pevné jádro + vrstvy z Nastavení → Karta Dnes), měsíc s barvami dnů, detail vybraného dne.
+- **Úkazy** — obloha rok dopředu v kategoriích.
+- **Diář** — plán a zápis dne, hodnocení, Jak to sedí.
+- **O tobě** — mapa, horoskop (celoživotní, den, týden, měsíc, rok), vztahy, čísla, čakra roku, návraty, hvězdy, mayský a čínský horoskop.
+- **Nastavení** — profil, místo, vrstvy, obloha, data, nápověda (Jak s Kompasem pracovat, Průvodce vesmírnými vlivy).
 
-## Co aplikace umí
-- **Kalendář** – barva dne (harmonický / neutrální / napjatý) podle tranzitů k nativu, Luny, Luny bez kurzu, Merkuru retro a Kp indexu. Ikony: ✦ tvá hvězda, ◉ zatmění, ⚡ Kp ≥ 5, ℞ Merkur zpět, ● ○ novoluní/úplněk, fáze Luny v rohu.
-- **Detail dne** – pás dne (světlo, planetární hodiny, Luna bez kurzu, přesné aspekty Luny, značka „teď“), seznam „tohle je ve hře“ s příspěvky ke skóre, pozadí období (Jupiter–Pluto), Luna (lunární den, východ/západ, fáze), Slunce a 24 planetárních hodin, polohy planet v poledne, úkazy dne.
-- **Úkazy** – rok dopředu: fáze (super/mikro úplněk), zatmění s viditelností z Halenkovic, rovnodennosti a slunovraty, opozice, elongace, stanice retrogradity, ingresy, těsné konjunkce planet a Luny s planetami, meteorické roje s rušením Lunou, Slunce/Venuše/Merkur/Mars na tvých hvězdách, heliakické východy tvých hvězd, vlastní komety.
-- **Efemeridy** – měsíční tabulka Slunce–Pluto + střední uzel (půlnoc našeho času), ingresy/stanice/fáze, Luna bez kurzu, export CSV.
-- **Nativ** – kolo, body, domy Placidus, aspekty, **Tvé hvězdy** (konjunkce orbis 1°, hvězdy na úhlech v okamžiku narození, parany dne narození).
-- **Nastavení** – profily (přepínatelné, Martina atd.), místo pro tranzity, prahy barev, Kp zap/vyp, komety, NOAA, cache, instalace.
+## Kde upravit
+- Vrstvy karty Dnes: `LAYERS` a `LAYER_SETS` v `app.js`.
+- Texty dne: `createKairosTexts` v `kairos-core.js`.
+- Horoskop: `HS` a funkce `horoscope*` v `app.js`.
+- Nápověda: `guideHTML` v `app.js`.
+- Váhy skóre a orbisy: `DEFAULT_RULES` v jádru.
 
-## Kde co upravit v `index.html`
-- `DEFAULT_PROFILE` – výchozí nativ (teď Lukáš, 3. 9. 1980 16:04 Kroměříž).
-- `DEFAULT_SETTINGS` – výchozí místo (Halenkovice), prahy.
-- `DEFAULT_RULES` (v jádru) – váhy skóre, orbisy.
-- `STARS` – seznam hvězd (RA/Dec J2000, `av` = arcus visionis pro heliakický východ). Avalon, Hargaliat, Agartha, Maldek, Void a Cestovatel časem nemají nebeský bod – nejsou tam.
-- `METEOR_SHOWERS` – tabulka rojů.
-- Texty u aspektů: `CONJ_HINT`, věty v `dayDetailHTML`.
+## Archiv
+Rozpracovaný „záměr / průvodce směrem" (kostra bez AI) leží ve větvi `archiv/zamer`.
 
 ## Ověření
-Nativ pro 3. 9. 1980 16:04 Kroměříž srovnán se Swiss Ephemeris (pyswisseph 2.10): polohy planet, Asc 0°54′ Kozoroh, MC 3°28′ Štír i hroty Placidus sedí na úhlovou minutu. Stálice: Procyon 1980 = 25°30′ Rak (J2000 25°47′ minus precese) sedí. Zatmění 12. 8. 2026 (částečné 86 % při západu Slunce) a 28. 8. 2026 (Luna zapadá v maximu) sedí s efemeridami.
-
-## Známé meze v1
-- Uzel je střední (pravý se liší do ±1,5°). Chiron, Lilith ani asteroidy knihovna neumí.
-- Parany a úhly: orbis 1° (cca 4 minuty času). Heliakické východy jsou přiblížení (pevný arcus visionis), ± pár dní.
-- Viditelnost zatmění Luny se bere z výšky Luny v maximu a na okrajích částečné fáze.
-- Kp z 27denního výhledu je orientační. Erupce a sluneční vítr zatím nejsou.
-- Pomalé tranzity (Jupiter–Pluto) barvu dne záměrně neurčují – jsou „pozadí období“.
-
-## Diar a plan (v1.4)
-Treti zalozka je **Diar**. U kazdeho dne jsou dva panely: **Co me ceka** (udalosti s casem — objevi se primo v Prubehu dne i s kontextem: do jakeho okna padaji, jestli nekoli do Luny bez kurzu, jaka je planetarni hodina) a **Zapis dne** (pet slov + text, zpetne hodnoceni). V zalozce Diar je prehled zapisu a od peti ohodnocenych dnu sekce **Jak to sedi** — shoda a korelace mezi hodnocenim a spocitanym skore. Zapisy i plan ziji jen v localStorage; zaloha JSON/CSV je v Diari. Efemeridy se presunuly pod Nativ.
-
-## Obloha podle denni doby (v1.2)
-Ctyri palety - **rozednivani, den, stmivani, noc**. Na automatiku se prepinaji podle skutecneho vychodu a zapadu Slunce v nastavenem miste: rozednivani od 70 min pred vychodem do 50 min po nem, den do 60 min pred zapadem, stmivani do 70 min po zapadu, jinak noc. Prepina se pri otevreni, pri navratu na kartu a kazde 4 minuty. Rucne lze zvolit pevnou paletu v **Nastaveni -> Obloha**.
-
-Technicky: kazda paleta je sada CSS promennych na `[data-theme="..."]`. Barvy dnu jsou ulozene jako RGB triplety (`--harm-rgb`), aby sly michat s pruhlednosti. Ve svetlych paletach se skryva hvezdne pole a nabehne vrstva mraku (`drawClouds`), v tmavych naopak. Maly skript v `<head>` nastavi paletu jeste pred nactenim aplikace, aby to neproblesklo.
-
-Pridat patou paletu = blok promennych v CSS + polozka v `THEMES` + barva v `THEME_META`.
-
-## Kde upravit texty
-Všechno je v jednom bloku `createKairosTexts`: `SUN_TONE` (tón období), `MOON_EL` (živel dne), `MOON_SIGN` (Luna ve znamení), `phaseText` (fáze), `GO` / `COST` / `CONJ` (co která planeta přináší nebo stojí), `DOMAIN` (oblast života podle nativního bodu), `HOUR_USE` (na co je která planetární hodina), `dayWord` (slovo v mřížce).
-
-## v2 (plán)
-**Elekce — „chci investovat, kdy je vhodný čas"**: uživatel zvolí úkon (začít podnikání, podepsat smlouvu, cestovat, operace, svatba, stěhování, ceremonie, pohovor, těžký rozhovor…), systém proskenuje 90 dní dopředu podle pravidel pro ten úkon a vrátí pět nejlepších oken s odůvodněním. Pravidla: vládce úkonu silný, Luna nepoškozená, ne bez kurzu. U zdraví a peněz musí jazyk zůstat u „na tohle je vítr v zádech", nikdy u pokynu.
-
-Dál skener výjimečných dnů (stellia, velké trigony, T-kvadratury, stacionární planety, ingresy pomalých planet, okna „všechny planety direktní“, sluneční/lunární návraty, zatmění na osobních bodech) a elekce s katalogem úkonů (5 nejlepších dnů + proč). Pak login + Supabase pro klientskou verzi bez přepisu výpočtů.
+Nativ 3. 9. 1980 16:04 Kroměříž srovnán se Swiss Ephemeris: polohy planet, Asc, MC i hroty Placidus sedí na úhlovou minutu.
