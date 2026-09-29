@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v412';
+  const VERSION = 'v413';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2021,7 +2021,9 @@
     toggleNum() { settings.numerology = settings.numerology === false; persistSettings(); S.dayCache = {}; renderSettings(); },
     toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
     skyOpen(el) {
-      const go = () => window.SkyNow.open({ lat: settings.loc.lat, lon: settings.loc.lon, alt: settings.loc.alt, name: settings.loc.name, target: el && el.dataset.t, toast });
+      // iPhone chce povolení pohybu v okamžiku klepnutí — žádáme hned, ještě před načtením oblohy
+      let permP = null; try { if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') permP = DeviceOrientationEvent.requestPermission().catch(() => 'denied'); } catch (e) { }
+      const go = () => window.SkyNow.open({ lat: settings.loc.lat, lon: settings.loc.lon, alt: settings.loc.alt, name: settings.loc.name, target: el && el.dataset.t, toast, permP });
       if (window.SkyNow && window.SKY_DATA) { go(); return; }
       toast('Načítám oblohu…');
       const load = (src) => new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = src; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); });
@@ -4436,7 +4438,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=412'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=413'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }

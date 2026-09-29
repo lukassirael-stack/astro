@@ -463,7 +463,9 @@
       else if (st.needPerm) hint.innerHTML = '<button data-sk="perm">Povolit pohybové senzory</button> — pak stačí namířit telefon na oblohu.';
       else if (st.mode === 'sensor' && st.noCompass) hint.innerHTML = 'Telefon neposílá kompas — sever srovnáš tlačítkem ⌖ podle Luny nebo jasné hvězdy.';
       else if (st.mode === 'sensor') hint.innerHTML = (st.sunAlt > -6 ? 'Je den — hvězdy svítí dál, jen je Slunce přezáří. ' : 'Namiř telefon na oblohu. Dvěma prsty přibližuješ a oddaluješ, klepnutím na objekt se dozvíš víc. ') + '<button data-sk="drag">Ovládat prstem</button>';
-      else hint.innerHTML = 'Posouvej oblohu prstem, dvěma prsty přibližuj a oddaluj. ' + (st.sensorOk ? '<button data-sk="sensor">Řídit telefonem</button>' : '');
+      else if (st.mode === 'auto' && st.permDenied && !st.sensorAt) hint.innerHTML = 'Prohlížeč má pohybové senzory zakázané. Povol je: zámek vedle adresy (nebo Nastavení Chrome → Nastavení webu) → Pohybové senzory → Povolit.';
+      else if (st.mode === 'auto') hint.innerHTML = st.waitLong ? 'Telefon zatím neposílá natočení — obloha se posouvá prstem, dvěma prsty přibližuješ. Jakmile senzory naskočí, obloha se chytí sama.' : 'Zapínám senzory telefonu…';
+      else hint.innerHTML = 'Posouvej oblohu prstem, dvěma prsty přibližuj a oddaluj. <button data-sk="sensor">Řídit telefonem</button>';
     }
     for (const c of document.querySelectorAll('#sky .skchip[data-t]')) c.classList.toggle('on', !!(st.target && st.target.k === 'body' && st.target.id === c.dataset.t));
   }
@@ -508,7 +510,7 @@
   }
 
   async function askPerm() {
-    try { const r = await DeviceOrientationEvent.requestPermission(); if (r === 'granted') { st.needPerm = false; st.mode = 'auto'; bindSensors(); } } catch (e) { }
+    try { const r = await DeviceOrientationEvent.requestPermission(); if (r === 'granted') { st.needPerm = false; if (st.mode !== 'drag') st.mode = 'auto'; bindSensors(); } } catch (e) { }
     updUi();
   }
   function quatBasis(q) {
@@ -533,7 +535,7 @@
     startGenericSensors();
     if ('ondeviceorientationabsolute' in window) window.addEventListener('deviceorientationabsolute', onOrient);
     window.addEventListener('deviceorientation', onOrient);
-    setTimeout(() => { if (st && !st.sensorAt && st.mode === 'auto') { st.mode = 'drag'; updUi(); } else if (st) { st.sensorOk = !!st.sensorAt; } }, 1600);
+    setTimeout(() => { if (st && !st.sensorAt) { st.waitLong = true; updUi(); } }, 3000);
   }
   async function camToggle() {
     if (st.cam) { stopCam(); st.cam = false; st.fov = 70; updUi(); return; }
@@ -575,8 +577,12 @@
     document.documentElement.style.overflow = 'hidden';
     recompute(); updHead();
     // senzory: iPhone chce povolení klepnutím
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') { st.needPerm = true; st.mode = 'drag'; }
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      st.needPerm = true;
+      if (opts.permP) opts.permP.then((r) => { if (st && r === 'granted') { st.needPerm = false; bindSensors(); updUi(); } });
+    }
     else if ('DeviceOrientationEvent' in window) bindSensors(); else st.mode = 'drag';
+    try { if (navigator.permissions) for (const n of ['accelerometer', 'gyroscope', 'magnetometer']) navigator.permissions.query({ name: n }).then((r) => { if (st && r.state === 'denied') { st.permDenied = true; updUi(); } }).catch(() => { }); } catch (e) { }
     // přesná poloha z GPS
     if (navigator.geolocation) navigator.geolocation.getCurrentPosition((p) => { if (!st) return; st.loc.lat = p.coords.latitude; st.loc.lon = p.coords.longitude; if (p.coords.altitude) st.loc.alt = p.coords.altitude; st.gps = true; recompute(); updHead(); }, () => { }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 });
     // ovládání
@@ -587,7 +593,7 @@
       else if (a === 'calib') { if (st.mode !== 'sensor') { st.toast('Srovnání funguje, když obloze vládne telefon.'); return; } st.calib = !st.calib; card(null); updUi(); }
       else if (a === 'calibOk') calibrate();
       else if (a === 'perm') askPerm();
-      else if (a === 'sensor') { st.mode = 'sensor'; st.smoothF = null; updUi(); }
+      else if (a === 'sensor') { st.mode = st.sensorAt ? 'sensor' : 'auto'; st.smoothF = null; if (!st.bound && !st.needPerm) bindSensors(); updUi(); }
       else if (a === 'drag') { const [az, alt] = azAltFromEnu(st.basis.f); st.vAz = az; st.vAlt = clamp(alt, -0.5, 1.55); st.mode = 'drag'; st.sensorOk = true; updUi(); }
       else if (a === 'diag') { st.diag = !st.diag; }
       else if (a === 'cardx') card(null);
@@ -623,5 +629,5 @@
     updUi(); draw();
   }
 
-  window.SkyNow = { open, close, _st: () => st, ver: 'v412' };
+  window.SkyNow = { open, close, _st: () => st, ver: 'v413' };
 })();
