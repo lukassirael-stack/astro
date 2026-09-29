@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v400';
+  const VERSION = 'v401';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -46,7 +46,7 @@
   // (stažené Kp, počasí, kalendář z Googlu, otevřená záložka) zůstávají zvlášť,
   // protože se dají kdykoli stáhnout znovu.
   const STATE_KEY = 'kairos_state', STATE_V = 1;
-  const USER_KEYS = ['settings', 'profiles', 'active', 'journal', 'plan', 'cyc', 'cyc_on', 'days', 'days_seen', 'partners', 'ics', 'plus', 'dir'];
+  const USER_KEYS = ['settings', 'profiles', 'active', 'journal', 'plan', 'cyc', 'cyc_on', 'days', 'days_seen', 'partners', 'ics', 'plus', 'dir', 'notes'];
   const rawGet = (k, def) => { try { const v = localStorage.getItem(k); return v == null ? def : JSON.parse(v); } catch (e) { return def; } };
   const rawSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } };
   const rawDel = (k) => { try { localStorage.removeItem(k); } catch (e) { } };
@@ -481,7 +481,7 @@
       ['kalendar', '☽', 'Kalendář', `Každý den v mřížce má barvu: <b>příznivý</b>, <b>vlídný</b>, <b>klidný</b>, <b>pomalejší</b>, <b>náročný</b>. Vzniká z toho, co se ten den na obloze dotýká tvé mapy, jak stojí Luna a jaké je kosmické počasí. Hvězdička ✦ je den, kdy planeta stojí na tvé hvězdě; tečka u čísla svátek nebo tradice; v rohu může být počasí. Klepnutím na den otevřeš jeho detail. Pod názvem měsíce jsou tři tlačítka: <em>☽ můj měsíc</em> otevře osobní měsíční čtení, <em>✧ vhodný den</em> najde dny pro konkrétní věc a <em>dnes</em> vrátí výběr na dnešek.`],
       ['detail', '≡', 'Detail dne', `Nahoře <b>Denní rytmus</b> — čtení dne v pár větách. Pak co dnes jde a co bude stát víc sil, průběh dne na ose — východy a západy, planetární hodiny, aspekty Luny, Luna bez kurzu — a pod tím počasí a příroda: zlatá a modrá hodina, tmavé noci pro hvězdy, portál, příroda po třech dnech, zahrádkář, číslo dne, mayský den. <b>Podrobnosti — pro astrologa</b> otevřou přesná čísla. Tenhle vzor platí v celém Kompasu: nejdřív věta, mechanika až na požádání.`],
       ['ukazy', '☄', 'Úkazy', `Obloha rok dopředu v šesti skupinách: <em>pro tebe</em> (tvé cykly — sluneční, lunární, Jupiterův a Saturnův návrat — portály a dny, kdy se obloha dotýká tvých hvězd), <em>Luna a Slunce</em> (fáze, zatmění, rovnodennosti a slunovraty), <em>planety</em>, <em>hvězdy a roje</em> (stálice, meteorické roje, komety) a <em>příroda</em> (měsíc po měsíci, co se děje venku a na zahradě, dny podle Luny). Ve skupině jde výběr zúžit jemnějšími čipy. Dnešní úkaz svítí nahoře ve zlatém rámu. Každý úkaz má otazník s výkladem na míru.`],
-      ['diar', '✎', 'Diář', `Zapiš pár slov o dni a ohodnoť ho. Po pěti dnech Kompas ukáže, jak tvá hodnocení sedí s výpočtem; po osmi i podle fází cyklu, pokud ho vedeš. Plány na den se ráno objeví v kartě Dnes. Diář je tvůj kontrolní nástroj: Kompas říká, co je ve hře, ty říkáš, jak to bylo.`],
+      ['diar', '✎', 'Diář', `Zapiš pár slov o dni a ohodnoť ho. Po pěti dnech Kompas ukáže, jak tvá hodnocení sedí s výpočtem; po osmi i podle fází cyklu, pokud ho vedeš. Plány na den se ráno objeví v kartě Dnes. Diář je tvůj kontrolní nástroj: Kompas říká, co je ve hře, ty říkáš, jak to bylo. Vedle dnů jsou <b>Poznámky</b> — volné zápisky mimo konkrétní den: myšlenky, vhledy, citáty, nápady.`],
       ['otobe', '★', 'O tobě', `Čtyři karty a skupina Další systémy. <b>Tvoje mapa</b> — každý bod s výkladem ve znamení a v domě, aspekty s výkladem; nahoře přepínáš na <em>Tvé hvězdy</em>, <em>Velké návraty</em> a <em>Efemeridy</em> pro astrologa. <b>Tvůj horoskop</b> — kapitoly života a pod nimi <em>Horoskop v čase</em>: čím teď procházíš (tranzity jako oblouky s počátkem, vrcholem a koncem, ohlédnutí na kterékoli datum), denní (vede do detailu dne), týdenní, měsíční, roční. <b>Vztahy</b> — horoskop dvou map, vaše čísla, a <em>Přečíst horoskop</em>, které přepne všechny karty na mapu blízkého. <b>Čakra roku</b>. <b>Další systémy</b>: Tvá čísla, Mayský horoskop, Čínský horoskop.`],
       ['nastaveni', '⚙', 'Nastavení', `Profil (Kompas je pro jednoho — blízcí jsou ve Vztazích), Kde právě jsi (poloha, hledání místa), Karta Dnes (vrstvy), obloha den a noc, pravidla barvení dne, cyklus, orgánové hodiny, numerologie, kosmické počasí, svátky pro Česko a Slovensko, jazyk, Google kalendář, záloha, sdílení, Průvodce a zpětná vazba. Verze appky je úplně dole.`],
       ['data', '⌂', 'Tvá data', `Všechno běží v prohlížeči a zůstává v tomto zařízení. Data odcházejí jen tehdy, když je sám pošleš: zálohou, nebo přenosem do jiného zařízení (šifrovaně, klíč je jen v odkazu, platí hodinu). Počasí a komety se stahují z veřejných zdrojů bez tvých dat; sdělení z Oázy přicházejí jen jako text.`],
@@ -1094,6 +1094,9 @@
 
   // ---------- diář ----------
   let journal = store.get('kairos_journal', {}) || {};
+  // poznámky v Diáři: volné, bez vazby na den
+  let notes = store.get('kairos_notes', []) || [];
+  const nSave = () => store.set('kairos_notes', notes);
   const MDB = {
     db: null, _p: null,
     open() {
@@ -2129,7 +2132,7 @@
     jumpDay(el) { S.sel = { y: +el.dataset.y, m: +el.dataset.m, d: +el.dataset.d }; S.y = S.sel.y; S.m = S.sel.m; showTab('kalendar'); setTimeout(() => { const n = $('#dayDetail'); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 140); },
     exportJournal() {
       const rows = Object.keys(journal).sort();
-      const payload = { app: 'nebesky-kalendar', version: VERSION, exported: new Date().toISOString(), profile: activeProfile().name, entries: journal, plan: plan };
+      const payload = { app: 'nebesky-kalendar', version: VERSION, exported: new Date().toISOString(), profile: activeProfile().name, entries: journal, plan: plan, notes: notes };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
       a.download = `diar-${K.isoDate(np.y, np.m, np.d)}.json`; document.body.appendChild(a); a.click();
@@ -2150,6 +2153,12 @@
       a.download = `diar-${K.isoDate(np.y, np.m, np.d)}.csv`; document.body.appendChild(a); a.click();
       setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
     },
+    diarPart(el) { S.diarPart = el.dataset.p; S.noteEdit = null; renderJournal(); window.scrollTo({ top: 0 }); },
+    noteAdd() { const t = (($('#noteNew') || {}).value || '').trim(); if (!t) { toast('Napiš pár slov.'); return; } const now = new Date().toISOString(); notes.push({ id: 'n' + Date.now().toString(36), text: t, c: now, u: now }); nSave(); renderJournal(); toast('Poznámka uložena.'); },
+    noteEdit(el) { S.noteEdit = el.dataset.id; renderJournal(); setTimeout(() => { const t = $('#noteEditTxt'); if (t) { t.focus(); t.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }, 40); },
+    noteSave(el) { const n = notes.find(x => x.id === el.dataset.id); const t = (($('#noteEditTxt') || {}).value || '').trim(); if (!n) return; if (!t) { toast('Poznámka potřebuje aspoň pár slov.'); return; } n.text = t; n.u = new Date().toISOString(); nSave(); S.noteEdit = null; renderJournal(); toast('Uloženo.'); },
+    noteCancel() { S.noteEdit = null; renderJournal(); },
+    noteDel(el) { if (!confirm('Smazat poznámku?')) return; notes = notes.filter(x => x.id !== el.dataset.id); nSave(); renderJournal(); },
     importJournal() { const i = $('#jFile'); if (i) i.click(); },
     closeLegend(el) { const d = el.closest('details'); if (d) { d.removeAttribute('open'); d.scrollIntoView({ block: 'nearest' }); } },
     pickBg(el) { settings.bg = el.dataset.b; persistSettings(); applyTheme(); renderSettings(); },
@@ -3224,12 +3233,32 @@ ${parts}
         ${planPanel(st, true)}
       </div>`;
   }
+  function diarTabs() {
+    const part = S.diarPart || 'dny';
+    return `<div class="row nvtabs"><button type="button" class="chip ${part === 'dny' ? 'on' : ''}" data-act="diarPart" data-p="dny">Dny</button><button type="button" class="chip ${part === 'poznamky' ? 'on' : ''}" data-act="diarPart" data-p="poznamky">Poznámky${notes.length ? ` <small class="ncount">${notes.length}</small>` : ''}</button></div>`;
+  }
+  function notesHTML() {
+    const list = notes.slice().sort((a, b) => String(b.u || b.c).localeCompare(String(a.u || a.c)));
+    const fmt = (iso) => { const p = K.tzParts(new Date(iso), TZ); return `${p.d}. ${p.m}. ${p.y}`; };
+    const card = (n) => S.noteEdit === n.id
+      ? `<div class="card notecard editing"><textarea id="noteEditTxt" rows="5">${esc(n.text)}</textarea><div class="row nmeta"><span></span><button type="button" class="btn ghost small" data-act="noteCancel">Zpět</button><button type="button" class="btn primary small" data-act="noteSave" data-id="${n.id}">Uložit</button></div></div>`
+      : `<div class="card notecard"><div class="nt">${esc(n.text)}</div><div class="row nmeta"><span>${fmt(n.u || n.c)}</span><button type="button" class="linkbtn" data-act="noteEdit" data-id="${n.id}">upravit</button><button type="button" class="linkbtn" data-act="noteDel" data-id="${n.id}">smazat</button></div></div>`;
+    return `<div class="card notenew"><textarea id="noteNew" rows="3" placeholder="Napiš poznámku…"></textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button type="button" class="btn primary small" data-act="noteAdd">Uložit poznámku</button></div></div>
+      ${list.length > 5 ? `<input id="noteQ" class="noteq" type="search" placeholder="Hledat v poznámkách" autocomplete="off">` : ''}
+      ${list.map(card).join('')}
+      <p class="note">Poznámky jsou tvé místo pro myšlenky, vhledy, citáty a nápady mimo konkrétní den. Zůstávají v tomto zařízení a jsou součástí zálohy i přenosu do jiného zařízení.</p>`;
+  }
   function renderJournal() {
     const v = $('#view-diar');
+    if (S.diarPart === 'poznamky') {
+      v.innerHTML = `<div class="h2">Diář</div>${diarTabs()}${notesHTML()}`;
+      const q = $('#noteQ', v); if (q) q.addEventListener('input', () => { const t = q.value.trim().toLowerCase(); v.querySelectorAll('.notecard').forEach(c => { c.style.display = !t || c.textContent.toLowerCase().includes(t) ? '' : 'none'; }); });
+      return;
+    }
     const jk = Object.keys(journal), pk = Object.keys(plan);
     const keys = [...new Set([...jk, ...pk])].sort().reverse();
     if (!keys.length) {
-      v.innerHTML = `<div class="h2">Diář</div>
+      v.innerHTML = `<div class="h2">Diář</div>${diarTabs()}
         ${programCal()}
         <div class="h3" style="margin-top:14px">Zápis dne — ${np.d}. ${K.MONTH_GEN[np.m - 1]}</div>
         ${journalPanel(TODAY_KEY, analyze(np.y, np.m, np.d))}
@@ -3295,7 +3324,7 @@ ${parts}
       }
     }
     const tk = TODAY_KEY, [ty, tm, td] = tk.split('-').map(Number);
-    let html = `<div class="h2">Diář</div>
+    let html = `<div class="h2">Diář</div>${diarTabs()}
       ${programCal()}
       <div class="h3" style="margin-top:14px">Zápis dne — ${td}. ${K.MONTH_GEN[tm - 1]}</div>
       ${journalPanel(tk, analyze(ty, tm, td))}
@@ -4280,7 +4309,9 @@ ${parts}
           let pl = 0;
           if (data.plan) for (const k of Object.keys(data.plan)) if (/^\d{4}-\d{2}-\d{2}$/.test(k) && !plan[k]) { plan[k] = data.plan[k]; pl++; }
           pSave();
-          toast('Načteno ' + added + ' zápisů' + (pl ? ' a ' + pl + ' dnů plánu' : '') + '.');
+          let nn = 0;
+          if (Array.isArray(data.notes)) { for (const x of data.notes) if (x && x.id && x.text && !notes.some(y => y.id === x.id)) { notes.push(x); nn++; } if (nn) nSave(); }
+          toast('Načteno ' + added + ' zápisů' + (pl ? ', ' + pl + ' dnů plánu' : '') + (nn ? ' a ' + nn + ' poznámek' : '') + '.');
           renderJournal();
         } catch (err) { toast('Soubor se nepodařilo přečíst.'); }
       };
@@ -4392,7 +4423,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=400'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=401'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }

@@ -1339,3 +1339,12 @@ body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}
 .setadv>summary::before{content:none;display:none}
 .setadv>summary{display:block}
 .setadv>summary .setgrp{display:flex}
+
+/* v401: Poznámky v Diáři */
+.notenew textarea,.notecard textarea{width:100%;box-sizing:border-box;min-height:84px;resize:vertical;padding:10px 12px;border-radius:10px;border:1px solid var(--line2);background:var(--field);color:var(--text);font:inherit;font-size:var(--fs-m);line-height:1.55}
+.notecard{margin:10px 0}
+.notecard .nt{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;font-size:var(--fs-m);color:var(--text)}
+.notecard .nmeta{align-items:center;gap:14px;margin-top:10px;font-size:var(--fs-s);color:var(--muted)}
+.notecard .nmeta span{flex:1}
+.noteq{width:100%;box-sizing:border-box;margin:14px 0 2px;padding:10px 12px;border-radius:10px;border:1px solid var(--line2);background:var(--field);color:var(--text);font:inherit;font-size:var(--fs-m)}
+.nvtabs .ncount{font-size:var(--fs-xs);opacity:.75;margin-left:4px}
