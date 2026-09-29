@@ -150,16 +150,40 @@
     return { f, u, r };
   }
   function onOrient(e) {
-    if (!st || e.alpha == null || e.beta == null) return;
+    if (!st) return;
     const now = Date.now();
+    if (e.type === 'generic') {
+      if (st.gsAbs && now - st.gsAbsAt < 500) { st.absB = st.gsAbs; st.absAt = st.gsAbsAt; }
+      if (st.gsRel && now - st.gsRelAt < 500) { st.relB = st.gsRel; st.relAt = st.gsRelAt; st.relIsAbs = false; }
+      st.src = 'sensor-api';
+    } else {
+    if (e.alpha == null || e.beta == null) return;
+    st.raw = `${e.type === 'deviceorientationabsolute' ? 'abs' : e.absolute ? 'do-abs' : 'rel'} α${Math.round(e.alpha)} β${Math.round(e.beta)} γ${Math.round(e.gamma || 0)}`;
+    // když běží Generic Sensor API, události deviceorientation jen zaznamenáme
+    if ((st.gsAbs && now - st.gsAbsAt < 500) || (st.gsRel && now - st.gsRelAt < 500)) return;
     const ios = e.webkitCompassHeading != null && !isNaN(e.webkitCompassHeading);
     if (e.type === 'deviceorientationabsolute' || (e.type === 'deviceorientation' && e.absolute && !ios)) { st.absB = basisOf(e.alpha, e.beta, e.gamma); st.absAt = now; if (e.type === 'deviceorientation') { st.relB = st.absB; st.relAt = now; st.relIsAbs = true; } }
     else if (e.type === 'deviceorientation') {
       st.relB = basisOf(e.alpha, e.beta, e.gamma); st.relAt = now; st.relIsAbs = false;
       if (ios) { st.absB = basisOf(360 - e.webkitCompassHeading, e.beta, e.gamma); st.absAt = now; }
     }
+    st.src = 'deviceorientation';
+    }
+    // hlídání: zdroj, který stojí, zatímco druhý se točí, vyřadíme
+    if (st.relB && st.absB) {
+      const ya = yawOf(Math.abs(st.absB.f[2]) < 0.85 ? st.absB.f : st.absB.u), yr = yawOf(Math.abs(st.relB.f[2]) < 0.85 ? st.relB.f : st.relB.u);
+      if (st.pya != null) { st.sumA = (st.sumA || 0) + Math.abs(wrapPi(ya - st.pya)); st.sumR = (st.sumR || 0) + Math.abs(wrapPi(yr - st.pyr)); }
+      st.pya = ya; st.pyr = yr;
+      if (!st.winAt) st.winAt = now;
+      if (now - st.winAt > 1500) {
+        if (st.sumA > 0.5 && st.sumR < 0.15 * st.sumA) st.relStuck = true;
+        else if (st.sumR > 0.5 && st.sumA < 0.15 * st.sumR) st.absStuck = true;
+        else if (st.sumA > 0.5 && st.sumR > 0.5) { st.relStuck = false; st.absStuck = false; }
+        st.sumA = st.sumR = 0; st.winAt = now;
+      }
+    }
     // odhad posunu mezi gyroskopem a kompasem (pomalu, skoky kompasu se nejdřív ověří)
-    if (st.relB && !st.relIsAbs && st.absB && Math.abs(now - st.absAt) < 250) {
+    if (st.relB && !st.relIsAbs && st.absB && !st.absStuck && Math.abs(now - st.absAt) < 250) {
       const useF = Math.abs(st.relB.f[2]) < 0.85; const vr = useF ? st.relB.f : st.relB.u, va = useF ? st.absB.f : st.absB.u;
       const yr = yawOf(vr), sample = wrapPi(yawOf(va) - yr);
       const still = st.lastYr == null || Math.abs(wrapPi(yr - st.lastYr)) < 3 * D2R; st.lastYr = yr;
@@ -171,8 +195,10 @@
       }
     }
     let B = null;
-    if (st.relB && now - st.relAt < 600) B = st.relIsAbs || st.yawOff == null ? st.relB : { f: rotZ(st.relB.f, st.yawOff), u: rotZ(st.relB.u, st.yawOff) };
+    const relOk = st.relB && now - st.relAt < 600 && !st.relStuck;
+    if (relOk) B = !st.relIsAbs && st.yawOff != null ? { f: rotZ(st.relB.f, st.yawOff), u: rotZ(st.relB.u, st.yawOff) } : st.relB;
     else if (st.absB) B = st.absB;
+    st.using = B === st.absB ? 'kompas' : st.yawOff != null ? 'gyro+kompas' : 'gyro';
     if (!B) return;
     st.sensorAt = now; st.noCompass = !st.absB;
     if (st.mode !== 'sensor') { if (st.mode === 'auto') { st.mode = 'sensor'; updUi(); } else return; }
@@ -345,6 +371,12 @@
       g.fillStyle = 'rgba(6,12,30,.88)'; g.beginPath(); g.roundRect ? g.roundRect(cx - w / 2, y0 - 16, w, 32, 16) : g.rect(cx - w / 2, y0 - 16, w, 32); g.fill(); g.strokeStyle = 'rgba(243,211,132,.55)'; g.lineWidth = 1; g.stroke();
       g.fillStyle = parts.length ? '#F3D384' : '#7EE8C4'; g.fillText(tx, cx, y0);
     }
+    // diagnostika senzorů (klepnutí na nadpis)
+    if (st.diag) {
+      const [va, vl] = azAltFromEnu(f);
+      const lines = [`${window.SkyNow.ver || ''} · zdroj ${st.src || '—'} · použito ${st.using || '—'}`, `směr ${Math.round((va * R2D + 360) % 360)}° · výška ${Math.round(vl * R2D)}° · posun ${st.yawOff == null ? '—' : Math.round(st.yawOff * R2D) + '°'}${st.relStuck ? ' · gyro stojí' : ''}${st.absStuck ? ' · kompas stojí' : ''}`, st.raw || 'deviceorientation —', `sensor API: abs ${st.gsAbs ? 'ano' : st.gsAbsErr ? 'chyba' : '—'} · rel ${st.gsRel ? 'ano' : st.gsRelErr ? 'chyba' : '—'}`];
+      g.font = '12px ui-monospace,monospace'; g.textAlign = 'left'; g.textBaseline = 'top'; g.fillStyle = 'rgba(0,0,0,.75)'; g.fillRect(8, topSafe + 4, W - 16, 16 * lines.length + 10); g.fillStyle = '#7EE8C4'; lines.forEach((l, k) => g.fillText(l, 14, topSafe + 9 + 16 * k));
+    }
     // ukazatel přiblížení
     if (Date.now() - (st.zoomAt || 0) < 1400) { const z = 70 / st.fov; const tx = z >= 1 ? `přiblížení ×${z.toFixed(1).replace('.', ',')}` : `oddálení ×${(1 / z).toFixed(1).replace('.', ',')}`; g.font = '700 15px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; const w = g.measureText(tx).width + 28, y0 = topSafe + 22; g.fillStyle = 'rgba(6,12,30,.85)'; g.beginPath(); g.roundRect ? g.roundRect(cx - w / 2, y0 - 16, w, 32, 16) : g.rect(cx - w / 2, y0 - 16, w, 32); g.fill(); g.fillStyle = '#F3D384'; g.fillText(tx, cx, y0); }
     // zaměřovač pro kalibraci
@@ -425,7 +457,7 @@
       if (st.calib) hint.innerHTML = 'Namiř zaměřovač na Lunu, jasnou planetu nebo hvězdu a klepni na <button data-sk="calibOk">srovnat</button>.';
       else if (st.needPerm) hint.innerHTML = '<button data-sk="perm">Povolit pohybové senzory</button> — pak stačí namířit telefon na oblohu.';
       else if (st.mode === 'sensor' && st.noCompass) hint.innerHTML = 'Telefon neposílá kompas — sever srovnáš tlačítkem ⌖ podle Luny nebo jasné hvězdy.';
-      else if (st.mode === 'sensor') hint.textContent = st.sunAlt > -6 ? 'Je den — hvězdy svítí dál, jen je Slunce přezáří. Mapa ukazuje, co nad tebou právě je.' : 'Namiř telefon na oblohu. Dvěma prsty přibližuješ a oddaluješ, klepnutím na objekt se dozvíš víc.';
+      else if (st.mode === 'sensor') hint.innerHTML = (st.sunAlt > -6 ? 'Je den — hvězdy svítí dál, jen je Slunce přezáří. ' : 'Namiř telefon na oblohu. Dvěma prsty přibližuješ a oddaluješ, klepnutím na objekt se dozvíš víc. ') + '<button data-sk="drag">Ovládat prstem</button>';
       else hint.innerHTML = 'Posouvej oblohu prstem, dvěma prsty přibližuj a oddaluj. ' + (st.sensorOk ? '<button data-sk="sensor">Řídit telefonem</button>' : '');
     }
     for (const c of document.querySelectorAll('#sky .skchip[data-t]')) c.classList.toggle('on', !!(st.target && st.target.k === 'body' && st.target.id === c.dataset.t));
@@ -474,8 +506,26 @@
     try { const r = await DeviceOrientationEvent.requestPermission(); if (r === 'granted') { st.needPerm = false; st.mode = 'auto'; bindSensors(); } } catch (e) { }
     updUi();
   }
+  function quatBasis(q) {
+    const [x, y, z, w] = q;
+    const m = [[1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)], [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)], [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)]];
+    return { r: [m[0][0], m[1][0], m[2][0]], u: [m[0][1], m[1][1], m[2][1]], f: [-m[0][2], -m[1][2], -m[2][2]] };
+  }
+  function startGenericSensors() {
+    const mk = (Cls, key) => {
+      try {
+        const sn = new Cls({ frequency: 50, referenceFrame: 'screen' });
+        sn.addEventListener('reading', () => { if (!st || !sn.quaternion) return; const B = quatBasis(sn.quaternion); if (key === 'abs') { st.gsAbs = B; st.gsAbsAt = Date.now(); } else { st.gsRel = B; st.gsRelAt = Date.now(); } onOrient({ type: 'generic' }); });
+        sn.addEventListener('error', () => { st && (st[key === 'abs' ? 'gsAbsErr' : 'gsRelErr'] = true); });
+        sn.start(); (st.gsList = st.gsList || []).push(sn);
+      } catch (e) { }
+    };
+    if ('AbsoluteOrientationSensor' in window) mk(window.AbsoluteOrientationSensor, 'abs');
+    if ('RelativeOrientationSensor' in window) mk(window.RelativeOrientationSensor, 'rel');
+  }
   function bindSensors() {
     if (st.bound) return; st.bound = true;
+    startGenericSensors();
     if ('ondeviceorientationabsolute' in window) window.addEventListener('deviceorientationabsolute', onOrient);
     window.addEventListener('deviceorientation', onOrient);
     setTimeout(() => { if (st && !st.sensorAt && st.mode === 'auto') { st.mode = 'drag'; updUi(); } else if (st) { st.sensorOk = !!st.sensorAt; } }, 1600);
@@ -494,6 +544,7 @@
     if (!st) return;
     cancelAnimationFrame(st.raf); stopCam();
     window.removeEventListener('deviceorientationabsolute', onOrient); window.removeEventListener('deviceorientation', onOrient);
+    for (const sn of st.gsList || []) { try { sn.stop(); } catch (e) { } }
     window.removeEventListener('popstate', st.onPop);
     const box = $('#sky'); if (box) box.remove();
     document.documentElement.style.overflow = st.prevOverflow || '';
@@ -507,7 +558,7 @@
     css();
     const box = document.createElement('div'); box.id = 'sky';
     box.innerHTML = `<video playsinline muted style="display:none"></video><canvas></canvas><div class="skcal" style="display:none"></div>
-      <div class="skbar"><button class="skb" data-sk="close" aria-label="Zavřít">×</button><div class="skt"><b>Hvězdné nebe teď</b><small></small></div>
+      <div class="skbar"><button class="skb" data-sk="close" aria-label="Zavřít">×</button><div class="skt" data-sk="diag"><b>Hvězdné nebe teď</b><small></small></div>
         <button class="skb" data-sk="cam" aria-label="Kamera" title="Kamera">◉</button><button class="skb" data-sk="lines" aria-label="Čáry souhvězdí" title="Čáry souhvězdí">✧</button><button class="skb" data-sk="red" aria-label="Noční tmavý režim" title="Noční tmavý režim">◐</button><button class="skb" data-sk="calib" aria-label="Srovnat směr" title="Srovnat směr">⌖</button></div>
       <div class="skcard" style="display:none"></div>
       <div class="sksearch" style="display:none"><div class="skin"><input type="search" placeholder="Hvězda, souhvězdí, planeta, galaxie…" autocomplete="off" enterkeyhint="search"><button class="skb" data-sk="findx" aria-label="Zavřít hledání">×</button></div><div class="skres"></div></div>
@@ -532,6 +583,8 @@
       else if (a === 'calibOk') calibrate();
       else if (a === 'perm') askPerm();
       else if (a === 'sensor') { st.mode = 'sensor'; st.smoothF = null; updUi(); }
+      else if (a === 'drag') { const [az, alt] = azAltFromEnu(st.basis.f); st.vAz = az; st.vAlt = clamp(alt, -0.5, 1.55); st.mode = 'drag'; st.sensorOk = true; updUi(); }
+      else if (a === 'diag') { st.diag = !st.diag; }
       else if (a === 'cardx') card(null);
       else if (a === 'target') { const id = b.dataset.t; if (st.target && st.target.k === 'body' && st.target.id === id) { st.target = null; card(null); updUi(); } else setTarget({ k: 'body', id }); }
       else if (a === 'find') { card(null); searchOpen(true); }
@@ -565,5 +618,5 @@
     updUi(); draw();
   }
 
-  window.SkyNow = { open, close, _st: () => st };
+  window.SkyNow = { open, close, _st: () => st, ver: 'v411' };
 })();
