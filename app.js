@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v403';
+  const VERSION = 'v404';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -412,6 +412,27 @@
   const ASP_NAME = { conj: 'konjunkce', sextile: 'sextil', trine: 'trigon', square: 'kvadratura', opposition: 'opozice' };
   const ASP_HOW = { conj: 'obě témata splývají v jedno', sextile: 'příležitost, která chce malý krok', trine: 'jde to samo, snadno se přehlédne', square: 'tření, které nutí rozhodnout', opposition: 'dvě strany, které chtějí vyvážit' };
   function arcTitle(t) { return `${K.BODY_CZ[t.transit]} ${ASP_VERB[t.key] || t.glyph} ${NATAL_ACC[t.natal]}`; }
+  const joinCz = (a) => a.length > 1 ? a.slice(0, -1).join(', ') + ' a ' + a[a.length - 1] : (a[0] || '');
+  function slowGroups(items) {
+    const G = [];
+    for (const it of items) {
+      const t = it.t, kind = t.key === 'conj' ? 'conj' : t.kind;
+      let g = G.find(x => x.t.transit === t.transit && x.kind === kind);
+      if (!g) { g = { t, kind, items: [] }; G.push(g); }
+      if (!g.items.some(x => x.t.natal === t.natal)) g.items.push(it);
+    }
+    return G.map(g => {
+      const parts = [];
+      for (const it of g.items) { const v = ASP_VERB[it.t.key] || it.t.glyph; const same = parts.find(x => x[0] === v); if (same) same[1].push(NATAL_ACC[it.t.natal]); else parts.push([v, [NATAL_ACC[it.t.natal]]]); }
+      const title = `${K.BODY_CZ[g.t.transit]} ${parts.map(([v, a]) => `${v} ${joinCz(a)}`).join(' a ')}`;
+      const PT = { Sun: 'Slunce', Moon: 'Luna', Mercury: 'Merkur', Venus: 'Venuše', Mars: 'Mars', Jupiter: 'Jupiter', Saturn: 'Saturn', Uranus: 'Uran', Neptune: 'Neptun', Pluto: 'Pluto', Asc: 'Ascendent', MC: 'MC' };
+      const doms = g.items.filter(it => TX.DOMAIN[it.t.natal]).map(it => g.items.length > 1 ? `${TX.DOMAIN[it.t.natal]} (${PT[it.t.natal] || it.t.natal})` : TX.DOMAIN[it.t.natal]);
+      let text = (PERIOD_TXT[g.t.transit] || {})[g.kind] || arcPhrase(g.t);
+      if (g.items.length > 1) text = text.replace(/V této oblasti/g, 'V těchto oblastech').replace(/v této oblasti/g, 'v těchto oblastech').replace(/tuto oblast/g, 'tyto oblasti').replace(/této oblasti/g, 'těchto oblastí');
+      const st = g.items.map(it => +it.arc.start).filter(Number.isFinite), en = g.items.map(it => +it.arc.end).filter(Number.isFinite);
+      return { t: g.t, kind: g.kind, title, doms, text, start: st.length ? new Date(Math.min(...st)) : null, end: en.length ? new Date(Math.max(...en)) : null };
+    });
+  }
   function arcPhrase(t) {
     const base = t.key === 'conj' ? (TX.CONJ[t.transit] || '') : (t.kind === 'harm' ? TX.GO[t.transit] : TX.COST[t.transit]);
     const dom = TX.DOMAIN[t.natal] ? ` — oblast: ${TX.DOMAIN[t.natal]}` : '';
@@ -622,7 +643,7 @@
     out.hard = out.best.filter(x => x.sc <= -1.5).sort((a, b) => a.sc - b.sc).slice(0, 3).sort((a, b) => a.d - b.d);
     out.best = out.best.filter(x => x.sc >= 2).sort((a, b) => b.sc - a.sc).slice(0, 4).sort((a, b) => a.d - b.d);
     // pomalé tranzity aktivní uprostřed měsíce
-    try { const mid = Math.min(15, nd); out.slow = transitArcs(y, m, mid).filter(it => it.slow).slice(0, 3); } catch (e) { }
+    try { const mid = Math.min(15, nd); out.slow = slowGroups(transitArcs(y, m, mid).filter(it => it.slow)).slice(0, 3); } catch (e) { }
     return out;
   }
   function monthReadingHTML(y, m) {
@@ -633,7 +654,7 @@
     const lun = r.lun.map(l => `<div class="ptcard mr"><div class="mrs"><span class="g">${l.nov ? '●' : '○'}</span><b>${l.nov ? 'Novoluní' : 'Úplněk'} ${dd(l.d)}</b><span class="sg">${K.SIGN_LOC_V[l.sign]} · ${l.h}. dům</span></div><div class="ptbody"><p>${esc(l.text)}</p><p class="what">oblast: ${esc(HA[l.h - 1])}</p></div></div>`).join('');
     const moves = r.moves.map(x => `<p><b>${K.BODY_CZ[x.b]}</b> vstupuje ${dd(x.d)} do tvého ${x.h}. domu: ${esc(TX.DOMAIN[x.b] || 'jeho téma')} se na čas přesouvá do oblasti, kde jde o ${esc(HA[x.h - 1])}.</p>`).join('');
     const retro = r.retro.map(x => `<p><b>${K.BODY_CZ[x.b]} retrográdní</b> ${x.from === 1 ? 'celý začátek měsíce' : `od ${dd(x.from)}`}${x.to ? ` do ${dd(x.to)}` : x.from === 1 ? '' : ' až do konce měsíce'} v tvém ${x.h}. domě — ${esc(RETRO_BODY[x.b] ? RETRO_BODY[x.b][1].split('. ')[0] + '.' : 'věci v této oblasti se vracejí k dořešení.')} Oblast: ${esc(HA[x.h - 1])}.</p>`).join('');
-    const slow = r.slow.map(it => { const t = it.t; return `<p><b>${esc(arcTitle(t))}</b> — ${esc(((PERIOD_TXT[t.transit] || {})[t.key === 'conj' ? 'conj' : t.kind] || arcPhrase(t)).split('. ').slice(0, 2).join('. '))}.</p>`; }).join('');
+    const slow = r.slow.map(g => `<p><b>${esc(g.title)}</b> — ${esc(g.text.split('. ').slice(0, 2).join('. '))}.${g.doms.length ? ` <span class="what">${g.doms.length > 1 ? 'Oblasti' : 'Oblast'}: ${esc(g.doms.join('; '))}.</span>` : ''}</p>`).join('');
     const best = r.best.map(x => `<button type="button" class="chip small" data-act="jumpDay" data-y="${y}" data-m="${m}" data-d="${x.d}">${dd(x.d)}</button>`).join(' ');
     const hard = r.hard.map(x => `<button type="button" class="chip small" data-act="jumpDay" data-y="${y}" data-m="${m}" data-d="${x.d}">${dd(x.d)}</button>`).join(' ');
     return `<div class="card mrhead"><p class="lede">${mon} ${y}: Slunce ${K.SIGN_LOC_V[sunSign]}, tvůj osobní měsíc <b>${r.num.month}</b> — ${NUM_MONTH[r.num.month]}. ${r.lun.length ? `Nov a úplněk padnou do ${[...new Set(r.lun.map(l => l.h))].map(h => `${h}. domu`).join(' a ')}, takže měsíc má těžiště v oblasti ${esc(HA[r.lun[0].h - 1])}.` : ''}</p></div>
@@ -690,7 +711,7 @@
     // pomalé tranzity roku: sebrat ze čtyř bodů roku a sloučit podle názvu
     const seen = new Map();
     for (const mm of [1, 4, 7, 10]) { let arcs; try { arcs = transitArcs(y, mm, 15).filter(it => it.slow); } catch (e) { continue; } for (const it of arcs) { const k = arcTitle(it.t); if (!seen.has(k)) seen.set(k, it); } }
-    const slow = [...seen.values()].sort((a, b) => a.arc.start - b.arc.start);
+    const slow = slowGroups([...seen.values()].sort((a, b) => a.arc.start - b.arc.start));
     // sluneční návrat
     let sr = null; try { const evs = K.skyEvents(K.dayStart(y, 1, 1, TZ), K.dayStart(y, 12, 31, TZ), observer(), n, TZ); sr = evs.find(e => e.title === 'Sluneční návrat'); } catch (e) { }
     // lunace po měsících
@@ -700,7 +721,7 @@
       <div class="h3">Velká témata roku</div>
       ${yearChapter ? `<div class="card hs">${yearChapter(n)}</div>` : ''}
       <div class="h3">Pomalé planety v tvé mapě během roku</div>
-      ${slow.length ? slow.map(it => { const t = it.t; const kind = t.key === 'conj' ? 'conj' : t.kind; return `<div class="ptcard mr"><div class="mrs"><span class="g">${K.BODY_GLYPH[t.transit]}</span><b>${esc(arcTitle(t))}</b><span class="sg">${fmtDY(it.arc.start, y)} – ${fmtDY(it.arc.end, y)}</span></div><div class="ptbody"><p>${esc((PERIOD_TXT[t.transit] || {})[kind] || arcPhrase(t))}</p></div></div>`; }).join('') : '<p class="note">Žádná pomalá planeta se tvé mapy v tomto roce výrazně nedotýká.</p>'}
+      ${slow.length ? slow.map(g => `<div class="ptcard mr"><div class="mrs"><span class="g">${K.BODY_GLYPH[g.t.transit]}</span><b>${esc(g.title)}</b><span class="sg">${g.start ? fmtDY(g.start, y) : ''} – ${g.end ? fmtDY(g.end, y) : ''}</span></div><div class="ptbody"><p>${esc(g.text)}</p>${g.doms.length ? `<p class="what">${g.doms.length > 1 ? 'oblasti' : 'oblast'}: ${esc(g.doms.join('; '))}</p>` : ''}</div></div>`).join('') : '<p class="note">Žádná pomalá planeta se tvé mapy v tomto roce výrazně nedotýká.</p>'}
       <div class="h3">Nov a úplněk v tvé mapě po měsících</div>
       <div class="card rd luntab">${lun.map(l => `<div class="lunrow"><span class="lm">${K.MONTH_CZ[l.mm - 1].slice(0, 3)}</span><span class="lg">${l.nov ? '●' : '○'}</span><span class="ld">${l.d}. ${l.mm}.</span><span class="lh">${l.h}. dům · ${esc(HS.HOUSE_AREA[l.h - 1].split(',')[0])}</span></div>`).join('')}</div>
       <p class="note" style="margin-top:10px">Roční čtení je pozadí: pomalé planety dávají roku téma, lunace ho po měsících konkrétně rozvádějí. Podrobnosti měsíce po měsíci najdeš v měsíčním horoskopu.</p>`;
@@ -4408,7 +4429,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=403'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=404'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
