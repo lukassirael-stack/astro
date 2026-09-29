@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v398';
+  const VERSION = 'v399';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -482,7 +482,7 @@
       ['detail', '≡', 'Detail dne', `Nahoře <b>Denní rytmus</b> — čtení dne v pár větách. Pak co dnes jde a co bude stát víc sil, průběh dne na ose — východy a západy, planetární hodiny, aspekty Luny, Luna bez kurzu — a pod tím počasí a příroda: zlatá a modrá hodina, tmavé noci pro hvězdy, portál, příroda po třech dnech, zahrádkář, číslo dne, mayský den. <b>Podrobnosti — pro astrologa</b> otevřou přesná čísla. Tenhle vzor platí v celém Kompasu: nejdřív věta, mechanika až na požádání.`],
       ['ukazy', '☄', 'Úkazy', `Obloha rok dopředu v kategoriích: <em>tvé cykly</em> (sluneční, lunární, Jupiterův a Saturnův návrat), <em>portály</em> (zrcadlová data, mistrovské dny, tvé osobní portály), <em>příroda</em> (měsíc po měsíci, co se děje venku a na zahradě, dny podle Luny), zatmění, Luna, planety, hvězdy, roje, Slunce, komety. Dnešní úkaz svítí nahoře ve zlatém rámu. Každý úkaz má otazník s výkladem na míru.`],
       ['diar', '✎', 'Diář', `Zapiš pár slov o dni a ohodnoť ho. Po pěti dnech Kompas ukáže, jak tvá hodnocení sedí s výpočtem; po osmi i podle fází cyklu, pokud ho vedeš. Plány na den se ráno objeví v kartě Dnes. Diář je tvůj kontrolní nástroj: Kompas říká, co je ve hře, ty říkáš, jak to bylo.`],
-      ['otobe', '★', 'O tobě', `Rozcestník deseti karet. <b>Tvoje mapa</b> — každý bod s výkladem ve znamení a v domě, aspekty s výkladem. <b>Čím teď procházíš</b> — tranzity jako oblouky s počátkem, vrcholem a koncem, a ohlédnutí na kterékoli datum. <b>Vztahy</b> — horoskop dvou map, vaše čísla, a <em>Přečíst horoskop</em>, které přepne všechny karty na mapu blízkého. <b>Tvůj horoskop</b> — kapitoly života a pod nimi <em>Horoskop v čase</em>: denní, týdenní, měsíční, roční. <b>Tvá čísla</b>, <b>Čakra roku</b>, <b>Velké návraty</b>, <b>Tvé hvězdy</b>, <b>Mayský horoskop</b>, <b>Čínský horoskop</b>. Efemeridy pro astrologa jsou pod kartami.`],
+      ['otobe', '★', 'O tobě', `Čtyři karty a skupina Další systémy. <b>Tvoje mapa</b> — každý bod s výkladem ve znamení a v domě, aspekty s výkladem; nahoře přepínáš na <em>Tvé hvězdy</em>, <em>Velké návraty</em> a <em>Efemeridy</em> pro astrologa. <b>Tvůj horoskop</b> — kapitoly života a pod nimi <em>Horoskop v čase</em>: čím teď procházíš (tranzity jako oblouky s počátkem, vrcholem a koncem, ohlédnutí na kterékoli datum), denní (vede do detailu dne), týdenní, měsíční, roční. <b>Vztahy</b> — horoskop dvou map, vaše čísla, a <em>Přečíst horoskop</em>, které přepne všechny karty na mapu blízkého. <b>Čakra roku</b>. <b>Další systémy</b>: Tvá čísla, Mayský horoskop, Čínský horoskop.`],
       ['nastaveni', '⚙', 'Nastavení', `Profil (Kompas je pro jednoho — blízcí jsou ve Vztazích), Kde právě jsi (poloha, hledání místa), Karta Dnes (vrstvy), obloha den a noc, pravidla barvení dne, cyklus, orgánové hodiny, numerologie, kosmické počasí, svátky pro Česko a Slovensko, jazyk, Google kalendář, záloha, sdílení, Průvodce a zpětná vazba. Verze appky je úplně dole.`],
       ['data', '⌂', 'Tvá data', `Všechno běží v prohlížeči a zůstává v tomto zařízení. Data odcházejí jen tehdy, když je sám pošleš: zálohou, nebo přenosem do jiného zařízení (šifrovaně, klíč je jen v odkazu, platí hodinu). Počasí a komety se stahují z veřejných zdrojů bez tvých dat; sdělení z Oázy přicházejí jen jako text.`],
     ];
@@ -706,9 +706,6 @@
       <p class="note" style="margin-top:10px">Roční čtení je pozadí: pomalé planety dávají roku téma, lunace ho po měsících konkrétně rozvádějí. Podrobnosti měsíce po měsíci najdeš v měsíčním horoskopu.</p>`;
   }
   const HS_SUBS = [['zivot', '∞', 'Celoživotní', 'kapitoly života: osobnost, vztahy, práce, peníze, zdraví…'], ['den', '☉', 'Denní', 'čtení dne, tip, co se tě dotýká'], ['tyden', '≡', 'Týdenní', 'sedm dní jako oblouk'], ['mesic', '☽', 'Měsíční', 'nov a úplněk v tvé mapě, přesuny, klíčové dny'], ['rok', '✦', 'Roční', 'témata roku, pomalé planety, lunace']];
-  function hsHubHTML() {
-    return `<div class="ntiles">${HS_SUBS.map(([id, ic, t, sub]) => `<button type="button" class="ntile txt ${id === 'zivot' ? 'main' : ''}" data-act="hsView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>`).join('')}</div>`;
-  }
   // ---------- vrstvy karty Dnes: jádro je pevné, ostatní si člověk zapíná ----------
   const LAYERS = [
     ['pocasi', 'Počasí', 'teplota a předpověď v hlavičce'],
@@ -1990,10 +1987,10 @@
     setRod(el) { const p = ownerProfile(); p.rod = el.dataset.r; persistProfiles(); renderSettings(); if (S.tab !== 'nastaveni') renderCalendar(); toast(el.dataset.r === 'z' ? 'Kompas tě bude oslovovat v ženském rodě.' : 'Kompas tě bude oslovovat v mužském rodě.'); },
     obShow() { rawSet('kairos_ob_skip', false); OB.step = 0; obRender(); },
     metTgl(el) { settings.metriky = !!el.checked; persistSettings(); if (settings.metriky) metSend(); toast(settings.metriky ? 'Díky — anonymní přehled pomáhá Kompas zlepšovat.' : 'Anonymní přehled vypnut.'); },
-    goArcs() { S.natalView = 'prochazis'; showTab('nativ'); },
+    goArcs() { S.natalView = 'horoskop'; S.hsView = 'ted'; showTab('nativ'); },
     natalView(el) { S.natalView = el.dataset.v; if (el.dataset.v === 'horoskop') S.hsView = 'menu'; renderNatal(); window.scrollTo({ top: 0 }); },
     numQuick() { const v = ($('#numQuickDate') || {}).value; if (!v) return; S.numQuick = v; renderNatal(); setTimeout(() => { const el = $('#view-nativ .numquick'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
-    lookback() { const v = ($('#lookbackDate') || {}).value; if (!v) return; S.lookback = v; S.natalView = 'prochazis'; renderNatal(); setTimeout(() => { const el = $('#view-nativ .lookback'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
+    lookback() { const v = ($('#lookbackDate') || {}).value; if (!v) return; S.lookback = v; S.natalView = 'horoskop'; S.hsView = 'ted'; renderNatal(); setTimeout(() => { const el = $('#view-nativ .lookback'); if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 40); },
     toggleNum() { settings.numerology = settings.numerology === false; persistSettings(); S.dayCache = {}; renderSettings(); },
     toggleOrg() { settings.organs = settings.organs === false; persistSettings(); renderCalendar(); renderSettings(); },
     evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
@@ -3800,7 +3797,7 @@ ${parts}
       <details class="hsintro hscenter"><summary><span class="hsq">✧</span> Jak číst svůj horoskop <span class="hsq">✧</span></summary><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></details>
       <div class="hsgrid">${HS_ORDER.map((k, i) => [HS_THEMES.find(x => x[0] === k), HS_SPAN[i]]).filter(x => x[0]).map(([t, sp]) => `<button type="button" class="hsb ${(S.hsTheme || 'rok') === t[0] ? 'on' : ''}" style="--sp:${sp}" data-act="hsTheme" data-t="${t[0]}"><i class="hsi">${hsIcon(t[0])}</i><span>${t[1]}</span></button>`).join('')}
       <button type="button" class="hsb hsprint" style="--sp:6" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení"><i class="hsi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8.4 10.6L12 14.2l3.6-3.6"/><path d="M5 17.6h14"/></svg></i><span>Uložit · tisk</span></button>
-      <div class="hstime"><span class="hstlab">Horoskop v čase</span><div class="hstrow">${HS_SUBS.filter(x => x[0] !== 'zivot').map(([id, ic, t, sub]) => `<button type="button" class="hstbtn" data-act="hsView" data-v="${id}" title="${sub}"><i>${ic}</i>${t}</button>`).join('')}</div></div></div>
+      <div class="hstime"><span class="hstlab">Horoskop v čase</span><button type="button" class="hstnow" data-act="hsView" data-v="ted"><i>✺</i><span><b>Čím teď procházíš</b><small>tranzity jako oblouky, ohlédnutí</small></span><em>›</em></button><div class="hstrow">${HS_SUBS.filter(x => x[0] !== 'zivot').map(([id, ic, t, sub]) => id === 'den' && !S.readAs ? `<button type="button" class="hstbtn" data-act="jumpDay" data-y="${np.y}" data-m="${np.m}" data-d="${np.d}" title="${sub} — v detailu dne"><i>${ic}</i>${t}</button>` : `<button type="button" class="hstbtn" data-act="hsView" data-v="${id}" title="${sub}"><i>${ic}</i>${t}</button>`).join('')}</div></div></div>
       ${S.hsTheme === 'none' ? '<p class="note" style="text-align:center">Vyber kapitolu, kterou chceš číst.</p>' : `<div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'rok')) || HS_THEMES[0])[2](n)}</div>`}`,
       hvezdy: () => `      
       <p class="note">Hvězdy systémů z Hvězdného kvízu a královské hvězdy jako body v tvém nativu. Hlavní = hvězda stojí na tvém bodě (orbis 1°), byla na úhlu v okamžiku narození, nebo tvoří paran se Sluncem či Lunou. Vedlejší = parany s ostatními planetami v den narození. Rod z kvízu se do výpočtu nepočítá – tohle je čisté nebe.</p>
@@ -3834,34 +3831,38 @@ ${parts}
     };
     const natalHead = `      <div class="nhead"><div class="h2">${esc(p.name)}</div>
       <p class="note natal-meta">${p.d}. ${p.m}. ${p.y} v ${p.hh}:${pad(p.mm)} · ${esc(p.place)} (${fmtNum(+p.lat, 3)} N, ${fmtNum(+p.lon, 3)} E) · ${n.date.toISOString().slice(0, 16).replace('T', ' ')} UTC · domy Placidus · tropický zvěrokruh</p></div>`;
-    const view = S.natalView && S.natalView !== 'ty' ? S.natalView : 'menu';
+    let view = S.natalView && S.natalView !== 'ty' ? S.natalView : 'menu';
     const TILES = [
-      ['mapa', '☉', 'Tvoje mapa', 'Slunce, Luna, ascendent, body, domy, aspekty', 'main'],
-      ['prochazis', '✺', 'Čím teď procházíš', 'tranzity jako oblouky, ohlédnutí', 'main'],
+      ['mapa', '☉', 'Tvoje mapa', 'body, domy, aspekty, tvé hvězdy, velké návraty', 'main'],
+      ['horoskop', '✦', 'Tvůj horoskop', 'kapitoly o tobě, čím teď procházíš, horoskop v čase', 'main'],
       ['vztahy', '♡', 'Vztahy', 'jak si tvá mapa rozumí s druhými'],
-      ['horoskop', '✦', 'Tvůj horoskop', 'kapitoly o tobě, tisk'],
-      ['cisla', '8', 'Tvá čísla', 'životní číslo, osobní rok, hlubší rozbor'],
       ['cakra', '◉', 'Čakra roku', 'kterou čakrou letos procházíš'],
-      ['navraty', '⟳', 'Velké návraty', 'Saturn, Jupiter, Uran a uzly v tvém životě'],
-      ['hvezdy', '★', 'Tvé hvězdy', 'stálice na tvých bodech'],
+    ];
+    const SYS = [
+      ['cisla', '8', 'Tvá čísla', 'životní číslo, osobní rok, hlubší rozbor'],
       ['maya', '◈', 'Mayský horoskop', 'tvůj nawal, tón, Mayský kříž, nositel roku'],
       ['cina', '☯', 'Čínský horoskop', 'čtyři pilíře, zvíře, živel, letošní rok'],
     ].filter(t => t[0] !== 'cisla' || settings.numerology !== false);
+    const MAP_SUBS = [['mapa', 'Mapa a aspekty'], ['hvezdy', 'Tvé hvězdy'], ['navraty', 'Velké návraty'], ['efemeridy', 'Efemeridy']];
+    const TITLES = TILES.concat(SYS, [['hvezdy', '★', 'Tvoje mapa'], ['navraty', '⟳', 'Tvoje mapa'], ['efemeridy', '≡', 'Tvoje mapa']]);
     const readBar = S.readAs ? `<div class="readbar"><span>Čteš pro <b>${esc(S.readAs.name || '')}</b> — ${+S.readAs.d}. ${+S.readAs.m}. ${+S.readAs.y}</span><button type="button" class="btn small" data-act="readSelf">zpět k sobě</button></div>` : '';
     const TILES_V = S.readAs ? TILES.filter(t => t[0] !== 'vztahy') : TILES;
+    const tileBtn = ([id, ic, t, sub, kind]) => `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=11" alt="" width="420" height="317"></button>`;
+    if (view === 'prochazis') { S.natalView = view = 'horoskop'; S.hsView = 'ted'; }
     if (view === 'menu') {
       const arcS = arcSentence();
-      v.innerHTML = readBar + natalHead + (arcS ? `<p class="nnow"><span class="tvlab">${S.readAs ? 'jeho den' : 'tvůj den'}</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES_V.map(([id, ic, t, sub, kind, noimg]) => noimg ? `<button type="button" class="ntile txt ${kind || ''}" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>` : `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=11" alt="" width="420" height="317"></button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
+      v.innerHTML = readBar + natalHead + (arcS ? `<p class="nnow"><span class="tvlab">${S.readAs ? 'jeho den' : 'tvůj den'}</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES_V.map(tileBtn).join('')}</div>${SYS.length ? `<div class="h3">Další systémy</div><div class="ntiles mini">${SYS.map(tileBtn).join('')}</div>` : ''}`;
       return;
     }
-    const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : TILES[0]);
-    const back = readBar + `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
+    const tile = TITLES.find(t => t[0] === view) || TILES[0];
+    const back = readBar + `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>` + (MAP_SUBS.some(x => x[0] === view) ? `<div class="row mapnav">${MAP_SUBS.map(([id, t]) => `<button type="button" class="chip small ${view === id ? 'on' : ''}" data-act="natalView" data-v="${id}">${t}</button>`).join('')}</div>` : '');
     if (view === 'maya') { v.innerHTML = back + mayaHTML(p); return; }
     if (view === 'cina') { v.innerHTML = back + cinaHTML(p); return; }
     if (view === 'horoskop') {
       const hv = S.hsView || 'menu';
       const hback = (t) => `<div class="subhead"><button type="button" class="btn ghost small" data-act="hsView" data-v="menu">‹ Tvůj horoskop</button><div class="h2" style="margin:0">${t}</div></div>`;
       if (hv === 'menu' || hv === 'zivot') { v.innerHTML = back + SEC.horoskop(); return; }
+      if (hv === 'ted') { v.innerHTML = readBar + hback('Čím teď procházíš') + SEC.prochazis(); return; }
       if (hv === 'den') {
         const dy = S.hdY || np.y, dm = S.hdM || np.m, ddd = S.hdD || np.d;
         v.innerHTML = hback('Denní') + `<div class="monthbar"><button class="navbtn" data-act="hdPrev" aria-label="Předchozí den">‹</button><div class="mn">${ddd}. ${K.MONTH_GEN[dm - 1]}<em>${dy}</em></div><button class="navbtn" data-act="hdNext" aria-label="Další den">›</button></div>` + dayReadingHTML(dy, dm, ddd); return;
@@ -4370,7 +4371,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=398'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=399'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
