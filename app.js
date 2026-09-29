@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v402';
+  const VERSION = 'v403';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -4076,6 +4076,7 @@ ${parts}
       <form class="card" id="cometsForm" onsubmit="return false"><textarea class="mono" style="width:100%;min-height:90px;font-size:var(--fs-s);background:var(--field);color:var(--text);border:1px solid var(--line2);border-radius:9px;padding:9px" placeholder="2026-10-20 | Kometa C/2025 A6 (Lemmon) | nejjasnější, večer nízko na západě">${esc(settings.comets)}</textarea><div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="saveComets">Uložit seznam</button></div><p class="note">Jeden úkaz na řádek: datum | název | poznámka. Zobrazí se v Úkazech i v detailu dne.</p></form>
       </details>
       <div class="setgrp">Kompas</div>
+      <div class="card betacard"><b>Zkušební verze</b><p>Díky, že Kompas testuješ. Všechno je teď odemčené — plná verze i to, co bude v základu. Co tě napadne, co bys přidal nebo změnil, napiš hned níž v <button type="button" class="linkbtn" data-act="goFeedback">Podnětech ›</button> — stačí pár slov, verze a telefon se doplní samy.</p></div>
       <div class="h2">Podněty</div>
       <div class="card">
         <p class="note" style="margin-top:0">Co ti v Kompasu chybí, co se ti líbí, na co jsi narazil — každá zpráva pomáhá. Napiš pár vět a odešli; otevře se tvůj e-mail s připravenou zprávou.</p>
@@ -4085,7 +4086,6 @@ ${parts}
         <label class="wide" style="display:block"><textarea id="fbText" rows="4" placeholder="Sem napiš, co máš na srdci…" style="width:100%"></textarea></label>
         <div class="row" style="margin-top:8px"><button type="button" class="btn primary" data-act="fbSend">Odeslat</button><button type="button" class="btn ghost" data-act="fbCopy">Zkopírovat text</button></div>
       </div>
-      <div class="card betacard"><b>Zkušební verze</b><p>Díky, že Kompas testuješ. Všechno je teď odemčené — plná verze i to, co bude v základu. Co ti nesedí, chybí nebo je navíc, napiš dole v <button type="button" class="linkbtn" data-act="goFeedback">Zpětné vazbě ›</button> — stačí pár slov, verze a telefon se doplní samy.</p></div>
       <div class="h2">Aplikace</div>
       <div class="card">
       <div class="row" style="gap:14px;flex-wrap:wrap;margin-bottom:12px">
@@ -4408,7 +4408,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=402'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=403'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
