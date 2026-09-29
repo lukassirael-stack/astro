@@ -1286,3 +1286,23 @@ body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}
 .xfm-qr svg{display:block;width:100%;height:auto}
 .xfm-ic{font-size:28px;color:#F0C874;margin-bottom:4px}
 .xfm .inapp-how b{color:var(--gold,#F0C874)}
+
+/* v398: zjednodušená hlavní stránka */
+.monthbar.calbar{justify-content:space-between;margin:14px 0 4px}
+.monthbar.calbar .mn{flex:1;text-align:center}
+.caltools{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin:2px 0 10px}
+.caltools .btn{color:#F2EAD8;border-color:rgba(240,200,116,.4);background:rgba(6,14,36,.45)}
+.caltools .btn.on{border-color:var(--gold);background:rgba(240,200,116,.18)}
+.card.elect{margin:0 0 12px}
+.elect .elhead{display:flex;align-items:flex-start;gap:10px}
+.elect .elhead .elq{flex:1}
+.elect .elx{flex:none;width:30px;height:30px;border-radius:50%;border:1px solid var(--line2);background:transparent;color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+.hero-today .ht-go .tx .ht-costl{display:block;margin-top:3px;font-size:var(--fs-s);line-height:1.4;color:var(--inst-muted)}
+.hero-today .ht-rym{display:block;background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(255,255,255,.015));border-radius:12px;margin:2px -8px;padding:2px 8px;width:calc(100% + 16px);box-sizing:border-box}
+.hero-today .ht-rym .ht-row.ht-tv{background:none;margin:0;padding:8px 0;width:100%;border-radius:0}
+.hero-today .ht-rym .ht-row.ht-tv+.ht-row.ht-tv,.hero-today .ht-rym .tvexp+.ht-row.ht-tv{border-top:1px solid var(--inst-line-soft)}
+.dr-head.dr-in{margin:4px 0 6px}
+.arc.arc-guide{margin:6px 0 0;border-top:0;padding-top:0}
+.caltools{flex-wrap:nowrap}
+.caltools .btn{flex:1 1 0;min-width:0;padding-left:6px;padding-right:6px;letter-spacing:.05em;white-space:nowrap;justify-content:center;text-align:center}
+.caltools .btn[data-act="today"]{flex:0 0 auto;padding-left:14px;padding-right:14px}
