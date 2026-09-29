@@ -310,6 +310,8 @@
         st.onTarget = centered;
       }
     }
+    // ukazatel přiblížení
+    if (Date.now() - (st.zoomAt || 0) < 1400) { const z = 70 / st.fov; const tx = z >= 1 ? `přiblížení ×${z.toFixed(1).replace('.', ',')}` : `oddálení ×${(1 / z).toFixed(1).replace('.', ',')}`; g.font = '700 15px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; const w = g.measureText(tx).width + 28, y0 = topSafe + 22; g.fillStyle = 'rgba(6,12,30,.85)'; g.beginPath(); g.roundRect ? g.roundRect(cx - w / 2, y0 - 16, w, 32, 16) : g.rect(cx - w / 2, y0 - 16, w, 32); g.fill(); g.fillStyle = '#F3D384'; g.fillText(tx, cx, y0); }
     // zaměřovač pro kalibraci
     const cal = $('#sky .skcal'); if (cal) cal.style.display = st.calib ? '' : 'none';
     if (Date.now() - (st.clockAt || 0) > 20000) { st.clockAt = Date.now(); updHead(); }
@@ -381,8 +383,8 @@
     if (hint) {
       if (st.calib) hint.innerHTML = 'Namiř zaměřovač na Lunu, jasnou planetu nebo hvězdu a klepni na <button data-sk="calibOk">srovnat</button>.';
       else if (st.needPerm) hint.innerHTML = '<button data-sk="perm">Povolit pohybové senzory</button> — pak stačí namířit telefon na oblohu.';
-      else if (st.mode === 'sensor') hint.textContent = st.sunAlt > -6 ? 'Je den — hvězdy svítí dál, jen je Slunce přezáří. Mapa ukazuje, co nad tebou právě je.' : 'Namiř telefon na oblohu. Klepnutím na objekt se dozvíš víc.';
-      else hint.innerHTML = 'Posouvej oblohu prstem, dvěma prsty přibližuj. ' + (st.sensorOk ? '<button data-sk="sensor">Řídit telefonem</button>' : '');
+      else if (st.mode === 'sensor') hint.textContent = st.sunAlt > -6 ? 'Je den — hvězdy svítí dál, jen je Slunce přezáří. Mapa ukazuje, co nad tebou právě je.' : 'Namiř telefon na oblohu. Dvěma prsty přibližuješ a oddaluješ, klepnutím na objekt se dozvíš víc.';
+      else hint.innerHTML = 'Posouvej oblohu prstem, dvěma prsty přibližuj a oddaluj. ' + (st.sensorOk ? '<button data-sk="sensor">Řídit telefonem</button>' : '');
     }
     for (const c of document.querySelectorAll('#sky .skchip[data-t]')) c.classList.toggle('on', !!(st.target && st.target.k === 'body' && st.target.id === c.dataset.t));
   }
@@ -499,14 +501,21 @@
     st.cv.addEventListener('pointerdown', (e) => { st.cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); moved = false; down = [e.clientX, e.clientY]; if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch0 = [Math.hypot(a[0] - b[0], a[1] - b[1]), st.fov]; } });
     st.cv.addEventListener('pointermove', (e) => {
       if (!pts.has(e.pointerId)) return; const prev = pts.get(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]);
-      if (pts.size === 2 && pinch0) { const [a, b] = [...pts.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); st.fov = clamp(pinch0[1] * pinch0[0] / (d || 1), 15, 110); moved = true; return; }
+      if (pts.size === 2 && pinch0) { const [a, b] = [...pts.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); st.fov = clamp(pinch0[1] * pinch0[0] / (d || 1), 10, 110); st.zoomAt = Date.now(); moved = true; return; }
       const dx = e.clientX - prev[0], dy = e.clientY - prev[1]; if (Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) moved = true;
       if (st.mode === 'sensor') return;
       const k = (st.fov * D2R) / st.cv.clientHeight; st.vAz -= dx * k / Math.max(0.2, Math.cos(st.vAlt)); st.vAlt = clamp(st.vAlt + dy * k, -0.5, 1.55);
     });
     const up = (e) => { if (pts.has(e.pointerId)) { pts.delete(e.pointerId); if (pts.size < 2) pinch0 = null; if (!moved && e.type === 'pointerup') { const rc = st.cv.getBoundingClientRect(); tapAt(e.clientX - rc.left, e.clientY - rc.top); } } };
     st.cv.addEventListener('pointerup', up); st.cv.addEventListener('pointercancel', up);
-    st.cv.addEventListener('wheel', (e) => { e.preventDefault(); st.fov = clamp(st.fov * (e.deltaY > 0 ? 1.1 : 0.9), 15, 110); }, { passive: false });
+    st.cv.addEventListener('wheel', (e) => { e.preventDefault(); st.fov = clamp(st.fov * (e.deltaY > 0 ? 1.1 : 0.9), 10, 110); st.zoomAt = Date.now(); }, { passive: false });
+    // dva prsty i přes dotykové události (některé prohlížeče a vestavěné okno aplikací)
+    let tp = null; const tdist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    st.cv.addEventListener('touchstart', (e) => { if (e.touches.length === 2) { tp = [tdist(e.touches), st.fov]; e.preventDefault(); } }, { passive: false });
+    st.cv.addEventListener('touchmove', (e) => { if (tp && e.touches.length === 2) { e.preventDefault(); st.fov = clamp(tp[1] * tp[0] / (tdist(e.touches) || 1), 10, 110); st.zoomAt = Date.now(); moved = true; } }, { passive: false });
+    st.cv.addEventListener('touchend', (e) => { if (e.touches.length < 2) tp = null; });
+    // dvojklepnutí: přiblížit, s oddálením zpět
+    st.cv.addEventListener('dblclick', (e) => { e.preventDefault(); st.fov = st.fov > 40 ? 30 : 70; st.zoomAt = Date.now(); });
     // tlačítko Zpět v telefonu zavře oblohu
     st.onPop = () => close(true); history.pushState({ sky: 1 }, ''); window.addEventListener('popstate', st.onPop);
     if (opts.target) st.target = typeof opts.target === 'string' ? { k: 'body', id: opts.target } : opts.target;
@@ -514,5 +523,5 @@
     updUi(); draw();
   }
 
-  window.SkyNow = { open, close };
+  window.SkyNow = { open, close, _st: () => st };
 })();
