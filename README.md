@@ -13,6 +13,7 @@ Technický identifikátor v kódu a cache je `kairos` (klíče `kairos_*`, cache
 | `data.js` | čistá data: jmeniny, svátky, čakra roku |
 | `app.js` | rozhraní a logika appky (jedna uzavřená funkce) |
 | `nebe.js` | Hvězdné nebe teď — obloha v reálném čase podle polohy a natočení telefonu (načítá se až po otevření) |
+| `planet-view.js` | Přiblížit — planeta/Luna v dalekohledu: WebGL koule s mapou povrchu (NASA, volné dílo; Luna z three.js), skutečné osvětlení, fáze, natočení pólu, Saturnovy prstence, Jupiterovy měsíce (načítá se z karty tělesa v Hvězdném nebi); textury `tex-*.webp` |
 | `sky-data.js` | data oblohy: hvězdy do 6 mag, souhvězdí, Messier, Mléčná dráha — d3-celestial © Olaf Frohn, BSD-3-Clause |
 | `sw.js` | service worker — offline, cache `kairos-vN` |
 | `astronomy.browser.min.js`, `qr.min.js` | knihovny |

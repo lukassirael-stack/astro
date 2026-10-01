@@ -619,7 +619,8 @@
       const [ri, se] = riseSet(o.id); const rs = [ri && `vychází ${fmtTime(ri)}`, se && `zapadá ${fmtTime(se)}`].filter(Boolean).join(' · ');
       const dist = o.id === 'Moon' ? `${Math.round(o.dist * 149597.87) * 1000} km` : `${o.dist.toFixed(2)} AU (${Math.round(o.dist * 8.317)} světelných minut)`;
       const extra = o.id === 'Moon' && st.moonFrac != null ? ` · osvětlení ${Math.round(st.moonFrac * 100)} %` : '';
-      card(`<b>${esc(o.cz)} ${esc(signOf(o.elon))}</b><p>${pos}${o.mag != null && o.id !== 'Sun' ? ` · jasnost ${o.mag.toFixed(1)} mag` : ''}${extra}</p><p>Vzdálenost ${dist}${rs ? `<br>${rs}` : ''}</p>`);
+      const zoomBtn = ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Moon'].includes(o.id) ? `<button class="skr" data-sk="zoom" data-id="${o.id}" style="width:100%;margin-top:8px;border:1px solid rgba(243,211,132,.4)"><b>Přiblížit</b><small>jak vypadá dnes v dalekohledu</small></button>` : '';
+      card(`<b>${esc(o.cz)} ${esc(signOf(o.elon))}</b><p>${pos}${o.mag != null && o.id !== 'Sun' ? ` · jasnost ${o.mag.toFixed(1)} mag` : ''}${extra}</p><p>Vzdálenost ${dist}${rs ? `<br>${rs}` : ''}</p>${zoomBtn}`);
     } else if (h.k === 'star') {
       const nm = st.data.names[h.i]; const con = nm && st.data.conName[nm[1]];
       card(`<b>${esc(nm ? nm[0] : 'Hvězda')}</b><p>${pos} · jasnost ${o.mag.toFixed(1)} mag${con ? ` · souhvězdí ${esc(con)}` : ''}</p><p>${o.bv < 0 ? 'Horká modrobílá hvězda.' : o.bv < 0.5 ? 'Bílá hvězda.' : o.bv < 1 ? 'Žlutá hvězda, příbuzná našemu Slunci.' : o.bv < 1.5 ? 'Oranžová hvězda.' : 'Chladná červená hvězda.'}</p>`);
@@ -742,6 +743,7 @@
     box.addEventListener('click', (e) => {
       const b = e.target.closest('[data-sk]'); if (!b) return; const a = b.dataset.sk; e.stopPropagation();
       if (a === 'close') close(); else if (a === 'cam') camToggle(); else if (a === 'red') { st.red = !st.red; updUi(); st.toast(st.red ? 'Noční režim: tmavě modrá obloha, oči zůstanou přivyklé tmě.' : 'Noční režim vypnutý.'); }
+      else if (a === 'zoom') { const id = b.dataset.id; const go = () => window.PlanetView && window.PlanetView.open({ id, time: new Date(), toast: st.toast }); if (window.PlanetView) go(); else { const sc = document.createElement('script'); sc.src = 'planet-view.js?v=' + (window.KOMPAS_VERSION || Date.now()); sc.onload = go; sc.onerror = () => st.toast('Přiblížení se nepodařilo načíst.'); document.head.appendChild(sc); } }
       else if (a === 'scene') { st.scene = b.dataset.scene; card(null); updUi(); }
       else if (a === 'signs') { st.showSigns = !st.showSigns; updUi(); }
       else if (a === 'names') { st.showNames = !st.showNames; updUi(); }
