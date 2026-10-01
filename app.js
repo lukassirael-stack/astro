@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v415';
+  const VERSION = 'v416';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2533,6 +2533,83 @@
   HS.ADVICE = { Saturn:'Pomáhá trpělivost a malé sliby, které dodržíš.', Pluto:'Pomáhá pustit kontrolu dřív, než ji život vezme sám.', Uranus:'Pomáhá dělat změny dobrovolně a včas.', Neptune:'Pomáhá jasnost: fakta, hranice, střízlivé oči.', Mars:'Pomáhá dát síle pravidelný ventil.' };
   const hsPara = (title, text, tg) => `<div class="hsp">${title ? `<h4>${title}</h4>` : ''}<p>${text}</p>${tg ? `<span class="hstag">${tg}</span>` : ''}</div>`;
   const hsPlanetsIn = (n, h) => ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'].filter(k => n.points[k].house === h);
+  // ---------- Kdo se k tobě hodí: partnerský profil z Descendentu, Venuše, Marsu a Luny ----------
+  HS.VEN_LOVE = [
+    'Miluješ rychle, přímo a naplno. Jiskra a dobývání tě baví a cit u tebe přichází jako impulz. Partner, který umí držet krok a říkat věci rovnou, má tvé srdce.',
+    'Miluješ smysly a stálostí: dotek, společné jídlo, známé místo, věrnost. Cit u tebe zraje pomalu a vydrží. Partner, který je spolehlivý a umí si užívat tělo i klid, s tebou zůstane.',
+    'Miluješ slovem a hrou. Láska u tebe musí mluvit, ptát se, smát se. Partner, který je zvědavý, pohotový a dokáže tě překvapit, tě drží v živém zájmu.',
+    'Miluješ péčí a pamětí srdce: kdo je tvůj, je tvůj. Potřebuješ blízkost a bezpečí, které se dá cítit. Partner, který je něžný a stálý a umí přijímat péči, se u tebe cítí doma.',
+    'Miluješ velkoryse a s gestem; láska má u tebe zářit a být vidět. Partner, který tě obdivuje a dokáže obdiv i přijímat, s tebou vytvoří vztah, na který jste oba hrdí.',
+    'Miluješ činem a všímavostí, malými věcmi každý den. Cit ukazuješ tím, že se postaráš. Partner, který si toho všimne a je spolehlivý v drobnostech, je pro tebe ten pravý.',
+    'Miluješ souladem a krásou; umění být ve dvou je tvůj dar. Potřebuješ partnera, který ladí, je slušný a umí jednat jako rovný s rovným.',
+    'Miluješ hluboko a bezezbytku; celistvost je u tebe jediná možnost. Partner, který je pravdivý a unese intenzitu, získá věrnost, jaká se jen tak nevidí.',
+    'Miluješ svobodně a s humorem; láska je pro tebe cesta a výhled. Partner, který má vlastní směr a rád s tebou objevuje, tě naplňuje.',
+    'Miluješ vážně, věrně a činy spíš než slovy. Vztah stavíš na roky. Partner, který drží slovo a oceňuje spolehlivost, si tě získá natrvalo.',
+    'Miluješ přátelstvím a volností; blízkost potřebuješ bez pout. Partner, který je sám sebou, zajímavý a dopřeje ti prostor, s tebou vytvoří vztah podle vlastních pravidel.',
+    'Miluješ oddaně, s citem pro duši druhého. Vztah je pro tebe splynutí a útočiště. Partner, který je jemný, vnímavý a stojí nohama na zemi, ti dá bezpečí pro tvou hloubku.',
+  ];
+  HS.MARS_ATTR = [
+    'Přitahuje tě odvaha a přímost. Jiskra vzniká v akci a v soutěžení; nuda ji hasí.',
+    'Přitahuje tě pomalý, smyslný tah. Co se jednou rozehřeje, hřeje dlouho; spěch jiskru spíš zhasíná.',
+    'Přitahuje tě chytrá řeč, vtip a hra. Jiskru zapaluje rozhovor, který má švih.',
+    'Přitahuje tě něha a pocit bezpečí. Touha u tebe roste z důvěry a z blízkosti.',
+    'Přitahuje tě sebevědomí a velké gesto. Chceš být vidět a vidět druhého zářit.',
+    'Přitahuje tě jemnost v detailu a péče. Touha roste s důvěrou a s tím, jak se o sebe navzájem staráte.',
+    'Přitahuje tě soulad a elegance; svádění je pro tebe tanec ve dvou.',
+    'Přitahuje tě intenzita a tajemství; všechno, nebo nic. Magnetismus u tebe jde do hloubky.',
+    'Přitahuje tě dobrodružství a smích. Společný pohyb a cesta vás spojí nejvíc.',
+    'Přitahuje tě zralost a vytrvalost. Touha u tebe roste časem a věrností.',
+    'Přitahuje tě jinakost a bystrá mysl. Jiskra vzniká tam, kde je druhý sám sebou a překvapivý.',
+    'Přitahuje tě jemnost a splynutí. Něha je tvůj jazyk touhy.',
+  ];
+  HS.MOON_NEED = [
+    'potřebuješ upřímnost, pohyb a možnost řešit věci hned',
+    'potřebuješ klid, stálost a smyslové bezpečí',
+    'potřebuješ rozhovor, lehkost a prostor pro změnu',
+    'potřebuješ citový domov a péči, kterou je cítit',
+    'potřebuješ vřelost, uznání a radost',
+    'potřebuješ pořádek, užitečnost a klidnou jistotu',
+    'potřebuješ harmonii, férovost a krásu kolem sebe',
+    'potřebuješ hloubku, důvěru a úplnou pravdivost',
+    'potřebuješ volnost, smysl a výhled',
+    'potřebuješ spolehlivost, strukturu a respekt',
+    'potřebuješ svobodu, přátelství a prostor být svůj',
+    'potřebuješ něhu, ticho a pochopení beze slov',
+  ];
+  HS.SIGN_RULER = ['Mars', 'Venus', 'Mercury', 'Moon', 'Sun', 'Mercury', 'Venus', 'Pluto', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'];
+  // kde partnera potkáváš: vládce 7. domu podle domu, ve kterém stojí
+  HS.R7_HOUSE = ['skrze tebe samotného: partner přichází, když jsi nejvíc sám sebou', 'skrze hodnoty a společné zajištění: vztah stojí na tom, co spolu budujete', 'skrze slovo a okolí: partnera potkáváš v řeči, při učení, mezi známými', 'skrze domov a rodinu: vztah hledá kořeny a bezpečné místo', 'skrze radost a tvoření: láska přichází tam, kde si hraješ a tvoříš', 'skrze práci a každodennost: partnera potkáváš ve službě a ve společné práci', 'přímo ve vztahu samém: partnerství je tvé přirozené pole', 'skrze hloubku a sdílení: vztah tě proměňuje a jde do hloubky', 'skrze cesty, studium a smysl: partnera potkáváš na cestě nebo v hledání', 'skrze poslání a veřejný život: vztah souvisí s tím, kam míříš', 'skrze přátele a společenství: partner přichází z kruhu lidí kolem tebe', 'skrze ticho a vnitřní svět: vztah má tajemství a soucit'];
+  function partnerSigns(n) {
+    const el = (i) => K.ELEMENT[i];
+    const dsc = K.signOf(n.cusps[7]), ven = K.signOf(n.points.Venus.lon), moon = K.signOf(n.points.Moon.lon), sun = K.signOf(n.points.Sun.lon);
+    const sext = { 'oheň': 'vzduch', 'vzduch': 'oheň', 'země': 'voda', 'voda': 'země' };
+    const score = K.SIGNS.map((_, i) => ({ i, pts: 0, why: [] }));
+    const add = (i, p, w) => { score[i].pts += p; score[i].why.push(w); };
+    add(dsc, 3, 'tvůj Descendent: zrcadlo, které tě doplní');
+    for (let i = 0; i < 12; i++) {
+      if (i !== ven && el(i) === el(ven)) add(i, 2, 'stejný živel jako tvá Venuše: milujete podobným způsobem');
+      else if (el(i) === sext[el(ven)]) add(i, 1, 'živel přátelský tvé Venuši: rozumíte si lehce');
+      if (i !== moon && el(i) === el(moon)) add(i, 2, 'souzní s tvou Lunou: rozumí tvým potřebám');
+      else if (el(i) === sext[el(moon)]) add(i, 1, 'podporuje tvou Lunu: cítíte se spolu dobře');
+      if (i !== sun && el(i) === el(sun)) add(i, 1, 'stejný živel jako tvé Slunce: podobný tah na život');
+    }
+    return score.filter(s => s.pts >= 2).sort((a, b) => b.pts - a.pts || a.i - b.i).slice(0, 4);
+  }
+  function partnerHTML(n) {
+    const si = K.signOf(n.cusps[7]), v = K.signOf(n.points.Venus.lon), ma = K.signOf(n.points.Mars.lon), mo = K.signOf(n.points.Moon.lon);
+    const r7 = HS.SIGN_RULER[si], r7h = n.points[r7] ? n.points[r7].house : null;
+    let out = `<div class="card"><div class="h2" style="margin:0 0 4px">Kdo se k tobě hodí</div><p class="note" style="margin-top:0">Partnerský profil z tvé mapy: koho hledáš, jak miluješ, co tě přitahuje a co potřebuješ, aby ti ve vztahu bylo dobře. Platí pro tebe bez ohledu na to, s kým zrovna jsi.</p>`;
+    out += hsPara('Koho hledáš', `${HS.D7[si]}${r7h ? ` Vládce tvého sedmého domu, ${K.BODY_CZ[r7]}, stojí v ${r7h}. domě: partner k tobě přichází ${HS.R7_HOUSE[r7h - 1]}.` : ''}`, `Descendent ${K.SIGN_LOC_V[si]}${r7h ? ` · ${K.BODY_CZ[r7]} v ${r7h}. domě` : ''}`);
+    const in7 = hsPlanetsIn(n, 7);
+    if (in7.length) out += in7.map(k => hsPara('', `${K.BODY_CZ[k]} v domě partnerství: ${HS.P_REL[k]}`, `${K.BODY_CZ[k]} · 7. dům`)).join('');
+    out += hsPara('Jak miluješ', HS.VEN_LOVE[v], `Venuše ${K.SIGN_LOC_V[v]}`);
+    out += hsPara('Co tě přitahuje', HS.MARS_ATTR[ma], `Mars ${K.SIGN_LOC_V[ma]}`);
+    out += hsPara('Co potřebuješ, aby vztah vydržel', `Aby ti bylo ve vztahu dobře, ${HS.MOON_NEED[mo]}. Partner, který to zná, má klíč k tvému klidu.`, `Luna ${K.SIGN_LOC_V[mo]}`);
+    const signs = partnerSigns(n);
+    out += `<h4 style="margin:14px 0 6px">Znamení, se kterými ti to jde lehce</h4><p class="note" style="margin-top:0">Počítá se podle tvého Descendentu, Venuše, Luny a Slunce. U druhého platí pro jeho Slunce i Lunu. Je to o lehkosti, se kterou si rozumíte; hloubku vztahu vždy dělá to, co do něj oba dáte.</p><div class="psigns">${signs.map(s => `<div class="psign"><b>${K.SIGN_GLYPH[s.i]} ${K.SIGNS[s.i]}</b><small>${esc(s.why[0])}${s.why.length > 1 ? ` · ${esc(s.why[1])}` : ''}</small></div>`).join('')}</div>`;
+    out += `<p class="note" style="margin:12px 0 0">Máš někoho konkrétního? Přidej níž jeho narození a Kompas přečte, kde se vaše mapy potkávají samy a kde to chce práci.</p></div>`;
+    return out;
+  }
   function horoscopeMoney(n) {
     const si = K.signOf(n.cusps[2]);
     let out = hsPara('Tvůj rukopis s penězi', `Druhý dům mapy ukazuje tvůj vztah k penězům, majetku a vlastní hodnotě — jak vyděláváš, držíš a utrácíš. ${HS.D2[si]}`, `2. dům ${K.SIGN_LOC_V[si]}`);
@@ -3897,7 +3974,7 @@ ${parts}
     const TILES = [
       ['mapa', '☉', 'Tvoje mapa', 'Slunce, Luna, ascendent, body, domy, aspekty', 'main'],
       ['prochazis', '✺', 'Čím teď procházíš', 'tranzity jako oblouky, ohlédnutí', 'main'],
-      ['vztahy', '♡', 'Vztahy', 'jak si tvá mapa rozumí s druhými'],
+      ['vztahy', '♡', 'Vztahy', 'kdo se k tobě hodí, jak si tvá mapa rozumí s druhými'],
       ['horoskop', '✦', 'Tvůj horoskop', 'kapitoly o tobě, tisk'],
       ['cisla', '8', 'Tvá čísla', 'životní číslo, osobní rok, hlubší rozbor'],
       ['cakra', '◉', 'Čakra roku', 'kterou čakrou letos procházíš'],
@@ -3939,7 +4016,7 @@ ${parts}
       }
     }
     if (view === 'vztahy') {
-      v.innerHTML = back + `<p class="note" style="margin-top:-2px">Jak si tvá mapa rozumí s mapami lidí kolem tebe — partner, děti, rodiče, přátelé, kolegové. Přidej datum, čas a místo narození druhého a Kompas přečte, kde se vaše mapy potkávají samy a kde to chce práci.</p>${synSectionHTML(n)}`;
+      v.innerHTML = back + partnerHTML(n) + `<p class="note" style="margin-top:14px">Jak si tvá mapa rozumí s mapami lidí kolem tebe — partner, děti, rodiče, přátelé, kolegové. Přidej datum, čas a místo narození druhého a Kompas přečte, kde se vaše mapy potkávají samy a kde to chce práci.</p>${synSectionHTML(n)}`;
       return;
     }
     v.innerHTML = back + (SEC[view] || SEC.prochazis)();
@@ -4438,7 +4515,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=415'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=416'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }

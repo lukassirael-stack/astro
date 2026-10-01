@@ -1338,3 +1338,10 @@ body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}
 .skynow small{font-size:var(--fs-s);color:#CFDBEE;line-height:1.35}
 .skynow em{font-style:normal;font-size:26px;color:#F3D384}
 .skynow:active{transform:translateY(1px)}
+
+/* Kdo se k tobě hodí */
+.psigns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.psign{border:1px solid rgba(243,211,132,.35);border-radius:14px;padding:10px 12px;background:rgba(243,211,132,.06)}
+.psign b{display:block;font-family:var(--display);font-size:19px;color:#FFF7E6}
+.psign small{display:block;font-size:var(--fs-s);color:#CFDBEE;line-height:1.35;margin-top:3px}
+@media(max-width:380px){.psigns{grid-template-columns:1fr}}
