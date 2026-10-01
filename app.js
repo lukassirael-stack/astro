@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v417';
+  const VERSION = 'v418';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -46,7 +46,7 @@
   // (stažené Kp, počasí, kalendář z Googlu, otevřená záložka) zůstávají zvlášť,
   // protože se dají kdykoli stáhnout znovu.
   const STATE_KEY = 'kairos_state', STATE_V = 1;
-  const USER_KEYS = ['settings', 'profiles', 'active', 'journal', 'plan', 'cyc', 'cyc_on', 'days', 'days_seen', 'partners', 'ics', 'plus', 'dir', 'notes'];
+  const USER_KEYS = ['settings', 'profiles', 'active', 'journal', 'plan', 'cyc', 'cyc_on', 'days', 'days_seen', 'partners', 'ics', 'plus', 'dir', 'notes', 'lic'];
   const rawGet = (k, def) => { try { const v = localStorage.getItem(k); return v == null ? def : JSON.parse(v); } catch (e) { return def; } };
   const rawSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } };
   const rawDel = (k) => { try { localStorage.removeItem(k); } catch (e) { } };
@@ -1017,6 +1017,89 @@
   // ---------- anonymní metriky: kolik lidí Kompas používá a co otevírají (bez jmen, dat narození a poloh) ----------
   const MET_URL = 'https://myybuesoourgpbouwwst.supabase.co/rest/v1/kompas_metriky';
   const MET_KEY = MSG_KEY;
+
+  // ---------- Plná verze: licence (Stripe předplatné přes Edge Function stripe-session) ----------
+  // PAYWALL = false: zkušební provoz, všechno otevřené (koupit lze, zaváděcí cena zůstává natrvalo).
+  // PAYWALL = true: O tobě, Najít vhodný den a tisk horoskopu jen s platnou licencí.
+  const PAYWALL = false;
+  const LIC_URL = 'https://myybuesoourgpbouwwst.supabase.co/functions/v1/stripe-session';
+  const LIC_CENIK = () => (Date.now() < Date.UTC(2027, 0, 1)) ? { mesicni: [129, 5], rocni: [899, 36], zavadeci: true } : { mesicni: [149, 6], rocni: [990, 40], zavadeci: false };
+  const licGet = () => store.get('kairos_lic', null);
+  const licValid = (l) => !!(l && l.platny && l.kod && l.plati_do && l.plati_do >= K.isoDate(np.y, np.m, np.d));
+  const hasPlus = () => !PAYWALL || licValid(licGet()) || !!store.get('kairos_plus', false);
+  const licDate = (iso) => { if (!iso) return ''; const [y, m, d] = iso.split('-'); return `${+d}. ${+m}. ${y}`; };
+  async function licCall(body) {
+    const r = await fetch(LIC_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    let d = null; try { d = await r.json(); } catch (e) { }
+    return d || { chyba: 'server' };
+  }
+  async function licActivate(kod, tichy) {
+    kod = String(kod || '').toUpperCase().replace(/\s+/g, '').trim();
+    if (!/^KOMPAS-[A-Z2-9]{5}$/.test(kod)) { if (!tichy) toast('Kód má tvar KOMPAS-XXXXX.'); return false; }
+    let v; try { v = await licCall({ druh: 'kompas_overit', kod, zarizeni: metState().id }); } catch (e) { if (!tichy) toast('Ověření teď neprošlo, zkus to za chvíli.'); return false; }
+    if (v.platny) {
+      store.set('kairos_lic', { kod, typ: v.typ, plati_do: v.plati_do, stav: v.stav, predplatne: !!v.predplatne, platny: true, overeno: Date.now() });
+      store.set('kairos_plus', true);
+      if (!tichy) toast('Plná verze je odemčená do ' + licDate(v.plati_do) + '.');
+      if (S.tab === 'nastaveni') renderSettings();
+      return true;
+    }
+    const d = v.duvod;
+    if (d === 'expirace') { const old = licGet() || {}; store.set('kairos_lic', { ...old, kod, platny: false, plati_do: v.plati_do, stav: v.stav, duvod: 'expirace', overeno: Date.now() }); store.set('kairos_plus', false); if (!tichy) toast('Platnost kódu skončila ' + licDate(v.plati_do) + '.'); }
+    else if (d === 'zarizeni') { if (!tichy) toast('Kód už běží na třech zařízeních. Na jednom z nich ho v Nastavení odhlas.'); }
+    else if (!tichy) toast('Tenhle kód Kompas nezná. Zkontroluj ho prosím v e-mailu.');
+    if (S.tab === 'nastaveni') renderSettings();
+    return false;
+  }
+  async function licRefresh() {
+    const l = licGet(); if (!l || !l.kod || !navigator.onLine) return;
+    if (Date.now() - (l.overeno || 0) < 20 * 3600e3) return;
+    await licActivate(l.kod, true);
+  }
+  async function licBuy(typ) {
+    const inp = $('#licEmail'); const email = (inp ? inp.value : '').trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) { toast('Napiš e-mail, na který přijde odemykací kód.'); if (inp) inp.focus(); return; }
+    settings.licEmail = email; store.set('kairos_settings', settings);
+    const mena = (settings.lang === 'sk' || settings.mena === 'eur') ? 'eur' : 'czk';
+    const b = $('#licBuy-' + typ); if (b) { b.disabled = true; b.textContent = 'Otevírám platbu…'; }
+    try { const v = await licCall({ druh: 'kompas', typ, email, mena }); if (v.url) { location.href = v.url; return; } toast('Platbu se nepodařilo otevřít, zkus to za chvíli.'); }
+    catch (e) { toast('Platbu se nepodařilo otevřít, zkus to za chvíli.'); }
+    if (b) { b.disabled = false; renderSettings(); }
+  }
+  async function licPortal() {
+    const l = licGet(); if (!l || !l.kod) return;
+    try { const v = await licCall({ druh: 'kompas_portal', kod: l.kod }); if (v.url) { location.href = v.url; return; } } catch (e) { }
+    toast('Správu předplatného se nepodařilo otevřít. Napiš nám na oaza.adamanthea@gmail.com.');
+  }
+  function licCardHTML() {
+    const l = licGet(), c = LIC_CENIK(), eur = (settings.lang === 'sk' || settings.mena === 'eur');
+    const cena = (t) => eur ? `${c[t][1]} €` : `${c[t][0]} Kč`;
+    if (licValid(l)) {
+      const typ = l.typ === 'rocni' ? 'roční předplatné' : l.typ === 'mesicni' ? 'měsíční předplatné' : 'dárkový přístup';
+      return `<div class="card liccard"><b>Plná verze je odemčená</b><p>${typ[0].toUpperCase() + typ.slice(1)} · platí do <b>${licDate(l.plati_do)}</b>${l.predplatne ? (l.stav === 'zruseno' ? ', pak končí (předplatné je zrušené)' : ', pak se samo obnoví') : ''}.</p>
+        <p class="small mono" style="margin:4px 0 8px">kód ${esc(l.kod)}</p>
+        <div class="row" style="gap:8px;flex-wrap:wrap">${l.predplatne ? '<button type="button" class="btn small" data-act="licPortal">Spravovat předplatné</button>' : ''}<button type="button" class="btn ghost small" data-act="licRefreshNow">Ověřit znovu</button><button type="button" class="btn ghost small" data-act="licLogout">Odhlásit toto zařízení</button></div>
+        <p class="note" style="margin:8px 0 0">Stejný kód odemkne Kompas i na dalších zařízeních, platí na třech. Zrušení, změnu karty a faktury najdeš ve Spravovat předplatné.</p></div>`;
+    }
+    const exp = l && l.duvod === 'expirace' ? `<p class="note" style="margin:0 0 8px">Platnost kódu ${esc(l.kod)} skončila ${licDate(l.plati_do)}. Obnovíš ji novým předplatným níž.</p>` : '';
+    return `<div class="card liccard"><b>Plná verze</b>
+      ${exp}
+      <p>Osobní horoskop ve dvanácti kapitolách a na den, týden, měsíc a rok, mapa bod po bodu, Čím teď procházíš, Vztahy a Kdo se k tobě hodí, Najít vhodný den, čísla, návraty, Čakra roku, mayský a čínský horoskop, tisk.</p>
+      ${c.zavadeci ? '<p class="note" style="margin:0 0 8px">Zaváděcí cena do 31. 12. 2026. Roční předplatné pořízené do Vánoc zůstává na stejné ceně, dokud běží.</p>' : ''}
+      <label class="wide" style="display:block;margin:6px 0 8px"><input type="email" id="licEmail" placeholder="tvůj e-mail pro odemykací kód" value="${esc(settings.licEmail || '')}" autocomplete="email" style="width:100%"></label>
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn primary" id="licBuy-rocni" data-act="licBuy" data-t="rocni">Rok · ${cena('rocni')}</button>
+        <button type="button" class="btn" id="licBuy-mesicni" data-act="licBuy" data-t="mesicni">Měsíc · ${cena('mesicni')}</button>
+      </div>
+      <p class="note" style="margin:8px 0 10px">Platba kartou, Apple Pay nebo Google Pay přes Stripe. Zrušíš kdykoli jedním klikem v Nastavení. Kód přijde e-mailem a odemkne Kompas na třech zařízeních.</p>
+      <details><summary class="small">Mám odemykací kód</summary>
+        <div class="row" style="gap:8px;margin-top:8px"><input type="text" id="licKod" placeholder="KOMPAS-XXXXX" autocapitalize="characters" autocomplete="off" spellcheck="false" style="flex:1;min-width:0;text-transform:uppercase"><button type="button" class="btn small" data-act="licEnter">Odemknout</button></div>
+      </details></div>`;
+  }
+  function paywallHTML(co) {
+    const c = LIC_CENIK();
+    return `<div class="card liccard"><b>${esc(co || 'Tahle část')} patří do plné verze</b><p>Čtení podle tvé mapy narození: horoskop, mapa bod po bodu, tranzity, vztahy, čísla a další pohledy. Rok za ${c.rocni[0]} Kč nebo měsíc za ${c.mesicni[0]} Kč${c.zavadeci ? ' (zaváděcí cena do Vánoc)' : ''}.</p><div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" data-act="goPlus">Odemknout plnou verzi</button></div></div>`;
+  }
   function metState() {
     let s = rawGet('kairos_met', null);
     if (!s) { s = { id: 'z' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4), first: K.isoDate(np.y, np.m, np.d), den: null, otevreni: 0, obrazovky: {}, akce: {} }; rawSet('kairos_met', s); }
@@ -1757,7 +1840,7 @@
 
   const actions = {
     elekArea(el) { S.elek.area = el.dataset.s === '' ? null : +el.dataset.s; S.elek.results = null; renderCalendar(); },
-    elekToggle() { S.elek.open = !S.elek.open; renderCalendar(); if (S.elek.open) setTimeout(() => { const p = $('#electPanel'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 40); },
+    elekToggle() { if (!hasPlus()) { showTab('nastaveni'); setTimeout(() => { const el = $('#view-nastaveni .liccard'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); toast('Najít vhodný den patří do plné verze.'); return; } S.elek.open = !S.elek.open; renderCalendar(); if (S.elek.open) setTimeout(() => { const p = $('#electPanel'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 40); },
     hsTheme(el) { const cur = S.hsTheme || 'rok'; S.hsTheme = cur === el.dataset.t ? 'none' : el.dataset.t; renderNatal(); if (S.hsTheme !== 'none') setTimeout(() => { const c = $('#view-nativ .card.hs'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); },
     // (hydratace médií se volá po renderCalendar níže)
     synSel(el) { S.synId = S.synId === el.dataset.id ? null : el.dataset.id; S.synForm = null; renderNatal(); },
@@ -1943,6 +2026,12 @@
     goLayers() { rawSet('kairos_hint_layers', true); showTab('nastaveni'); setTimeout(() => { const el = $('#view-nastaveni .lyrs'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 80); },
     hintLayersOff() { rawSet('kairos_hint_layers', true); renderCalendar(); },
     goFeedback() { const el = $('#view-nastaveni [data-act="fbSend"]'); if (el) el.closest('.card').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
+    goPlus() { showTab('nastaveni'); setTimeout(() => { const el = $('#view-nastaveni .liccard'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); },
+    licBuy(el) { licBuy(el.dataset.t); },
+    licEnter() { const i = $('#licKod'); licActivate(i ? i.value : ''); },
+    licPortal() { licPortal(); },
+    licRefreshNow() { const l = licGet(); if (l && l.kod) licActivate(l.kod); },
+    licLogout() { if (!confirm('Odhlásit plnou verzi na tomhle zařízení? Kód můžeš kdykoli zadat znovu.')) return; store.del('kairos_lic'); store.set('kairos_plus', false); renderSettings(); toast('Zařízení odhlášené.'); },
     goNature() { S.filter = 'priroda'; showTab('ukazy'); },
     goDiarToday() { S.plSel = K.isoDate(np.y, np.m, np.d); S.plY = np.y; S.plM = np.m; showTab('diar'); },
     msgClose(el) { const seen = msgSeen(); const id = +el.dataset.id; if (!seen.includes(id)) seen.push(id); rawSet('kairos_msgs_seen', seen.slice(-200)); renderCalendar(); },
@@ -4003,12 +4092,16 @@ ${parts}
     ].filter(t => t[0] !== 'cisla' || settings.numerology !== false);
     const readBar = S.readAs ? `<div class="readbar"><span>Čteš pro <b>${esc(S.readAs.name || '')}</b> — ${+S.readAs.d}. ${+S.readAs.m}. ${+S.readAs.y}</span><button type="button" class="btn small" data-act="readSelf">zpět k sobě</button></div>` : '';
     const TILES_V = S.readAs ? TILES.filter(t => t[0] !== 'vztahy') : TILES;
+    const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : TILES[0]);
+    if (view !== 'menu' && !hasPlus()) {
+      v.innerHTML = readBar + `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button></div>` + paywallHTML(tile ? tile[2] : '');
+      return;
+    }
     if (view === 'menu') {
       const arcS = arcSentence();
       v.innerHTML = readBar + natalHead + (arcS ? `<p class="nnow"><span class="tvlab">${S.readAs ? 'jeho den' : 'tvůj den'}</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES_V.map(([id, ic, t, sub, kind, noimg]) => noimg ? `<button type="button" class="ntile txt ${kind || ''}" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>` : `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=11" alt="" width="420" height="317"></button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
       return;
     }
-    const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : TILES[0]);
     const back = readBar + `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
     if (view === 'maya') { v.innerHTML = back + mayaHTML(p); return; }
     if (view === 'cina') { v.innerHTML = back + cinaHTML(p); return; }
@@ -4201,6 +4294,7 @@ ${parts}
       <form class="card" id="cometsForm" onsubmit="return false"><textarea class="mono" style="width:100%;min-height:90px;font-size:var(--fs-s);background:var(--field);color:var(--text);border:1px solid var(--line2);border-radius:9px;padding:9px" placeholder="2026-10-20 | Kometa C/2025 A6 (Lemmon) | nejjasnější, večer nízko na západě">${esc(settings.comets)}</textarea><div class="row" style="margin-top:8px"><button type="button" class="btn" data-act="saveComets">Uložit seznam</button></div><p class="note">Jeden úkaz na řádek: datum | název | poznámka. Zobrazí se v Úkazech i v detailu dne.</p></form>
       </details>
       <div class="setgrp">Kompas</div>
+      ${licCardHTML()}
       <div class="card betacard"><b>Zkušební verze</b><p>Díky, že Kompas testuješ. Všechno je teď odemčené — plná verze i to, co bude v základu. Co tě napadne, co bys přidal nebo změnil, napiš hned níž v <button type="button" class="linkbtn" data-act="goFeedback">Podnětech ›</button> — stačí pár slov, verze a telefon se doplní samy.</p></div>
       <div class="h2">Podněty</div>
       <div class="card">
@@ -4468,6 +4562,25 @@ ${parts}
     const obj = JSON.parse(new TextDecoder().decode(bytes));
     return obj && obj.app === 'kairos' && obj.st ? obj.st : null;
   }
+  // návrat ze Stripe / odkaz z e-mailu s kódem
+  (async () => {
+    const q = new URLSearchParams(location.search);
+    const kod = q.get('kod'), platba = q.get('platba'), ses = q.get('session_id');
+    if (!kod && !platba && !q.get('portal')) return;
+    history.replaceState(null, '', location.pathname + (location.hash || ''));
+    if (kod) { await licActivate(kod); showTab('nastaveni'); return; }
+    if (platba === 'hotovo' && ses) {
+      toast('Platba proběhla, vyzvedávám tvůj kód…');
+      for (let i = 0; i < 4; i++) {
+        try { const v = await licCall({ druh: 'kompas_po_platbe', session: ses }); if (v.kod) { await licActivate(v.kod); showTab('nastaveni'); return; } } catch (e) { }
+        await new Promise(r => setTimeout(r, 2500));
+      }
+      toast('Kód ti přijde e-mailem během chvíle. Zadáš ho v Nastavení → Plná verze.'); showTab('nastaveni'); return;
+    }
+    if (platba === 'zruseno') { toast('Platba je zrušená, nic se neúčtovalo.'); showTab('nastaveni'); return; }
+    if (q.get('portal')) { const l = licGet(); if (l && l.kod) await licActivate(l.kod, true); showTab('nastaveni'); }
+  })();
+  setTimeout(licRefresh, 4000);
   const xfLink = (tok) => location.origin + location.pathname + (tok ? '#prenos=' + tok : '');
   // příjem: odkaz s #prenos=… (nebo ?prenos=… z Androidu), jen mimo vestavěný prohlížeč
   (async () => {
@@ -4533,7 +4646,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=417'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=418'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }

@@ -1346,3 +1346,6 @@ body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}
 .psign small{display:block;font-size:var(--fs-s);color:#CFDBEE;line-height:1.35;margin-top:3px}
 @media(max-width:380px){.psigns{grid-template-columns:1fr}}
 .psigns.grow .psign{border-color:rgba(159,183,230,.45);background:rgba(59,120,216,.08)}
+.liccard{border-color:rgba(243,211,132,.55);box-shadow:0 0 0 1px rgba(243,211,132,.18),0 0 22px rgba(243,211,132,.18)}
+.liccard>b{display:block;font-family:var(--display);font-size:20px;color:#FFF7E6;margin-bottom:6px}
+.liccard input{background:var(--field);color:var(--text);border:1px solid var(--line2);border-radius:9px;padding:9px 10px;font-size:var(--fs-m)}

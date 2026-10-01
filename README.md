@@ -30,6 +30,7 @@ Commit do `main` → Vercel nasadí sám. Appka si novou verzi stáhne při dal�
 ## Data
 - Uživatelská data v jednom balíčku `localStorage.kairos_state` (`{v, updated, data: {settings, profiles, journal, plan, cyc, days, partners, …}}`) — připravené pro sync přes účet.
 - Přílohy Diáře (fotky, hlas) v IndexedDB.
+- Plná verze: licence `kompas_licence` + `kompas_zarizeni` (kód KOMPAS-XXXXX, max 3 zařízení), Stripe předplatné přes Edge Function `stripe-session` (druh kompas / kompas_po_platbe / kompas_overit / kompas_portal) a `stripe-webhook` (checkout.session.completed, invoice.paid, customer.subscription.deleted); dárkový/testovací kód: `select * from kompas_zdarma('email', dny, 'poznámka')`. Přepínač paywallu: `const PAYWALL` v app.js.
 - Supabase: `kompas_zpravy` (sdělení v appce, čtení publishable klíčem), `kompas_prenos` (šifrovaný přenos dat mezi zařízeními, platnost 1 h).
 
 ## Struktura appky
