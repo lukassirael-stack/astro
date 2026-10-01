@@ -19,6 +19,7 @@
     ['Neptune', 'Neptun', '#8FB2FF'], ['Pluto', 'Pluto', '#C8A98E'],
   ];
   const SIGNS = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
+  const SIGN_NAMES = ['Beran', 'Býk', 'Blíženci', 'Rak', 'Lev', 'Panna', 'Váhy', 'Štír', 'Střelec', 'Kozoroh', 'Vodnář', 'Ryby'];
   const SIGN_LOC = ['v Beranu', 'v Býku', 'v Blížencích', 'v Raku', 've Lvu', 'v Panně', 've Vahách', 've Štíru', 've Střelci', 'v Kozorohu', 've Vodnáři', 'v Rybách'];
   const MTYPE = { s: 'spirální galaxie', e: 'eliptická galaxie', i: 'nepravidelná galaxie', oc: 'otevřená hvězdokupa', gc: 'kulová hvězdokupa', pn: 'planetární mlhovina', en: 'emisní mlhovina', rn: 'reflexní mlhovina', snr: 'pozůstatek supernovy', sfr: 'oblast zrodu hvězd', pos: 'skupina hvězd' };
   const DIRS = [['S', 0], ['SV', 45], ['V', 90], ['JV', 135], ['J', 180], ['JZ', 225], ['Z', 270], ['SZ', 315]];
@@ -85,13 +86,49 @@
 #sky .skcal::before,#sky .skcal::after{content:'';position:absolute;background:rgba(243,211,132,.9)}
 #sky .skcal::before{left:50%;top:-10px;bottom:-10px;width:1.5px;margin-left:-.75px}
 #sky .skcal::after{top:50%;left:-10px;right:-10px;height:1.5px;margin-top:-.75px}
+#sky{background:#030a13;--skgold:#d8bc7c;--skblue:#91b4d0;isolation:isolate;touch-action:auto}
+#sky video{z-index:0}
+#sky .skgl{z-index:1;pointer-events:none}
+#sky .skoverlay{z-index:2;touch-action:none}
+#sky .skbar,#sky .skfoot{z-index:3;pointer-events:none}
+#sky .skbar button,#sky .skfoot button{pointer-events:auto}
+#sky .skbar{gap:13px;padding:calc(env(safe-area-inset-top,0px) + 23px) 24px 30px;background:linear-gradient(rgba(3,10,19,.89),rgba(3,10,19,.40) 72%,transparent)}
+#sky .skt b{font-size:27px;letter-spacing:.015em;color:#f5e8cd}
+#sky .skt small{margin-top:3px;font-size:11px;color:#95b0c4;letter-spacing:.03em}
+#sky .skrow{gap:15px}
+#sky .skb{width:40px;height:40px;border-color:rgba(216,188,124,.23);background:rgba(12,28,45,.48);color:#d8bc7c;backdrop-filter:blur(12px)}
+#sky .skmode{display:flex;gap:3px;flex:none;padding:4px;border:1px solid rgba(168,196,216,.18);border-radius:99px;background:rgba(9,22,37,.65);backdrop-filter:blur(16px);pointer-events:auto}
+#sky .skmode button{border:0;background:transparent;border-radius:99px;padding:8px 14px;color:#9ab1c5;font:inherit;font-size:11px;cursor:pointer}
+#sky .skmode button.on{background:rgba(216,188,124,.16);color:#f1dba7;box-shadow:inset 0 0 0 1px rgba(216,188,124,.20)}
+#sky .sktools{grid-template-columns:repeat(6,minmax(0,1fr));max-width:760px;width:100%;gap:7px;margin:0 auto}
+#sky .sktool{padding:10px 6px;font-size:11px;border-color:rgba(157,185,209,.17);background:rgba(10,25,41,.60);color:#afc0d1;backdrop-filter:blur(14px);letter-spacing:.01em}
+#sky .sktool i{color:#d8bc7c;font-size:14px}
+#sky .sktool.on{background:rgba(216,188,124,.12);border-color:rgba(216,188,124,.40);color:#ecdbb7}
+#sky button:focus-visible{outline:2px solid #e8d6aa;outline-offset:3px}
+#sky .skfoot{padding:24px 24px calc(env(safe-area-inset-bottom,0px) + 20px);background:linear-gradient(transparent,rgba(3,10,19,.76) 45%,rgba(3,10,19,.95))}
+#sky .skchips{max-width:1050px;margin:0 auto;gap:8px;scrollbar-width:none;touch-action:pan-x;pointer-events:auto}
+#sky .skchip{padding:9px 15px;border-color:rgba(157,185,209,.19);background:rgba(10,25,41,.7);color:#b6c8d7;font-size:12px;backdrop-filter:blur(14px)}
+#sky .skchip.find{border-color:rgba(216,188,124,.32);color:#e2c994}
+#sky .skhint{max-width:920px;margin:12px auto 0;line-height:1.6;font-size:11px;color:#8da6bb;pointer-events:auto}
+#sky .skstatus{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;max-width:1050px;margin:0 auto 16px;color:#8daac0;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+#sky .skstatus strong{font-weight:500;color:#d8bc7c}
+#sky .sknote{width:100%;text-align:center;text-transform:none;letter-spacing:.02em;color:#6f8ca2;font-size:10px}
+#sky .skcard{z-index:5;border-color:rgba(216,188,124,.28);background:rgba(7,21,37,.94);backdrop-filter:blur(24px);box-shadow:0 18px 60px rgba(0,0,0,.35);bottom:calc(env(safe-area-inset-bottom,0px) + 164px);max-height:46vh;overflow-y:auto;touch-action:pan-y}
+#sky .skcard b{color:#eddbb5;font-size:25px}
+#sky .skcard p{color:#b8cadd;font-size:12.5px}
+#sky .sksearch{z-index:6;top:calc(env(safe-area-inset-top,0px) + 149px);background:rgba(7,21,37,.96);border-color:rgba(216,188,124,.26);backdrop-filter:blur(24px)}
+#sky .skcal{z-index:4}
+@media(min-width:800px){#sky .skbar{padding-left:48px;padding-right:48px}#sky .skt b{font-size:34px}#sky .sktools{margin-top:4px}#sky .skfoot{padding-left:48px;padding-right:48px}}
+@media(max-width:599px){#sky .skbar{padding:calc(env(safe-area-inset-top,0px) + 16px) 16px 24px;gap:12px}#sky .skrow{gap:10px}#sky .skt b{font-size:23px}#sky .skt small{font-size:10px}#sky .skb{width:34px;height:34px}#sky .skmode{padding:3px}#sky .skmode button{padding:7px 9px;font-size:10px}#sky .sktools{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}#sky .sktool{padding:8px 4px;font-size:10.5px}#sky .skfoot{padding:20px 16px calc(env(safe-area-inset-bottom,0px) + 13px)}#sky .skstatus{margin-bottom:13px;font-size:9px;letter-spacing:.06em}#sky .skchip{padding:8px 13px;font-size:11px}#sky .skhint{font-size:10.5px;margin-top:10px}#sky .sksearch{top:calc(env(safe-area-inset-top,0px) + 166px)}#sky .skcard{bottom:calc(env(safe-area-inset-bottom,0px) + 165px);padding:13px 15px}}
+@media(max-width:359px){#sky .skt b{font-size:20px}#sky .skmode button{padding:7px}}
+@media(max-height:500px){#sky .skbar{padding-top:10px;gap:8px}#sky .skt b{font-size:21px}#sky .sktools{grid-template-columns:repeat(6,minmax(0,1fr))}#sky .skfoot{padding-top:10px;padding-bottom:8px}#sky .skstatus{margin-bottom:7px}#sky .skhint{margin-top:6px}#sky .sksearch{top:105px}#sky .skcard{bottom:125px;max-height:40vh}}
 `;
     document.head.appendChild(s);
   }
 
   function prepare() {
     const D = window.SKY_DATA;
-    const stars = D.stars.map(([ra, dec, mag, bv]) => ({ q: vecEq(ra, dec), mag, bv }));
+    const stars = D.stars.map(([ra, dec, mag, bv]) => ({ q: vecEq(ra, dec), mag, bv: Number.isFinite(bv) ? bv : 0.6 }));
     const cols = {};
     for (const s of stars) { const k = Math.round(clamp(s.bv, -0.4, 2) * 5) / 5; s.ck = k; if (!cols[k]) cols[k] = sprite(bvColor(k)); }
     const names = {}; for (const i in D.names) names[i] = D.names[i];
@@ -110,6 +147,7 @@
     const time = A.MakeTime(t); const obs = new A.Observer(st.loc.lat, st.loc.lon, st.loc.alt || 0);
     const R = A.Rotation_EQJ_HOR(time, obs).rot;
     const toEnu = (q) => { const nx = R[0][0] * q[0] + R[1][0] * q[1] + R[2][0] * q[2], ny = R[0][1] * q[0] + R[1][1] * q[1] + R[2][1] * q[2], nz = R[0][2] * q[0] + R[1][2] * q[1] + R[2][2] * q[2]; return [-ny, nx, nz]; };
+    st.eqToEnu = new Float32Array([...toEnu([1, 0, 0]), ...toEnu([0, 1, 0]), ...toEnu([0, 0, 1])]);
     const S = st.data;
     for (const s of S.stars) s.v = toEnu(s.q);
     for (const c of S.cons) c.v = toEnu(c.q);
@@ -117,10 +155,12 @@
     for (const m of S.mes) m.v = toEnu(m.q);
     for (const m of S.mw) m.v = toEnu(m.q);
     // ekliptika a znamení
-    const RE = A.Rotation_ECL_HOR(time, obs).rot;
-    const eclEnu = (lonDeg) => { const l = lonDeg * D2R, q = [Math.cos(l), Math.sin(l), 0]; const nx = RE[0][0] * q[0] + RE[1][0] * q[1] + RE[2][0] * q[2], ny = RE[0][1] * q[0] + RE[1][1] * q[1] + RE[2][1] * q[2], nz = RE[0][2] * q[0] + RE[1][2] * q[1] + RE[2][2] * q[2]; return [-ny, nx, nz]; };
+    // Tropická znamení se vztahují k rovnodennosti data, nikoli k ekliptice J2000.
+    const RE = A.CombineRotation(A.Rotation_ECT_EQD(time), A.Rotation_EQD_HOR(time, obs)).rot;
+    const eclEnu = (lonDeg, latDeg = 0) => { const l = lonDeg * D2R, d = latDeg * D2R, q = [Math.cos(d) * Math.cos(l), Math.cos(d) * Math.sin(l), Math.sin(d)]; const nx = RE[0][0] * q[0] + RE[1][0] * q[1] + RE[2][0] * q[2], ny = RE[0][1] * q[0] + RE[1][1] * q[1] + RE[2][1] * q[2], nz = RE[0][2] * q[0] + RE[1][2] * q[1] + RE[2][2] * q[2]; return [-ny, nx, nz]; };
     st.ecl = []; for (let l = 0; l <= 360; l += 3) st.ecl.push(eclEnu(l));
-    st.signs = SIGNS.map((g, i) => ({ g, v: eclEnu(i * 30 + 15) }));
+    st.eclTicks = []; for (let l = 0; l < 360; l += 5) { const major = l % 30 === 0; st.eclTicks.push([eclEnu(l, major ? -1.8 : -0.7), eclEnu(l, major ? 1.8 : 0.7), major]); }
+    st.signs = SIGNS.map((g, i) => ({ g, i, name: SIGN_NAMES[i], v: eclEnu(i * 30 + 15) }));
     // planety, Slunce, Luna
     st.bodies = BODIES.map(([id, cz, col]) => {
       try {
@@ -220,7 +260,7 @@
   function testStart() {
     st.calib = false; card(null);
     st.test = { t0: Date.now(), last: {}, sum: { abs: 0, rel: 0, gsAbs: 0, gsRel: 0, view: 0 }, n: 0, raw: [] };
-    updUi(); setTimeout(testEnd, 8000);
+    const owner = st; updUi(); clearTimeout(st.testTimer); st.testTimer = setTimeout(() => { if (st === owner) testEnd(); }, 8000);
   }
   function testSample(now) {
     const T = st.test; if (!T) return; T.n++;
@@ -269,14 +309,23 @@
   }
 
   // ---------- kreslení ----------
-  function draw() {
+  function draw(frameTime) {
     if (!st) return;
     st.raf = requestAnimationFrame(draw);
+    if (document.hidden) return;
+    const tick = frameTime || performance.now();
+    if (st.frameAt && tick - st.frameAt < 1000 / st.maxFps - 1) return;
+    st.frameAt = tick;
     if (Date.now() - st.lastCalc > 4000) recompute();
     const cv = st.cv, g = st.g, W = cv.clientWidth, H = cv.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     const { f, u, r } = viewBasis(); st.basis = { f, u, r };
+    const gpu = !!(st.renderer && st.renderer.render(st, st.basis, W, H, dpr, tick));
+    st.glCanvas.style.display = gpu ? '' : 'none';
+    if (st.gpu !== gpu) { st.gpu = gpu; updUi(); }
+    const art = st.scene === 'space';
+    if (gpu) g.clearRect(0, 0, W, H);
     const fov = st.fov * D2R; const fp = (H / 2) / Math.tan(fov / 2); // svislé zorné pole
     const cx = W / 2, cy = H / 2; const cosLim = Math.cos(Math.min(1.45, Math.atan(Math.hypot(W, H) / 2 / fp) + 0.05));
     const P = (v) => { const z = dot(v, f); if (z < 0.05) return null; return [cx + dot(v, r) / z * fp, cy - dot(v, u) / z * fp, z]; };
@@ -285,9 +334,10 @@
     const topSafe = ($('#sky .skbar') || {}).offsetHeight || 64, botSafe = H - (($('#sky .skfoot') || {}).offsetHeight || 110);
     // pozadí
     g.globalCompositeOperation = 'source-over';
-    if (st.cam) g.clearRect(0, 0, W, H);
+    if (gpu) { /* Nebeskou sféru, hvězdy a souhvězdí vykresluje GPU. */ }
+    else if (st.cam) g.clearRect(0, 0, W, H);
     else {
-      const day = st.red ? 0 : clamp((st.sunAlt + 12) / 18, 0, 1) * 0.55;
+      const day = st.red || art ? 0 : clamp((st.sunAlt + 12) / 18, 0, 1) * 0.55;
       const zen = P([0, 0, 1]); const gy = zen ? zen[1] : cy - H;
       const grd = g.createLinearGradient(0, gy, 0, gy + H * 1.6);
       grd.addColorStop(0, st.red ? '#000' : day > 0 ? `rgb(${Math.round(3 + 30 * day)},${Math.round(6 + 60 * day)},${Math.round(26 + 110 * day)})` : '#03061a');
@@ -295,7 +345,7 @@
       g.fillStyle = grd; g.fillRect(0, 0, W, H);
     }
     // zem pod obzorem
-    {
+    if (!gpu) {
       const a0 = azAltFromEnu(f)[0] * R2D + 180; const hp = []; for (let a = a0; a <= a0 + 360; a += 2) { const p = P(enuFromAzAlt(a * D2R, 0)); if (p && onScreen(p, W)) hp.push(p); else if (hp.length) break; }
       g.fillStyle = st.cam ? 'rgba(2,6,14,.18)' : st.red ? 'rgba(0,0,0,.7)' : 'rgba(3,8,18,.62)';
       if (hp.length >= 2) {
@@ -305,29 +355,38 @@
         const F = 4000; g.beginPath(); g.moveTo(a[0] - dx * F, a[1] - dy * F); for (const p of hp) g.lineTo(p[0], p[1]); g.lineTo(b[0] + dx * F, b[1] + dy * F); g.lineTo(b[0] + dx * F + nx * F, b[1] + dy * F + ny * F); g.lineTo(a[0] - dx * F + nx * F, a[1] - dy * F + ny * F); g.closePath(); g.fill();
       } else if (f[2] < 0) g.fillRect(0, 0, W, H);
     }
-    const dim = st.cam || st.red ? 1 : 1 - clamp((st.sunAlt + 8) / 14, 0, 0.6);
+    const dim = st.cam || st.red || art ? 1 : 1 - clamp((st.sunAlt + 8) / 14, 0, 0.6);
     const zoom = clamp(70 / st.fov, 0.6, 4);
     // Mléčná dráha
-    if (!st.cam || st.sunAlt < -6) {
+    if (!gpu && (!st.cam || st.sunAlt < -6)) {
       g.globalCompositeOperation = 'lighter';
       const sz = 3.6 * D2R * fp;
       for (const m of st.data.mw) { if (dot(m.v, f) < cosLim) continue; const p = P(m.v); if (!onScreen(p, sz)) continue; const below = m.v[2] < 0 ? 0.35 : 1; g.globalAlpha = (0.022 + 0.02 * m.l) * dim * below; g.drawImage(st.data.mwSprite, p[0] - sz, p[1] - sz, sz * 2, sz * 2); }
       g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
     }
     // čáry souhvězdí
-    if (st.showLines) {
+    if (st.showLines && !gpu) {
       g.lineWidth = 1; g.strokeStyle = `rgba(150,178,255,${st.cam ? 0.55 : 0.34})`; g.beginPath();
       for (const l of st.data.lines) { if (dot(l.a, f) < cosLim - 0.3) continue; const a = P(l.a), b = P(l.b); if (!a || !b) continue; if (!onScreen(a, W) && !onScreen(b, W)) continue; const sh = 0.12 / (1 + 0 * a[2]); const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1; const k = Math.min(6, L * sh); g.moveTo(a[0] + dx / L * k, a[1] + dy / L * k); g.lineTo(b[0] - dx / L * k, b[1] - dy / L * k); }
       g.stroke();
     }
     // ekliptika
-    g.setLineDash([5, 6]); g.strokeStyle = 'rgba(243,211,132,.55)'; g.lineWidth = 1.2; g.beginPath(); let pen = false;
+    let pen = false;
+    if (st.showSigns) {
+    g.setLineDash(art ? [] : [5, 6]); g.strokeStyle = art ? 'rgba(216,188,124,.40)' : 'rgba(243,211,132,.55)'; g.lineWidth = art ? 0.8 : 1.2; g.beginPath();
     for (const v of st.ecl) { const p = P(v); if (!p) { pen = false; continue; } if (pen) g.lineTo(p[0], p[1]); else { g.moveTo(p[0], p[1]); pen = true; } }
     g.stroke(); g.setLineDash([]);
     g.font = '600 15px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = 'rgba(243,211,132,.8)';
-    for (const s of st.signs) { const p = P(s.v); if (onScreen(p, 0)) LB.push({ t: s.g + '\uFE0E', x: p[0], y: p[1] - 13, font: '600 16px system-ui,sans-serif', col: '#F3D384', al: 'center', pr: 55 }); }
+    for (const t of st.eclTicks) { const a = P(t[0]), b = P(t[1]); if (!a || !b || (!onScreen(a, 10) && !onScreen(b, 10))) continue; g.strokeStyle = t[2] ? 'rgba(216,188,124,.5)' : 'rgba(216,188,124,.25)'; g.lineWidth = 0.7; g.beginPath(); g.moveTo(...a.slice(0, 2)); g.lineTo(...b.slice(0, 2)); g.stroke(); }
+    for (const s of st.signs) { const p = P(s.v); if (!onScreen(p, 0)) continue;
+      const alpha = s.v[2] < 0 ? .25 : .8; g.strokeStyle = `rgba(216,188,124,${alpha * .42})`; g.fillStyle = 'rgba(7,20,34,.48)'; g.lineWidth = .7; g.beginPath(); g.arc(p[0], p[1] - 15, 19, 0, Math.PI * 2); g.fill(); g.stroke();
+      LB.push({ t: s.g + '\uFE0E', x: p[0], y: p[1] - 15, font: '400 23px Georgia,serif', col: s.v[2] < 0 ? '#807453' : '#dfc794', al: 'center', pr: 65 });
+      if (st.showNames) LB.push({ t: s.name.toUpperCase(), x: p[0], y: p[1] + 21, font: '500 10px system-ui,sans-serif', col: '#bca986', al: 'center', pr: 54 });
+      st.hits.push({ p: [p[0], p[1] - 15], k: 'sign', o: s, w: 1.3 });
+    }
+    }
     // obzor
-    g.strokeStyle = 'rgba(126,232,196,.7)'; g.lineWidth = 1.5; g.beginPath(); pen = false;
+    g.strokeStyle = art ? 'rgba(147,193,196,.35)' : 'rgba(126,232,196,.7)'; g.lineWidth = art ? .8 : 1.5; g.beginPath(); pen = false;
     for (let a = 0; a <= 360; a += 2) { const p = P(enuFromAzAlt(a * D2R, 0)); if (!p) { pen = false; continue; } if (pen) g.lineTo(p[0], p[1]); else { g.moveTo(p[0], p[1]); pen = true; } }
     g.stroke();
     g.font = '700 14px system-ui,sans-serif'; g.fillStyle = '#7EE8C4';
@@ -335,38 +394,38 @@
     const nad = P([0, 0, 1]); if (onScreen(nad, 0)) LB.push({ t: 'zenit', x: nad[0], y: nad[1] + 12, font: '12px system-ui,sans-serif', col: '#B9C6E4', al: 'center', pr: 10 });
     // názvy souhvězdí
     g.font = `500 ${Math.round(11 + 1.5 * zoom)}px system-ui,sans-serif`; g.fillStyle = `rgba(170,190,255,${st.cam ? 0.8 : 0.55})`;
-    for (const c of st.data.cons) { if (c.rank > (st.fov < 45 ? 3 : 2)) continue; const p = P(c.v); if (!onScreen(p, 0)) continue; LB.push({ t: c.name.toUpperCase(), x: p[0], y: p[1], font: `600 ${Math.round(11 + 1.5 * zoom)}px system-ui,sans-serif`, col: '#AFC3FF', al: 'center', pr: 45, alts: [0, 18, -18, 34] }); st.hits.push({ p, k: 'con', o: c, w: 0.6 }); }
+    for (const c of st.data.cons) { if (c.rank > (st.fov < 45 ? 3 : art ? 1 : 2)) continue; const p = P(c.v); if (!onScreen(p, 0)) continue; if (st.showNames && st.showLines) LB.push({ t: c.name.toUpperCase(), x: p[0], y: p[1], font: art ? `500 ${Math.round(17 + zoom)}px Cormorant Garamond,Georgia,serif` : `600 ${Math.round(11 + 1.5 * zoom)}px system-ui,sans-serif`, col: art ? '#94b2cb' : '#AFC3FF', al: 'center', pr: 45, alts: [0, 18, -18, 34] }); if (st.showNames && st.showLines) st.hits.push({ p, k: 'con', o: c, w: 0.6 }); }
     // hvězdy
-    const magLim = clamp(4.6 + 1.6 * Math.log2(zoom) + (st.cam ? -0.6 : 0) - (1 - dim) * 3, 2, 6.5);
+    const magLim = gpu ? clamp((art ? 6.0 : 4.8) + 1.2 * Math.log2(zoom) - (st.cam ? 0.7 : 0) - (st.cam || st.red || art ? 0 : clamp((st.sunAlt + 12) / 18, 0, 1) * 0.60 * 3), 2, 6.5) : clamp(4.6 + 1.6 * Math.log2(zoom) + (st.cam ? -0.6 : 0) - (1 - dim) * 3, 2, 6.5);
     for (let i = 0; i < st.data.stars.length; i++) {
       const s = st.data.stars[i]; if (s.mag > magLim) break; if (dot(s.v, f) < cosLim) continue; const p = P(s.v); if (!onScreen(p, 4)) continue;
       const rad = clamp((magLim + 1.5 - s.mag) * 2.3 * Math.sqrt(zoom), 2.4, 34); const below = s.v[2] < 0 ? 0.3 : 1;
       g.globalAlpha = clamp(0.5 + (magLim - s.mag) * 0.25, 0.5, 1) * below * (0.6 + 0.4 * dim);
-      g.drawImage(st.data.cols[s.ck], p[0] - rad, p[1] - rad, rad * 2, rad * 2);
-      st.hits.push({ p, k: 'star', o: s, i, w: s.mag < 2 ? 2 : 1 });
+      if (!gpu) g.drawImage(st.data.cols[s.ck], p[0] - rad, p[1] - rad, rad * 2, rad * 2);
+      if (s.mag < 4 || st.fov < 35) st.hits.push({ p, k: 'star', o: s, i, w: s.mag < 2 ? 1.5 : .6 });
     }
     g.globalAlpha = 1;
     // jména hvězd
     g.font = `${Math.round(12 + zoom)}px system-ui,sans-serif`; g.textAlign = 'left'; g.fillStyle = 'rgba(234,240,255,.82)';
-    for (const i in st.data.names) { const s = st.data.stars[i]; if (s.mag > (st.fov < 40 ? 3.6 : st.fov < 70 ? 2.2 : 1.6)) continue; const p = P(s.v); if (!onScreen(p, 0)) continue; LB.push({ t: st.data.names[i][0], x: p[0] + 8, y: p[1] - 8, font: `500 ${Math.round(13 + zoom)}px system-ui,sans-serif`, col: '#F2F5FF', al: 'left', pr: 80 - s.mag * 5 }); }
+    for (const i in st.data.names) { const s = st.data.stars[i]; if (!st.showNames || s.mag > (st.fov < 40 ? 3.6 : st.fov < 70 ? 2.2 : 1.6)) continue; const p = P(s.v); if (!onScreen(p, 0)) continue; LB.push({ t: st.data.names[i][0], x: p[0] + 9, y: p[1] - 9, font: `400 ${Math.round(11 + zoom)}px system-ui,sans-serif`, col: '#c5d6e5', al: 'left', pr: 80 - s.mag * 5 }); }
     // Messier
     g.textAlign = 'left';
     for (const m of st.data.mes) {
-      if (m.mag > (st.fov < 40 ? 9.5 : st.fov < 70 ? 7 : 5.5)) continue; const p = P(m.v); if (!onScreen(p, 0)) continue;
+      if (m.mag > (st.fov < 40 ? 9.5 : st.fov < 70 ? 7 : 5.5) || (art && st.fov >= 40 && !(st.target && st.target.k === 'mes' && st.target.id === m.id))) continue; const p = P(m.v); if (!onScreen(p, 0)) continue;
       const gal = 'sei'.includes(m.type) && m.type.length === 1, clu = m.type === 'oc' || m.type === 'gc';
       g.strokeStyle = gal ? 'rgba(255,170,220,.85)' : clu ? 'rgba(255,230,150,.85)' : 'rgba(150,230,255,.85)'; g.lineWidth = 1.2; g.beginPath();
       if (gal) g.ellipse(p[0], p[1], 8, 4, -0.5, 0, Math.PI * 2); else if (clu) { g.setLineDash([2, 2]); g.arc(p[0], p[1], 6, 0, Math.PI * 2); } else g.rect(p[0] - 5, p[1] - 5, 10, 10);
       g.stroke(); g.setLineDash([]);
-      LB.push({ t: m.cz && st.fov < 70 ? `${m.id} · ${m.cz}` : m.id, x: p[0] + 10, y: p[1], font: '500 12px system-ui,sans-serif', col: '#E4E9F8', al: 'left', pr: 35 - m.mag });
+      if (st.showNames) LB.push({ t: m.cz && st.fov < 70 ? `${m.id} · ${m.cz}` : m.id, x: p[0] + 10, y: p[1], font: '500 12px system-ui,sans-serif', col: '#E4E9F8', al: 'left', pr: 35 - m.mag });
       st.hits.push({ p, k: 'mes', o: m, w: 1.5 });
     }
     // planety, Slunce, Luna
     for (const b of st.bodies) {
       const p = P(b.v); if (!onScreen(p, 30)) continue; const below = b.v[2] < 0 ? 0.45 : 1;
       if (b.id === 'Sun') { const R = 26; const gl = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], R * 3); gl.addColorStop(0, 'rgba(255,240,190,1)'); gl.addColorStop(0.25, 'rgba(255,216,107,.8)'); gl.addColorStop(1, 'rgba(255,216,107,0)'); g.globalAlpha = below; g.fillStyle = gl; g.beginPath(); g.arc(p[0], p[1], R * 3, 0, Math.PI * 2); g.fill(); }
-      else if (b.id === 'Moon') { drawMoon(g, p, 13 * Math.sqrt(zoom), below); }
+      else if (b.id === 'Moon') { drawMoon(g, p, (art ? 19 : 13) * Math.sqrt(zoom), below); }
       else { const R = clamp(6 - (b.mag == null ? 5 : b.mag) * 0.7, 2.5, 7) * Math.sqrt(zoom); const gl = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], R * 3.2); gl.addColorStop(0, b.col); gl.addColorStop(0.3, b.col + 'AA'); gl.addColorStop(1, b.col + '00'); g.globalAlpha = below; g.fillStyle = gl; g.beginPath(); g.arc(p[0], p[1], R * 3.2, 0, Math.PI * 2); g.fill(); g.fillStyle = b.col; g.beginPath(); g.arc(p[0], p[1], R, 0, Math.PI * 2); g.fill(); }
-      g.globalAlpha = 1; LB.push({ t: b.cz, x: p[0] + 14, y: p[1] - 13, font: '700 15px system-ui,sans-serif', col: b.col, al: 'left', pr: 100, force: true });
+      g.globalAlpha = 1; if (st.showNames || (st.target && st.target.id === b.id)) LB.push({ t: b.cz, x: p[0] + (b.id === 'Moon' && art ? 26 : 14), y: p[1] - 13, font: '500 13px system-ui,sans-serif', col: b.col, al: 'left', pr: 100 });
       st.hits.push({ p, k: 'body', o: b, w: 3 });
     }
     // popisky: nejdůležitější první, žádné překryvy, tmavý obrys pro čitelnost
@@ -392,13 +451,13 @@
         let dx = dot(tb.v, r), dy = -dot(tb.v, u); if (dot(tb.v, f) < 0 && Math.hypot(dx, dy) < 0.15) { dx = 0; dy = 1; }
         const L = Math.hypot(dx, dy) || 1; dx /= L; dy /= L;
         const m = 46, t = Math.min((W / 2 - m) / Math.abs(dx || 1e-6), (botSafe - topSafe) / 2 / Math.abs(dy || 1e-6) - m); const my = (topSafe + botSafe) / 2; const ax = cx + dx * t, ay = my + dy * t;
-        const pulse = 1 + 0.12 * Math.sin(Date.now() / 220);
+        const pulse = st.reducedMotion ? 1 : 1 + 0.05 * Math.sin(Date.now() / 700);
         g.save(); g.translate(ax, ay); g.rotate(Math.atan2(dy, dx)); g.scale(pulse, pulse); g.shadowColor = 'rgba(243,211,132,.8)'; g.shadowBlur = 14; g.fillStyle = '#F3D384'; g.beginPath(); g.moveTo(22, 0); g.lineTo(-10, -14); g.lineTo(-3, 0); g.lineTo(-10, 14); g.closePath(); g.fill(); g.restore();
         const lab = tb.name + (tb.v[2] < 0 ? ' (pod obzorem)' : '');
         g.font = '700 14px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineWidth = 4; g.strokeStyle = 'rgba(2,6,20,.85)'; g.strokeText(lab, clamp(ax - dx * 38, 70, W - 70), ay - dy * 38); g.fillStyle = '#F3D384'; g.fillText(lab, clamp(ax - dx * 38, 70, W - 70), ay - dy * 38);
         st.onTarget = false;
       } else {
-        const R = 24 + 4 * Math.sin(Date.now() / 260); g.strokeStyle = '#F3D384'; g.lineWidth = 2; g.beginPath(); g.arc(p[0], p[1], R, 0, Math.PI * 2); g.stroke();
+        const R = st.reducedMotion ? 28 : 28 + 2 * Math.sin(Date.now() / 650); g.strokeStyle = '#d8bc7c'; g.lineWidth = 1; g.beginPath(); g.arc(p[0], p[1], R, 0, Math.PI * 2); g.stroke();
         for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2; g.beginPath(); g.moveTo(p[0] + Math.cos(a) * (R + 4), p[1] + Math.sin(a) * (R + 4)); g.lineTo(p[0] + Math.cos(a) * (R + 12), p[1] + Math.sin(a) * (R + 12)); g.stroke(); }
         const centered = Math.hypot(p[0] - cx, p[1] - (topSafe + botSafe) / 2) < 60;
         if (centered && !st.onTarget && st.mode === 'sensor' && navigator.vibrate) { try { navigator.vibrate(35); } catch (e) { } }
@@ -427,10 +486,36 @@
     if (Date.now() - (st.zoomAt || 0) < 1400) { const z = 70 / st.fov; const tx = z >= 1 ? `přiblížení ×${z.toFixed(1).replace('.', ',')}` : `oddálení ×${(1 / z).toFixed(1).replace('.', ',')}`; g.font = '700 15px system-ui,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; const w = g.measureText(tx).width + 28, y0 = topSafe + 22; g.fillStyle = 'rgba(6,12,30,.85)'; g.beginPath(); g.roundRect ? g.roundRect(cx - w / 2, y0 - 16, w, 32, 16) : g.rect(cx - w / 2, y0 - 16, w, 32); g.fill(); g.fillStyle = '#F3D384'; g.fillText(tx, cx, y0); }
     // zaměřovač pro kalibraci
     const cal = $('#sky .skcal'); if (cal) cal.style.display = st.calib ? '' : 'none';
+    if (tick - (st.coordAt || 0) > 200) { st.coordAt = tick; const el = $('#sky .skcoords'); if (el) { const [az, alt] = azAltFromEnu(f), a = (az * R2D + 360) % 360; el.textContent = `${DIRS[Math.round(a / 45) % 8][0]} ${Math.round(a)}° · výška ${Math.round(alt * R2D)}°`; } }
     if (Date.now() - (st.clockAt || 0) > 20000) { st.clockAt = Date.now(); updHead(); }
   }
   function drawMoon(g, p, R, alpha) {
     const fr = st.moonFrac == null ? 0.5 : st.moonFrac; const waxing = (st.moonPhase || 0) < 180;
+    if (st.moonPixels && st.basis) {
+      const moon = st.bodies.find(b => b.id === 'Moon'), sun = st.bodies.find(b => b.id === 'Sun');
+      // Normála kotouče míří k pozorovateli, osvětlený okraj k promítnutému Slunci.
+      let ux = 1, uy = 0;
+      if (moon && sun) { const toward = sun.v.map((x, i) => x - moon.v[i] * dot(sun.v, moon.v)); ux = dot(toward, st.basis.r); uy = -dot(toward, st.basis.u); const length = Math.hypot(ux, uy) || 1; ux /= length; uy /= length; }
+      const key = `${Math.round(fr * 2000)}:${Math.round(Math.atan2(uy, ux) * 45)}`;
+      if (st.moonKey !== key) {
+        st.moonKey = key;
+        const size = 128, out = st.moonCtx.createImageData(size, size), src = st.moonPixels;
+        const lz = 2 * fr - 1, side = Math.sqrt(Math.max(0, 1 - lz * lz)), lx = ux * side, ly = uy * side;
+        for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+          const nx = (x + .5 - size / 2) / (size / 2), ny = (y + .5 - size / 2) / (size / 2), rr = nx * nx + ny * ny, j = (y * size + x) * 4;
+          if (rr > 1) continue;
+          const nz = Math.sqrt(1 - rr), diffuse = Math.max(0, nx * lx + ny * ly + nz * lz), light = .035 + .965 * Math.pow(diffuse, .42);
+          out.data[j] = src[j] * light; out.data[j + 1] = src[j + 1] * light; out.data[j + 2] = src[j + 2] * light;
+          out.data[j + 3] = Math.round(255 * clamp((1 - Math.sqrt(rr)) * size, 0, 1));
+        }
+        st.moonCtx.putImageData(out, 0, 0);
+      }
+      g.save(); g.globalAlpha = alpha;
+      const glow = g.createRadialGradient(p[0], p[1], R * .7, p[0], p[1], R * 4);
+      glow.addColorStop(0, `rgba(210,225,246,${fr * .13})`); glow.addColorStop(1, 'rgba(210,225,246,0)');
+      g.fillStyle = glow; g.beginPath(); g.arc(p[0], p[1], R * 4, 0, Math.PI * 2); g.fill();
+      g.drawImage(st.moonCanvas, p[0] - R, p[1] - R, R * 2, R * 2); g.restore(); return;
+    }
     g.save(); g.globalAlpha = alpha;
     const gl = g.createRadialGradient(p[0], p[1], R * 0.8, p[0], p[1], R * 3); gl.addColorStop(0, 'rgba(244,241,230,.35)'); gl.addColorStop(1, 'rgba(244,241,230,0)'); g.fillStyle = gl; g.beginPath(); g.arc(p[0], p[1], R * 3, 0, Math.PI * 2); g.fill();
     g.fillStyle = 'rgba(60,66,90,.9)'; g.beginPath(); g.arc(p[0], p[1], R, 0, Math.PI * 2); g.fill();
@@ -449,6 +534,7 @@
     if (t.k === 'star') { const o = D.stars[t.i]; return o && o.v && { v: o.v, name: (D.names[t.i] || ['Hvězda'])[0], h: { k: 'star', o, i: t.i } }; }
     if (t.k === 'con') { const o = D.cons.find(x => x.id === t.id); return o && { v: o.v, name: o.name, h: { k: 'con', o } }; }
     if (t.k === 'mes') { const o = D.mes.find(x => x.id === t.id); return o && { v: o.v, name: o.cz ? `${o.id} · ${o.cz}` : o.id, h: { k: 'mes', o } }; }
+    if (t.k === 'sign') { const o = st.signs[t.i]; return o && { v: o.v, name: o.name, h: { k: 'sign', o } }; }
     return null;
   }
   function buildIndex() {
@@ -456,6 +542,7 @@
     for (const [id, cz] of BODIES) out.push({ n: cz, sub: id === 'Sun' ? 'hvězda' : id === 'Moon' ? 'Měsíc' : 'planeta', t: { k: 'body', id } });
     for (const i in D.names) out.push({ n: D.names[i][0], sub: `hvězda${D.conName[D.names[i][1]] ? ' · ' + D.conName[D.names[i][1]] : ''}`, t: { k: 'star', i: +i } });
     for (const c of D.cons) out.push({ n: c.name, sub: 'souhvězdí', t: { k: 'con', id: c.id } });
+    for (const s of st.signs) out.push({ n: s.name, sub: 'astrologické znamení · tropický zvěrokruh', t: { k: 'sign', i: s.i } });
     for (const m of D.mes) out.push({ n: m.cz ? `${m.id} · ${m.cz}` : m.id, sub: MTYPE[m.type] || 'objekt', t: { k: 'mes', id: m.id } });
     const AL = { 'body:Venus': 'večernice jitřenka', 'body:Moon': 'měsíc', 'body:Sun': 'slunko', 'con:UMa': 'velký vůz', 'con:UMi': 'malý vůz', 'mes:M45': 'kuřátka pleiades', 'mes:M31': 'andromeda galaxie andromeda galaxy', 'mes:M42': 'orion nebula mlhovina orion', 'mes:M44': 'praesepe úl', 'mes:M13': 'herkules hvězdokupa' };
     for (const e of out) { const key = `${e.t.k}:${e.t.id || ''}`; const extra = AL[key] || (e.t.k === 'star' && e.n === 'Polárka' ? 'severka polaris' : ''); e.f = fold(e.n); e.w = fold(e.n + ' ' + extra).split(/[\s·,()-]+/).filter(Boolean); }
@@ -476,7 +563,8 @@
   function setTarget(t) {
     st.target = t; const tb = targetObj(); card(null);
     if (tb) {
-      if (st.mode !== 'sensor') { const [az, alt] = azAltFromEnu(tb.v); st.vAz = az; st.vAlt = clamp(alt, -0.3, 1.5); if (t.k === 'con' && st.fov < 60) st.fov = 70; }
+      if (t.k === 'sign') st.showSigns = true;
+      if (st.mode !== 'sensor') { const [az, alt] = azAltFromEnu(tb.v); st.vAz = az; st.vAlt = clamp(alt, -1.55, 1.55); if (t.k === 'con' && st.fov < 60) st.fov = 70; }
       info(tb.h);
     }
     updUi();
@@ -497,7 +585,11 @@
   function updUi() {
     const box = $('#sky'); if (!box) return;
     box.classList.toggle('red', !!st.red);
-    for (const [act, on] of [['cam', st.cam], ['red', st.red], ['lines', st.showLines], ['calib', st.calib]]) { const b = $(`#sky .sktool[data-sk="${act}"]`); if (b) b.classList.toggle('on', !!on); }
+    box.dataset.scene = st.scene;
+    for (const [act, on] of [['cam', st.cam], ['red', st.red], ['lines', st.showLines], ['signs', st.showSigns], ['names', st.showNames], ['calib', st.calib]]) { const b = $(`#sky .sktool[data-sk="${act}"]`); if (b) { b.classList.toggle('on', !!on); b.setAttribute('aria-pressed', String(!!on)); } }
+    for (const b of box.querySelectorAll('[data-scene]')) { const on = b.dataset.scene === st.scene; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); }
+    const badge = $('#sky .skrender'); if (badge) badge.textContent = st.gpu ? '3D NEBESKÁ SFÉRA' : '2D MAPA · ZÁLOŽNÍ REŽIM';
+    const note = $('#sky .sknote'); if (note) note.textContent = st.cam ? 'Kamera · orientační překryv oblohy' : st.scene === 'space' ? 'Skutečné polohy · umělecké světlo' : 'Skutečné polohy · velikosti symbolické';
     const hint = $('#sky .skhint');
     if (hint) {
       if (st.test) hint.innerHTML = '<b style="color:#F3D384">Test otáčení:</b> drž telefon svisle jako při focení a pomalu se otáčej <b>doprava</b> — asi o půl kruhu, 8 sekund.';
@@ -507,7 +599,7 @@
       else if (st.mode === 'sensor') hint.innerHTML = (st.sunAlt > -6 ? 'Je den — hvězdy svítí dál, jen je Slunce přezáří. ' : 'Namiř telefon na oblohu. Dvěma prsty přibližuješ a oddaluješ, klepnutím na objekt se dozvíš víc. ') + '<button data-sk="drag">Ovládat prstem</button>';
       else if (st.mode === 'auto' && st.permDenied && !st.sensorAt) hint.innerHTML = 'Prohlížeč má pohybové senzory zakázané. Povol je: zámek vedle adresy (nebo Nastavení Chrome → Nastavení webu) → Pohybové senzory → Povolit.';
       else if (st.mode === 'auto') hint.innerHTML = st.waitLong ? 'Telefon zatím neposílá natočení — obloha se posouvá prstem, dvěma prsty přibližuješ. Jakmile senzory naskočí, obloha se chytí sama.' : 'Zapínám senzory telefonu…';
-      else hint.innerHTML = 'Posouvej oblohu prstem, dvěma prsty přibližuj a oddaluj. <button data-sk="sensor">Řídit telefonem</button>';
+      else hint.innerHTML = 'Otáčej oblohou tažením, přibližuj dvěma prsty nebo kolečkem. Klepni na objekt. <button data-sk="sensor">Řídit telefonem</button>';
     }
     for (const c of document.querySelectorAll('#sky .skchip[data-t]')) c.classList.toggle('on', !!(st.target && st.target.k === 'body' && st.target.id === c.dataset.t));
   }
@@ -533,7 +625,8 @@
       card(`<b>${esc(nm ? nm[0] : 'Hvězda')}</b><p>${pos} · jasnost ${o.mag.toFixed(1)} mag${con ? ` · souhvězdí ${esc(con)}` : ''}</p><p>${o.bv < 0 ? 'Horká modrobílá hvězda.' : o.bv < 0.5 ? 'Bílá hvězda.' : o.bv < 1 ? 'Žlutá hvězda, příbuzná našemu Slunci.' : o.bv < 1.5 ? 'Oranžová hvězda.' : 'Chladná červená hvězda.'}</p>`);
     } else if (h.k === 'mes') {
       card(`<b>${esc(o.id)}${o.cz ? ` · ${esc(o.cz)}` : ''}</b><p>${esc(MTYPE[o.type] || 'objekt hlubokého vesmíru')} · jasnost ${o.mag} mag</p><p>${pos}${o.mag > 6 ? ' · dalekohled nebo triedr ho ukáže' : ' · za tmavé noci i pouhým okem'}</p>`);
-    } else if (h.k === 'con') card(`<b>${esc(o.name)}</b><p>souhvězdí · ${pos}</p>`);
+    } else if (h.k === 'con') card(`<b>${esc(o.name)}</b><p>souhvězdí · ${pos}</p><p>Skutečný astronomický obrazec. Astrologická znamení jsou samostatné 30° úseky zvěrokruhu.</p>`);
+    else if (h.k === 'sign') card(`<b>${esc(o.g)} ${esc(o.name)}</b><p>Tropické astrologické znamení · ${o.i * 30}°–${(o.i + 1) * 30}° ekliptikální délky.</p><p>${pos} (střed úseku). Znamení je 30° úsek ekliptiky počítaný od jarní rovnodennosti; souhvězdí na obloze má vlastní hranice.</p>`);
   }
   function tapAt(x, y) {
     if (st.calib) return;
@@ -552,8 +645,9 @@
   }
 
   async function askPerm() {
-    try { const r = await DeviceOrientationEvent.requestPermission(); if (r === 'granted') { st.needPerm = false; if (st.mode !== 'drag') st.mode = 'auto'; bindSensors(); } } catch (e) { }
-    updUi();
+    const owner = st;
+    try { const r = await DeviceOrientationEvent.requestPermission(); if (st === owner && r === 'granted') { st.needPerm = false; if (st.mode !== 'drag') st.mode = 'auto'; bindSensors(); } } catch (e) { }
+    if (st === owner) updUi();
   }
   function quatBasis(q) {
     const [x, y, z, w] = q;
@@ -561,11 +655,12 @@
     return { r: [m[0][0], m[1][0], m[2][0]], u: [m[0][1], m[1][1], m[2][1]], f: [-m[0][2], -m[1][2], -m[2][2]] };
   }
   function startGenericSensors() {
+    const owner = st;
     const mk = (Cls, key) => {
       try {
         const sn = new Cls({ frequency: 50, referenceFrame: 'screen' });
-        sn.addEventListener('reading', () => { if (!st || !sn.quaternion) return; const B = quatBasis(sn.quaternion); if (key === 'abs') { st.gsAbs = B; st.gsAbsAt = Date.now(); } else { st.gsRel = B; st.gsRelAt = Date.now(); } onOrient({ type: 'generic' }); });
-        sn.addEventListener('error', () => { st && (st[key === 'abs' ? 'gsAbsErr' : 'gsRelErr'] = true); });
+        sn.addEventListener('reading', () => { if (st !== owner || !sn.quaternion) return; const B = quatBasis(sn.quaternion); if (key === 'abs') { st.gsAbs = B; st.gsAbsAt = Date.now(); } else { st.gsRel = B; st.gsRelAt = Date.now(); } onOrient({ type: 'generic' }); });
+        sn.addEventListener('error', () => { if (st === owner) st[key === 'abs' ? 'gsAbsErr' : 'gsRelErr'] = true; });
         sn.start(); (st.gsList = st.gsList || []).push(sn);
       } catch (e) { }
     };
@@ -577,61 +672,80 @@
     startGenericSensors();
     if ('ondeviceorientationabsolute' in window) window.addEventListener('deviceorientationabsolute', onOrient);
     window.addEventListener('deviceorientation', onOrient);
-    setTimeout(() => { if (st && !st.sensorAt) { st.waitLong = true; updUi(); } }, 3000);
+    const owner = st; st.sensorTimer = setTimeout(() => { if (st === owner && !st.sensorAt) { st.waitLong = true; updUi(); } }, 3000);
   }
   async function camToggle() {
     if (st.cam) { stopCam(); st.cam = false; st.fov = 70; updUi(); return; }
+    if (st.camPending) return;
+    const owner = st; st.camPending = true;
     try {
       const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+      if (st !== owner) { s.getTracks().forEach(t => t.stop()); return; }
       st.stream = s; const v = $('#sky video'); v.srcObject = s; v.style.display = ''; await v.play().catch(() => { });
+      if (st !== owner) { s.getTracks().forEach(t => t.stop()); return; }
       st.cam = true; st.fov = 62; st.red = false; updUi();
-    } catch (e) { st.toast('Kameru se nepodařilo zapnout — obloha jede dál na tmavém pozadí.'); }
+    } catch (e) { if (st === owner) st.toast('Kameru se nepodařilo zapnout — obloha jede dál na tmavém pozadí.'); }
+    finally { if (st === owner) st.camPending = false; }
   }
   function stopCam() { if (st && st.stream) { st.stream.getTracks().forEach(t => t.stop()); st.stream = null; } const v = $('#sky video'); if (v) { v.srcObject = null; v.style.display = 'none'; } }
 
   function close(fromPop) {
     if (!st) return;
-    cancelAnimationFrame(st.raf); stopCam();
+    cancelAnimationFrame(st.raf); stopCam(); clearTimeout(st.sensorTimer); clearTimeout(st.testTimer);
+    if (st.renderer) st.renderer.dispose();
+    if (st.onKey) window.removeEventListener('keydown', st.onKey);
     window.removeEventListener('deviceorientationabsolute', onOrient); window.removeEventListener('deviceorientation', onOrient);
     for (const sn of st.gsList || []) { try { sn.stop(); } catch (e) { } }
     window.removeEventListener('popstate', st.onPop);
     const box = $('#sky'); if (box) box.remove();
     document.documentElement.style.overflow = st.prevOverflow || '';
+    if (st.prevFocus && st.prevFocus.isConnected) st.prevFocus.focus({ preventScroll: true });
     st = null;
     if (!fromPop && history.state && history.state.sky) history.back();
   }
 
-  function open(opts) {
+  function open(opts = {}) {
     if (st) return;
     if (!window.SKY_DATA || !A) return;
+    if (!Number.isFinite(+opts.lat) || !Number.isFinite(+opts.lon) || Math.abs(+opts.lat) > 90 || Math.abs(+opts.lon) > 180) { if (opts.toast) opts.toast('Pro oblohu je potřeba platná zeměpisná poloha.'); return; }
     css();
-    const box = document.createElement('div'); box.id = 'sky';
-    box.innerHTML = `<video playsinline muted style="display:none"></video><canvas></canvas><div class="skcal" style="display:none"></div>
-      <div class="skbar"><div class="skrow"><button class="skb" data-sk="close" aria-label="Zavřít">×</button><div class="skt" data-sk="diag"><b>Hvězdné nebe teď</b><small></small></div></div>
-        <div class="sktools"><button class="sktool" data-sk="cam"><i>◉</i>Kamera</button><button class="sktool" data-sk="lines"><i>✧</i>Souhvězdí</button><button class="sktool" data-sk="red"><i>◐</i>Noc</button><button class="sktool" data-sk="calib"><i>⌖</i>Srovnat</button></div></div>
+    const box = document.createElement('div'); box.id = 'sky'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', 'Hvězdné nebe teď');
+    box.innerHTML = `<video playsinline muted style="display:none"></video><canvas class="skgl" aria-hidden="true"></canvas><canvas class="skoverlay" aria-label="Interaktivní nebeská mapa"></canvas><div class="skcal" style="display:none"></div>
+      <div class="skbar"><div class="skrow"><button class="skb" data-sk="close" aria-label="Zavřít">×</button><div class="skt" data-sk="diag"><b>Hvězdné nebe teď</b><small></small></div><div class="skmode" role="group" aria-label="Vzhled nebe"><button data-sk="scene" data-scene="space">Prostor</button><button data-sk="scene" data-scene="atlas">Atlas</button></div></div>
+        <div class="sktools"><button class="sktool" data-sk="lines"><i>✧</i>Souhvězdí</button><button class="sktool" data-sk="signs"><i>♈</i>Znamení</button><button class="sktool" data-sk="names"><i>·</i>Popisky</button><button class="sktool" data-sk="cam"><i>◉</i>Kamera</button><button class="sktool" data-sk="red"><i>◐</i>Noc</button><button class="sktool" data-sk="calib"><i>⌖</i>Srovnat</button></div></div>
       <div class="skcard" style="display:none"></div>
       <div class="sksearch" style="display:none"><div class="skin"><input type="search" placeholder="Hvězda, souhvězdí, planeta, galaxie…" autocomplete="off" enterkeyhint="search"><button class="skb" data-sk="findx" aria-label="Zavřít hledání">×</button></div><div class="skres"></div></div>
-      <div class="skfoot"><div class="skchips"><button class="skchip find" data-sk="find">⌕ Hledat</button>${BODIES.filter(b => b[0] !== 'Pluto').map(([id, cz]) => `<button class="skchip" data-sk="target" data-t="${id}">${cz}</button>`).join('')}</div><p class="skhint"></p></div>`;
+      <div class="skfoot"><div class="skstatus"><strong class="skrender"></strong><span class="skcoords"></span><span class="sknote"></span></div><div class="skchips"><button class="skchip find" data-sk="find">⌕ Hledat</button><button class="skchip" data-sk="pleiades">✦ Plejády</button>${BODIES.filter(b => b[0] !== 'Pluto').map(([id, cz]) => `<button class="skchip" data-sk="target" data-t="${id}">${cz}</button>`).join('')}</div><p class="skhint"></p></div>`;
     document.body.appendChild(box);
     st = { loc: { lat: +opts.lat, lon: +opts.lon, alt: +opts.alt || 0, name: opts.name || '' }, data: window.__skyPrepared || (window.__skyPrepared = prepare()),
-      cv: $('canvas', box), fov: 70, vAz: 180 * D2R, vAlt: 26 * D2R, azOff: 0, mode: 'auto', showLines: true, toast: opts.toast || ((m) => console.log(m)), prevOverflow: document.documentElement.style.overflow };
+      cv: $('.skoverlay', box), glCanvas: $('.skgl', box), fov: 70, vAz: 180 * D2R, vAlt: 26 * D2R, azOff: 0, mode: opts.manual ? 'drag' : 'auto', showLines: true, showSigns: true, showNames: true, scene: 'space', maxFps: matchMedia('(pointer: coarse)').matches ? 30 : 60, reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches, toast: opts.toast || ((m) => console.log(m)), prevOverflow: document.documentElement.style.overflow, prevFocus: document.activeElement };
+    const owner = st;
+    try { const pref = JSON.parse(localStorage.getItem('kairos_sky_visual') || '{}'); if (['space', 'atlas'].includes(pref.scene)) st.scene = pref.scene; for (const k of ['showLines', 'showSigns', 'showNames']) if (typeof pref[k] === 'boolean') st[k] = pref[k]; } catch (e) { }
+    st.renderer = window.KompasSkyRenderer ? window.KompasSkyRenderer.create(st.glCanvas, st.data, bvColor) : null;
     st.g = st.cv.getContext('2d');
     try { st.fix = JSON.parse(localStorage.getItem('kairos_sky_fix') || '{}') || {}; } catch (e) { st.fix = {}; }
     document.documentElement.style.overflow = 'hidden';
     recompute(); updHead();
+    // Lokální textura z původního projektu; po načtení žádné vzdálené assety.
+    const texture = new Image(); texture.onload = () => { if (st !== owner) return; try { const c = document.createElement('canvas'); c.width = c.height = 128; const ctx = c.getContext('2d'); ctx.drawImage(texture, 0, 0, 128, 128); st.moonPixels = ctx.getImageData(0, 0, 128, 128).data; st.moonCanvas = c; st.moonCtx = ctx; } catch (e) { } }; texture.src = 'moon-tex.png?v=1';
     // senzory: iPhone chce povolení klepnutím
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    if (opts.manual) { /* Náhled i ruční procházení nevyžadují senzory. */ }
+    else if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
       st.needPerm = true;
-      if (opts.permP) opts.permP.then((r) => { if (st && r === 'granted') { st.needPerm = false; bindSensors(); updUi(); } });
+      if (opts.permP) opts.permP.then((r) => { if (st === owner && r === 'granted') { st.needPerm = false; bindSensors(); updUi(); } }).catch(() => {});
     }
     else if ('DeviceOrientationEvent' in window) bindSensors(); else st.mode = 'drag';
-    try { if (navigator.permissions) for (const n of ['accelerometer', 'gyroscope', 'magnetometer']) navigator.permissions.query({ name: n }).then((r) => { if (st && r.state === 'denied') { st.permDenied = true; updUi(); } }).catch(() => { }); } catch (e) { }
+    try { if (!opts.manual && navigator.permissions) for (const n of ['accelerometer', 'gyroscope', 'magnetometer']) navigator.permissions.query({ name: n }).then((r) => { if (st === owner && r.state === 'denied') { st.permDenied = true; updUi(); } }).catch(() => { }); } catch (e) { }
     // přesná poloha z GPS
-    if (navigator.geolocation) navigator.geolocation.getCurrentPosition((p) => { if (!st) return; st.loc.lat = p.coords.latitude; st.loc.lon = p.coords.longitude; if (p.coords.altitude) st.loc.alt = p.coords.altitude; st.gps = true; recompute(); updHead(); }, () => { }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 });
+    if (!opts.manual && navigator.geolocation) navigator.geolocation.getCurrentPosition((p) => { if (st !== owner) return; st.loc.lat = p.coords.latitude; st.loc.lon = p.coords.longitude; if (p.coords.altitude) st.loc.alt = p.coords.altitude; st.gps = true; recompute(); updHead(); }, () => { }, { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 });
     // ovládání
     box.addEventListener('click', (e) => {
       const b = e.target.closest('[data-sk]'); if (!b) return; const a = b.dataset.sk; e.stopPropagation();
       if (a === 'close') close(); else if (a === 'cam') camToggle(); else if (a === 'red') { st.red = !st.red; updUi(); st.toast(st.red ? 'Noční režim: tmavě modrá obloha, oči zůstanou přivyklé tmě.' : 'Noční režim vypnutý.'); }
+      else if (a === 'scene') { st.scene = b.dataset.scene; card(null); updUi(); }
+      else if (a === 'signs') { st.showSigns = !st.showSigns; updUi(); }
+      else if (a === 'names') { st.showNames = !st.showNames; updUi(); }
+      else if (a === 'pleiades') { st.fov = 30; setTarget({ k: 'mes', id: 'M45' }); }
       else if (a === 'lines') { st.showLines = !st.showLines; updUi(); st.toast(st.showLines ? 'Čáry souhvězdí zapnuté.' : 'Čáry souhvězdí skryté — zůstávají jen hvězdy.'); }
       else if (a === 'calib') { if (st.calib || st.test) { st.calib = false; st.test = null; card(null); updUi(); return; } card(`<b>Srovnat</b><p><button class="skr" data-sk="testrot" style="width:100%"><b>Otáčení</b><small>obloha se točí se mnou</small></button><button class="skr" data-sk="north" style="width:100%"><b>Sever</b><small>podle Luny nebo hvězdy</small></button></p>`); }
       else if (a === 'testrot') { if (st.mode === 'drag') { st.mode = 'auto'; } testStart(); }
@@ -641,13 +755,14 @@
       else if (a === 'calibOk') calibrate();
       else if (a === 'perm') askPerm();
       else if (a === 'sensor') { st.mode = st.sensorAt ? 'sensor' : 'auto'; st.smoothF = null; if (!st.bound && !st.needPerm) bindSensors(); updUi(); }
-      else if (a === 'drag') { const [az, alt] = azAltFromEnu(st.basis.f); st.vAz = az; st.vAlt = clamp(alt, -0.5, 1.55); st.mode = 'drag'; st.sensorOk = true; updUi(); }
+      else if (a === 'drag') { const [az, alt] = azAltFromEnu(st.basis.f); st.vAz = az; st.vAlt = clamp(alt, -1.55, 1.55); st.mode = 'drag'; st.sensorOk = true; updUi(); }
       else if (a === 'diag') { st.diag = !st.diag; }
       else if (a === 'cardx') card(null);
       else if (a === 'target') { const id = b.dataset.t; if (st.target && st.target.k === 'body' && st.target.id === id) { st.target = null; card(null); updUi(); } else setTarget({ k: 'body', id }); }
       else if (a === 'find') { card(null); searchOpen(true); }
       else if (a === 'findx') searchOpen(false);
       else if (a === 'pick') { const e = (st.results || [])[+b.dataset.k]; if (e) { searchOpen(false); setTarget(e.t); } }
+      if (st && ['scene', 'lines', 'signs', 'names'].includes(a)) try { localStorage.setItem('kairos_sky_visual', JSON.stringify({ scene: st.scene, showLines: st.showLines, showSigns: st.showSigns, showNames: st.showNames })); } catch (e) { }
     });
     // posun prstem, přiblížení
     const pts = new Map(); let pinch0 = null, moved = false, down = null;
@@ -657,7 +772,7 @@
       if (pts.size === 2 && pinch0) { const [a, b] = [...pts.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); st.fov = clamp(pinch0[1] * pinch0[0] / (d || 1), 10, 110); st.zoomAt = Date.now(); moved = true; return; }
       const dx = e.clientX - prev[0], dy = e.clientY - prev[1]; if (Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 6) moved = true;
       if (st.mode === 'sensor') return;
-      const k = (st.fov * D2R) / st.cv.clientHeight; st.vAz -= dx * k / Math.max(0.2, Math.cos(st.vAlt)); st.vAlt = clamp(st.vAlt + dy * k, -0.5, 1.55);
+      const k = (st.fov * D2R) / st.cv.clientHeight; st.vAz -= dx * k / Math.max(0.2, Math.cos(st.vAlt)); st.vAlt = clamp(st.vAlt + dy * k, -1.55, 1.55);
     });
     const up = (e) => { if (pts.has(e.pointerId)) { pts.delete(e.pointerId); if (pts.size < 2) pinch0 = null; if (!moved && e.type === 'pointerup') { const rc = st.cv.getBoundingClientRect(); tapAt(e.clientX - rc.left, e.clientY - rc.top); } } };
     st.cv.addEventListener('pointerup', up); st.cv.addEventListener('pointercancel', up);
@@ -671,10 +786,12 @@
     st.cv.addEventListener('dblclick', (e) => { e.preventDefault(); st.fov = st.fov > 40 ? 30 : 70; st.zoomAt = Date.now(); });
     // tlačítko Zpět v telefonu zavře oblohu
     st.onPop = () => close(true); history.pushState({ sky: 1 }, ''); window.addEventListener('popstate', st.onPop);
+    st.onKey = (e) => { if (e.key === 'Escape') { if ($('#sky .sksearch').style.display !== 'none') searchOpen(false); else if ($('#sky .skcard').style.display !== 'none') card(null); else close(); } else if (e.key === 'Tab') { const focusable = [...box.querySelectorAll('button,input')].filter(x => x.getClientRects().length); if (focusable.length && e.shiftKey && document.activeElement === focusable[0]) { e.preventDefault(); focusable[focusable.length - 1].focus(); } else if (focusable.length && !e.shiftKey && document.activeElement === focusable[focusable.length - 1]) { e.preventDefault(); focusable[0].focus(); } } }; window.addEventListener('keydown', st.onKey);
+    $('[data-sk="close"]', box).focus({ preventScroll: true });
     if (opts.target) st.target = typeof opts.target === 'string' ? { k: 'body', id: opts.target } : opts.target;
     const inp = $('#sky .sksearch input'); inp.addEventListener('input', () => searchPaint(inp.value)); inp.addEventListener('keydown', (e) => { if (e.key === 'Enter' && st.results && st.results[0]) { searchOpen(false); setTarget(st.results[0].t); } });
     updUi(); draw();
   }
 
-  window.SkyNow = { open, close, _st: () => st, ver: 'v414' };
+  window.SkyNow = { open, close, _st: () => st, ver: 'v415-3d' };
 })();

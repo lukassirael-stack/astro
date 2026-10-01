@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v414';
+  const VERSION = 'v415';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2027,7 +2027,7 @@
       if (window.SkyNow && window.SKY_DATA) { go(); return; }
       toast('Načítám oblohu…');
       const load = (src) => new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = src; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); });
-      Promise.all([window.SKY_DATA ? 0 : load('sky-data.js?v=' + VERSION.slice(1)), window.SkyNow ? 0 : load('nebe.js?v=' + VERSION.slice(1))]).then(go).catch(() => toast('Oblohu se nepodařilo načíst — zkus to za chvíli.'));
+      Promise.all([window.SKY_DATA ? 0 : load('sky-data.js?v=' + VERSION.slice(1)), window.KompasSkyRenderer ? 0 : load('sky-renderer.js?v=' + VERSION.slice(1)).catch(() => 0), window.SkyNow ? 0 : load('nebe.js?v=' + VERSION.slice(1))]).then(go).catch(() => toast('Oblohu se nepodařilo načíst — zkus to za chvíli.'));
     },
     evWhat(el) { const b = el.closest('.ev'); if (b) b.classList.toggle('open'); },
     plSel(el) { S.plSel = el.dataset.k; renderJournal(); },
@@ -4438,7 +4438,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=414'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=415'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
@@ -4511,4 +4511,3 @@ ${parts}
   }
   window.KAIROS = { K, S, settings, profiles };
 })();
-
