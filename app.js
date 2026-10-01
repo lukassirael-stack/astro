@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v418';
+  const VERSION = 'v419';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -4566,7 +4566,7 @@ ${parts}
   (async () => {
     const q = new URLSearchParams(location.search);
     const kod = q.get('kod'), platba = q.get('platba'), ses = q.get('session_id');
-    if (!kod && !platba && !q.get('portal')) return;
+    if (!kod && !platba && !q.get('portal') && !q.get('plus')) return;
     history.replaceState(null, '', location.pathname + (location.hash || ''));
     if (kod) { await licActivate(kod); showTab('nastaveni'); return; }
     if (platba === 'hotovo' && ses) {
@@ -4578,7 +4578,8 @@ ${parts}
       toast('Kód ti přijde e-mailem během chvíle. Zadáš ho v Nastavení → Plná verze.'); showTab('nastaveni'); return;
     }
     if (platba === 'zruseno') { toast('Platba je zrušená, nic se neúčtovalo.'); showTab('nastaveni'); return; }
-    if (q.get('portal')) { const l = licGet(); if (l && l.kod) await licActivate(l.kod, true); showTab('nastaveni'); }
+    if (q.get('portal')) { const l = licGet(); if (l && l.kod) await licActivate(l.kod, true); showTab('nastaveni'); return; }
+    if (q.get('plus')) actions.goPlus();
   })();
   setTimeout(licRefresh, 4000);
   const xfLink = (tok) => location.origin + location.pathname + (tok ? '#prenos=' + tok : '');
@@ -4646,7 +4647,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=418'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=419'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
