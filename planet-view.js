@@ -34,7 +34,7 @@
   const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   const CSS = `
-#pview{position:fixed;inset:0;z-index:1200;background:#02050c;color:#EAF0FF;font-family:var(--sans,system-ui,sans-serif);display:flex;flex-direction:column;overflow:hidden}
+#pview{position:fixed;inset:0;z-index:9500;background:#02050c;color:#EAF0FF;font-family:var(--sans,system-ui,sans-serif);display:flex;flex-direction:column;overflow:hidden}
 #pview .pvbar{display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px 8px}
 #pview .pvx{width:40px;height:40px;border-radius:50%;border:1px solid rgba(243,211,132,.5);background:rgba(7,21,37,.7);color:#F3D384;font-size:22px;cursor:pointer;flex:none}
 #pview .pvt b{display:block;font-family:var(--display,Georgia,serif);font-size:24px;font-weight:500;color:#F3D384;line-height:1.1}
