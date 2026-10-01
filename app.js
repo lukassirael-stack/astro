@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v419';
+  const VERSION = 'v420';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1023,7 +1023,8 @@
   // PAYWALL = true: O tobě, Najít vhodný den a tisk horoskopu jen s platnou licencí.
   const PAYWALL = false;
   const LIC_URL = 'https://myybuesoourgpbouwwst.supabase.co/functions/v1/stripe-session';
-  const LIC_CENIK = () => (Date.now() < Date.UTC(2027, 0, 1)) ? { mesicni: [129, 5], rocni: [899, 36], zavadeci: true } : { mesicni: [149, 6], rocni: [990, 40], zavadeci: false };
+  // cena po 31. 12. 2026 zatím není rozhodnutá; do té doby platí zaváděcí a stejná zůstává i pak, dokud se nezmění zde a ve stripe-session
+  const LIC_CENIK = () => ({ mesicni: [129, 5], rocni: [899, 36], zavadeci: Date.now() < Date.UTC(2027, 0, 1) });
   const licGet = () => store.get('kairos_lic', null);
   const licValid = (l) => !!(l && l.platny && l.kod && l.plati_do && l.plati_do >= K.isoDate(np.y, np.m, np.d));
   const hasPlus = () => !PAYWALL || licValid(licGet()) || !!store.get('kairos_plus', false);
@@ -4647,7 +4648,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=419'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=420'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
