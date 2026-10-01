@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v416';
+  const VERSION = 'v417';
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2595,6 +2595,22 @@
     }
     return score.filter(s => s.pts >= 2).sort((a, b) => b.pts - a.pts || a.i - b.i).slice(0, 4);
   }
+  function growthSigns(n, skip) {
+    const ven = K.signOf(n.points.Venus.lon), moon = K.signOf(n.points.Moon.lon), sun = K.signOf(n.points.Sun.lon), sat = K.signOf(n.points.Saturn.lon);
+    const sq = (a, b) => { const d = (b - a + 12) % 12; return d === 3 || d === 9; };
+    const op = (a, b) => (b - a + 12) % 12 === 6;
+    const score = K.SIGNS.map((_, i) => ({ i, pts: 0, why: [] }));
+    const add = (i, p, w) => { score[i].pts += p; score[i].why.push(w); };
+    for (let i = 0; i < 12; i++) {
+      if (sq(ven, i)) add(i, 2, 'napíná tvou Venuši: učíš se milovat i jinak, než je ti přirozené');
+      if (op(ven, i)) add(i, 1, 'naproti tvé Venuši: ukazuje ti, co ve vztahu přehlížíš');
+      if (sq(moon, i)) add(i, 2, 'napíná tvou Lunu: učíš se říkat své potřeby nahlas');
+      if (sq(sun, i)) add(i, 1, 'napíná tvé Slunce: tříbí tvou vůli');
+      if (op(sun, i)) add(i, 1, 'naproti tvému Slunci: zrcadlo, ve kterém se vidíš celý');
+      if (i === sat) add(i, 2, 'znamení tvého Saturnu: tady zraješ a učíš se trpělivosti');
+    }
+    return score.filter(s => s.pts >= 2 && !(skip || []).includes(s.i)).sort((a, b) => b.pts - a.pts || a.i - b.i).slice(0, 3);
+  }
   function partnerHTML(n) {
     const si = K.signOf(n.cusps[7]), v = K.signOf(n.points.Venus.lon), ma = K.signOf(n.points.Mars.lon), mo = K.signOf(n.points.Moon.lon);
     const r7 = HS.SIGN_RULER[si], r7h = n.points[r7] ? n.points[r7].house : null;
@@ -2607,6 +2623,8 @@
     out += hsPara('Co potřebuješ, aby vztah vydržel', `Aby ti bylo ve vztahu dobře, ${HS.MOON_NEED[mo]}. Partner, který to zná, má klíč k tvému klidu.`, `Luna ${K.SIGN_LOC_V[mo]}`);
     const signs = partnerSigns(n);
     out += `<h4 style="margin:14px 0 6px">Znamení, se kterými ti to jde lehce</h4><p class="note" style="margin-top:0">Počítá se podle tvého Descendentu, Venuše, Luny a Slunce. U druhého platí pro jeho Slunce i Lunu. Je to o lehkosti, se kterou si rozumíte; hloubku vztahu vždy dělá to, co do něj oba dáte.</p><div class="psigns">${signs.map(s => `<div class="psign"><b>${K.SIGN_GLYPH[s.i]} ${K.SIGNS[s.i]}</b><small>${esc(s.why[0])}${s.why.length > 1 ? ` · ${esc(s.why[1])}` : ''}</small></div>`).join('')}</div>`;
+    const grow = growthSigns(n, signs.map(x => x.i));
+    out += `<h4 style="margin:14px 0 6px">Znamení, se kterými rosteš</h4><p class="note" style="margin-top:0">Vztah s nimi má víc tření a víc učení: ukazují ti, co bys sám přehlédl. Když to oba unesete, zrajete rychleji než s kýmkoli jiným.</p><div class="psigns grow">${grow.map(s => `<div class="psign"><b>${K.SIGN_GLYPH[s.i]} ${K.SIGNS[s.i]}</b><small>${esc(s.why[0])}${s.why.length > 1 ? ` · ${esc(s.why[1])}` : ''}</small></div>`).join('')}</div>`;
     out += `<p class="note" style="margin:12px 0 0">Máš někoho konkrétního? Přidej níž jeho narození a Kompas přečte, kde se vaše mapy potkávají samy a kde to chce práci.</p></div>`;
     return out;
   }
@@ -4515,7 +4533,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=416'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=417'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }

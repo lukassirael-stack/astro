@@ -1345,3 +1345,4 @@ body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}
 .psign b{display:block;font-family:var(--display);font-size:19px;color:#FFF7E6}
 .psign small{display:block;font-size:var(--fs-s);color:#CFDBEE;line-height:1.35;margin-top:3px}
 @media(max-width:380px){.psigns{grid-template-columns:1fr}}
+.psigns.grow .psign{border-color:rgba(159,183,230,.45);background:rgba(59,120,216,.08)}
