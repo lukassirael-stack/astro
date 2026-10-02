@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v423'; window.KOMPAS_VERSION = VERSION.slice(1);
+  const VERSION = 'v424'; window.KOMPAS_VERSION = VERSION.slice(1);
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1021,13 +1021,13 @@
   // ---------- Plná verze: licence (Stripe předplatné přes Edge Function stripe-session) ----------
   // PAYWALL = false: zkušební provoz, všechno otevřené (koupit lze, zaváděcí cena zůstává natrvalo).
   // PAYWALL = true: O tobě, Najít vhodný den a tisk horoskopu jen s platnou licencí.
-  const PAYWALL = false;
+  const PAYWALL = true;
   const LIC_URL = 'https://myybuesoourgpbouwwst.supabase.co/functions/v1/stripe-session';
   // cena po 31. 12. 2026 zatím není rozhodnutá; do té doby platí zaváděcí a stejná zůstává i pak, dokud se nezmění zde a ve stripe-session
   const LIC_CENIK = () => ({ mesicni: [129, 5], rocni: [899, 36], zavadeci: Date.now() < Date.UTC(2027, 0, 1) });
   const licGet = () => store.get('kairos_lic', null);
   const licValid = (l) => !!(l && l.platny && l.kod && l.plati_do && l.plati_do >= K.isoDate(np.y, np.m, np.d));
-  const hasPlus = () => !PAYWALL || licValid(licGet()) || !!store.get('kairos_plus', false);
+  const hasPlus = () => !PAYWALL || licValid(licGet());
   const licDate = (iso) => { if (!iso) return ''; const [y, m, d] = iso.split('-'); return `${+d}. ${+m}. ${y}`; };
   async function licCall(body) {
     const r = await fetch(LIC_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -1137,7 +1137,7 @@
     const uni = numRed1(digitsSum(String(y)), false);
     if (d === m) { const p = PORTAL_MIRROR[m]; if (p) out.push({ kind: 'mirror', title: `${d}. ${m}. · ${p[0]}`, text: p[1], step: p[2], tag: 'zrcadlový portál', extra: `Celé datum ${d}. ${m}. ${y} dává ${sum} → ${r}${r === 11 || r === 22 || r === 33 ? ` — a to je mistrovské číslo, takže letos je tahle brána silnější než obvykle.` : `, tedy ${NUM_MONTH[r] ? NUM_MONTH[r] : ''}.`} ${PORTAL_YEAR[uni] || ''}` }); }
     if (r === 11 || r === 33) { const p = PORTAL_MASTER[r]; out.push({ kind: 'master', title: p[0], text: p[1], step: p[2], tag: `${d}. ${m}. ${y} → ${sum} → ${r}`, extra: PORTAL_YEAR[uni] || '' }); }
-    if (settings.numerology !== false && S.natal) {
+    if (settings.numerology !== false && S.natal && hasPlus()) {
       // osobní portál: osobní den i osobní měsíc se shodují s tvým životním číslem — tři čísla na jedné vlně, 3–4× do roka
       const prof = activeProfile(); const n = numerology(prof, y, m, d); const life = numRed1(n.life, false);
       const pm = numRed1(n.month, false), pd = numRed1(n.day, false);
@@ -2421,7 +2421,7 @@
     const phh = K.planetaryHours(np.y, np.m, np.d, observer(), TZ);
     const nd = namedayLine(np.m, np.d);
     const hol = holidayFor(np.y, np.m, np.d);
-    const arcS = arcSentence();
+    const arcS = hasPlus() ? arcSentence() : '';
     return `<button type="button" class="hero-today ${da.color}" data-act="jumpDay" data-y="${np.y}" data-m="${np.m}" data-d="${np.d}" aria-label="Otevřít dnešek">
       <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}${hol ? ` <em class="ht-hol ${hol.f ? 'free' : 'trad'}">${esc(hol.n)}</em>` : ''}</span>
       <span class="ht-date ht-date2">${phh ? `<i class="sri">${SUNRISE_I}</i>&nbsp;${K.fmtTime(phh.sunrise, TZ)}&nbsp;&nbsp;–&nbsp;&nbsp;<i class="sri">${SUNSET_I}</i>&nbsp;${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + String(nd).replace(/\s*·\s*SK.*$/i, '') : ''}</span>${wxLine()}${(() => { const sd = sdForDay(np.y, np.m, np.d); return sd.length ? `<span class="ht-sd">${sd.map(x => sdLabel(x, np.y)).join(' · ')}</span>` : ''; })()}
@@ -4099,7 +4099,7 @@ ${parts}
       return;
     }
     if (view === 'menu') {
-      const arcS = arcSentence();
+      const arcS = hasPlus() ? arcSentence() : '';
       v.innerHTML = readBar + natalHead + (arcS ? `<p class="nnow"><span class="tvlab">${S.readAs ? 'jeho den' : 'tvůj den'}</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES_V.map(([id, ic, t, sub, kind, noimg]) => noimg ? `<button type="button" class="ntile txt ${kind || ''}" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small><span class="chev">›</span></button>` : `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=11" alt="" width="420" height="317"></button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
       return;
     }
@@ -4296,7 +4296,7 @@ ${parts}
       </details>
       <div class="setgrp">Kompas</div>
       ${licCardHTML()}
-      <div class="card betacard"><b>Zkušební verze</b><p>Díky, že Kompas testuješ. Všechno je teď odemčené — plná verze i to, co bude v základu. Co tě napadne, co bys přidal nebo změnil, napiš hned níž v <button type="button" class="linkbtn" data-act="goFeedback">Podnětech ›</button> — stačí pár slov, verze a telefon se doplní samy.</p></div>
+      <div class="card betacard"><b>Tvůj hlas pro Kompas</b><p>Díky, že Kompas používáš. Co tě napadne, co bys přidal nebo změnil, napiš hned níž v <button type="button" class="linkbtn" data-act="goFeedback">Podnětech ›</button> — stačí pár slov, verze a telefon se doplní samy.</p></div>
       <div class="h2">Podněty</div>
       <div class="card">
         <p class="note" style="margin-top:0">Co ti v Kompasu chybí, co se ti líbí, na co jsi narazil — každá zpráva pomáhá. Napiš pár vět a odešli; otevře se tvůj e-mail s připravenou zprávou.</p>
@@ -4648,7 +4648,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=423'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=424'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
