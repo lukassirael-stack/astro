@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v422'; window.KOMPAS_VERSION = VERSION.slice(1);
+  const VERSION = 'v423'; window.KOMPAS_VERSION = VERSION.slice(1);
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1047,7 +1047,7 @@
     }
     const d = v.duvod;
     if (d === 'expirace') { const old = licGet() || {}; store.set('kairos_lic', { ...old, kod, platny: false, plati_do: v.plati_do, stav: v.stav, duvod: 'expirace', overeno: Date.now() }); store.set('kairos_plus', false); if (!tichy) toast('Platnost kódu skončila ' + licDate(v.plati_do) + '.'); }
-    else if (d === 'zarizeni') { if (!tichy) toast('Kód už běží na třech zařízeních. Na jednom z nich ho v Nastavení odhlas.'); }
+    else if (d === 'zarizeni') { if (!tichy) toast('Kód už běží na dvou zařízeních. Na jednom z nich ho v Nastavení odhlas.'); }
     else if (!tichy) toast('Tenhle kód Kompas nezná. Zkontroluj ho prosím v e-mailu.');
     if (S.tab === 'nastaveni') renderSettings();
     return false;
@@ -1080,7 +1080,7 @@
       return `<div class="card liccard"><b>Plná verze je odemčená</b><p>${typ[0].toUpperCase() + typ.slice(1)} · platí do <b>${licDate(l.plati_do)}</b>${l.predplatne ? (l.stav === 'zruseno' ? ', pak končí (předplatné je zrušené)' : ', pak se samo obnoví') : ''}.</p>
         <p class="small mono" style="margin:4px 0 8px">kód ${esc(l.kod)}</p>
         <div class="row" style="gap:8px;flex-wrap:wrap">${l.predplatne ? '<button type="button" class="btn small" data-act="licPortal">Spravovat předplatné</button>' : ''}<button type="button" class="btn ghost small" data-act="licRefreshNow">Ověřit znovu</button><button type="button" class="btn ghost small" data-act="licLogout">Odhlásit toto zařízení</button></div>
-        <p class="note" style="margin:8px 0 0">Stejný kód odemkne Kompas i na dalších zařízeních, platí na třech. Zrušení, změnu karty a faktury najdeš ve Spravovat předplatné.</p></div>`;
+        <p class="note" style="margin:8px 0 0">Stejný kód odemkne Kompas i na druhém zařízení, platí na dvou. Zrušení, změnu karty a faktury najdeš ve Spravovat předplatné.</p></div>`;
     }
     const exp = l && l.duvod === 'expirace' ? `<p class="note" style="margin:0 0 8px">Platnost kódu ${esc(l.kod)} skončila ${licDate(l.plati_do)}. Obnovíš ji novým předplatným níž.</p>` : '';
     return `<div class="card liccard"><b>Plná verze</b>
@@ -1092,7 +1092,7 @@
         <button type="button" class="btn primary" id="licBuy-rocni" data-act="licBuy" data-t="rocni">Rok · ${cena('rocni')}</button>
         <button type="button" class="btn" id="licBuy-mesicni" data-act="licBuy" data-t="mesicni">Měsíc · ${cena('mesicni')}</button>
       </div>
-      <p class="note" style="margin:8px 0 10px">Platba kartou, Apple Pay nebo Google Pay přes Stripe. Zrušíš kdykoli jedním klikem v Nastavení. Kód přijde e-mailem a odemkne Kompas na třech zařízeních.</p>
+      <p class="note" style="margin:8px 0 10px">Platba kartou, Apple Pay nebo Google Pay přes Stripe. Zrušíš kdykoli jedním klikem v Nastavení. Kód přijde e-mailem a odemkne Kompas na dvou zařízeních (třeba telefon a počítač).</p>
       <details><summary class="small">Mám odemykací kód</summary>
         <div class="row" style="gap:8px;margin-top:8px"><input type="text" id="licKod" placeholder="KOMPAS-XXXXX" autocapitalize="characters" autocomplete="off" spellcheck="false" style="flex:1;min-width:0;text-transform:uppercase"><button type="button" class="btn small" data-act="licEnter">Odemknout</button></div>
       </details></div>`;
@@ -4648,7 +4648,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=422'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=423'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
