@@ -1374,3 +1374,12 @@ body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}
 .upsell-card b{display:block;font-family:var(--display);font-size:21px;color:#F3D384;margin:4px 0 8px}
 .upsell-card p{color:#DCE4F6;font-size:var(--fs-m);line-height:1.5;margin:0 0 14px}
 .upsell-star{font-size:26px;color:#F3D384}
+
+.upsell.welcome{align-items:center;padding-bottom:16px}
+.upsell.welcome .upsell-card p{margin:0 0 10px}
+.wkod{margin:6px auto 12px;padding:12px;border:1px solid rgba(243,211,132,.5);border-radius:14px;background:rgba(243,211,132,.08);max-width:280px}
+.wkod small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#F3D384;margin-bottom:4px}
+.wkod span{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:22px;letter-spacing:.12em;color:#FFF7E6}
+.wnote{font-size:var(--fs-s)!important;color:#B9C6E4!important}
+.wgo{color:#F3D384!important;margin:6px 0 8px!important}
+.wbtns{display:flex;flex-direction:column;gap:8px}

@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v425'; window.KOMPAS_VERSION = VERSION.slice(1);
+  const VERSION = 'v426'; window.KOMPAS_VERSION = VERSION.slice(1);
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1136,6 +1136,27 @@
     if (!licValid(l) && l.duvod === 'expirace' && zbyva > -45)
       return `<button type="button" class="licbanner" data-act="goPlus"><b>Plná verze skončila ${licDate(l.plati_do)}</b><small>Obnovíš ji v Nastavení a tvá čtení se hned vrátí.</small><span class="chev">›</span></button>`;
     return '';
+  }
+  // uvítání po zaplacení plné verze
+  function plusWelcome() {
+    const l = licGet(); if (!l || !l.kod) return;
+    document.querySelector('.upsell')?.remove();
+    const typ = l.typ === 'rocni' ? 'na rok' : l.typ === 'mesicni' ? 'na měsíc' : '';
+    const box = document.createElement('div'); box.className = 'upsell welcome';
+    box.innerHTML = `<div class="upsell-card" role="dialog" aria-label="Vítej v plné verzi"><div class="upsell-star">✦</div><b>Vítej v plné verzi</b>
+      <p>Plná verze ${typ} ti běží do <strong>${licDate(l.plati_do)}</strong> a pak se sama obnoví.</p>
+      <div class="wkod"><small>tvůj odemykací kód</small><span>${esc(l.kod)}</span></div>
+      <p class="wnote">Kód máš i v e-mailu. Na druhém zařízení ho zadáš v Nastavení → Plná verze.</p>
+      <p class="wgo">Kam se podívat jako první:</p>
+      <div class="wbtns"><button type="button" class="btn primary" data-w="horoskop">Tvůj horoskop</button><button type="button" class="btn" data-w="prochazis">Čím teď procházíš</button><button type="button" class="btn" data-w="vztahy">Kdo se k tobě hodí</button></div>
+      <button type="button" class="btn ghost small" data-w="zavrit" style="margin-top:10px">Zavřít</button></div>`;
+    box.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-w]'); if (!b && e.target !== box) return;
+      box.remove(); const w = b ? b.dataset.w : 'zavrit';
+      if (w === 'zavrit') { showTab('kalendar'); return; }
+      showTab('nativ'); actions.natalView({ dataset: { v: w } });
+    });
+    document.body.appendChild(box); metNote('act', 'plusWelcome');
   }
   function upsellCheck() {
     try {
@@ -4632,7 +4653,7 @@ ${parts}
     if (platba === 'hotovo' && ses) {
       toast('Platba proběhla, vyzvedávám tvůj kód…');
       for (let i = 0; i < 4; i++) {
-        try { const v = await licCall({ druh: 'kompas_po_platbe', session: ses }); if (v.kod) { await licActivate(v.kod); showTab('nastaveni'); return; } } catch (e) { }
+        try { const v = await licCall({ druh: 'kompas_po_platbe', session: ses }); if (v.kod) { const ok = await licActivate(v.kod, true); if (ok) { plusWelcome(); } else { showTab('nastaveni'); } return; } } catch (e) { }
         await new Promise(r => setTimeout(r, 2500));
       }
       toast('Kód ti přijde e-mailem během chvíle. Zadáš ho v Nastavení → Plná verze.'); showTab('nastaveni'); return;
@@ -4708,7 +4729,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=425'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=426'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
