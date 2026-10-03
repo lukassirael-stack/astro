@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v429'; window.KOMPAS_VERSION = VERSION.slice(1);
+  const VERSION = 'v430'; window.KOMPAS_VERSION = VERSION.slice(1);
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -512,7 +512,7 @@
       ['luna', 'Luna a její fáze', `Luna je nálada dne: mění znamení každé dva a půl dne a fázi každý týden. <b>Nov</b> je začátek — co zaseješ, roste; <b>dorůstající</b> Luna přeje stavbě; <b>úplněk</b> je vrchol a ukázání; <b>couvající</b> Luna přeje dokončování a pouštění. Znamení Luny říká, jaký druh věcí dnes jde snáz: v Blížencích slova, v Býku hmota, v Raku domov. To je zdroj řádků <em>podporuje</em> a Nebeského tipu.`],
       ['voc', 'Luna bez kurzu', `Období, kdy Luna už udělala poslední aspekt ve znamení a čeká na přechod do dalšího — od pár minut po celý den. Tradice říká: co v té době začneš, nedojde k výsledku. Kompas ji ukazuje na ose dne a počítá s ní při hledání vhodného dne. Pro běžné věci je dobrá na rutinu a odpočinek, ne na podpisy.`],
       ['planety', 'Planety a jejich řeč', `Každá planeta nese jedno téma: <b>Merkur</b> myšlení a řeč, <b>Venuše</b> vztahy a hodnoty, <b>Mars</b> síla a čin, <b>Jupiter</b> růst a důvěra, <b>Saturn</b> řád a zrání, <b>Uran</b> změna, <b>Neptun</b> sen a soucit, <b>Pluto</b> hloubka a proměna. Rychlé planety (Slunce až Mars) mění dny, pomalé (Jupiter až Pluto) mění roky. Kompas je čte v tvé mapě (kdo jsi) i na obloze (co se děje).`],
-      ['retro', 'Retrogradity', `Zdánlivý zpětný pohyb planety, když ji Země předbíhá. Merkur retrográdní (třikrát do roka po třech týdnech) je čas revizí, návratů a nedorozumění — hodí se dodělávat, ne podepisovat. Venuše a Mars retrográdní méně často a hlouběji. Kompas hlásí stanici (zastavení), dobu couvání a návrat k přímému pohybu, a v elekci s tím počítá.`],
+      ['retro', 'Retrogradity', `Zdánlivý zpětný pohyb planety, když ji Země předbíhá. Merkur retrográdní (třikrát do roka po třech týdnech) je čas revizí, návratů a nedorozumění — přeje dodělávání a revizím, podpisy počkají na přímý chod. Venuše a Mars retrográdní méně často a hlouběji. Kompas hlásí stanici (zastavení), dobu couvání a návrat k přímému pohybu, a v elekci s tím počítá.`],
       ['tranzity', 'Tranzity a oblouky', `Tranzit je okamžik, kdy planeta na obloze stojí v úhlu k bodu tvé mapy — Saturn na tvém Slunci, Venuše na tvé Luně. Rychlé trvají dny, pomalé měsíce a mívají tři přesné průchody kvůli retrograditě. Kompas je kreslí jako oblouky: kdy začaly, kdy jsou přesné, kdy doznějí. Řádek <em>tvůj den</em> ukazuje ten dnešní; karta Čím teď procházíš celé pozadí.`],
       ['aspekty', 'Aspekty', `Úhly mezi dvěma body: <b>konjunkce</b> (spojení, 0°) témata splývají; <b>sextil</b> (60°) a <b>trigon</b> (120°) jsou soulad — jde to samo; <b>kvadratura</b> (90°) je tření, které nutí rozhodnout; <b>opozice</b> (180°) dvě strany, které chtějí vyvážit. Orbis je tolerance ve stupních; čím menší, tím silněji se aspekt žije. Kompas píše aspekty slovesy: <em>Pluto tlačí na tvé MC</em>.`],
       ['domy', 'Domy', `Dvanáct oblastí života, do kterých se mapa dělí podle místa a času narození: 1. ty a tělo, 2. hmota, 3. řeč a okolí, 4. domov, 5. tvorba a láska, 6. práce a zdraví, 7. vztahy, 8. hloubka, 9. rozhled, 10. povolání, 11. přátelé, 12. ústraní. Ascendent (Asc) je začátek 1. domu, MC začátek 10. — životní směr. Bez přesného času narození jsou domy méně jisté.`],
@@ -4729,7 +4729,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=429'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=430'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
