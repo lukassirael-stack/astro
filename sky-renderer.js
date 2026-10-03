@@ -92,7 +92,7 @@
       float twinkle=0.98+0.02*sin(uTime*(0.60+fract(aMagnitude)*0.15)+aDirection.x*50.0);
       float above=mix(0.07,1.0,smoothstep(-0.012,0.03,v.z));
       float bright=clamp(pow(2.512,(3.0-aMagnitude)*0.32),0.40,1.0);
-      vAlpha=visible*above*twinkle*bright*(1.0-uDay*0.7);
+      vAlpha=visible*above*twinkle*bright*1.25*(1.0-uDay*0.7);
     }
   `;
   const FRAGMENT_STARS = `
@@ -109,7 +109,7 @@
         flare=(exp(-abs(p.x)*8.0)*exp(-abs(p.y)/max(1.0,vCore*2.6))+
                exp(-abs(p.y)*8.0)*exp(-abs(p.x)/max(1.0,vCore*2.6)))*0.10;
       }
-      float a=(core+glow+flare)*vAlpha;
+      float a=min(1.0,(core+glow+flare)*vAlpha);
       if(a<0.001) discard;
       gl_FragColor=vec4(mix(vColor,vec3(1.0),core*0.6),a);
     }

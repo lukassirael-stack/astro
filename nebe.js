@@ -400,7 +400,7 @@
     for (let i = 0; i < st.data.stars.length; i++) {
       const s = st.data.stars[i]; if (s.mag > magLim) break; if (dot(s.v, f) < cosLim) continue; const p = P(s.v); if (!onScreen(p, 4)) continue;
       const rad = clamp((magLim + 1.5 - s.mag) * 2.3 * Math.sqrt(zoom), 2.4, 34); const below = s.v[2] < 0 ? 0.3 : 1;
-      g.globalAlpha = clamp(Math.pow(2.512, (3 - s.mag) * 0.36), 0.3, 1) * below * (0.6 + 0.4 * dim);
+      g.globalAlpha = clamp(Math.pow(2.512, (3 - s.mag) * 0.36) * 1.25, 0.375, 1) * below * (0.6 + 0.4 * dim);
       if (!gpu) g.drawImage(st.data.cols[s.ck], p[0] - rad, p[1] - rad, rad * 2, rad * 2);
       if (s.mag < 4 || st.fov < 35) st.hits.push({ p, k: 'star', o: s, i, w: s.mag < 2 ? 1.5 : .6 });
     }
