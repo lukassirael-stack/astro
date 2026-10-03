@@ -55,7 +55,7 @@
 #sky .skt b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--display,Georgia,serif);font-size:19px;font-weight:500;color:#F3D384;letter-spacing:.02em}
 #sky .skt small{display:block;font-size:12px;color:#B9C6E4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #sky .skb{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid rgba(243,211,132,.45);background:rgba(10,20,44,.6);color:#F3D384;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
-#sky .skrow{display:flex;align-items:center;gap:10px}
+#sky .skloc{display:block;margin-top:5px;padding:4px 10px;border-radius:999px;border:1px solid rgba(243,211,132,.35);background:rgba(10,20,44,.5);color:#F3D384;font:inherit;font-size:11.5px;letter-spacing:.02em;cursor:pointer;width:max-content}#sky .skloc:disabled{opacity:.7} #sky .skrow{display:flex;align-items:center;gap:10px}
 #sky .sktools{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 #sky .sktool{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 4px;border-radius:999px;border:1px solid rgba(243,211,132,.4);background:rgba(10,20,44,.6);color:#EAF0FF;font:inherit;font-size:12.5px;white-space:nowrap;cursor:pointer}
 #sky .sktool i{font-style:normal;color:#F3D384;font-size:15px;line-height:1}
@@ -712,7 +712,7 @@
     css();
     const box = document.createElement('div'); box.id = 'sky'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', 'Hvězdné nebe teď');
     box.innerHTML = `<video playsinline muted style="display:none"></video><canvas class="skgl" aria-hidden="true"></canvas><canvas class="skoverlay" aria-label="Interaktivní nebeská mapa"></canvas><div class="skcal" style="display:none"></div>
-      <div class="skbar"><div class="skrow"><button class="skb" data-sk="close" aria-label="Zavřít">×</button><div class="skt" data-sk="diag"><b>Hvězdné nebe teď</b><small></small></div><div class="skmode" role="group" aria-label="Vzhled nebe"><button data-sk="scene" data-scene="space">Prostor</button><button data-sk="scene" data-scene="atlas">Atlas</button></div></div>
+      <div class="skbar"><div class="skrow"><button class="skb" data-sk="close" aria-label="Zavřít">×</button><div class="skt" data-sk="diag"><b>Hvězdné nebe teď</b><small></small><button type="button" class="skloc" data-sk="loc" aria-label="Aktualizovat mou polohu">◎ aktualizovat polohu</button></div><div class="skmode" role="group" aria-label="Vzhled nebe"><button data-sk="scene" data-scene="space">Prostor</button><button data-sk="scene" data-scene="atlas">Atlas</button></div></div>
         <div class="sktools"><button class="sktool" data-sk="lines"><i>✧</i>Souhvězdí</button><button class="sktool" data-sk="signs"><i>♈</i>Znamení</button><button class="sktool" data-sk="names"><i>·</i>Popisky</button><button class="sktool" data-sk="cam"><i>◉</i>Kamera</button><button class="sktool" data-sk="red"><i>◐</i>Noc</button><button class="sktool" data-sk="calib"><i>⌖</i>Srovnat</button></div></div>
       <div class="skcard" style="display:none"></div>
       <div class="sksearch" style="display:none"><div class="skin"><input type="search" placeholder="Hvězda, souhvězdí, planeta, galaxie…" autocomplete="off" enterkeyhint="search"><button class="skb" data-sk="findx" aria-label="Zavřít hledání">×</button></div><div class="skres"></div></div>
@@ -744,6 +744,21 @@
       const b = e.target.closest('[data-sk]'); if (!b) return; const a = b.dataset.sk; e.stopPropagation();
       if (a === 'close') close(); else if (a === 'cam') camToggle(); else if (a === 'red') { st.red = !st.red; updUi(); st.toast(st.red ? 'Noční režim: tmavě modrá obloha, oči zůstanou přivyklé tmě.' : 'Noční režim vypnutý.'); }
       else if (a === 'zoom') { const id = b.dataset.id; const go = () => window.PlanetView && window.PlanetView.open({ id, time: new Date(), toast: st.toast }); if (window.PlanetView) go(); else { const sc = document.createElement('script'); sc.src = 'planet-view.js?v=' + (window.KOMPAS_VERSION || Date.now()); sc.onload = go; sc.onerror = () => st.toast('Přiblížení se nepodařilo načíst.'); document.head.appendChild(sc); } }
+      else if (a === 'loc') {
+        if (!navigator.geolocation) { st.toast('Tenhle prohlížeč polohu nenabízí.'); return; }
+        const owner = st; b.disabled = true; b.textContent = '◎ zjišťuji polohu…';
+        navigator.geolocation.getCurrentPosition((p) => {
+          if (st !== owner) return;
+          st.loc.lat = p.coords.latitude; st.loc.lon = p.coords.longitude; if (p.coords.altitude) st.loc.alt = p.coords.altitude;
+          st.loc.name = ''; st.gps = true; st.permDenied = false; recompute(); updHead(); updUi();
+          b.disabled = false; b.textContent = '◎ aktualizovat polohu';
+          st.toast(`Poloha aktualizována${p.coords.accuracy ? ` · přesnost ±${p.coords.accuracy < 1000 ? Math.round(p.coords.accuracy) + ' m' : (p.coords.accuracy / 1000).toFixed(1) + ' km'}` : ''}`);
+        }, (err) => {
+          if (st !== owner) return;
+          b.disabled = false; b.textContent = '◎ aktualizovat polohu';
+          st.toast(err && err.code === 1 ? 'Povol Kompasu přístup k poloze v nastavení prohlížeče a zkus to znovu.' : 'Polohu se teď nepodařilo zjistit, zkus to venku nebo za chvíli.');
+        }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+      }
       else if (a === 'scene') { st.scene = b.dataset.scene; card(null); updUi(); }
       else if (a === 'signs') { st.showSigns = !st.showSigns; updUi(); }
       else if (a === 'names') { st.showNames = !st.showNames; updUi(); }
