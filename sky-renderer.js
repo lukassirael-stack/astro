@@ -81,7 +81,8 @@
       float depth=dot(v,uForward);
       gl_Position=vec4(dot(v,uRight)/uTan.x,dot(v,uUp)/uTan.y,0.0,depth);
       if(depth<0.04) gl_Position=vec4(2.0,2.0,2.0,1.0);
-      vCore=clamp(0.50+pow(2.512,-aMagnitude*0.25)*0.72,0.6,2.0)*sqrt(uZoom);
+      // velikost a jas podle hvězdné velikosti: jasné hvězdy výrazně větší, slabé drobné a tlumené
+      vCore=clamp(0.60+pow(2.512,-aMagnitude*0.5)*1.6,0.62,4.2)*sqrt(uZoom);
       vSize=min(uMaxPoint,max(8.0,vCore*16.0)*uDpr);
       gl_PointSize=vSize;
       vSize/=uDpr;
@@ -90,7 +91,8 @@
       float visible=1.0-smoothstep(uLimit-0.4,uLimit+0.15,aMagnitude);
       float twinkle=0.98+0.02*sin(uTime*(0.60+fract(aMagnitude)*0.15)+aDirection.x*50.0);
       float above=mix(0.07,1.0,smoothstep(-0.012,0.03,v.z));
-      vAlpha=visible*above*twinkle*(1.0-uDay*0.7);
+      float bright=clamp(pow(2.512,(3.0-aMagnitude)*0.32),0.40,1.0);
+      vAlpha=visible*above*twinkle*bright*(1.0-uDay*0.7);
     }
   `;
   const FRAGMENT_STARS = `
@@ -101,9 +103,9 @@
       vec2 p=(gl_PointCoord-0.5)*vSize;
       float d=length(p), q=d/max(vCore,0.1);
       float core=exp(-q*q*2.4);
-      float glow=exp(-q*q*0.13)*0.09;
+      float glow=exp(-q*q*0.13)*0.12*clamp(pow(2.512,(1.5-vMagnitude)*0.6),0.2,3.0);
       float flare=0.0;
-      if(vMagnitude<1.4) {
+      if(vMagnitude<1.6) {
         flare=(exp(-abs(p.x)*8.0)*exp(-abs(p.y)/max(1.0,vCore*2.6))+
                exp(-abs(p.y)*8.0)*exp(-abs(p.x)/max(1.0,vCore*2.6)))*0.10;
       }

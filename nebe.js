@@ -396,11 +396,11 @@
     g.font = `500 ${Math.round(11 + 1.5 * zoom)}px system-ui,sans-serif`; g.fillStyle = `rgba(170,190,255,${st.cam ? 0.8 : 0.55})`;
     for (const c of st.data.cons) { if (c.rank > (st.fov < 45 ? 3 : art ? 1 : 2)) continue; const p = P(c.v); if (!onScreen(p, 0)) continue; if (st.showNames && st.showLines) LB.push({ t: c.name.toUpperCase(), x: p[0], y: p[1], font: art ? `500 ${Math.round(17 + zoom)}px Cormorant Garamond,Georgia,serif` : `600 ${Math.round(11 + 1.5 * zoom)}px system-ui,sans-serif`, col: art ? '#94b2cb' : '#AFC3FF', al: 'center', pr: 45, alts: [0, 18, -18, 34] }); if (st.showNames && st.showLines) st.hits.push({ p, k: 'con', o: c, w: 0.6 }); }
     // hvězdy
-    const magLim = gpu ? clamp((art ? 6.0 : 4.8) + 1.2 * Math.log2(zoom) - (st.cam ? 0.7 : 0) - (st.cam || st.red || art ? 0 : clamp((st.sunAlt + 12) / 18, 0, 1) * 0.60 * 3), 2, 6.5) : clamp(4.6 + 1.6 * Math.log2(zoom) + (st.cam ? -0.6 : 0) - (1 - dim) * 3, 2, 6.5);
+    const magLim = gpu ? clamp((art ? 5.8 : 4.7) + 1.2 * Math.log2(zoom) - (st.cam ? 0.7 : 0) - (st.cam || st.red || art ? 0 : clamp((st.sunAlt + 12) / 18, 0, 1) * 0.60 * 3), 2, 6.5) : clamp(4.6 + 1.6 * Math.log2(zoom) + (st.cam ? -0.6 : 0) - (1 - dim) * 3, 2, 6.5);
     for (let i = 0; i < st.data.stars.length; i++) {
       const s = st.data.stars[i]; if (s.mag > magLim) break; if (dot(s.v, f) < cosLim) continue; const p = P(s.v); if (!onScreen(p, 4)) continue;
       const rad = clamp((magLim + 1.5 - s.mag) * 2.3 * Math.sqrt(zoom), 2.4, 34); const below = s.v[2] < 0 ? 0.3 : 1;
-      g.globalAlpha = clamp(0.5 + (magLim - s.mag) * 0.25, 0.5, 1) * below * (0.6 + 0.4 * dim);
+      g.globalAlpha = clamp(Math.pow(2.512, (3 - s.mag) * 0.36), 0.3, 1) * below * (0.6 + 0.4 * dim);
       if (!gpu) g.drawImage(st.data.cols[s.ck], p[0] - rad, p[1] - rad, rad * 2, rad * 2);
       if (s.mag < 4 || st.fov < 35) st.hits.push({ p, k: 'star', o: s, i, w: s.mag < 2 ? 1.5 : .6 });
     }
