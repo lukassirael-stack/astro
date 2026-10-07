@@ -1348,6 +1348,17 @@ body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}
 .psigns.grow .psign{border-color:rgba(159,183,230,.45);background:rgba(59,120,216,.08)}
 .liccard{border-color:rgba(243,211,132,.55);box-shadow:0 0 0 1px rgba(243,211,132,.18),0 0 22px rgba(243,211,132,.18)}
 .liccard>b{display:block;font-family:var(--display);font-size:20px;color:#FFF7E6;margin-bottom:6px}
+.vercmp-lead{margin:0 0 10px}
+.vercmp{display:grid;grid-template-columns:1fr;gap:10px;margin:0 0 12px}
+.vercmp .vc{border:1px solid var(--line2);border-radius:12px;padding:10px 12px;background:rgba(255,255,255,.03)}
+.vercmp .vc-plus{border-color:rgba(243,211,132,.5);background:rgba(243,211,132,.07)}
+.vercmp h4{margin:0 0 6px;font-family:var(--display);font-size:16px;font-weight:600;color:#FFF7E6}
+.vercmp .vc-plus h4{color:#F3D384}
+.vercmp ul{list-style:none;margin:0;padding:0}
+.vercmp li{position:relative;padding:3px 0 3px 18px;font-size:var(--fs-s);line-height:1.4}
+.vercmp li::before{content:"✓";position:absolute;left:0;top:3px;color:#8fd3a8}
+.vercmp .vc-plus li::before{content:"✦";color:#F3D384}
+@media(min-width:640px){.vercmp{grid-template-columns:1fr 1fr}}
 .liccard input{background:var(--field);color:var(--text);border:1px solid var(--line2);border-radius:9px;padding:9px 10px;font-size:var(--fs-m)}
 
 /* výloha plné verze */

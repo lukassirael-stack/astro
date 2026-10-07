@@ -1085,7 +1085,26 @@
     const exp = l && l.duvod === 'expirace' ? `<p class="note" style="margin:0 0 8px">Platnost kódu ${esc(l.kod)} skončila ${licDate(l.plati_do)}. Obnovíš ji novým předplatným níž.</p>` : '';
     return `<div class="card liccard"><b>Plná verze</b>
       ${exp}
-      <p>Osobní horoskop ve dvanácti kapitolách a na den, týden, měsíc a rok, mapa bod po bodu, Čím teď procházíš, Vztahy a Kdo se k tobě hodí, Najít vhodný den, čísla, návraty, Čakra roku, mayský a čínský horoskop, tisk.</p>
+      <p class="vercmp-lead">Základ Kompasu zůstává zdarma natrvalo. Plná verze k němu přidává čtení tvé osobní mapy.</p>
+      <div class="vercmp">
+        <div class="vc vc-free"><h4>Zdarma · natrvalo</h4><ul>
+          <li>Kalendář s barvou každého dne, fáze Luny, svátky a jmeniny (CZ i SK)</li>
+          <li>Karta Dnes: čtení dne, rytmus dne s tatvami, Nebeský tip, portály</li>
+          <li>Úkazy na rok dopředu v jedenácti kategoriích</li>
+          <li>Hvězdné nebe teď a planety v dalekohledu</li>
+          <li>Diář: plán, zápisy dne s fotkami a hlasem, poznámky</li>
+          <li>Tvé Slunce, Luna, Ascendent a Descendent s výkladem</li>
+        </ul></div>
+        <div class="vc vc-plus"><h4>✦ Plná verze · navíc</h4><ul>
+          <li>Celoživotní horoskop ve dvanácti kapitolách</li>
+          <li>Osobní horoskop na den, týden, měsíc a rok</li>
+          <li>Tvoje mapa bod po bodu a Čím teď procházíš</li>
+          <li>Najít vhodný den podle tvého záměru</li>
+          <li>Vztahy, Kdo se k tobě hodí, čtení pro blízké</li>
+          <li>Tvá čísla, Čakra roku, Velké návraty</li>
+          <li>Mayský a čínský horoskop, tisk horoskopu</li>
+        </ul></div>
+      </div>
       ${c.zavadeci ? '<p class="note" style="margin:0 0 8px">Zaváděcí cena do 31. 12. 2026. Roční předplatné pořízené do Vánoc zůstává na stejné ceně, dokud běží.</p>' : ''}
       <label class="wide" style="display:block;margin:6px 0 8px"><input type="email" id="licEmail" placeholder="tvůj e-mail pro odemykací kód" value="${esc(settings.licEmail || '')}" autocomplete="email" style="width:100%"></label>
       <div class="row" style="gap:8px;flex-wrap:wrap">
