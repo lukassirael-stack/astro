@@ -1037,7 +1037,8 @@
   async function licActivate(kod, tichy) {
     kod = String(kod || '').toUpperCase().replace(/\s+/g, '').trim();
     if (!/^KOMPAS-[A-Z2-9]{5}$/.test(kod)) { if (!tichy) toast('Kód má tvar KOMPAS-XXXXX.'); return false; }
-    let v; try { v = await licCall({ druh: 'kompas_overit', kod, zarizeni: metState().id }); } catch (e) { if (!tichy) toast('Ověření teď neprošlo, zkus to za chvíli.'); return false; }
+    let v; try { v = await licCall({ druh: 'kompas_overit', kod, zarizeni: metState().id }); } catch (e) { if (!tichy) toast('Spojení se nepovedlo, zkus to prosím za chvíli.'); return false; }
+    if (v.chyba && !v.duvod) { if (!tichy) toast('Spojení se nepovedlo, zkus to prosím za chvíli.'); return false; }
     if (v.platny) {
       store.set('kairos_lic', { kod, typ: v.typ, plati_do: v.plati_do, stav: v.stav, predplatne: !!v.predplatne, platny: true, overeno: Date.now() });
       store.set('kairos_plus', true);
