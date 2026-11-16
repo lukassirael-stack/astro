@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v434'; window.KOMPAS_VERSION = VERSION.slice(1);
+  const VERSION = 'v435'; window.KOMPAS_VERSION = VERSION.slice(1);
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1028,6 +1028,8 @@
   const licGet = () => store.get('kairos_lic', null);
   const licValid = (l) => !!(l && l.platny && l.kod && l.plati_do && l.plati_do >= K.isoDate(np.y, np.m, np.d));
   const hasPlus = () => !PAYWALL || licValid(licGet());
+  // pondělí: „tvůj den" celý i v základní verzi (ochutnávka uvnitř)
+  const freeArcDay = () => !hasPlus() && np.wd === 1 && !!S.natal && !S.readAs;
   const licDate = (iso) => { if (!iso) return ''; const [y, m, d] = iso.split('-'); return `${+d}. ${+m}. ${y}`; };
   async function licCall(body) {
     const r = await fetch(LIC_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
@@ -1122,14 +1124,16 @@
   const plusBadge = () => hasPlus() ? '' : '<span class="plusb">✦ plná verze</span>';
   function plusStripHTML() {
     const c = LIC_CENIK();
-    return `<button type="button" class="plusstrip" data-act="goPlus"><b>✦ Odemkni čtení podle své mapy</b><small>horoskop, čím právě procházíš, vztahy a další · od ${c.mesicni[0]} Kč měsíčně</small><span class="chev">›</span></button>`;
+    let now = '';
+    try { if (S.natal && !S.readAs) { const l = transitArcs(np.y, np.m, np.d); if (l.length) { const d = l.length - 1; now = `Právě teď: ${arcTitle(l[0].t)}${d ? ` a ${d} ${d === 1 ? 'další' : d < 5 ? 'další' : 'dalších'}` : ''}`; } } } catch (e) { }
+    return `<button type="button" class="plusstrip" data-act="goPlus"><b>✦ Odemkni čtení podle své mapy</b>${now ? `<small class="psnow">${esc(now)}</small>` : ''}<small>horoskop, čím právě procházíš, vztahy a další · od ${c.mesicni[0]} Kč měsíčně</small><span class="chev">›</span></button>`;
   }
   function arcTeaserHTML() {
     if (!S.natal) return '';
     let t = ''; try { t = arcSentence(); } catch (e) { }
     if (!t) return '';
     const cut = t.split(' ').slice(0, 3).join(' ');
-    return `<span class="ht-div"></span><span class="ht-row ht-arc ht-lock" data-act="goPlus" role="button" aria-label="Tvůj den v plné verzi"><i class="ht-ic arc">${ico('✺')}</i><b>tvůj den</b><span class="tx"><span>${esc(cut)}</span> <span class="blurx">${esc(t.slice(cut.length))}</span></span><span class="lockcta">✦ celé v plné verzi</span></span>`;
+    return `<span class="ht-div"></span><span class="ht-row ht-arc ht-lock" data-act="goPlus" role="button" aria-label="Tvůj den v plné verzi"><i class="ht-ic arc">${ico('✺')}</i><b>tvůj den</b><span class="tx"><span>${esc(cut)}</span> <span class="blurx">${esc(t.slice(cut.length))}</span></span><span class="lockcta">✦ celé v plné verzi · v pondělí zdarma</span></span>`;
   }
   function pwTeaserHTML(view) {
     const n = S.natal; if (!n) return '';
@@ -1139,13 +1143,43 @@
       if (view === 'vztahy') { txt = HS.VEN_LOVE[sg('Venus')]; lab = 'Jak miluješ · Venuše ' + K.SIGN_LOC_V[sg('Venus')]; }
       else if (view === 'prochazis') { txt = arcSentence(); lab = 'Čím teď procházíš'; }
       else if (view === 'cisla') { const nu = numerology(activeProfile(), np.y, np.m, np.d); txt = (NUM_LIFE[nu.life] || ['', ''])[1]; lab = 'Tvé životní číslo ' + nu.life; }
-      else if (view === 'mapa') { const a = K.signOf(n.points.Asc.lon); txt = HS.ASC[a]; lab = 'Ascendent ' + K.SIGN_LOC_V[a]; }
-      else if (view === 'horoskop') { txt = HS.SUN[n.sunSign]; lab = 'Tvé jádro · Slunce ' + K.SIGN_LOC_V[n.sunSign]; }
+      else if (view === 'mapa' || view === 'horoskop') { txt = ''; }
       else { txt = (HS.MOON && HS.MOON[n.moonSign]) || ''; lab = 'Tvůj vnitřní svět · Luna ' + K.SIGN_LOC_V[n.moonSign]; }
     } catch (e) { txt = ''; }
-    if (!txt) return '';
+    const list = pwListHTML(view);
+    if (!txt) return list;
     const parts = txt.split(/(?<=[.!?])\s+/); const first = parts.shift(); const rest = parts.join(' ');
-    return `<div class="card pwtease"><p class="k">Ukázka z tvého čtení · ${esc(lab)}</p><p>${esc(first)}</p>${rest ? `<p class="blurx">${esc(rest)}</p>` : ''}</div>`;
+    return `<div class="card pwtease"><p class="k">Ukázka z tvého čtení · ${esc(lab)}</p><p>${esc(first)}</p>${rest ? `<p class="blurx">${esc(rest)}</p>` : ''}</div>` + list;
+  }
+  // zámek ukazuje konkrétní nadpisy z mapy: co přesně v plné verzi čeká
+  function pwListHTML(view) {
+    const n = S.natal; if (!n) return '';
+    let head = '', rows = [], foot = '';
+    try {
+      const sg = (b) => K.signOf(n.points[b].lon);
+      const loc = (b) => `${K.BODY_CZ[b]} ${K.SIGN_LOC_V[sg(b)]}`;
+      if (view === 'mapa') {
+        const keys = ['Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto', 'Node', 'MC'].filter(k => n.points[k]);
+        head = `${keys.length} dalších bodů tvé mapy s výkladem`;
+        rows = keys.map(k => { const h = n.points[k].house; return [k === 'MC' ? `MC ${K.SIGN_LOC_V[sg(k)]}` : `${K.BODY_GLYPH[k]} ${loc(k)}`, k === 'MC' ? 'povolání a veřejná role' : h ? `${h}. dům` : '']; });
+        foot = 'K tomu domy, aspekty a tabulka poloh.';
+      } else if (view === 'prochazis') {
+        const l = transitArcs(np.y, np.m, np.d);
+        if (l.length) { head = l.length === 1 ? 'Tvou mapou teď prochází 1 tranzit' : `Tvou mapou teď ${l.length < 5 ? 'procházejí' : 'prochází'} ${l.length} ${l.length < 5 ? 'tranzity' : 'tranzitů'}`;
+          rows = l.slice(0, 6).map(it => [arcTitle(it.t), it.nextExact ? `vrchol ${fmtD(it.nextExact)}` : `do ${fmtD(it.arc.end)}`]);
+          foot = 'U každého: co období žádá, co dává a kdy doznívá.'; }
+      } else if (view === 'vztahy') {
+        head = 'Tvoje vztahová čtyřka';
+        rows = [[`♀ ${loc('Venus')}`, 'jak miluješ'], [`♂ ${loc('Mars')}`, 'co tě přitahuje'], [`☽ ${loc('Moon')}`, 'co potřebuješ k bezpečí'], [`Dsc ${K.SIGN_LOC_V[K.signOf(n.cusps[7])]}`, 'koho k sobě zveš']];
+        foot = 'K tomu kdo se k tobě hodí, znamení, se kterými rosteš, a porovnání map s blízkými.';
+      } else if (view === 'horoskop') {
+        head = '12 kapitol o tobě';
+        rows = ['Osobnostní', 'Peníze', 'Vztahy a láska', 'Rodina a kořeny', 'Duchovní cesta', 'Překážky a výzvy', 'Práce a poslání', 'Zdraví a vitalita', 'Tvořivost a radost', 'Komunikace a mysl', 'Tvé hvězdy', 'Tvůj rok'].map(x => [x, '']);
+        foot = 'K tomu čtení na den, týden, měsíc a rok a tisk celého horoskopu.';
+      }
+    } catch (e) { rows = []; }
+    if (!rows.length) return '';
+    return `<div class="card pwlist"><p class="k">${esc(head)}</p><ul>${rows.map(([a, b]) => `<li><span>${esc(a)}</span>${b ? `<small>${esc(b)}</small>` : ''}<i aria-hidden="true">✦</i></li>`).join('')}</ul>${foot ? `<p class="note">${esc(foot)}</p>` : ''}</div>`;
   }
   const isoDays = (a, b) => Math.round((Date.UTC(...b.split('-').map((v, i) => i === 1 ? v - 1 : +v)) - Date.UTC(...a.split('-').map((v, i) => i === 1 ? v - 1 : +v))) / 864e5);
   function licBannerHTML() {
@@ -2534,7 +2568,7 @@
     const phh = K.planetaryHours(np.y, np.m, np.d, observer(), TZ);
     const nd = namedayLine(np.m, np.d);
     const hol = holidayFor(np.y, np.m, np.d);
-    const arcS = hasPlus() ? arcSentence() : '';
+    const arcS = (hasPlus() || freeArcDay()) ? arcSentence() : '';
     return `<button type="button" class="hero-today ${da.color}" data-act="jumpDay" data-y="${np.y}" data-m="${np.m}" data-d="${np.d}" aria-label="Otevřít dnešek">
       <span class="ht-date">dnes · ${K.WEEKDAY_CZ[np.wd]} ${np.d}. ${K.MONTH_GEN[np.m - 1]}${hol ? ` <em class="ht-hol ${hol.f ? 'free' : 'trad'}">${esc(hol.n)}</em>` : ''}</span>
       <span class="ht-date ht-date2">${phh ? `<i class="sri">${SUNRISE_I}</i>&nbsp;${K.fmtTime(phh.sunrise, TZ)}&nbsp;&nbsp;–&nbsp;&nbsp;<i class="sri">${SUNSET_I}</i>&nbsp;${K.fmtTime(phh.sunset, TZ)}` : ''}${nd ? ' · ' + String(nd).replace(/\s*·\s*SK.*$/i, '') : ''}</span>${wxLine()}${(() => { const sd = sdForDay(np.y, np.m, np.d); return sd.length ? `<span class="ht-sd">${sd.map(x => sdLabel(x, np.y)).join(' · ')}</span>` : ''; })()}
@@ -2553,7 +2587,7 @@
         const digits = `${String(np.d).padStart(2, '0')}${String(np.m).padStart(2, '0')}${np.y}`.split('').filter(c => c !== '0').join('+');
         const nums = x.kind === 'mirror' ? `${np.d}. ${np.m}. — den ${np.d} zrcadlí měsíc ${np.m} · celé datum ${digits} = ${sum} → ${red}` : x.kind === 'master' ? `${np.d}. ${np.m}. ${np.y} → ${digits} = ${sum} → ${red}` : (x.extra || '');
         return `<span class="ht-div"></span><span class="ht-row ht-por"><i class="ht-ic por">${ico('⬡')}</i><b>portálový den</b><span class="tx"><b>${esc(x.title.replace(/^\d+\. \d+\. · /, ''))}</b><small class="pnum">${esc(nums)}</small>${esc(first)}.${x.step ? ` <em class="pstep">${esc(x.step)}</em>` : ''}${ps.length > 1 ? ` <em>+ ${ps.length - 1} další</em>` : ''}</span><i class="tvq" data-act="goPortal" role="button" aria-label="Portály v Úkazech">›</i></span>`; })()}
-      ${!arcS && !hasPlus() ? arcTeaserHTML() : ''}${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">${ico('✺')}</i><b>tvůj den</b><span class="tx">${esc(arcS)}</span><i class="tvq" data-act="goArcs" role="button" aria-label="Čím teď procházíš">›</i></span>` : ''}
+      ${!arcS && !hasPlus() ? arcTeaserHTML() : ''}${arcS ? `<span class="ht-div"></span><span class="ht-row ht-arc"><i class="ht-ic arc">${ico('✺')}</i><b>tvůj den</b><span class="tx">${esc(arcS)}${freeArcDay() ? `<span class="freeday">✦ pondělní čtení celé · každý den v plné verzi</span>` : ''}</span><i class="tvq" data-act="goArcs" role="button" aria-label="Čím teď procházíš">›</i></span>` : ''}
       ${(() => { const u = taskOfDay(da); const m = u.t.match(/^([^?]+\?)\s*(.*)$/); const q = m ? m[1] : u.t, a = m ? m[2] : ''; return `<span class="ht-invite"><svg class="inv-orn" viewBox="0 0 80 80" aria-hidden="true" fill="none"><defs>
 <linearGradient id="invG" gradientUnits="userSpaceOnUse" x1="40" y1="8" x2="40" y2="72"><stop offset="0" stop-color="#F7E3A8"/><stop offset="1" stop-color="#D9A54A"/></linearGradient>
 <radialGradient id="invBloom" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFEFC8" stop-opacity=".75"/><stop offset=".3" stop-color="#FBD489" stop-opacity=".34"/><stop offset=".62" stop-color="#F3BC63" stop-opacity=".1"/><stop offset="1" stop-color="#F3BC63" stop-opacity="0"/></radialGradient>
@@ -4213,8 +4247,9 @@ ${parts}
       return;
     }
     if (view === 'menu') {
-      const arcS = hasPlus() ? arcSentence() : '';
-      v.innerHTML = readBar + natalHead + (!hasPlus() ? plusStripHTML() : '') + (arcS ? `<p class="nnow"><span class="tvlab">${S.readAs ? 'jeho den' : 'tvůj den'}</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES_V.map(([id, ic, t, sub, kind, noimg]) => noimg ? `<button type="button" class="ntile txt ${kind || ''}" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small>${plusBadge()}<span class="chev">›</span></button>` : `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=11" alt="" width="420" height="317">${plusBadge()}</button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
+      const arcS = (hasPlus() || freeArcDay()) ? arcSentence() : '';
+      if (!hasPlus() && !S.ptFreeInit) { S.ptFreeInit = true; if (!S.ptOpen) S.ptOpen = 'sun'; }
+      v.innerHTML = readBar + natalHead + (!hasPlus() ? `<p class="freek">Tvoje čtyři světla — čti hned</p>${natalSumHTML(false)}${plusStripHTML()}` : '') + (arcS ? `<p class="nnow"><span class="tvlab">${S.readAs ? 'jeho den' : 'tvůj den'}</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES_V.map(([id, ic, t, sub, kind, noimg]) => noimg ? `<button type="button" class="ntile txt ${kind || ''}" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small>${plusBadge()}<span class="chev">›</span></button>` : `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=11" alt="" width="420" height="317">${plusBadge()}</button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
       return;
     }
     const back = readBar + `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
@@ -4763,7 +4798,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=434'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=435'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
