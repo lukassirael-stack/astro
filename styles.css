@@ -1394,3 +1394,15 @@ body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}
 .wnote{font-size:var(--fs-s)!important;color:#B9C6E4!important}
 .wgo{color:#F3D384!important;margin:6px 0 8px!important}
 .wbtns{display:flex;flex-direction:column;gap:8px}
+
+/* v434: konec karty Dnes — zítra a nejbližší příznivý den */
+.ht-next{display:flex;flex-direction:column;gap:7px;margin-top:12px;padding-top:11px;border-top:1px solid var(--inst-line-soft);text-align:left}
+.hn-i{display:flex;align-items:baseline;gap:9px;font-size:var(--fs-m);line-height:1.4;color:var(--inst-text);cursor:pointer}
+.hn-i b{flex:none;font-weight:500;font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;color:var(--inst-muted)}
+.hn-i>span{min-width:0}
+.hn-i.harm>span{color:var(--inst-gold)}
+.hn-i::after{content:'›';margin-left:auto;padding-left:8px;color:var(--inst-gold)}
+/* v434: nabídka Přidat na plochu */
+.inst-steps{list-style:none;counter-reset:inst;margin:12px 0 2px;padding:0;display:flex;flex-direction:column;gap:10px;text-align:left}
+.inst-steps li{counter-increment:inst;display:flex;align-items:flex-start;gap:10px;font-size:var(--fs-m);line-height:1.45}
+.inst-steps li::before{content:counter(inst);flex:none;width:22px;height:22px;border-radius:50%;border:1px solid rgba(240,200,116,.6);color:#F0C874;font-size:var(--fs-s);display:flex;align-items:center;justify-content:center}

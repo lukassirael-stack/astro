@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v433'; window.KOMPAS_VERSION = VERSION.slice(1);
+  const VERSION = 'v434'; window.KOMPAS_VERSION = VERSION.slice(1);
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -2199,6 +2199,7 @@
       computeNatal(); rawSet('kairos_ob_skip', true); obRender(); showTab('kalendar'); renderCalendar(); renderNatal(); renderSettings();
       if (OB.sd && !INAPP) setTimeout(() => actions.sdGo(), 400);
       if (INAPP) setTimeout(inappFinish, 700);
+      else if (!OB.sd) setTimeout(() => installOffer(), 6000);
       toast(OB.cyc ? `Vítej, ${OB.name || ''}. První den cyklu si zapiš v Diáři — Kompas se pak srovná s Lunou.` : `Vítej, ${OB.name || ''}. Tohle je tvůj první den s Kompasem.`);
     },
     setRod(el) { const p = ownerProfile(); p.rod = el.dataset.r; persistProfiles(); renderSettings(); if (S.tab !== 'nastaveni') renderCalendar(); toast(el.dataset.r === 'z' ? 'Kompas tě bude oslovovat v ženském rodě.' : 'Kompas tě bude oslovovat v mužském rodě.'); },
@@ -2389,7 +2390,7 @@
     saveComets() { settings.comets = $('#cometsForm textarea').value; persistSettings(); S.evCache = {}; toast('Seznam uložen.'); },
     refreshKp(el) { el.disabled = true; loadKp(true).finally(() => { el.disabled = false; renderSettings(); toast(S.kpError ? S.kpError : 'Kosmické počasí aktualizováno.'); }); },
     clearCache() { store.del('kairos_kp'); S.kpMap = {}; S.kpUpdated = null; S.dayCache = {}; S.evCache = {}; K.clearCache(); if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())); toast('Mezipaměť vymazána.'); renderSettings(); },
-    install() { if (S.installEvt) { S.installEvt.prompt(); } else toast('V prohlížeči zvol „Přidat na plochu“ (Safari: Sdílet → Přidat na plochu).'); },
+    install() { installOffer(true); },
   };
   function persistProfiles() { store.set('kairos_profiles', profiles); store.set('kairos_active', activeId); }
   function persistSettings() { store.set('kairos_settings', settings); }
@@ -2510,6 +2511,18 @@
     </div>`;
   }
   // dnešní shrnutí nahoře
+  // konec karty Dnes: zítřek a nejbližší příznivý den — důvod otevřít Kompas zas
+  function heroNextHTML() {
+    try {
+      const base = K.dayStart(np.y, np.m, np.d, TZ).getTime() + 12 * 3600000;
+      const at = (i) => { const p = K.tzParts(new Date(base + i * 86400000), TZ); return { p, da: analyze(p.y, p.m, p.d), i }; };
+      const lab = (p) => `${K.WEEKDAY_CZ[p.wd]} ${p.d}. ${p.m}.`;
+      const row = (x, v, k, txt) => `<span class="hn-i ${x.da.color}" role="button" data-act="jumpDay" data-v="${v}" data-y="${x.p.y}" data-m="${x.p.m}" data-d="${x.p.d}"><b>${k}</b><span>${esc(txt)}</span></span>`;
+      const t = at(1); let best = null;
+      for (let i = 2; i <= 10 && !best; i++) { const x = at(i); if (x.da.color === 'harm' && x.da.score >= 4) best = x; }
+      return `<span class="ht-next">${row(t, 'zitra', 'zítra', `${lab(t.p)} · ${TX.dayWord(t.da)}`)}${best ? row(best, 'priznivy', 'příznivý den', `${lab(best.p)} · za ${best.i} ${best.i < 5 ? 'dny' : 'dní'}`) : ''}</span>`;
+    } catch (e) { return ''; }
+  }
   function todayHeroHTML() {
     const da = analyze(np.y, np.m, np.d);
     const key = K.isoDate(np.y, np.m, np.d);
@@ -2547,6 +2560,7 @@
 <radialGradient id="invCore" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFFEF8"/><stop offset=".38" stop-color="#FFF3D4" stop-opacity=".85"/><stop offset="1" stop-color="#FFE6B0" stop-opacity="0"/></radialGradient>
 <filter id="invSoft" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation=".85"/></filter>
 </defs><circle cx="40" cy="40" r="35" stroke="url(#invG)" stroke-width="1" opacity=".5" fill="none"/><ellipse cx="40" cy="43.5" rx="23" ry="14.5" fill="url(#invBloom)"/><line x1="16.9" y1="41.9" x2="9.5" y2="40.6" stroke="url(#invG)" stroke-width="1.1" opacity=".92"/><line x1="17.9" y1="38.0" x2="14.2" y2="36.6" stroke="url(#invG)" stroke-width="1.1" opacity=".62"/><line x1="19.6" y1="34.2" x2="13.2" y2="30.5" stroke="url(#invG)" stroke-width="1.1" opacity=".92"/><line x1="22.0" y1="30.9" x2="18.9" y2="28.3" stroke="url(#invG)" stroke-width="1.1" opacity=".62"/><line x1="24.9" y1="28.0" x2="20.1" y2="22.3" stroke="url(#invG)" stroke-width="1.1" opacity=".92"/><line x1="28.3" y1="25.6" x2="26.3" y2="22.2" stroke="url(#invG)" stroke-width="1.1" opacity=".62"/><line x1="32.0" y1="23.9" x2="29.4" y2="16.9" stroke="url(#invG)" stroke-width="1.1" opacity=".92"/><line x1="35.9" y1="22.9" x2="35.2" y2="18.9" stroke="url(#invG)" stroke-width="1.1" opacity=".62"/><line x1="40.0" y1="22.5" x2="40.0" y2="15.0" stroke="url(#invG)" stroke-width="1.1" opacity=".92"/><line x1="44.1" y1="22.9" x2="44.8" y2="18.9" stroke="url(#invG)" stroke-width="1.1" opacity=".62"/><line x1="48.0" y1="23.9" x2="50.6" y2="16.9" stroke="url(#invG)" stroke-width="1.1" opacity=".92"/><line x1="51.8" y1="25.6" x2="53.8" y2="22.2" stroke="url(#invG)" stroke-width="1.1" opacity=".62"/><line x1="55.1" y1="28.0" x2="59.9" y2="22.3" stroke="url(#invG)" stroke-width="1.1" opacity=".92"/><line x1="58.0" y1="30.9" x2="61.1" y2="28.3" stroke="url(#invG)" stroke-width="1.1" opacity=".62"/><line x1="60.4" y1="34.2" x2="66.8" y2="30.5" stroke="url(#invG)" stroke-width="1.1" opacity=".92"/><line x1="62.1" y1="38.0" x2="65.8" y2="36.6" stroke="url(#invG)" stroke-width="1.1" opacity=".62"/><line x1="63.1" y1="41.9" x2="70.5" y2="40.6" stroke="url(#invG)" stroke-width="1.1" opacity=".92"/><path d="M21 46 A19 19 0 0 1 59 46" stroke="url(#invG)" stroke-width="1.6" fill="none"/><path d="M26 46 A14 14 0 0 1 54 46" stroke="url(#invG)" stroke-width="1" opacity=".6" fill="none"/><circle cx="40" cy="45.2" r="8" fill="url(#invCore)" opacity=".95"/><g filter="url(#invSoft)" stroke="#FFFAEA" stroke-linecap="round"><line x1="40" y1="39.5" x2="40" y2="51" stroke-width="1.4"/><line x1="34.5" y1="45.2" x2="45.5" y2="45.2" stroke-width="1.4"/><line x1="36.4" y1="41.6" x2="43.6" y2="48.8" stroke-width=".85" opacity=".7"/><line x1="43.6" y1="41.6" x2="36.4" y2="48.8" stroke-width=".85" opacity=".7"/></g><circle cx="40" cy="45.2" r="2.1" fill="#FFFEF6"/><line x1="12" y1="46" x2="68" y2="46" stroke="url(#invG)" stroke-width="1.2" opacity=".85"/><line x1="18.0" y1="50" x2="22.9" y2="50" stroke="url(#invG)" stroke-width="1.2" opacity="0.55"/><line x1="27.8" y1="50" x2="32.7" y2="50" stroke="url(#invG)" stroke-width="1.2" opacity="0.75"/><line x1="37.6" y1="50" x2="42.4" y2="50" stroke="url(#invG)" stroke-width="1.2" opacity="0.95"/><line x1="47.3" y1="50" x2="52.2" y2="50" stroke="url(#invG)" stroke-width="1.2" opacity="0.75"/><line x1="57.1" y1="50" x2="62.0" y2="50" stroke="url(#invG)" stroke-width="1.2" opacity="0.55"/><line x1="23.0" y1="54.5" x2="27.9" y2="54.5" stroke="url(#invG)" stroke-width="1.2" opacity="0.56"/><line x1="32.7" y1="54.5" x2="37.6" y2="54.5" stroke="url(#invG)" stroke-width="1.2" opacity="0.82"/><line x1="42.4" y1="54.5" x2="47.3" y2="54.5" stroke="url(#invG)" stroke-width="1.2" opacity="0.82"/><line x1="52.1" y1="54.5" x2="57.0" y2="54.5" stroke="url(#invG)" stroke-width="1.2" opacity="0.56"/><line x1="27.5" y1="59" x2="32.5" y2="59" stroke="url(#invG)" stroke-width="1.2" opacity="0.59"/><line x1="37.5" y1="59" x2="42.5" y2="59" stroke="url(#invG)" stroke-width="1.2" opacity="0.95"/><line x1="47.5" y1="59" x2="52.5" y2="59" stroke="url(#invG)" stroke-width="1.2" opacity="0.59"/><line x1="32.0" y1="63.5" x2="37.3" y2="63.5" stroke="url(#invG)" stroke-width="1.2" opacity="0.65"/><line x1="42.7" y1="63.5" x2="48.0" y2="63.5" stroke="url(#invG)" stroke-width="1.2" opacity="0.65"/><line x1="35.5" y1="67.5" x2="44.5" y2="67.5" stroke="url(#invG)" stroke-width="1.2" opacity="0.95"/></svg><svg class="inv-wm" viewBox="0 0 160 160" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1"><circle cx="80" cy="80" r="70"/><circle cx="80" cy="80" r="52" stroke-dasharray="2 5"/><circle cx="80" cy="80" r="30"/><line x1="80" y1="4" x2="80" y2="156"/><line x1="4" y1="80" x2="156" y2="80"/><line x1="26" y1="26" x2="134" y2="134" opacity=".6"/><line x1="134" y1="26" x2="26" y2="134" opacity=".6"/><circle cx="80" cy="10" r="2" fill="currentColor"/><circle cx="150" cy="80" r="1.6" fill="currentColor"/><circle cx="46" cy="118" r="1.4" fill="currentColor"/></svg><span class="inv-body"><b>Nebeský tip</b><i class="q">${esc(q)}</i>${a ? `<i class="a">${esc(a)}</i>` : ''}<small>${esc(u.sig)}</small></span></span>`; })()}
+      ${heroNextHTML()}
     </button>`;
   }
 
@@ -4695,7 +4709,7 @@ ${parts}
       if (!st) { toast('Přenosový odkaz už byl použitý nebo vypršel — vytvoř si nový.'); return; }
       if (xfHasData() && !confirm('Přenést data z druhého zařízení? Nahradí data, která jsou teď tady.')) return;
       store.importState(st);
-      try { sessionStorage.setItem('kNoSp', '1'); } catch (e) { }
+      try { sessionStorage.setItem('kNoSp', '1'); sessionStorage.setItem('kInst', '1'); } catch (e) { }
       toast('Data jsou přenesená — Kompas se znovu načte.');
       setTimeout(() => location.reload(), 900);
     } catch (e) { toast('Přenos se nepodařil — zkus vytvořit nový odkaz.'); }
@@ -4749,7 +4763,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=433'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=434'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
@@ -4774,6 +4788,48 @@ ${parts}
     },
   });
   window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); S.installEvt = e; });
+  // ---------- nabídka „Přidat na plochu": po průvodci, po přenosu z vestavěného prohlížeče a při návratu další den ----------
+  const isStandalone = () => !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const instState = () => rawGet('kairos_inst', { n: 0, t: 0, done: false });
+  function installOffer(force) {
+    if (isStandalone()) { if (force) toast('Kompas už máš na ploše ✧'); return; }
+    if (INAPP) { if (force) toast('Otevři Kompas v prohlížeči — tam si ho přidáš na plochu.'); return; }
+    const st = instState();
+    if (!force) {
+      if (st.done || st.n >= 3 || Date.now() - (st.t || 0) < 5 * 86400000) return;
+      if (!(S.installEvt || IS_IOS)) return;
+      const ob = $('#onboard'); if ((ob && ob.innerHTML) || $('#xfModal')) return;
+      rawSet('kairos_inst', { ...st, n: (st.n || 0) + 1, t: Date.now() });
+    }
+    const SHARE = '<svg viewBox="0 0 16 16" width="17" height="17" aria-hidden="true" style="vertical-align:-3px"><path d="M8 1.5v8.5M4.8 4.6 8 1.5l3.2 3.1M3 8.5v4.2a1.3 1.3 0 0 0 1.3 1.3h7.4a1.3 1.3 0 0 0 1.3-1.3V8.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const safari = IS_IOS && !/CriOS|FxiOS|EdgiOS/i.test(UA);
+    let body;
+    if (S.installEvt) body = `<button type="button" class="btn primary" data-xf="inst">Přidat na plochu</button>`;
+    else if (IS_IOS) body = `<ol class="inst-steps"><li><span>Klepni na <b>Sdílet</b> ${SHARE} ${safari ? 'dole na liště' : 'v nabídce prohlížeče'}.</span></li><li><span>Zvol <b>Přidat na plochu</b>.</span></li><li><span>Potvrď <b>Přidat</b> — ikona Kompasu se objeví mezi aplikacemi.</span></li></ol>`;
+    else body = `<ol class="inst-steps"><li><span>Otevři nabídku prohlížeče (<b>⋮</b>).</span></li><li><span>Zvol <b>Přidat na plochu</b> nebo <b>Nainstalovat aplikaci</b>.</span></li></ol>`;
+    const m = xfModal(`<div class="xfm-ic">✦</div><div class="h3" style="margin-top:0">Měj Kompas po ruce</div>
+      <p class="note">Přidej si ho na plochu. Otevřeš ho jedním klepnutím jako aplikaci a každé ráno tě tam čeká tvůj den.</p>
+      ${body}
+      <p class="note" style="margin-top:12px"><a href="#" data-xf="later">Později</a></p>`);
+    m.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-xf]'); if (!b) return;
+      if (b.dataset.xf === 'later') { e.preventDefault(); metNote('act', 'instLater'); m.remove(); return; }
+      if (b.dataset.xf === 'inst' && S.installEvt) {
+        const ev = S.installEvt; S.installEvt = null; m.remove();
+        try { ev.prompt(); if (ev.userChoice) ev.userChoice.then((c) => { metNote('act', c && c.outcome === 'accepted' ? 'instYes' : 'instNo'); metQueue(); }).catch(() => 0); } catch (err) { }
+      }
+    });
+    metNote('act', force ? 'instOpen' : 'instOffer'); metQueue();
+  }
+  window.addEventListener('appinstalled', () => { rawSet('kairos_inst', { ...instState(), done: true }); metNote('act', 'installed'); metQueue(); const m = $('#xfModal'); if (m) m.remove(); toast('Kompas je na ploše ✧'); });
+  // po přenosu dat z vestavěného prohlížeče nabídnout plochu hned; jinak při návratu další den
+  setTimeout(() => {
+    try {
+      let after = false; try { after = !!sessionStorage.getItem('kInst'); sessionStorage.removeItem('kInst'); } catch (e) { }
+      if (after) { rawSet('kairos_inst', { ...instState(), t: 0 }); installOffer(); return; }
+      if (S.natal && metState().first !== K.isoDate(np.y, np.m, np.d)) installOffer();
+    } catch (e) { }
+  }, 7000);
   function noNatalHTML(what) {
     return `<div class="card nonatal">
       <div class="h3" style="margin-top:0">Začni datem narození</div>
