@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v430'; window.KOMPAS_VERSION = VERSION.slice(1);
+  const VERSION = 'v433'; window.KOMPAS_VERSION = VERSION.slice(1);
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1015,7 +1015,7 @@
   const MALE_A = ['honza', 'kuba', 'ondra', 'míša', 'jirka', 'péťa', 'vojta', 'tonda', 'franta', 'pepa', 'láďa', 'sáša', 'nikola', 'luca', 'jóža', 'joža', 'jarda', 'zdena', 'venca', 'vláďa', 'dan', 'ríša', 'kája', 'míra', 'standa', 'ruda', 'bára'];
   function guessRod(name) { const n = (name || '').trim().toLowerCase().split(/\s+/)[0]; if (!n) return null; if (MALE_A.includes(n) && !['bára', 'zdena', 'kája', 'míša', 'sáša', 'nikola'].includes(n)) return 'm'; if (/(a|ie|e)$/.test(n)) return 'z'; return 'm'; }
   // ---------- anonymní metriky: kolik lidí Kompas používá a co otevírají (bez jmen, dat narození a poloh) ----------
-  const MET_URL = 'https://myybuesoourgpbouwwst.supabase.co/rest/v1/kompas_metriky';
+  const MET_URL = 'https://myybuesoourgpbouwwst.supabase.co/rest/v1/rpc/kompas_metrika';
   const MET_KEY = MSG_KEY;
 
   // ---------- Plná verze: licence (Stripe předplatné přes Edge Function stripe-session) ----------
@@ -1225,7 +1225,7 @@
       zapisu: Object.keys(journal || {}).length, vztahu: (synPartners() || []).length,
       otevreni: s.otevreni || 0, obrazovky: s.obrazovky || {}, akce: s.akce || {}, updated_at: new Date().toISOString() };
     try {
-      await fetch(`${MET_URL}?on_conflict=zarizeni_id,den`, { method: 'POST', headers: { apikey: MET_KEY, Authorization: 'Bearer ' + MET_KEY, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(body), keepalive: true });
+      await fetch(MET_URL, { method: 'POST', headers: { apikey: MET_KEY, Authorization: 'Bearer ' + MET_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p: body }), keepalive: true });
     } catch (e) { }
   }
   const metQueue = () => { clearTimeout(_metTimer); _metTimer = setTimeout(metSend, 20000); };
@@ -4415,7 +4415,7 @@ ${parts}
       <label class="lyr" style="margin-bottom:8px"><input type="checkbox" data-act="metTgl" ${settings.metriky !== false ? 'checked' : ''}><span><b>Pomáhat s vývojem</b><small>Kompas jednou denně pošle anonymní přehled: kolik obrazovek jsi otevřel a které vrstvy máš zapnuté. Bez jména, data narození i polohy — jen abych věděl, co lidem k čemu je.</small></span></label>
       <div class="row"><button type="button" class="btn" data-act="guide">Průvodce Kompasem</button><button type="button" class="btn" data-act="install">Přidat na plochu</button><button type="button" class="btn" data-act="shareApp">Sdílet Kompas</button><button type="button" class="btn ghost" data-act="clearCache">Vymazat mezipaměť</button></div>
       <p class="note" style="margin-top:8px">Sdílení pošle odkaz na Kompas — druhý si ho otevře v prohlížeči a může si ho přidat na plochu stejně jako ty. Tvá data zůstávají jen u tebe; každý začíná se svým nativem.</p>
-      <p class="note" data-act="verTap" style="cursor:default">Nebeský kompas ${VERSION} · zkušební verze${store.get('kairos_plus', false) ? ' · plná verze' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
+      <p class="note" data-act="verTap" style="cursor:default">Nebeský kompas ${VERSION}${store.get('kairos_plus', false) ? ' · plná verze' : ''} · výpočty astronomy-engine 2.1 (geocentrické, tropické, domy Placidus) · stálice z J2000 s precesí · časová zóna Europe/Prague · vše běží v prohlížeči, data zůstávají v tomto zařízení.</p>
       <p class="note">Jazyk aplikace je záměrně „tohle je ve hře, tohoto si všímej“. Žádná barva dne není předpověď a nerozhoduje za tebe.</p></div>`;
     const adv = v.querySelector('.setadv'); if (adv) adv.addEventListener('toggle', () => { S.advOpen = adv.open; });
     const sel = $('#profileSelect', v); if (sel) sel.addEventListener('change', () => actions.switchProfile(sel));
@@ -4749,7 +4749,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=430'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=433'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
