@@ -32,6 +32,7 @@ Commit do `main` → Vercel nasadí sám. Appka si novou verzi stáhne při dal�
 - Uživatelská data v jednom balíčku `localStorage.kairos_state` (`{v, updated, data: {settings, profiles, journal, plan, cyc, days, partners, …}}`) — připravené pro sync přes účet.
 - Přílohy Diáře (fotky, hlas) v IndexedDB.
 - Plná verze: licence `kompas_licence` + `kompas_zarizeni` (kód KOMPAS-XXXXX, max 2 zařízení), Stripe předplatné přes Edge Function `stripe-session` (druh kompas / kompas_po_platbe / kompas_overit / kompas_portal) a `stripe-webhook` (checkout.session.completed, invoice.paid, customer.subscription.deleted); dárkový/testovací kód: `select * from kompas_zdarma('email', dny, 'poznámka')`. Přepínač paywallu: `const PAYWALL` v app.js (od v424 zapnuto).
+- Karty O tobě natrvalo (jednorázová platba): Edge Function `kompas-karty` (koupit / po_platbe / karty / prevest / srovnat), ceník `KARTY_CENIK` v app.js a `KARTY` ve funkci; karty jsou ve sloupci `kompas_licence.karty` (kód jen s kartami má `plati_do` prázdné), platby v `kompas_karty_platby`, rozpracované v `kompas_karty_cekajici` (cron `kompas-karty-srovnat` je dotahuje po 5 minutách). Předplatné: čtení v čase (Tvůj den, Čím teď procházíš, den/týden/měsíc/rok, kapitola Tvůj rok, Čakra roku, Najít vhodný den, čtení pro blízké).
 - Supabase: `kompas_zpravy` (sdělení v appce, čtení publishable klíčem), `kompas_metriky` (anonymní užití; zápis jen přes funkci `kompas_metrika`, čtení jen server), `kompas_prenos` (šifrovaný přenos dat mezi zařízeními, platnost 1 h).
 
 ## Struktura appky

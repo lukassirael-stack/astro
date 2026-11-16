@@ -1420,3 +1420,11 @@ body.hasdemo .backbtn{bottom:calc(136px + env(safe-area-inset-bottom))}
 .pwlist li i{flex:none;font-style:normal;color:#F3D384;font-size:var(--fs-s)}
 .pwlist .note{margin:0}
 .freeday{display:block;margin-top:4px;font-size:var(--fs-s);color:#F3D384}
+
+/* v436: karty natrvalo, viditelné zadání kódu */
+.kodbox{margin:4px 0 12px;padding:12px 12px 12px;border:1px solid rgba(243,211,132,.6);border-radius:12px;background:rgba(243,211,132,.08)}
+.kodbox>b{display:block;font-size:var(--fs-m);color:#F3D384;letter-spacing:.02em}
+.kodbox.own{background:rgba(243,211,132,.12)}
+.pwkod{margin:10px 0 0}
+.plusb.own{background:linear-gradient(180deg,#bfe6c8,#7fc79a);color:#0b2414}
+.xfm-c input[type=email]{width:100%;margin:6px 0 12px;background:var(--field,#0e1730);color:var(--text);border:1px solid var(--line2,rgba(240,216,152,.35));border-radius:9px;padding:10px;font-size:var(--fs-m);font-family:inherit}

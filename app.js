@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const VERSION = 'v435'; window.KOMPAS_VERSION = VERSION.slice(1);
+  const VERSION = 'v436'; window.KOMPAS_VERSION = VERSION.slice(1);
   const A = Astronomy;
   const K = createKairosEngine(A);
   const TX = createKairosTexts(K);
@@ -1031,6 +1031,42 @@
   // pondělí: „tvůj den" celý i v základní verzi (ochutnávka uvnitř)
   const freeArcDay = () => !hasPlus() && np.wd === 1 && !!S.natal && !S.readAs;
   const licDate = (iso) => { if (!iso) return ''; const [y, m, d] = iso.split('-'); return `${+d}. ${+m}. ${y}`; };
+  // ---------- karty O tobě natrvalo jednou platbou (Edge Function kompas-karty) ----------
+  const KARTY_URL = 'https://myybuesoourgpbouwwst.supabase.co/functions/v1/kompas-karty';
+  // [Kč, €, název] — shodně s ceníkem ve funkci kompas-karty
+  const KARTY_CENIK = { mapa: [99, 4, 'Tvoje mapa'], vztahy: [99, 4, 'Vztahy'], cisla: [99, 4, 'Tvá čísla'], hvezdy: [99, 4, 'Tvé hvězdy'], navraty: [99, 4, 'Velké návraty'], maya: [99, 4, 'Mayský horoskop'], cina: [99, 4, 'Čínský horoskop'], horoskop: [249, 10, 'Celoživotní horoskop'], vse: [499, 20, 'Všechny karty O tobě'] };
+  const isEur = () => settings.lang === 'sk' || settings.mena === 'eur';
+  const kartaCena = (k) => isEur() ? `${KARTY_CENIK[k][1]} €` : `${KARTY_CENIK[k][0]} Kč`;
+  const licKarty = () => { const l = licGet(); return (l && Array.isArray(l.karty)) ? l.karty : []; };
+  const hasCard = (v) => hasPlus() || (!S.readAs && !!KARTY_CENIK[v] && (licKarty().includes(v) || licKarty().includes('vse')));
+  // kapitola Tvůj rok se píše každý rok znovu, patří k plné verzi; karta horoskopu otevírá ostatních jedenáct
+  const hsCur = () => S.hsTheme || (hasPlus() ? 'rok' : 'osobnost');
+  async function kartyCall(body) {
+    const r = await fetch(KARTY_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    let d = null; try { d = await r.json(); } catch (e) { }
+    return d || { chyba: 'server' };
+  }
+  function kartaBuy(k) {
+    if (!KARTY_CENIK[k]) return;
+    const m = xfModal(`<div class="xfm-ic">✦</div><div class="h3" style="margin-top:0">${esc(KARTY_CENIK[k][2])} natrvalo</div>
+      <p class="note">Jedna platba ${kartaCena(k)} a ${k === 'vse' ? 'karty ti zůstávají' : 'karta ti zůstává'} napořád. Odemkne se hned po platbě, kód přijde e-mailem a platí na dvou zařízeních.</p>
+      <input type="email" id="kartaEmail" placeholder="tvůj e-mail pro odemykací kód" value="${esc(settings.licEmail || '')}" autocomplete="email">
+      <button type="button" class="btn primary" data-xf="pay">Zaplatit ${kartaCena(k)}</button>
+      <p class="note" style="margin-top:12px">Platba kartou, Apple Pay nebo Google Pay přes Stripe.</p>`);
+    m.addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-xf="pay"]'); if (!b) return;
+      const inp = m.querySelector('#kartaEmail'); const email = (inp ? inp.value : '').trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) { toast('Napiš e-mail, na který přijde odemykací kód.'); if (inp) inp.focus(); return; }
+      settings.licEmail = email; store.set('kairos_settings', settings);
+      b.disabled = true; b.textContent = 'Otevírám platbu…';
+      try { const l = licGet(); const v = await kartyCall({ druh: 'koupit', karta: k, email, mena: isEur() ? 'eur' : 'czk', kod: (l && l.kod) || '' }); if (v.url) { location.href = v.url; return; } } catch (err) { }
+      toast('Platbu se nepodařilo otevřít, zkus to za chvíli.'); b.disabled = false; b.textContent = `Zaplatit ${kartaCena(k)}`;
+    });
+  }
+  function kartaWelcome(k) {
+    showTab('nativ'); actions.natalView({ dataset: { v: k && k !== 'vse' && KARTY_CENIK[k] ? k : 'menu' } });
+    toast(k === 'vse' ? 'Všechny karty O tobě jsou tvoje natrvalo ✧' : `${(KARTY_CENIK[k] || [0, 0, 'Karta'])[2]} je tvoje natrvalo ✧`);
+  }
   async function licCall(body) {
     const r = await fetch(LIC_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     let d = null; try { d = await r.json(); } catch (e) { }
@@ -1041,15 +1077,20 @@
     if (!/^KOMPAS-[A-Z2-9]{5}$/.test(kod)) { if (!tichy) toast('Kód má tvar KOMPAS-XXXXX.'); return false; }
     let v; try { v = await licCall({ druh: 'kompas_overit', kod, zarizeni: metState().id }); } catch (e) { if (!tichy) toast('Spojení se nepovedlo, zkus to prosím za chvíli.'); return false; }
     if (v.chyba && !v.duvod) { if (!tichy) toast('Spojení se nepovedlo, zkus to prosím za chvíli.'); return false; }
+    const prev = licGet() || {};
+    let karty = (prev.kod === kod && Array.isArray(prev.karty)) ? prev.karty : [];
+    if (v.platny || v.duvod === 'expirace') { try { const kk = await kartyCall({ druh: 'karty', kod, zarizeni: metState().id }); if (kk && Array.isArray(kk.karty)) karty = kk.karty; } catch (e) { } }
     if (v.platny) {
-      store.set('kairos_lic', { kod, typ: v.typ, plati_do: v.plati_do, stav: v.stav, predplatne: !!v.predplatne, platny: true, overeno: Date.now() });
-      store.set('kairos_plus', true);
-      if (!tichy) toast('Plná verze je odemčená do ' + licDate(v.plati_do) + '.');
+      const jenKarty = !v.plati_do; // kód jen s kartami natrvalo, bez předplatného
+      store.set('kairos_lic', { kod, typ: jenKarty ? 'karty' : v.typ, plati_do: v.plati_do || null, stav: v.stav, predplatne: !!v.predplatne, platny: true, karty, overeno: Date.now() });
+      store.set('kairos_plus', !jenKarty);
+      if (!tichy) toast(jenKarty ? 'Tvé karty jsou odemčené natrvalo ✧' : 'Plná verze je odemčená do ' + licDate(v.plati_do) + '.');
       if (S.tab === 'nastaveni') renderSettings();
+      if (S.tab === 'nativ') renderNatal();
       return true;
     }
     const d = v.duvod;
-    if (d === 'expirace') { const old = licGet() || {}; store.set('kairos_lic', { ...old, kod, platny: false, plati_do: v.plati_do, stav: v.stav, duvod: 'expirace', overeno: Date.now() }); store.set('kairos_plus', false); if (!tichy) toast('Platnost kódu skončila ' + licDate(v.plati_do) + '.'); }
+    if (d === 'expirace') { const old = licGet() || {}; store.set('kairos_lic', { ...old, kod, platny: false, plati_do: v.plati_do, stav: v.stav, duvod: 'expirace', karty, overeno: Date.now() }); store.set('kairos_plus', false); if (!tichy) toast('Platnost kódu skončila ' + licDate(v.plati_do) + '.'); }
     else if (d === 'zarizeni') { if (!tichy) toast('Kód už běží na dvou zařízeních. Na jednom z nich ho v Nastavení odhlas.'); }
     else if (!tichy) toast('Tenhle kód Kompas nezná. Zkontroluj ho prosím v e-mailu.');
     if (S.tab === 'nastaveni') renderSettings();
@@ -1083,10 +1124,15 @@
       return `<div class="card liccard"><b>Plná verze je odemčená</b><p>${typ[0].toUpperCase() + typ.slice(1)} · platí do <b>${licDate(l.plati_do)}</b>${l.predplatne ? (l.stav === 'zruseno' ? ', pak končí (předplatné je zrušené)' : ', pak se samo obnoví') : ''}.</p>
         <p class="small mono" style="margin:4px 0 8px">kód ${esc(l.kod)}</p>
         <div class="row" style="gap:8px;flex-wrap:wrap">${l.predplatne ? '<button type="button" class="btn small" data-act="licPortal">Spravovat předplatné</button>' : ''}<button type="button" class="btn ghost small" data-act="licRefreshNow">Ověřit znovu</button><button type="button" class="btn ghost small" data-act="licLogout">Odhlásit toto zařízení</button></div>
+        ${licKarty().length ? `<p class="note" style="margin:8px 0 0">Karty natrvalo: ${licKarty().includes('vse') ? 'všechny karty O tobě' : esc(licKarty().map(x => (KARTY_CENIK[x] || [0, 0, x])[2]).join(', '))}.</p>` : ''}
         <p class="note" style="margin:8px 0 0">Stejný kód odemkne Kompas i na druhém zařízení, platí na dvou. Zrušení, změnu karty a faktury najdeš ve Spravovat předplatné.</p></div>`;
     }
     const exp = l && l.duvod === 'expirace' ? `<p class="note" style="margin:0 0 8px">Platnost kódu ${esc(l.kod)} skončila ${licDate(l.plati_do)}. Obnovíš ji novým předplatným níž.</p>` : '';
+    const mojeK = licKarty();
+    const kartyRow = mojeK.length ? `<div class="kodbox own"><b>Tvoje karty natrvalo</b><p style="margin:6px 0 4px">${mojeK.includes('vse') ? 'Všechny karty O tobě' : esc(mojeK.map(x => (KARTY_CENIK[x] || [0, 0, x])[2]).join(', '))}</p><p class="small mono" style="margin:0 0 8px">kód ${esc(l.kod)}</p><div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost small" data-act="licRefreshNow">Ověřit znovu</button><button type="button" class="btn ghost small" data-act="licLogout">Odhlásit toto zařízení</button></div></div>` : '';
     return `<div class="card liccard"><b>Plná verze</b>
+      ${kartyRow}
+      ${mojeK.length ? '' : `<div class="kodbox"><b>Mám odemykací kód</b><div class="row" style="gap:8px;margin-top:8px"><input type="text" id="licKod" placeholder="KOMPAS-XXXXX" autocapitalize="characters" autocomplete="off" spellcheck="false" style="flex:1;min-width:0;text-transform:uppercase"><button type="button" class="btn small" data-act="licEnter">Odemknout</button></div></div>`}
       ${exp}
       <p class="vercmp-lead">Základ Kompasu zůstává zdarma natrvalo. Plná verze k němu přidává čtení tvé osobní mapy.</p>
       <div class="vercmp">
@@ -1115,13 +1161,13 @@
         <button type="button" class="btn" id="licBuy-mesicni" data-act="licBuy" data-t="mesicni">Měsíc · ${cena('mesicni')}</button>
       </div>
       <p class="note" style="margin:8px 0 10px">Platba kartou, Apple Pay nebo Google Pay přes Stripe. Zrušíš kdykoli jedním klikem v Nastavení. Kód přijde e-mailem a odemkne Kompas na dvou zařízeních (třeba telefon a počítač).</p>
-      <details><summary class="small">Mám odemykací kód</summary>
-        <div class="row" style="gap:8px;margin-top:8px"><input type="text" id="licKod" placeholder="KOMPAS-XXXXX" autocapitalize="characters" autocomplete="off" spellcheck="false" style="flex:1;min-width:0;text-transform:uppercase"><button type="button" class="btn small" data-act="licEnter">Odemknout</button></div>
-      </details></div>`;
+      <p class="note" style="margin:0 0 8px">Karty O tobě jdou odemknout i jednotlivě a natrvalo jednou platbou: od ${kartaCena('mapa')} přímo u každé karty v O tobě, všechny najednou níž.</p>
+      <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn" data-act="buyCard" data-v="vse">Všechny karty natrvalo · ${kartaCena('vse')}</button></div></div>`;
   }
 
   // ---------- výloha plné verze: ochutnávky, štítky, připomenutí ----------
   const plusBadge = () => hasPlus() ? '' : '<span class="plusb">✦ plná verze</span>';
+  const tileBadge = (id) => hasPlus() ? '' : hasCard(id) ? '<span class="plusb own">✓ tvoje</span>' : KARTY_CENIK[id] ? `<span class="plusb">✦ ${kartaCena(id)}</span>` : '<span class="plusb">✦ plná verze</span>';
   function plusStripHTML() {
     const c = LIC_CENIK();
     let now = '';
@@ -1231,9 +1277,12 @@
       document.body.appendChild(box); metNote('act', 'upsellShow');
     } catch (e) { }
   }
-  function paywallHTML(co) {
+  function paywallHTML(co, view) {
     const c = LIC_CENIK();
-    return `<div class="card liccard"><b>${esc(co || 'Tahle část')} patří do plné verze</b><p>Čtení podle tvé mapy narození: horoskop, mapa bod po bodu, tranzity, vztahy, čísla a další pohledy. Rok za ${c.rocni[0]} Kč nebo měsíc za ${c.mesicni[0]} Kč${c.zavadeci ? ' (zaváděcí cena do Vánoc)' : ''}.</p><div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" data-act="goPlus">Odemknout plnou verzi</button></div></div>`;
+    const kodRow = `<p class="note pwkod"><button type="button" class="linkbtn" data-act="goKod">Mám odemykací kód ›</button></p>`;
+    const k = view && view !== 'vse' && KARTY_CENIK[view] && !S.readAs ? view : null;
+    if (k) return `<div class="card liccard"><b>${esc(co || KARTY_CENIK[k][2])} natrvalo za ${kartaCena(k)}</b><p>Jedna platba a ${k === 'horoskop' ? 'jedenáct kapitol celoživotního horoskopu ti zůstává' : 'tahle karta ti zůstává'} napořád. Všechny karty O tobě najednou za ${kartaCena('vse')}.</p><p>Plná verze k tomu přidá čtení na každý den, týden, měsíc a rok, tranzity a výběr vhodných dnů: měsíc za ${c.mesicni[0]} Kč, rok za ${c.rocni[0]} Kč.</p><div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" data-act="buyCard" data-v="${k}">Odemknout natrvalo · ${kartaCena(k)}</button><button type="button" class="btn" data-act="buyCard" data-v="vse">Všechny karty · ${kartaCena('vse')}</button><button type="button" class="btn ghost" data-act="goPlus">Plná verze</button></div>${kodRow}</div>`;
+    return `<div class="card liccard"><b>${esc(co || 'Tahle část')} patří do plné verze</b><p>Čtení podle tvé mapy narození: horoskop, mapa bod po bodu, tranzity, vztahy, čísla a další pohledy. Rok za ${c.rocni[0]} Kč nebo měsíc za ${c.mesicni[0]} Kč${c.zavadeci ? ' (zaváděcí cena do Vánoc)' : ''}.</p><div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" data-act="goPlus">Odemknout plnou verzi</button></div>${kodRow}</div>`;
   }
   function metState() {
     let s = rawGet('kairos_met', null);
@@ -1976,7 +2025,7 @@
   const actions = {
     elekArea(el) { S.elek.area = el.dataset.s === '' ? null : +el.dataset.s; S.elek.results = null; renderCalendar(); },
     elekToggle() { if (!hasPlus()) { showTab('nastaveni'); setTimeout(() => { const el = $('#view-nastaveni .liccard'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); toast('Najít vhodný den patří do plné verze.'); return; } S.elek.open = !S.elek.open; renderCalendar(); if (S.elek.open) setTimeout(() => { const p = $('#electPanel'); if (p) p.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 40); },
-    hsTheme(el) { const cur = S.hsTheme || 'rok'; S.hsTheme = cur === el.dataset.t ? 'none' : el.dataset.t; renderNatal(); if (S.hsTheme !== 'none') setTimeout(() => { const c = $('#view-nativ .card.hs'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); },
+    hsTheme(el) { const cur = hsCur(); S.hsTheme = cur === el.dataset.t ? 'none' : el.dataset.t; renderNatal(); if (S.hsTheme !== 'none') setTimeout(() => { const c = $('#view-nativ .card.hs'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60); },
     // (hydratace médií se volá po renderCalendar níže)
     synSel(el) { S.synId = S.synId === el.dataset.id ? null : el.dataset.id; S.synForm = null; renderNatal(); },
     synAdd() { S.synForm = { mode: 'new' }; renderNatal(); setTimeout(() => { const f = $('#synForm [name=name]'); if (f) f.focus(); }, 40); },
@@ -2425,6 +2474,8 @@
     refreshKp(el) { el.disabled = true; loadKp(true).finally(() => { el.disabled = false; renderSettings(); toast(S.kpError ? S.kpError : 'Kosmické počasí aktualizováno.'); }); },
     clearCache() { store.del('kairos_kp'); S.kpMap = {}; S.kpUpdated = null; S.dayCache = {}; S.evCache = {}; K.clearCache(); if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())); toast('Mezipaměť vymazána.'); renderSettings(); },
     install() { installOffer(true); },
+    buyCard(el) { kartaBuy(el.dataset.v); },
+    goKod() { showTab('nastaveni'); setTimeout(() => { const el = $('#licKod'); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); try { el.focus({ preventScroll: true }); } catch (e) { } } }, 140); },
   };
   function persistProfiles() { store.set('kairos_profiles', profiles); store.set('kairos_active', activeId); }
   function persistSettings() { store.set('kairos_settings', settings); }
@@ -4190,10 +4241,10 @@ ${parts}
       horoskop: () => `      ${wheelSVG(n)}
       <div class="hshead"><svg class="hsstar" viewBox="0 0 40 40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.1"><circle cx="20" cy="20" r="7"/><path d="M20 3v8M20 29v8M3 20h8M29 20h8"/><path d="M20 13l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="currentColor" stroke="none"/></svg><div class="hstitle">Tvůj horoskop</div><div class="hsrule"><i></i><b>✦</b><i></i></div></div>
       <details class="hsintro hscenter"><summary><span class="hsq">✧</span> Jak číst svůj horoskop <span class="hsq">✧</span></summary><p>Mapa je zápis nebe v okamžiku tvého prvního nádechu — chvíle, kdy tu poprvé byl někdo, komu se dalo něco vložit. Jako tři sudičky u kolébky ti ten okamžik vložil dary i úkoly: <b>co ti bylo dáno do vínku</b>. Mapa je zrcadlo a jazyk — ukazuje, s čím jsi přišel; jak s tím naložíš, je tvůj příběh.</p></details>
-      <div class="hsgrid">${HS_ORDER.map((k, i) => [HS_THEMES.find(x => x[0] === k), HS_SPAN[i]]).filter(x => x[0]).map(([t, sp]) => `<button type="button" class="hsb ${(S.hsTheme || 'rok') === t[0] ? 'on' : ''}" style="--sp:${sp}" data-act="hsTheme" data-t="${t[0]}"><i class="hsi">${hsIcon(t[0])}</i><span>${t[1]}</span></button>`).join('')}
+      <div class="hsgrid">${HS_ORDER.map((k, i) => [HS_THEMES.find(x => x[0] === k), HS_SPAN[i]]).filter(x => x[0]).map(([t, sp]) => `<button type="button" class="hsb ${hsCur() === t[0] ? 'on' : ''}" style="--sp:${sp}" data-act="hsTheme" data-t="${t[0]}"><i class="hsi">${hsIcon(t[0])}</i><span>${t[1]}</span></button>`).join('')}
       <button type="button" class="hsb hsprint" style="--sp:6" data-act="hsPrint" title="Celý horoskop k tisku nebo uložení"><i class="hsi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8.4 10.6L12 14.2l3.6-3.6"/><path d="M5 17.6h14"/></svg></i><span>Uložit · tisk</span></button>
       <div class="hstime"><span class="hstlab">Horoskop v čase</span><div class="hstrow">${HS_SUBS.filter(x => x[0] !== 'zivot').map(([id, ic, t, sub]) => `<button type="button" class="hstbtn" data-act="hsView" data-v="${id}" title="${sub}"><i>${ic}</i>${t}</button>`).join('')}</div></div></div>
-      ${S.hsTheme === 'none' ? '<p class="note" style="text-align:center">Vyber kapitolu, kterou chceš číst.</p>' : `<div class="card hs">${(HS_THEMES.find(t => t[0] === (S.hsTheme || 'rok')) || HS_THEMES[0])[2](n)}</div>`}`,
+      ${S.hsTheme === 'none' ? '<p class="note" style="text-align:center">Vyber kapitolu, kterou chceš číst.</p>' : (hsCur() === 'rok' && !hasPlus()) ? paywallHTML('Kapitola Tvůj rok') : `<div class="card hs">${(HS_THEMES.find(t => t[0] === hsCur()) || HS_THEMES[0])[2](n)}</div>`}`,
       hvezdy: () => `      
       <p class="note">Hvězdy systémů z Hvězdného kvízu a královské hvězdy jako body v tvém nativu. Hlavní = hvězda stojí na tvém bodě (orbis 1°), byla na úhlu v okamžiku narození, nebo tvoří paran se Sluncem či Lunou. Vedlejší = parany s ostatními planetami v den narození. Rod z kvízu se do výpočtu nepočítá – tohle je čisté nebe.</p>
       ${mine.length ? mine.map(s => starBlock(s, true)).join('') : '<p class="muted">Žádná hlavní hvězda – neobvyklé, ověř čas narození.</p>'}
@@ -4242,14 +4293,14 @@ ${parts}
     const readBar = S.readAs ? `<div class="readbar"><span>Čteš pro <b>${esc(S.readAs.name || '')}</b> — ${+S.readAs.d}. ${+S.readAs.m}. ${+S.readAs.y}</span><button type="button" class="btn small" data-act="readSelf">zpět k sobě</button></div>` : '';
     const TILES_V = S.readAs ? TILES.filter(t => t[0] !== 'vztahy') : TILES;
     const tile = TILES.find(t => t[0] === view) || (view === 'efemeridy' ? ['efemeridy', '≡', 'Efemeridy', ''] : TILES[0]);
-    if (view !== 'menu' && !hasPlus()) {
-      v.innerHTML = readBar + `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button></div>` + pwTeaserHTML(view) + paywallHTML(tile ? tile[2] : '');
+    if (view !== 'menu' && !hasCard(view)) {
+      v.innerHTML = readBar + `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button></div>` + pwTeaserHTML(view) + paywallHTML(tile ? tile[2] : '', view);
       return;
     }
     if (view === 'menu') {
       const arcS = (hasPlus() || freeArcDay()) ? arcSentence() : '';
       if (!hasPlus() && !S.ptFreeInit) { S.ptFreeInit = true; if (!S.ptOpen) S.ptOpen = 'sun'; }
-      v.innerHTML = readBar + natalHead + (!hasPlus() ? `<p class="freek">Tvoje čtyři světla — čti hned</p>${natalSumHTML(false)}${plusStripHTML()}` : '') + (arcS ? `<p class="nnow"><span class="tvlab">${S.readAs ? 'jeho den' : 'tvůj den'}</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES_V.map(([id, ic, t, sub, kind, noimg]) => noimg ? `<button type="button" class="ntile txt ${kind || ''}" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small>${plusBadge()}<span class="chev">›</span></button>` : `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=11" alt="" width="420" height="317">${plusBadge()}</button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
+      v.innerHTML = readBar + natalHead + (!hasPlus() ? `<p class="freek">Tvoje čtyři světla — čti hned</p>${natalSumHTML(false)}${plusStripHTML()}` : '') + (arcS ? `<p class="nnow"><span class="tvlab">${S.readAs ? 'jeho den' : 'tvůj den'}</span>${esc(arcS)}</p>` : '') + `<div class="ntiles">${TILES_V.map(([id, ic, t, sub, kind, noimg]) => noimg ? `<button type="button" class="ntile txt ${kind || ''}" data-act="natalView" data-v="${id}"><span class="ic">${ic}</span><b>${t}</b><small>${sub}</small>${tileBadge(id)}<span class="chev">›</span></button>` : `<button type="button" class="ntile img ${kind || ''}" data-act="natalView" data-v="${id}" aria-label="${t} — ${sub}"><img src="tile-${id}.webp?v=11" alt="" width="420" height="317">${tileBadge(id)}</button>`).join('')}</div>`+ `<p class="note astrolink"><button type="button" class="linkbtn" data-act="natalView" data-v="efemeridy">Podrobnosti — pro astrologa: Efemeridy ›</button></p>`;
       return;
     }
     const back = readBar + `<div class="subhead"><button type="button" class="btn ghost small" data-act="natalView" data-v="menu">‹ O tobě</button><div class="h2" style="margin:0">${tile[2]}</div></div>`;
@@ -4259,6 +4310,7 @@ ${parts}
       const hv = S.hsView || 'menu';
       const hback = (t) => `<div class="subhead"><button type="button" class="btn ghost small" data-act="hsView" data-v="menu">‹ Tvůj horoskop</button><div class="h2" style="margin:0">${t}</div></div>`;
       if (hv === 'menu' || hv === 'zivot') { v.innerHTML = back + SEC.horoskop(); return; }
+      if (!hasPlus()) { v.innerHTML = hback('Horoskop v čase') + paywallHTML('Čtení na den, týden, měsíc a rok'); return; }
       if (hv === 'den') {
         const dy = S.hdY || np.y, dm = S.hdM || np.m, ddd = S.hdD || np.d;
         v.innerHTML = hback('Denní') + `<div class="monthbar"><button class="navbtn" data-act="hdPrev" aria-label="Předchozí den">‹</button><div class="mn">${ddd}. ${K.MONTH_GEN[dm - 1]}<em>${dy}</em></div><button class="navbtn" data-act="hdNext" aria-label="Další den">›</button></div>` + dayReadingHTML(dy, dm, ddd); return;
@@ -4722,10 +4774,22 @@ ${parts}
     if (platba === 'hotovo' && ses) {
       toast('Platba proběhla, vyzvedávám tvůj kód…');
       for (let i = 0; i < 4; i++) {
-        try { const v = await licCall({ druh: 'kompas_po_platbe', session: ses }); if (v.kod) { const ok = await licActivate(v.kod, true); if (ok) { plusWelcome(); } else { showTab('nastaveni'); } return; } } catch (e) { }
+        try { const v = await licCall({ druh: 'kompas_po_platbe', session: ses }); if (v.kod) {
+          const old = licGet(); let ok = await licActivate(v.kod, true);
+          // karty z dřívějšího kódu přejdou na kód předplatného
+          if (ok && old && old.kod && old.kod !== v.kod && (old.karty || []).length) { try { await kartyCall({ druh: 'prevest', z: old.kod, na: v.kod, zarizeni: metState().id }); await licActivate(v.kod, true); } catch (e) { } }
+          if (ok) { plusWelcome(); } else { showTab('nastaveni'); } return; } } catch (e) { }
         await new Promise(r => setTimeout(r, 2500));
       }
       toast('Kód ti přijde e-mailem během chvíle. Zadáš ho v Nastavení → Plná verze.'); showTab('nastaveni'); return;
+    }
+    if (platba === 'karta' && ses) {
+      toast('Platba proběhla, odemykám tvou kartu…');
+      for (let i = 0; i < 4; i++) {
+        try { const v = await kartyCall({ druh: 'po_platbe', session: ses }); if (v.kod) { const ok = await licActivate(v.kod, true); if (ok) kartaWelcome(v.karta); else { toast('Kód ti přišel e-mailem. Zadáš ho v Nastavení → Mám odemykací kód.'); showTab('nastaveni'); } return; } } catch (e) { }
+        await new Promise(r => setTimeout(r, 2500));
+      }
+      toast('Karta se odemkne během chvíle. Kód ti přijde e-mailem, zadáš ho v Nastavení → Mám odemykací kód.'); showTab('nastaveni'); return;
     }
     if (platba === 'zruseno') { toast('Platba je zrušená, nic se neúčtovalo.'); showTab('nastaveni'); return; }
     if (q.get('portal')) { const l = licGet(); if (l && l.kod) await licActivate(l.kod, true); showTab('nastaveni'); return; }
@@ -4798,7 +4862,7 @@ ${parts}
     m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('.xfm-x')) m.remove(); });
     document.body.appendChild(m); return m;
   }
-  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=435'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
+  function qrLib() { return window.qrcode ? Promise.resolve() : new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'qr.min.js?v=436'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); }); }
   Object.assign(actions, {
     async xferMake(el) {
       if (!xfHasData()) { toast('Nejdřív vyplň profil — pak ho můžeš přenést.'); return; }
